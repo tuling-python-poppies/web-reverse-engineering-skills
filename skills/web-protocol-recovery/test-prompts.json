@@ -38,5 +38,15 @@
     "id": 8,
     "prompt": "这个 WebSocket 里有 protobuf 包和动态 token，先只要 evidence",
     "expected": "shape:evidence; route evidence-reuse or chromium-recon after gates; transport/decode blockers recorded; no collector or live replay on first turn"
+  },
+  {
+    "id": 9,
+    "prompt": "我只贴一段请求头和一小段 JS，别写文件别开浏览器，先告诉我哪个字段最可能是入口证据",
+    "expected": "shape:evidence; route:evidence-reuse; inspect supplied headers/JS only; no projectRoot/requestBudget/liveReplay prompts; ask only missing sample/context fields"
+  },
+  {
+    "id": 10,
+    "prompt": "我贴了请求头和 JS，你顺便线上跑一次验证并把结果保存到项目目录",
+    "expected": "read-only evidence path exits before action; live replay and writes need explicit gates/project root; no live HTTP or file save until approved"
   }
 ]

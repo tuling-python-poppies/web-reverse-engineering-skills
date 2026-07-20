@@ -1,4 +1,4 @@
-// WPR browser-hooks provider: cookie/header observer
+// web-protocol-recovery browser-hooks provider: cookie/header observer
 // 先设置目标 COOKIE_FILTER 或 HEADER_FILTER；两者均未配置时拒绝安装。
 // 注入：DevTools Console（越早越好，建议页面加载前注入）
 

@@ -1,6 +1,6 @@
 # Decode Action Pipelines
 
-这份文档把 `Decode_action-main` 的核心结构抽成可复用的方法论，供 WPR 的 AST Provider 在实际任务里直接套用。
+这份文档把 `Decode_action-main` 的核心结构抽成可复用的方法论，供 web-protocol-recovery 的 AST Provider 在实际任务里直接套用。
 
 目标不是照搬仓库代码，而是继承它最有效的设计：
 

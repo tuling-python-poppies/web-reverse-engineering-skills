@@ -85,12 +85,12 @@ image, iv8 bootstrap, and replay path. Re-run only the bounded module search in
    `location`, timezone, UA, request headers, and scoped cookies. These values
    form one browser baseline; do not merge fields from another engine or run.
 
-When this work arrives from `ai-browser-reverse` or `web-protocol-recovery`, use
-the existing owner's `reverse-handoff/v1` evidence. If its browser/session is
-still live, the original owner exports the current same-session environment.
-iv8 must not call its source IDs through another MCP. If the browser is closed,
-consume the approved artifact-only snapshot. Return `blocked-return` when no
-same-origin snapshot exists and the target depends on it.
+When this work arrives from an approved web-protocol-recovery evidence chain, use the existing
+Provider result. If its browser/session is still live, the evidence Provider
+exports the current same-session environment. iv8 must not call its source IDs
+through another MCP. If the browser is closed, consume the approved artifact-only
+snapshot. Return a precise blocker when no same-origin snapshot exists and the
+target depends on it.
 
 ## Runtime Roles
 

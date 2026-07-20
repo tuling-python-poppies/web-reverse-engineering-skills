@@ -1,6 +1,6 @@
 # Read Budget
 
-Hard phase-local limits for loading WPR references. These override habit-based reading and cannot be extended repeatedly by renaming the same blocker.
+Hard phase-local limits for loading web-protocol-recovery references. These override habit-based reading and cannot be extended repeatedly by renaming the same blocker.
 
 A **dispatch window** begins at a new user request or an accepted Provider result and ends at the next evidence action, user question, or bounded Provider handoff. Each window has a fresh purpose but no hidden carry-over reads.
 
@@ -19,7 +19,7 @@ A **dispatch window** begins at a new user request or an accepted Provider resul
 
 `SKILL.md` itself is always in context and does not count against the budget.
 
-Sequential Providers start a new handoff window only after WPR accepts the previous result against its acceptance test. A failed case does not authorize a sibling case; return to normal evidence routing.
+Sequential Providers start a new handoff window only after web-protocol-recovery accepts the previous result against its acceptance test. A failed case does not authorize a sibling case; return to normal evidence routing.
 
 ## First Load Rules
 

@@ -1,6 +1,6 @@
 # Webpack Module Extraction
 
-当已定位的加密入口位于 webpack bundle 中时使用。入口未知时不要先做本流程，返回 blocker 让 WPR 选择侦察 Provider。
+当已定位的加密入口位于 webpack bundle 中时使用。入口未知时不要先做本流程，返回 blocker 让 web-protocol-recovery 选择侦察 Provider。
 
 ## 识别模式
 

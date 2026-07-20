@@ -1,8 +1,8 @@
 {
-  "name": "wpr-ast-template-project",
+  "name": "web-protocol-recovery-ast-template-project",
   "private": true,
   "version": "0.1.0",
-  "description": "Conservative directory-based AST deobfuscation template for WPR work orders",
+  "description": "Conservative directory-based AST deobfuscation template for web-protocol-recovery work orders",
   "scripts": {
     "decode": "node src/main.js -i input.js -o output.js",
     "decode:bootstrap": "node src/main.js --execute-bootstrap --trusted-bootstrap -i input.js -o output.js",

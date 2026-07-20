@@ -177,11 +177,11 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
 
     files = []
     if args.entry:
-        files.append(("main.py", '"""WPR project entry."""\n\n\ndef main():\n    raise NotImplementedError("implementation not generated yet")\n\n\nif __name__ == "__main__":\n    main()\n'))
+        files.append(("main.py", '"""web-protocol-recovery project entry."""\n\n\ndef main():\n    raise NotImplementedError("implementation not generated yet")\n\n\nif __name__ == "__main__":\n    main()\n'))
     if args.requirements:
         files.append(("requirements.txt", ""))
     if args.readme:
-        files.append(("README.md", "# WPR Project\n\nRun with `python main.py`.\n"))
+        files.append(("README.md", "# web-protocol-recovery Project\n\nRun with `python main.py`.\n"))
     if args.gitignore:
         files.append((".gitignore", "config.local.json\njs_reverse_cache/**\noutput/**\n__pycache__/\n*.pyc\n"))
 

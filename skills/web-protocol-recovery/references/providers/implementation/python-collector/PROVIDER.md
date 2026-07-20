@@ -12,7 +12,7 @@
 - User only wants evidence or a hook snippet.
 - Scaffold would overwrite existing `main.py` or create wrapper trees (reject).
 
-Use this provider after WPR has proved the real endpoint and moving protocol state. It owns the stable browser-free implementation assigned under `main.py` and `utils/`.
+Use this provider after web-protocol-recovery has proved the real endpoint and moving protocol state. It owns the stable browser-free implementation assigned under `main.py` and `utils/`.
 
 Python owns live HTTP, session/cookie handling, request budgets, retries, pagination, parsing, decode, persistence, and output. JavaScript, WASM, or iv8 helpers remain narrow local artifact generators. The final path never drives a browser.
 

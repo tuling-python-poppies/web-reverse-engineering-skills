@@ -11,7 +11,7 @@
 - Whole-file structural recovery is needed (AST).
 - Final collector delivery is requested without a boundary (prove protocol first).
 
-Use this provider only after WPR identifies one concrete observation boundary: a method, property, constructor, field, or URL-filtered request. It produces reversible observation code and never discovers a broad unknown entry by spraying global hooks.
+Use this provider only after web-protocol-recovery identifies one concrete observation boundary: a method, property, constructor, field, or URL-filtered request. It produces reversible observation code and never discovers a broad unknown entry by spraying global hooks.
 
 Canonical executable templates:
 

@@ -1,6 +1,6 @@
-# WPR Knowledge Maintenance
+# web-protocol-recovery Knowledge Maintenance
 
-Use this file only to place reusable WPR knowledge. Skill optimization, change control, eval execution, grading, and packaging belong to `skill-creator`.
+Use this file only to place reusable web-protocol-recovery knowledge. Skill optimization, change control, eval execution, grading, and packaging belong to `skill-creator`.
 
 ## One Owner Per Lesson
 

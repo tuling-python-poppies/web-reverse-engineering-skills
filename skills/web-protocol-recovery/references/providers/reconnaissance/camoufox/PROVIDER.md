@@ -13,7 +13,7 @@
 - Cloak/指纹浏览器 wording (Cloak via js-reverse, not Camoufox).
 - WeChat miniapp debugger targets.
 
-Camoufox is WPR's deep browser route, not the default ordinary-Web route. Select it directly when the user explicitly requests Camoufox. Otherwise use it only for custom-build engine-level property tracing, Firefox/SpiderMonkey differential evidence, Camoufox-specific source instrumentation, or an untrustworthy Chromium/Cloak result. Close js-reverse before opening Camoufox.
+Camoufox is web-protocol-recovery's deep browser route, not the default ordinary-Web route. Select it directly when the user explicitly requests Camoufox. Otherwise use it only for custom-build engine-level property tracing, Firefox/SpiderMonkey differential evidence, Camoufox-specific source instrumentation, or an untrustworthy Chromium/Cloak result. Close js-reverse before opening Camoufox.
 
 ## Inputs
 
@@ -29,7 +29,7 @@ Require target URL/action, target field or request, exact scheme/host/port/route
 
 ## Evidence Ladder
 
-Use request metadata and initiators first, then source search, narrow page hooks, source instrumentation, transparent JSVMP probes, and custom-build `trace_property_access` only when the hypothesis requires it. Detectable proxy instrumentation is not a fallback for signed anti-bot targets. The connected MCP tool schema is authoritative; do not infer arguments from old recipes. If WPR selected a reusable case, consume it only through the root registry.
+Use request metadata and initiators first, then source search, narrow page hooks, source instrumentation, transparent JSVMP probes, and custom-build `trace_property_access` only when the hypothesis requires it. Detectable proxy instrumentation is not a fallback for signed anti-bot targets. The connected MCP tool schema is authoritative; do not infer arguments from old recipes. If web-protocol-recovery selected a reusable case, consume it only through the root registry.
 
 The root registry exposes four historical `python-node` patterns: dual-sign `cacheOpts` interception, universal VMP source instrumentation, JSVMP XHR-interceptor `a_bogus` env emulation, and Ruishu 6 `412` cookie sdenv rebuild. Select one only through `references/cases/registry.json`, then open its declared `references/cases/python-node/<case-id>/PROCESS.md` in a bounded work order. Use Provider-local `references/jsdom-env-patches.md` only for a proven jsdom environment blocker. Historical wording is evidence, not permission for navigation, target-code execution, account state, dependencies, or live replay.
 

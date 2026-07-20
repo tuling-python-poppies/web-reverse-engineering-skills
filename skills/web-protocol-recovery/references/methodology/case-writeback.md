@@ -1,6 +1,6 @@
 # Case Writeback Mode
 
-Case writeback turns a verified WPR project into a small, sanitized, reusable case. It is a WPR governance mode, not an implementation provider and not an automatic consequence of project write permission.
+Case writeback turns a verified web-protocol-recovery project into a small, sanitized, reusable case. It is a web-protocol-recovery governance mode, not an implementation provider and not an automatic consequence of project write permission.
 
 ## Eligibility
 
@@ -8,7 +8,7 @@ Offer writeback only when the final acceptance test passed, the stable entry run
 
 ## Completion Prompt
 
-After an eligible task, WPR presents a read-only candidate summary with proposed `caseId`, family, reusable pattern, provider chain, verification, files, minimal frozen assets, excluded sensitive material, and whether this is a new case or an update. Ask whether to write back. A positive answer authorizes candidate preparation only.
+After an eligible task, web-protocol-recovery presents a read-only candidate summary with proposed `caseId`, family, reusable pattern, provider chain, verification, files, minimal frozen assets, excluded sensitive material, and whether this is a new case or an update. Ask whether to write back. A positive answer authorizes candidate preparation only.
 
 Before writing, show the exact allowlist and sanitized asset list and obtain a second explicit confirmation. Then create a change-control snapshot for only those paths.
 
@@ -53,4 +53,4 @@ Never write back `js_reverse_cache/private/`, cookie/token values, Authorization
 
 Update an existing case only when vendor, product generation, protocol family, and subtype still match. Increment revision and verification time. A changed product generation, verifier subtype, incompatible wire shape, or different state model creates a new case. Mark obsolete cases `stale` or `deprecated`; do not silently rewrite their identity.
 
-Promote a lesson into generic WPR methodology only when it applies across sites and the user separately approves that methodology path. Default writeback changes only the case directory and registry.
+Promote a lesson into generic web-protocol-recovery methodology only when it applies across sites and the user separately approves that methodology path. Default writeback changes only the case directory and registry.

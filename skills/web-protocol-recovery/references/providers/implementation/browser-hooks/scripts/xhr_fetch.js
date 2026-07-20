@@ -1,4 +1,4 @@
-// WPR browser-hooks provider: XHR/fetch observer
+// web-protocol-recovery browser-hooks provider: XHR/fetch observer
 // 同时 hook XHR 和 fetch，输出请求 URL/method/headers，带调用栈。
 // 先设置非空 URL_FILTER；可按需收窄 HEADER_FILTER。未配置时拒绝安装。
 // 注入：DevTools Console（页面加载前最早注入时机：Sources 首个脚本暂停后注入）

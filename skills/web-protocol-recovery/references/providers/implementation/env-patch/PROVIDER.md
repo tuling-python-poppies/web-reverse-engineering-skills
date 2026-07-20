@@ -27,7 +27,7 @@ Use this provider only with known target JS and a known entry or `script-load-on
 3. Repeat diagnosis while preserving proxy/gap monitoring with selected modules.
 4. Keep generated patches and probes under `js_reverse_cache/env/` and load them through that explicit path. Built-in module names always resolve from the Provider and cannot be shadowed by the project. Relative project modules reject symlink, junction, traversal, and real-path escape.
 5. After runtime success, trigger the known signer/cookie/header behavior and compare fixed vectors or browser intermediates.
-6. Promote only verified stable output to assigned `mod.js` and `main.js`; WPR owns final `main.py` integration.
+6. Promote only verified stable output to assigned `mod.js` and `main.js`; web-protocol-recovery owns final `main.py` integration.
 
 `success:true` only means the observable runtime path did not throw. It is not signer or replay proof. Return module load errors, unresolved paths, input/output hashes, functional result, first divergence, and residual environment assumptions.
 

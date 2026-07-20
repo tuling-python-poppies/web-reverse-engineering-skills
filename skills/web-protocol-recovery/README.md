@@ -31,7 +31,7 @@ references/providers/
     python-collector/PROVIDER.md
 ```
 
-Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). WPR remains the owner of scope, project root, acceptance, and browser-free delivery.
+Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of scope, project root, acceptance, and browser-free delivery.
 
 ## Cases
 
@@ -48,4 +48,4 @@ python scripts\protocol_diff.py <capture-a> <capture-b>
 python scripts\providers\python-collector\scaffold_project.py <project-root> --entry --cache
 ```
 
-`scripts/providers/cases/live_state.py` backs each case's `pull_live_state.py` for in-memory credential pulls. WPR-specific deposition and dedup rules live in `references/methodology/knowledge-maintenance.md`.
+`scripts/providers/cases/live_state.py` backs each case's `pull_live_state.py` for in-memory credential pulls. web-protocol-recovery-specific deposition and dedup rules live in `references/methodology/knowledge-maintenance.md`.

@@ -1,6 +1,6 @@
-# WPR Simple Project Layout
+# web-protocol-recovery Simple Project Layout
 
-`web-protocol-recovery-simple/v1` is the only project layout used by WPR and all internal providers.
+`web-protocol-recovery-simple/v1` is the only project layout used by web-protocol-recovery and all internal providers.
 
 ## Root Selection
 
@@ -43,7 +43,7 @@ Create only paths required by the current task. A valid delivery may contain onl
 
 ## Ownership
 
-- WPR owns `main.py` and final integration.
+- web-protocol-recovery owns `main.py` and final integration.
 - Reconnaissance providers write only assigned `js_reverse_cache/recon/**` and `js_reverse_cache/source/**` paths.
 - AST writes intermediate products under `js_reverse_cache/ast/`; promote only a callable, verified result to `main.js` or `utils/*.js`.
 - env-patch writes probes under `js_reverse_cache/env/`; verified stable output may become `mod.js` and `main.js`.

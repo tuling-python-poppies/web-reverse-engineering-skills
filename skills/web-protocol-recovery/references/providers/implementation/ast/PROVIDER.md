@@ -11,7 +11,7 @@
 - Only a single reversible hook is needed (browser-hooks).
 - Final collector ownership (python-collector owns delivery), unless structural recovery is a proved intermediate blocker in a sequential AST -> runtime/collector chain.
 
-Use this provider for bounded whole-file or source-region structural restoration after WPR identifies the relevant bundle. It does not locate network entry points and does not own request replay.
+Use this provider for bounded whole-file or source-region structural restoration after web-protocol-recovery identifies the relevant bundle. It does not locate network entry points and does not own request replay.
 
 ## Inputs And Outputs
 

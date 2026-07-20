@@ -7,7 +7,7 @@ argument-hint: "<target URL | request/source sample | artifact directory> [evide
 
 # Web Protocol Recovery
 
-WPR is the only public reverse skill. It owns intake, scope, project root, evidence, provider routing, acceptance, and final delivery. Internal providers are modules, not peer skills.
+web-protocol-recovery is the only public reverse skill. It owns intake, scope, project root, evidence, provider routing, acceptance, and final delivery. Internal providers are modules, not peer skills.
 
 Plain terms: **gate family** = what blocks replay; **route** = selected Provider or `evidence-reuse`, never a gate family; **canonical mutation point** = where the wire payload is finally changed; **success shape** = smallest deliverable; **engine provenance** = which browser/runtime produced an ID.
 
@@ -33,6 +33,16 @@ Four mandatory policy overlays when their trigger is hit — case read, scope/bu
 ## Phase 0: Intake
 
 Do not paste the full intake form on the first reply. Use the four-line template above; `nextAsk` lists only fields required by the next gated action.
+
+If the user gives no success shape, default to `shape: evidence`. Choose `route` by the strongest Phase 2 signal, then ask only for gates needed before the next gated action.
+
+First-turn patterns:
+
+| User signal | First shape/route | `nextAsk` boundary | Forbidden escalation |
+|---|---|---|---|
+| URL or endpoint asks for `sign` / `token` / request evidence | `shape: evidence`, `route: evidence-reuse` when artifacts/case match, otherwise `chromium-recon` | exact scope + browser recon gates before navigation | no browser launch, collector, or full intake dump |
+| Fixed vectors, helper source, decode sample, or "local only" | `shape: local-proof`, `route: evidence-reuse` unless one implementation Provider is needed | missing vectors/source only | no live replay, browser recon, or collector upgrade |
+| WeChat / miniapp / AppService / WMPF debugger signal | requested shape, or `shape: evidence` if unspecified; `route: wechat-miniapp` | debugger ownership and gated action scope before target attach or account/session use | no Chromium/Camoufox ID reuse; no collector upgrade by platform label |
 
 Before navigation, live HTTP, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
 
@@ -63,7 +73,7 @@ Prefer supplied artifacts or one registry case before opening a browser. Fresh r
 | `camoufox` | Explicit Camoufox, or engine-level/SpiderMonkey/Camoufox instrumentation, or untrustworthy Cloak result | `references/providers/reconnaissance/camoufox/PROVIDER.md` |
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
-Chromium ladder: Chrome DevTools baseline -> Chrome parked -> js-reverse normal Chrome -> Cloak only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox. Retired Firefox Reverse / `ai-browser-reverse`: not enabled; offer Chromium/Cloak or Camoufox.
+Chromium ladder: Chrome DevTools baseline -> Chrome parked -> js-reverse normal Chrome -> Cloak only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox.
 
 ## Phase 3: Gate Family
 

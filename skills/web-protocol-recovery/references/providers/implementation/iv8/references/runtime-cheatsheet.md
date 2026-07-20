@@ -1,6 +1,6 @@
 # iv8 Runtime Cheatsheet
 
-Use this Provider reference after WPR's `references/embedded-browser-runtime-playbook.md` has established that a local embedded host is the right delivery shape and `iv8` is the chosen runtime.
+Use this Provider reference after web-protocol-recovery's `references/embedded-browser-runtime-playbook.md` has established that a local embedded host is the right delivery shape and `iv8` is the chosen runtime.
 
 ## Contents
 

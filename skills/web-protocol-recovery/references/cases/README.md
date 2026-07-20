@@ -10,4 +10,4 @@ Cases are grouped by delivery runtime:
 
 All cases use `web-protocol-recovery-case/v1`. Historical restorations use `verificationClass=historical-user-attested` and always require fresh target verification. New writeback uses `verificationClass=freshly-verified` with executable test and JSON evidence artifacts.
 
-Every case uses `secretPolicy=redacted-pull-live`: retain cookie/token names, shapes, provenance, and transport positions, but never persisted values. When current state is required, WPR obtains it from one explicitly authorized browser session, runs the case's `pull_live_state.py`, passes the selected JSON in memory, and does not write it back to the case library.
+Every case uses `secretPolicy=redacted-pull-live`: retain cookie/token names, shapes, provenance, and transport positions, but never persisted values. When current state is required, web-protocol-recovery obtains it from one explicitly authorized browser session, runs the case's `pull_live_state.py`, passes the selected JSON in memory, and does not write it back to the case library.

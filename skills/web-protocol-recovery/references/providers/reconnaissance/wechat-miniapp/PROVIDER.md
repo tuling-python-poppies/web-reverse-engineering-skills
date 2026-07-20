@@ -11,7 +11,7 @@
 - Camoufox/Cloak browser work.
 - IDs from this lease must never be reused on Chromium, Camoufox, or iv8.
 
-Use this provider for WMPF, WeChatAppEx, AppService, miniapp WebView, WMPFDebugger, or `127.0.0.1:62000` targets. WPR owns the reverse task; this provider owns WMPF process/lease custody, target selection, and miniapp runtime IDs for the duration of its work order.
+Use this provider for WMPF, WeChatAppEx, AppService, miniapp WebView, WMPFDebugger, or `127.0.0.1:62000` targets. web-protocol-recovery owns the reverse task; this provider owns WMPF process/lease custody, target selection, and miniapp runtime IDs for the duration of its work order.
 
 Before locating, starting, attaching to, or stopping WMPFDebugger, require `runtimeCustody.providerOwnsLease=true`. A false or omitted value blocks lifecycle work; never infer lease custody from the selected Provider.
 

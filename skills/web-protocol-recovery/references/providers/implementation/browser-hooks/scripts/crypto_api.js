@@ -1,4 +1,4 @@
-// WPR browser-hooks provider: Web Crypto observer
+// web-protocol-recovery browser-hooks provider: Web Crypto observer
 // 先把 API_FILTER 设置为目标 API 的 RegExp；未配置时拒绝安装。
 // 注入：DevTools Console（需页面已加载 crypto API）
 

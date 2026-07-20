@@ -200,9 +200,9 @@ test('profile values survive baseline replacement and proxies are idempotent', (
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vm-gap-profile-'));
   const target = path.join(dir, 'target.js');
   const profile = path.join(dir, 'profile.json');
-  fs.writeFileSync(profile, JSON.stringify({ navigator: { userAgent: 'WPR-Test-UA' } }));
+  fs.writeFileSync(profile, JSON.stringify({ navigator: { userAgent: 'web-protocol-recovery-Test-UA' } }));
   fs.writeFileSync(target, `
-    if (navigator.userAgent !== 'WPR-Test-UA') throw new Error('profile was ignored');
+    if (navigator.userAgent !== 'web-protocol-recovery-Test-UA') throw new Error('profile was ignored');
     if (watch(navigator, 'navigator') !== navigator) throw new Error('proxy was wrapped twice');
   `);
   try {
@@ -313,7 +313,7 @@ test('web crypto uses real digest, signature verification, and entropy limits', 
       try { crypto.getRandomValues(new Uint8Array(65537)); } catch (error) { quotaError = error.name === 'QuotaExceededError'; }
       if (!quotaError) throw new Error('entropy quota was not enforced');
       let unsupportedError;
-      try { await crypto.subtle.digest('WPR-UNSUPPORTED', input); } catch (error) { unsupportedError = error; }
+      try { await crypto.subtle.digest('web-protocol-recovery-UNSUPPORTED', input); } catch (error) { unsupportedError = error; }
       if (!(unsupportedError instanceof DOMException) || !(unsupportedError instanceof Error)) throw new Error('host rejection leaked realms');
       if (unsupportedError.constructor !== DOMException || unsupportedError.name !== 'NotSupportedError' || unsupportedError.code !== 9) throw new Error('DOMException identity mismatch');
       if (Object.keys(unsupportedError).length !== 0 || Object.hasOwn(unsupportedError, 'name') || Object.hasOwn(unsupportedError, 'message') || Object.hasOwn(unsupportedError, 'code')) {
@@ -445,7 +445,7 @@ test('web crypto rejection follows the active DOMException constructor', () => {
   fs.writeFileSync(target, `
     (async () => {
       let rejection;
-      try { await crypto.subtle.digest('WPR-UNSUPPORTED', new Uint8Array([1])); } catch (error) { rejection = error; }
+      try { await crypto.subtle.digest('web-protocol-recovery-UNSUPPORTED', new Uint8Array([1])); } catch (error) { rejection = error; }
       if (!(rejection instanceof DOMException) || rejection.constructor !== DOMException) throw new Error('stale DOMException constructor');
       if (rejection.name !== 'NotSupportedError' || rejection.code !== 9) throw new Error('DOMException fields changed');
     })()

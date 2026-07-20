@@ -1,4 +1,4 @@
-# WPR AST Template Project
+# web-protocol-recovery AST Template Project
 
 这是目录化模板，适合已经确认要持续迭代某个混淆目标的场景。
 

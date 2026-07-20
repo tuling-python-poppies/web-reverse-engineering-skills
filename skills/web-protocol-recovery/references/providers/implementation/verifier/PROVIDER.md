@@ -11,7 +11,7 @@
 - Mixing tokens/images/proof fields across adjacent rounds.
 - Live verify without work-order permission for live replay and verifier action class.
 
-Use this provider after WPR classifies the target as verifier-gated and freezes one coherent verifier round. It implements perception and proof-input preparation; WPR retains protocol ownership and iv8 may implement the official browser runtime proof builder.
+Use this provider after web-protocol-recovery classifies the target as verifier-gated and freezes one coherent verifier round. It implements perception and proof-input preparation; web-protocol-recovery retains protocol ownership and iv8 may implement the official browser runtime proof builder.
 
 Read `references/replay-playbook.md` for family-specific round binding, perception, coordinate normalization, and proof-input procedures.
 

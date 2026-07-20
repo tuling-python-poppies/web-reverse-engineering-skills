@@ -15,12 +15,12 @@
 
 按以下顺序选择一个 baseline 来源：
 
-1. 已有 `reverse-handoff/v1` 的证据 owner：先查 bundled case 和 reverse-process，再复用 `ai-browser-reverse`、`web-protocol-recovery` 或其它 owner 已经使用的同一 engine/session/target。原浏览器仍 live 时由原 owner 调用 source ID 并导出当前环境；iv8 只消费批准的 `browser_env.json`/artifact，不跨 MCP 调用 ID。
-2. 没有上游浏览器证据的新 standalone 任务：若已知入口仍需要 fresh browser baseline，iv8 owner 在 `browserReconAllowed=yes` 后请求 discover owner 做 bounded sidecar；由该 owner 选择并操作合适 browser engine，返回同源 artifact。iv8 receiver 不直接调用 `js-reverse-mcp`、CloakBrowser 或其它 browser MCP。
+1. 已有 web-protocol-recovery evidence Provider 结果：先查 bundled case 和 reverse-process，再复用该 Provider 已经记录的同一 engine/session/target。原浏览器仍 live 时由该 evidence Provider 调用 source ID 并导出当前环境；iv8 只消费批准的 `browser_env.json`/artifact，不跨 MCP 调用 ID。
+2. 没有上游浏览器证据的新 standalone 任务：若已知入口仍需要 fresh browser baseline，iv8 Provider 在 `browserReconAllowed=yes` 后向 web-protocol-recovery 返回 blocker，由 web-protocol-recovery 选择 reconnaissance Provider 并发出 bounded work order；iv8 receiver 不直接调用 `js-reverse-mcp`、CloakBrowser 或其它 browser MCP。
 3. 用户提供的抓包、HTML、JS、Cookie、headers 或环境快照：用于无法直接打开目标页但仍要完成 iv8 复现的场景。
 4. iv8 默认 environment：仅用于目标不依赖真实浏览器环境，或用户接受残余风险的场景。
 
-被目标站风控拦截（412/403/验证码）时，由当前 evidence/discover owner 在批准范围内复核会话、headers、cookie、freshness 和页面状态；iv8 只接收结果 artifact。需要引擎级指纹/属性追踪时请求 `camoufox-js-reverse` bounded sidecar，不由 iv8 自行切 engine。
+被目标站风控拦截（412/403/验证码）时，由 web-protocol-recovery 选定的 evidence Provider 在批准范围内复核会话、headers、cookie、freshness 和页面状态；iv8 只接收结果 artifact。需要引擎级指纹/属性追踪时，由 web-protocol-recovery 向 `camoufox` Provider 发出 bounded work order，不由 iv8 自行切 engine。
 
 每条真实请求链路只能选择一个 `BROWSER_BASELINE`，可取值：`browser`、`devtools`、`manual`、`default`。
 

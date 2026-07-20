@@ -263,4 +263,4 @@ assert.notStrictEqual(aliasMainRun.status, 0)
 assert.strictEqual(fs.existsSync(path.join(outsideDirectory, 'escaped-main.js')), false)
 
 fs.rmSync(tempDir, { recursive: true, force: true })
-console.log('WPR AST provider regressions ok')
+console.log('web-protocol-recovery AST provider regressions ok')

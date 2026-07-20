@@ -1,4 +1,4 @@
-// WPR browser-hooks provider: storage observer
+// web-protocol-recovery browser-hooks provider: storage observer
 // 先把 KEY_FILTER 设置为目标 key 的 RegExp；未配置时拒绝安装。
 // 注入：DevTools Console
 

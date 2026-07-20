@@ -30,6 +30,8 @@ Four mandatory policy overlays when their trigger is hit — case read, scope/bu
 
 ## Phase 0: Intake
 
+Do not paste the full intake form on the first reply. Emit `shape` / `route` / `nextAsk` / `nextRead` and ask only for fields required by the next gated action.
+
 Before navigation, live HTTP, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
 
 Chrome baseline blocked unless `browserNavigationSideEffectsApproved=yes` AND `automaticObservationStopThreshold>=1`. Observed automatic destinations are evidence, never authorization.
@@ -47,7 +49,7 @@ Default scripts: `references/methodology/success-shape-scripts.md`.
 
 ## Phase 1: Project Root Gate
 
-Before first save, read `references/methodology/project-layout.md`. Use user folder or ask once (cwd vs custom). Record absolute `projectRoot`, `web-protocol-recovery-simple/v1`, write mode, allowed paths. Read-only evidence may continue with `writeMode=no-write`.
+🔴 CHECKPOINT · 🛑 STOP before first save: read `references/methodology/project-layout.md`. Use user folder or ask once (cwd vs custom). Record absolute `projectRoot`, `web-protocol-recovery-simple/v1`, write mode, allowed paths. Read-only evidence may continue with `writeMode=no-write`.
 
 ## Phase 2: Evidence Or Recon
 
@@ -101,18 +103,44 @@ Load one selected case as `case.json` -> `PROCESS.md` -> declared puller/fixture
 
 Writeback after eligible verified work: read `references/methodology/case-writeback.md`. Flow: candidate summary -> user yes -> sanitize/dedupe + exact allowlist -> second confirm -> change-control. No case stores raw account/browser/HAR/private bodies, cookie/token values, or absolute local paths; current authorized state is pulled at reproduction time and kept out of the library.
 
+## Failure Recovery
+
+| Trigger | First fix | Still fails → stop |
+|---|---|---|
+| Missing auth / scope / budget for next gated action | Ask only those fields in `nextAsk`; stay offline | Do not invent scope; return precise blocker |
+| Recon empty / no target request | Re-check route signals; one more bounded capture | Name blocker; do not open second recon engine |
+| Provider `status!=complete` or acceptance fails | One corrective work order on same Provider | Switch only after naming a new mutation/gate blocker |
+| Case disagrees with current evidence | Stop reuse immediately | Return to normal evidence routing; no sibling case |
+| `requestBudget.remaining=0` | Offline vectors / local-proof only | No live egress until user raises budget |
+| `cleanup.complete=false` or live task resource remains | Cleanup or record approved retention IDs | Reject `status=complete` |
+
 ## Safety Checkpoints
 
-Pause before: account secrets export; CAPTCHA/verifier/form/order/payment/mutation submit; page/retry/concurrency/rate/duration scale-up; untrusted dependency/code install; raw artifact save without approved fields; bundled case-library writes. Static reads, metadata-only indexes, redacted samples, and offline deterministic tests need no pause.
+🔴 CHECKPOINT · 🛑 STOP before: account secrets export; CAPTCHA/verifier/form/order/payment/mutation submit; page/retry/concurrency/rate/duration scale-up; untrusted dependency/code install; raw artifact save without approved fields; bundled case-library writes. Static reads, metadata-only indexes, redacted samples, and offline deterministic tests need no pause.
 
 Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, scale ↔ `requestBudget`, raw save ↔ `artifactPolicy`, target code/install ↔ `executionPolicy`, recon nav ↔ `browserReconAllowed` + Chrome side-effect approval, live HTTP ↔ `liveReplayAllowed`.
+
+## Do Not
+
+- Do not launch a browser before recording gates required for that navigation.
+- Do not put a gate family (`signer-gated`, etc.) or file path in `route`.
+- Do not ship browser-backed page `fetch`/CDP as the final collector.
+- Do not scale page/retry/concurrency after one lucky HTTP `200`.
+- Do not open Camoufox on ordinary Web without its Phase 2 criteria.
+- Do not open both Chromium and Camoufox recon without a Camoufox selection criterion.
+- Do not load a sibling case after one registry match failed current evidence.
+- Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.
+- Do not store raw cookies/tokens/HAR/private bodies or absolute local paths in the case library.
+- Do not treat public reachability as account, mutation, or collection permission.
+
+Full anti-pattern detail: `references/anti-patterns-playbook.md`.
 
 ## Completion
 
 **Light** (`evidence`/`local-proof`): shape, route, decisive evidence, blocker/next step, browser lifecycle. Local-proof always includes `acceptanceTest` and `result`; with artifact, also path and SHA-256.
 
-**Full** (replay/collector): gate family + provider chain; endpoint + moving state; project root + stable files; verification results; browser lifecycle; limits; case writeback offer. Keep logs bounded and redacted; point to artifacts.
+**Full** (replay/collector): gate family + provider chain; endpoint + moving state; project root + stable files; verification results; browser lifecycle; limits; case writeback offer. Keep logs bounded and redacted; point to artifacts. Reject complete when cleanup is incomplete.
 
 ## References
 
-By symptom: `references/reference-router.md`. Methodology: `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, or verification.
+By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Methodology: `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, or verification.

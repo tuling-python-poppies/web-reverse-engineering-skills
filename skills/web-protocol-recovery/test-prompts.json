@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "帮我逆向 https://example.com/api/list 的 sign，先只要 evidence",
+    "expected": "shape:evidence; progressive nextAsk only; no full intake dump; route chromium-recon or evidence-reuse; no browser launch without gates"
+  },
+  {
+    "id": 2,
+    "prompt": "这里有固定向量和 helper 源码，做 local-proof，不要上线",
+    "expected": "shape:local-proof; route not a gate family; acceptanceTest+result; no liveReplay; no collector upgrade"
+  },
+  {
+    "id": 3,
+    "prompt": "这个微信小程序接口加密了，怎么搞",
+    "expected": "route wechat-miniapp signals; keep smallest shape; ask debugger ownership; no auto-upgrade to collector"
+  }
+]

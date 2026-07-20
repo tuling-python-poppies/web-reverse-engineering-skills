@@ -116,6 +116,14 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 | `requestBudget.remaining=0` | Offline vectors / local-proof only | No live egress until user raises budget |
 | `cleanup.complete=false` or live task resource remains | Cleanup or record approved retention IDs | Reject `status=complete` |
 
+When the same shape must expand (Provider change only keeps the shape; larger shape needs explicit scope confirmation), name:
+
+```
+blocker: <one sentence>
+nextRead: <exactly one additional path>
+why: <smallest honest move>
+```
+
 ## Safety Checkpoints
 
 🔴 CHECKPOINT · 🛑 STOP before: account secrets export; CAPTCHA/verifier/form/order/payment/mutation submit; page/retry/concurrency/rate/duration scale-up; untrusted dependency/code install; raw artifact save without approved fields; bundled case-library writes. Static reads, metadata-only indexes, redacted samples, and offline deterministic tests need no pause.

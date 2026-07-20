@@ -9,7 +9,7 @@ argument-hint: "<target URL | request/source sample | artifact directory> [evide
 
 web-protocol-recovery is the only public reverse skill. It owns intake, scope, project root, evidence, provider routing, acceptance, and final delivery. Internal providers are modules, not peer skills.
 
-Plain terms: **gate family** = what blocks replay; **route** = selected Provider or `evidence-reuse`, never a gate family; **canonical mutation point** = where the wire payload is finally changed; **success shape** = smallest deliverable; **engine provenance** = which browser/runtime produced an ID.
+Plain terms: **gate family** = what blocks replay; **route** = selected Provider or `evidence-reuse`, never a gate family; **canonical mutation point** = where the wire payload is finally changed; **success shape** = smallest deliverable; **engine provenance** = which browser/runtime produced an ID. Cite stable section names, not line numbers; line numbers drift after edits.
 
 ## Non-Negotiables
 
@@ -20,6 +20,19 @@ route: <selected Provider or evidence-reuse>
 nextAsk: <only fields needed now>
 nextRead: <paths per read-budget>
 ```
+
+Human meaning of the four-line header:
+
+| Field | Plain-language meaning |
+|---|---|
+| `shape` | Deliverable depth: evidence only, local proof, minimal replay, or full collector. |
+| `evidence` | Find the real request, initiator, state writer, mutation point, or precise blocker; do not write the collector. |
+| `local-proof` | Prove fixed vectors, decode, restored source, or helper output offline; do not send live HTTP. |
+| `compact-replay` | Build the smallest browser-free replay, usually one short `main.py`, then verify one approved request. |
+| `collector` | Build the stable browser-free Python collector with explicit bounds. |
+| `route` | Tool path: `evidence-reuse`, `chromium-recon`, `camoufox`, `wechat-miniapp`, or one implementation Provider. |
+| `nextAsk` | The only user fields or approvals needed before the next gated action. |
+| `nextRead` | The exact internal reference path(s) allowed by the read budget. |
 
 Four mandatory policy overlays when their trigger is hit — case read, scope/budget reset, Chrome auto-traffic gate, and denied live replay — are owned by `references/methodology/success-shape-scripts.md`.
 
@@ -36,13 +49,14 @@ Do not paste the full intake form on the first reply. Use the four-line template
 
 If the user gives no success shape, default to `shape: evidence`. Choose `route` by the strongest Phase 2 signal, then ask only for gates needed before the next gated action.
 
-First-turn patterns:
+First-turn routing rules:
 
-| User signal | First shape/route | `nextAsk` boundary | Forbidden escalation |
-|---|---|---|---|
-| URL or endpoint asks for `sign` / `token` / request evidence | `shape: evidence`, `route: evidence-reuse` when artifacts/case match, otherwise `chromium-recon` | exact scope + browser recon gates before navigation | no browser launch, collector, or full intake dump |
-| Fixed vectors, helper source, decode sample, or "local only" | `shape: local-proof`, `route: evidence-reuse` unless one implementation Provider is needed | missing vectors/source only | no live replay, browser recon, or collector upgrade |
-| WeChat / miniapp / AppService / WMPF debugger signal | requested shape, or `shape: evidence` if unspecified; `route: wechat-miniapp` | debugger ownership and gated action scope before target attach or account/session use | no Chromium/Camoufox ID reuse; no collector upgrade by platform label |
+1. Supplied artifacts or an exact registry case beat fresh recon: start with `route: evidence-reuse`; a URL alone never authorizes a browser launch.
+2. Explicit offline/local/vector wording beats heavier routing: use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider.
+3. Platform/runtime words choose only the route, not the deliverable depth: miniapp means `route: wechat-miniapp`; Camoufox means `route: camoufox`; neither upgrades to `collector` by itself.
+4. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
+5. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, replay live HTTP, or scaffold a collector on the first turn.
+6. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
 
 Before navigation, live HTTP, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
 

@@ -34,6 +34,8 @@ Require the user to open the miniapp when needed. Enumerate targets, identify Ap
 
 Save durable redacted artifacts under `js_reverse_cache/recon/miniapp/` before navigation, target switch, detach, or lease release. Runtime IDs cannot be used by Chromium, Camoufox, iv8, or another miniapp session.
 
+Return the real request, initiator/source evidence, moving fields, environment/runtime evidence, saved artifact paths, lease state, and the smallest next provider. Do not implement the final collector here.
+
 ## Cleanup
 
 Release only this work order's lease. Do not stop a service still owned by another lease. Return cleanup state and mark all released target/request/script IDs stale.

@@ -13,5 +13,30 @@
     "id": 3,
     "prompt": "这个微信小程序接口加密了，怎么搞",
     "expected": "route wechat-miniapp signals; keep smallest shape; ask debugger ownership; no auto-upgrade to collector"
+  },
+  {
+    "id": 4,
+    "prompt": "我有 HAR、bundle 源码和一段响应样本，先判断有没有可复用证据，不要开浏览器",
+    "expected": "shape:evidence; route:evidence-reuse; prefer supplied artifacts/case; no browser launch; ask only missing artifact/scope fields"
+  },
+  {
+    "id": 5,
+    "prompt": "普通网页接口 403 还有验证码，帮我看怎么抓包和定位原因",
+    "expected": "generic 403/CAPTCHA is not a Camoufox criterion; shape:evidence; smallest matching route/gate; no Camoufox without explicit Camoufox/SpiderMonkey/second-engine evidence"
+  },
+  {
+    "id": 6,
+    "prompt": "这里有固定向量、helper 源码和一个接口 URL，先不要上线，只证明 sign 算法",
+    "expected": "mixed signal resolves to offline local-proof; route evidence-reuse or one implementation Provider after blocker; no browser recon or liveReplay"
+  },
+  {
+    "id": 7,
+    "prompt": "帮我写一个公开文档里的 REST API client，不涉及 sign、token、cookie 或挑战",
+    "expected": "non-trigger boundary; ordinary public API client is outside web-protocol-recovery; do not force a route"
+  },
+  {
+    "id": 8,
+    "prompt": "这个 WebSocket 里有 protobuf 包和动态 token，先只要 evidence",
+    "expected": "shape:evidence; route evidence-reuse or chromium-recon after gates; transport/decode blockers recorded; no collector or live replay on first turn"
   }
 ]

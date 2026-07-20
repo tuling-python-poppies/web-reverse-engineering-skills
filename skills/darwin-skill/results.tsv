@@ -1,4 +1,5 @@
 timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-20T18:30	baseline	web-protocol-recovery	-	73.5	baseline	-	Opus 4.8 优化后初评; runtime_warn=0; 短板 dim3/4/9	dry_run
 2026-07-20T19:10	b980516	web-protocol-recovery	73.5	85.4	keep	dim3/4/9+intake	progressive intake; CHECKPOINT; Failure Recovery; Do Not; anti-patterns link; test-prompts	dry_run
-2026-07-20T19:20	30d6346	web-protocol-recovery	85.4	87.6	keep	dim2/5 first-response	SKILL embeds shape/route/nextAsk/nextRead four-line template; aligns with success-shape-scripts	dry_run
+2026-07-20T19:20	30d6346	web-protocol-recovery	85.4	87.6	keep	dim2/5 first-response	SKILL embeds shape/route/nextAsk/nextRead four-line template	dry_run
+2026-07-20T19:30	97844be	web-protocol-recovery	87.6	88.8	keep	dim3 escalation	blocker/nextRead/why template; HL-4 stop after this (r2 Δ2.2 r3 Δ1.2; next would be <2)	dry_run

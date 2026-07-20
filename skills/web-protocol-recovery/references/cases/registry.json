@@ -1,0 +1,401 @@
+{
+    "schemaVersion":  "web-protocol-recovery-case-registry/v1",
+    "cases":  [
+                  {
+                      "caseId":  "camoufox-jsvmp-dual-sign-cacheopts",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "python-node",
+                      "match":  {
+                                    "signals":  [
+                                                    "sdk:webmssdk",
+                                                    "config:cacheOpts",
+                                                    "header:x-bogus",
+                                                    "header:x-gnarly"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "python-node/jsvmp-dual-sign-cacheopts/case.json",
+                                       "sha256":  "4f13eb487daba976ca29a507865dea0eceef879c29e17d86805d1d75b40fbb2e"
+                                   }
+                  },
+                  {
+                      "caseId":  "camoufox-universal-vmp-instrumentation",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "python-node",
+                      "match":  {
+                                    "signals":  [
+                                                    "structure:while-switch-vmp",
+                                                    "method:source-instrumentation",
+                                                    "evidence:hot-key-trace"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "python-node/universal-vmp-instrumentation/case.json",
+                                       "sha256":  "67e97b2536c69b061b691049ec4b35c0be2166d112f9bd3f14ef7490237a248c"
+                                   }
+                  },
+                  {
+                      "caseId":  "camoufox-jsvmp-xhr-interceptor-env-emulation",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "python-node",
+                      "match":  {
+                                    "signals":  [
+                                                    "sdk:webmssdk",
+                                                    "sdk:byted_acrawler",
+                                                    "config:_SdkGlueInit",
+                                                    "parameter:a_bogus",
+                                                    "method:xhr-interceptor-jsdom"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "python-node/jsvmp-xhr-interceptor-env-emulation/case.json",
+                                       "sha256":  "516051749be3d228ce49233dcc34449b7cb33ee2ff42921188d19ef1a291e5b7"
+                                   }
+                  },
+                  {
+                      "caseId":  "camoufox-jsvmp-ruishu6-cookie-412-sdenv",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "python-node",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:ruishu",
+                                                    "version:6",
+                                                    "challenge:http-412",
+                                                    "state:$_ts-nsd-cd",
+                                                    "cookie:client-T-suffix"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
+                                       "sha256":  "748ad09c2b96a48d4d1aec72d8c14800b808955d7b02d833d83966902bbba493"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-chinatax-ruishu",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:ruishu",
+                                                    "flow:two-stage-cookie",
+                                                    "transport:xhr-rewrite",
+                                                    "site:chinatax"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/chinatax-ruishu/case.json",
+                                       "sha256":  "382a4676764ef5aa36ec7b3fe1e40767f87399519ca35e154e5d44e1c1839c96"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-chng-ruishu-announcement",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:ruishu",
+                                                    "flow:two-stage-cookie",
+                                                    "transport:xhr-rewrite",
+                                                    "site:chng"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/chng-ruishu-announcement/case.json",
+                                       "sha256":  "6aba8e1d5aba970074b53b0bfd249c69a7cf8039ccefea1f35e400eccb7049e7"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-cqvip-journal-search",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "challenge:http-412",
+                                                    "cookie:generated-t",
+                                                    "flow:search-replay",
+                                                    "site:cqvip"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/cqvip-journal-search/case.json",
+                                       "sha256":  "d9c10b77067e3339ac51a9afb3cda0b7ace29ea4a0960ca7c532d3ae17e9a5c7"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-customs-ruishu",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:ruishu",
+                                                    "flow:two-stage-cookie",
+                                                    "transport:xhr-rewrite",
+                                                    "site:customs"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/customs-ruishu/case.json",
+                                       "sha256":  "c571209991edc1526b185df4468ce9db55a1c2145ff7f71606a725ca806d043f"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-douyin-bdms",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "sdk:bdms",
+                                                    "parameter:a_bogus",
+                                                    "transport:netlog-xhr",
+                                                    "site:douyin"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/douyin-bdms/case.json",
+                                       "sha256":  "0e38e1a3a25e76633dce955eae728843b10fde4587f86ec08842e3580009bf3e"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-geetest-v4-slider",
+                      "family":  "verifier",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:geetest",
+                                                    "version:v4",
+                                                    "captcha-type:slider",
+                                                    "protocol:slide"
+                                                ],
+                                    "minimumIndependentSignals":  3,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/geetest-v4-slider/case.json",
+                                       "sha256":  "294c8011d47b32f67abdc4bd0d60f773646fc9dd9ca4c0ebd806a8c3ae284116"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-geetest-v4-word-click",
+                      "family":  "verifier",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:geetest",
+                                                    "version:v4",
+                                                    "captcha-type:word-click",
+                                                    "protocol:word"
+                                                ],
+                                    "minimumIndependentSignals":  3,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/geetest-v4-word-click/case.json",
+                                       "sha256":  "806ae105c060094b4c904471de8beaf3867b85ce5eed8db10c9b8987ad6a48b3"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-jd-h5st",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "parameter:h5st",
+                                                    "runtime:ParamsSignMain",
+                                                    "site:jd"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/jd-h5st/case.json",
+                                       "sha256":  "3a75e5f837b48cadfc9be7c1415fd3b947c09a7720e95c8a588097e84c9d6f3b"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-nmpa-md5-cookie",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "algorithm:md5",
+                                                    "state:cookie-derived",
+                                                    "challenge:http-412",
+                                                    "site:nmpa"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/nmpa-md5-cookie/case.json",
+                                       "sha256":  "2fffd37d6ae041edcd601bca023051f60a707ee6549b15d7ea6afa2fbd028de2"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-ouyeel-202-cookie-url",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "challenge:http-202",
+                                                    "cookie:script-derived",
+                                                    "transport:url-rewrite",
+                                                    "site:ouyeel"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/ouyeel-202-cookie-url/case.json",
+                                       "sha256":  "3433d4a255d14521129e3521941eb1dc4eef0a8a1646a86b6e155dbf978eaa5b"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-pdd-anti-content",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "parameter:anti_content",
+                                                    "runtime:webpack",
+                                                    "module:fbeZ",
+                                                    "site:pdd"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/pdd-anti-content/case.json",
+                                       "sha256":  "4ea9abcbc15833ff3cd7cf67bf105722c8b3eeed3c73f0d56018cc15c4595e4a"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-tencent-tdc-slider",
+                      "family":  "verifier",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:tencent",
+                                                    "product:tdc",
+                                                    "captcha-type:slider",
+                                                    "telemetry:eks-collect"
+                                                ],
+                                    "minimumIndependentSignals":  3,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/tencent-tdc-slider/case.json",
+                                       "sha256":  "deb1b570afacd04d6f09aa8947e8118acee495e9d3033d1ecc2edab192f92086"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-xhs-homefeed",
+                      "family":  "signer",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "header:x-s",
+                                                    "header:x-t",
+                                                    "header:x-s-common",
+                                                    "runtime:mnsv2",
+                                                    "site:xhs"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/xhs-homefeed/case.json",
+                                       "sha256":  "5cf0b9cbf4b41d57e34f1c782538083a8841eb3d0ab8ddf7207f52028ae3b494"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-zhipin-stoken",
+                      "family":  "session",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "cookie:__zp_stoken__",
+                                                    "challenge:code-37",
+                                                    "state:seed-name-ts"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/zhipin-stoken/case.json",
+                                       "sha256":  "3445bd531382417e04383ad8b5cb5fdc67dd3e6a8b4d8a1b93ac79820b4dc6ba"
+                                   }
+                  }
+              ]
+}

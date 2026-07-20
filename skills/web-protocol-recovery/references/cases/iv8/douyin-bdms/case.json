@@ -1,0 +1,96 @@
+{
+    "schemaVersion":  "web-protocol-recovery-case/v1",
+    "caseId":  "iv8-douyin-bdms",
+    "revision":  1,
+    "status":  "verified",
+    "family":  "signer",
+    "runtime":  "iv8",
+    "caseKind":  "implementation",
+    "verificationClass":  "historical-user-attested",
+    "requiresFreshVerification":  true,
+    "secretPolicy":  "redacted-pull-live",
+    "match":  {
+                  "signals":  [
+                                  "sdk:bdms",
+                                  "parameter:a_bogus",
+                                  "transport:netlog-xhr",
+                                  "site:douyin"
+                              ],
+                  "minimumIndependentSignals":  2,
+                  "negativeSignals":  [
+
+                                      ]
+              },
+    "protocolPatterns":  [
+                             "sdk:bdms",
+                             "parameter:a_bogus",
+                             "transport:netlog-xhr",
+                             "site:douyin"
+                         ],
+    "sourceProvider":  "iv8",
+    "product":  {
+                    "vendor":  "ByteDance",
+                    "product":  "BDMS",
+                    "version":  "1.0.1.19",
+                    "subtype":  "xhr-signing"
+                },
+    "providerChain":  [
+                          "iv8",
+                          "python-collector"
+                      ],
+    "dependencies":  {
+                         "python":  "\u003e=3.9",
+                         "iv8":  "installed runtime",
+                         "requests":  "installed"
+                     },
+    "preRead":  [
+                    {
+                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
+                        "sha256":  "a61da951c5f80bcf250ba597a161dfe34ceeb2c75f257ddddb1c5b840aba1b95"
+                    }
+                ],
+    "liveState":  {
+                      "mode":  "browser-export-json",
+                      "retention":  "memory-only",
+                      "requiredCookies":  [
+                                              "ttwid"
+                                          ],
+                      "optionalCookies":  [
+                                              "msToken",
+                                              "odin_tt",
+                                              "__ac_nonce",
+                                              "__ac_signature",
+                                              "s_v_web_id"
+                                          ],
+                      "cookieNamePatterns":  [
+
+                                             ],
+                      "storageKeys":  [
+
+                                      ]
+                  },
+    "artifacts":  {
+                      "process":  {
+                                      "path":  "PROCESS.md",
+                                      "sha256":  "99ac71a15274330e0f97ea902fb1c376505b85f89798df4ed2a7566bc83679c1"
+                                  },
+                      "pullLiveState":  {
+                                            "path":  "pull_live_state.py",
+                                            "sha256":  "b26444b4c4ffb80370074ffcc09ad3e18d23548f6da5dad01242bc566e5b1bba"
+                                        },
+                      "assets":  [
+                                     {
+                                         "path":  "assets/bdms_1.0.1.19.js",
+                                         "sha256":  "a4e76e3825da71a6b6825d59cd4589a414584be335b53e41bdfc13dab2d88ea8"
+                                     }
+                                 ],
+                      "entry":  {
+                                    "path":  "entry.py",
+                                    "sha256":  "e58460a91ff4d080fdd1c9abd49b25e45893c00c3e661961bb8479ba326c3734"
+                                }
+                  },
+    "verification":  {
+                         "sourceCommit":  "95be929~1",
+                         "requiresFreshVerification":  true
+                     }
+}

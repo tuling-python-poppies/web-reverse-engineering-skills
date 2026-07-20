@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "name": "chrome-120-win10-default",
+    "description": "Default Chrome-like desktop profile for env-patch diagnostics",
+    "version": "1.0",
+    "source": "bundled"
+  },
+  "navigator": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "appCodeName": "Mozilla",
+    "appName": "Netscape",
+    "appVersion": "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "platform": "Win32",
+    "product": "Gecko",
+    "productSub": "20030107",
+    "vendor": "Google Inc.",
+    "vendorSub": "",
+    "language": "zh-CN",
+    "languages": ["zh-CN", "zh", "en"],
+    "onLine": true,
+    "cookieEnabled": true,
+    "doNotTrack": null,
+    "hardwareConcurrency": 8,
+    "maxTouchPoints": 0,
+    "deviceMemory": 8,
+    "webdriver": false,
+    "pdfViewerEnabled": true,
+    "connection": {
+      "downlink": 10,
+      "effectiveType": "4g",
+      "rtt": 50,
+      "saveData": false
+    },
+    "plugins": [],
+    "userAgentData": {
+      "brands": [
+        { "brand": "Not_A Brand", "version": "8" },
+        { "brand": "Chromium", "version": "120" },
+        { "brand": "Google Chrome", "version": "120" }
+      ],
+      "mobile": false,
+      "platform": "Windows",
+      "architecture": "x86",
+      "bitness": "64",
+      "model": "",
+      "platformVersion": "10.0.0",
+      "fullVersionList": [
+        { "brand": "Not_A Brand", "version": "8.0.0.0" },
+        { "brand": "Chromium", "version": "120.0.0.0" },
+        { "brand": "Google Chrome", "version": "120.0.0.0" }
+      ]
+    }
+  },
+  "screen": {
+    "width": 1920,
+    "height": 1080,
+    "availWidth": 1920,
+    "availHeight": 1040,
+    "availLeft": 0,
+    "availTop": 0,
+    "colorDepth": 24,
+    "pixelDepth": 24,
+    "isExtended": false,
+    "orientation": {
+      "angle": 0,
+      "type": "landscape-primary"
+    }
+  },
+  "window": {
+    "innerWidth": 1920,
+    "innerHeight": 1080,
+    "outerWidth": 1920,
+    "outerHeight": 1080,
+    "screenX": 0,
+    "screenY": 0,
+    "screenLeft": 0,
+    "screenTop": 0,
+    "devicePixelRatio": 1,
+    "isSecureContext": true,
+    "crossOriginIsolated": false
+  },
+  "location": {
+    "href": "https://example.com/",
+    "protocol": "https:",
+    "host": "example.com",
+    "hostname": "example.com",
+    "port": "",
+    "pathname": "/",
+    "search": "",
+    "hash": "",
+    "origin": "https://example.com"
+  },
+  "performance": {
+    "timeOrigin": 1711957200000,
+    "nowOffset": 0,
+    "timing": {
+      "navigationStart": 1711957200000,
+      "fetchStart": 1711957200000,
+      "domainLookupStart": 1711957200001,
+      "domainLookupEnd": 1711957200002,
+      "connectStart": 1711957200002,
+      "connectEnd": 1711957200004,
+      "requestStart": 1711957200005,
+      "responseStart": 1711957200009,
+      "responseEnd": 1711957200013,
+      "domLoading": 1711957200015,
+      "domInteractive": 1711957200020,
+      "domContentLoadedEventStart": 1711957200021,
+      "domContentLoadedEventEnd": 1711957200022,
+      "domComplete": 1711957200027,
+      "loadEventStart": 1711957200028,
+      "loadEventEnd": 1711957200029
+    },
+    "memory": {
+      "jsHeapSizeLimit": 2172649472,
+      "totalJSHeapSize": 10000000,
+      "usedJSHeapSize": 8000000
+    }
+  },
+  "audio": {
+    "sampleRate": 44100,
+    "maxChannelCount": 2,
+    "state": "suspended",
+    "baseLatency": 0.005333,
+    "outputLatency": 0.016,
+    "fingerprint": {
+      "seed": 73920156,
+      "sum": 124.04347527516074
+    }
+  },
+  "webrtc": {
+    "allowCandidateLeak": false,
+    "iceTransportPolicy": "all",
+    "bundlePolicy": "balanced",
+    "rtcpMuxPolicy": "require",
+    "defaultOfferSdp": "v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=env-patch-offer\r\nt=0 0\r\n",
+    "defaultAnswerSdp": "v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=env-patch-answer\r\nt=0 0\r\n",
+    "iceCandidates": []
+  },
+  "worker": {
+    "scriptBaseUrl": "https://example.invalid/assets/",
+    "sharedWorkerName": "env-patch-shared-worker",
+    "broadcastChannels": [],
+    "inlineScripts": {}
+  }
+}

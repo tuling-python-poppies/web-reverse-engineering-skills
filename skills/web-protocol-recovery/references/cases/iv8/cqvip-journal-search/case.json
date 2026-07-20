@@ -1,0 +1,90 @@
+{
+    "schemaVersion":  "web-protocol-recovery-case/v1",
+    "caseId":  "iv8-cqvip-journal-search",
+    "revision":  1,
+    "status":  "verified",
+    "family":  "challenge",
+    "runtime":  "iv8",
+    "caseKind":  "implementation",
+    "verificationClass":  "historical-user-attested",
+    "requiresFreshVerification":  true,
+    "secretPolicy":  "redacted-pull-live",
+    "match":  {
+                  "signals":  [
+                                  "challenge:http-412",
+                                  "cookie:generated-t",
+                                  "flow:search-replay",
+                                  "site:cqvip"
+                              ],
+                  "minimumIndependentSignals":  2,
+                  "negativeSignals":  [
+
+                                      ]
+              },
+    "protocolPatterns":  [
+                             "challenge:http-412",
+                             "cookie:generated-t",
+                             "flow:search-replay",
+                             "site:cqvip"
+                         ],
+    "sourceProvider":  "iv8",
+    "product":  {
+                    "vendor":  "unknown",
+                    "product":  "JS challenge",
+                    "version":  "legacy",
+                    "subtype":  "cqvip-search"
+                },
+    "providerChain":  [
+                          "iv8",
+                          "python-collector"
+                      ],
+    "dependencies":  {
+                         "python":  "\u003e=3.9",
+                         "iv8":  "installed runtime",
+                         "requests":  "installed",
+                         "loguru":  "optional"
+                     },
+    "preRead":  [
+                    {
+                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
+                        "sha256":  "a61da951c5f80bcf250ba597a161dfe34ceeb2c75f257ddddb1c5b840aba1b95"
+                    }
+                ],
+    "liveState":  {
+                      "mode":  "browser-export-json",
+                      "retention":  "memory-only",
+                      "requiredCookies":  [
+
+                                          ],
+                      "optionalCookies":  [
+
+                                          ],
+                      "cookieNamePatterns":  [
+
+                                             ],
+                      "storageKeys":  [
+
+                                      ]
+                  },
+    "artifacts":  {
+                      "process":  {
+                                      "path":  "PROCESS.md",
+                                      "sha256":  "8986b52772a7a7dad4a1474a7a05084cd45c951fc3441a900e73f63053b8b9b5"
+                                  },
+                      "pullLiveState":  {
+                                            "path":  "pull_live_state.py",
+                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+                                        },
+                      "assets":  [
+
+                                 ],
+                      "entry":  {
+                                    "path":  "entry.py",
+                                    "sha256":  "195b1185753b75bc9f2f179ca0e3d37aeb5421087e20364edd580fd7d59a35b0"
+                                }
+                  },
+    "verification":  {
+                         "sourceCommit":  "95be929~1",
+                         "requiresFreshVerification":  true
+                     }
+}

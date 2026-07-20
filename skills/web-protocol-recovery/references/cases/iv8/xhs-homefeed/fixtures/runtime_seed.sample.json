@@ -1,0 +1,13 @@
+{
+  "cookies": {
+    "a1": "YOUR_A1_COOKIE_HERE",
+    "xsecappid": "xhs-pc-web"
+  },
+  "localSeeds": {
+    "b1": "YOUR_LOCALSTORAGE_B1_HERE",
+    "b1b1": "1",
+    "dsllt": "1700000000000",
+    "dsl": "1700000000000",
+    "sc": 0
+  }
+}

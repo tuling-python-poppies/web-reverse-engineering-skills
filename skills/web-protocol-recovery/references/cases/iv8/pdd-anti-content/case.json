@@ -1,0 +1,89 @@
+{
+    "schemaVersion":  "web-protocol-recovery-case/v1",
+    "caseId":  "iv8-pdd-anti-content",
+    "revision":  1,
+    "status":  "verified",
+    "family":  "signer",
+    "runtime":  "iv8",
+    "caseKind":  "implementation",
+    "verificationClass":  "historical-user-attested",
+    "requiresFreshVerification":  true,
+    "secretPolicy":  "redacted-pull-live",
+    "match":  {
+                  "signals":  [
+                                  "parameter:anti_content",
+                                  "runtime:webpack",
+                                  "module:fbeZ",
+                                  "site:pdd"
+                              ],
+                  "minimumIndependentSignals":  2,
+                  "negativeSignals":  [
+
+                                      ]
+              },
+    "protocolPatterns":  [
+                             "parameter:anti_content",
+                             "runtime:webpack",
+                             "module:fbeZ",
+                             "site:pdd"
+                         ],
+    "sourceProvider":  "iv8",
+    "product":  {
+                    "vendor":  "PDD",
+                    "product":  "anti_content",
+                    "version":  "legacy",
+                    "subtype":  "webpack-runtime"
+                },
+    "providerChain":  [
+                          "iv8",
+                          "python-collector"
+                      ],
+    "dependencies":  {
+                         "python":  "\u003e=3.9",
+                         "iv8":  "installed runtime",
+                         "requests":  "installed"
+                     },
+    "preRead":  [
+                    {
+                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
+                        "sha256":  "a61da951c5f80bcf250ba597a161dfe34ceeb2c75f257ddddb1c5b840aba1b95"
+                    }
+                ],
+    "liveState":  {
+                      "mode":  "browser-export-json",
+                      "retention":  "memory-only",
+                      "requiredCookies":  [
+
+                                          ],
+                      "optionalCookies":  [
+                                              "api_uid"
+                                          ],
+                      "cookieNamePatterns":  [
+
+                                             ],
+                      "storageKeys":  [
+
+                                      ]
+                  },
+    "artifacts":  {
+                      "process":  {
+                                      "path":  "PROCESS.md",
+                                      "sha256":  "1cadd4d72c2fe5420d604c9afd07b12f72cf883f6a5b6964ef6b73fa09f601d1"
+                                  },
+                      "pullLiveState":  {
+                                            "path":  "pull_live_state.py",
+                                            "sha256":  "007335b7735616498056b78798e7a1a3d83c5468283b7b40e3dea4ae761c2e88"
+                                        },
+                      "assets":  [
+
+                                 ],
+                      "entry":  {
+                                    "path":  "entry.py",
+                                    "sha256":  "1024621e70e4b4b64f5dc74be913773f2f6aada3810a5d37335e325a1520d3bd"
+                                }
+                  },
+    "verification":  {
+                         "sourceCommit":  "95be929~1",
+                         "requiresFreshVerification":  true
+                     }
+}

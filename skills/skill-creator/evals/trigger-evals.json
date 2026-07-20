@@ -1,0 +1,74 @@
+[
+  {
+    "query": "我想把我们刚才那套逆向工作流整理成一个 opencode skill，顺手帮我补测试 prompts",
+    "should_trigger": true
+  },
+  {
+    "query": "这个 skill 触发不太准，帮我优化 description，再加一组 evals 看看改完是不是更稳定",
+    "should_trigger": true
+  },
+  {
+    "query": "帮我清理一下现有 skill 结构，拆 references 并补 benchmark 所需的测试样例",
+    "should_trigger": true
+  },
+  {
+    "query": "把当前所有 skills 的触发边界检查一遍，看看哪里重叠了，然后帮我做一轮小幅微调",
+    "should_trigger": false
+  },
+  {
+    "query": "我想把现在这套‘先找入口、再补环境、最后验证’的流程沉淀成一个 skill，顺手补几条 near-miss evals 测它会不会乱触发",
+    "should_trigger": true
+  },
+  {
+    "query": "这个 skill 的 description 写得太宽了，老是抢 web-protocol-recovery 的活，帮我收紧触发边界并改 trigger-evals",
+    "should_trigger": true
+  },
+  {
+    "query": "帮我给这几个现有 skill 补一轮 trigger-evals，重点覆盖 near-miss 负例，再顺手看 description 要不要压短",
+    "should_trigger": false
+  },
+  {
+    "query": "给我一个浏览器里 hook xhr header 的脚本，只在 Authorization 时断下",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我定位这个 sign 参数的生成入口和调用链",
+    "should_trigger": false
+  },
+  {
+    "query": "把这段浏览器 js 补环境后放到 node 里跑起来",
+    "should_trigger": false
+  },
+  {
+    "query": "先帮我把 x-sign 的入口找出来，等流程稳定了我再考虑要不要把它做成 skill",
+    "should_trigger": false
+  },
+  {
+    "query": "用 rs-reverse 帮我分析这个站的 $_ts.cd、r2mKa 和 Cookie T，不是要改 skill 本身",
+    "should_trigger": false
+  },
+  {
+    "query": "我现在不是要改 skill，只是想要一段 devtools 观察脚本看看是谁写了 cookie",
+    "should_trigger": false
+  },
+  {
+    "query": "这个 bundle 全是 _0x 和字符串数组，先帮我解混淆，等弄清楚流程后我再考虑要不要沉淀成 skill",
+    "should_trigger": false
+  },
+  {
+    "query": "把这个已经写好的 skill 打包成 .skill 文件，先校验再输出到 dist",
+    "should_trigger": true
+  },
+  {
+    "query": "给现有 skill 做一次轻量评估，只跑 3 条 prompt 并给出 assertions",
+    "should_trigger": true
+  },
+  {
+    "query": "帮我改 opencode.json 增加一个 MCP server，并调整权限规则",
+    "should_trigger": false
+  },
+  {
+    "query": "对全部已安装 skills 做统一打分、优化、复评并写入持久化 ledger",
+    "should_trigger": false
+  }
+]

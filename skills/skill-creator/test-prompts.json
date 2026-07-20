@@ -1,0 +1,9 @@
+[
+  {"id": 1, "prompt": "帮我把这个反爬逆向工作流做成一个新的 opencode skill", "expected": "capture intent(做什么/何时触发/成功产出) → research nearby overlap → 写含触发边界的 SKILL.md → 可选 evals → 确认后落地", "type": "should-trigger", "confirmation_required": true},
+  {"id": 2, "prompt": "帮我优化这个 skill 的 description，提升触发准确率、减少和邻近 skill 抢活", "expected": "走 description-optimization：约20条 should/near-miss trigger evals → 收紧 frontmatter+边界+handoff → 报告 before/after", "type": "should-trigger", "confirmation_required": true},
+  {"id": 3, "prompt": "帮我改 opencode.json 加一个新的 MCP server 配置", "expected": "识别为 opencode 配置而非 skill 定义，转交 customize-opencode", "type": "near-miss", "confirmation_required": false},
+  {"id": 4, "prompt": "把这个已经写好的 skill 打包成 .skill 文件，先校验再输出到 dist", "expected": "走 package 模式；校验 SKILL.md、拒绝 symlink 和覆盖已有 archive，使用原子输出", "type": "should-trigger", "confirmation_required": true},
+  {"id": 5, "prompt": "对全部已安装 skills 做统一打分、优化、复评并写入持久化 ledger", "expected": "不触发 skill-creator，转交 darwin-skill", "type": "near-miss", "confirmation_required": false},
+  {"id": 6, "prompt": "我想做一个轻量评估，只跑 3 条 prompt 并给出 machine-checkable assertions", "expected": "走 benchmark/eval 流程，先确认是否允许生成子 agent 和结果 artifact，再统一记录 eval_mode", "type": "should-trigger", "confirmation_required": true},
+  {"id": 7, "prompt": "帮我把现有 skill 的 description 收紧，覆盖 browser hook、入口定位、Node 补环境的 near-miss", "expected": "走 description-optimize；补齐正负触发集，保持与相邻 skill 的 handoff 一致", "type": "should-trigger", "confirmation_required": true}
+]

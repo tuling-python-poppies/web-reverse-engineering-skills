@@ -1,0 +1,84 @@
+{
+    "schemaVersion":  "web-protocol-recovery-case/v1",
+    "caseId":  "camoufox-jsvmp-dual-sign-cacheopts",
+    "revision":  1,
+    "status":  "verified",
+    "family":  "signer",
+    "runtime":  "python-node",
+    "caseKind":  "evidence",
+    "verificationClass":  "historical-user-attested",
+    "requiresFreshVerification":  true,
+    "secretPolicy":  "redacted-pull-live",
+    "match":  {
+                  "signals":  [
+                                  "sdk:webmssdk",
+                                  "config:cacheOpts",
+                                  "header:x-bogus",
+                                  "header:x-gnarly"
+                              ],
+                  "minimumIndependentSignals":  2,
+                  "negativeSignals":  [
+
+                                      ]
+              },
+    "protocolPatterns":  [
+                             "sdk:webmssdk",
+                             "config:cacheOpts",
+                             "header:x-bogus",
+                             "header:x-gnarly"
+                         ],
+    "sourceProvider":  "camoufox",
+    "product":  {
+                    "vendor":  "generic",
+                    "product":  "JSVMP instrumentation",
+                    "version":  "legacy",
+                    "subtype":  "cacheopts-dual-sign"
+                },
+    "providerChain":  [
+                          "camoufox",
+                          "browser-hooks",
+                          "ast"
+                      ],
+    "dependencies":  {
+                         "camoufox":  "connected runtime",
+                         "javascript":  "target supplied"
+                     },
+    "preRead":  [
+
+                ],
+    "liveState":  {
+                      "mode":  "browser-export-json",
+                      "retention":  "memory-only",
+                      "requiredCookies":  [
+
+                                          ],
+                      "optionalCookies":  [
+                                              "msToken",
+                                              "verifyFp",
+                                              "s_v_web_id"
+                                          ],
+                      "cookieNamePatterns":  [
+
+                                             ],
+                      "storageKeys":  [
+
+                                      ]
+                  },
+    "artifacts":  {
+                      "process":  {
+                                      "path":  "PROCESS.md",
+                                      "sha256":  "0af3a2801d57c06bae0df1376552d42155230c21494dbb56fc7c3cb5863f417f"
+                                  },
+                      "pullLiveState":  {
+                                            "path":  "pull_live_state.py",
+                                            "sha256":  "cbd8fea3e91f878400b8df0dae8ab30d79538ffe6f973c5d40a216a1a7cce525"
+                                        },
+                      "assets":  [
+
+                                 ]
+                  },
+    "verification":  {
+                         "sourceCommit":  "95be929~1",
+                         "requiresFreshVerification":  true
+                     }
+}

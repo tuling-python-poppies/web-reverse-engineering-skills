@@ -1,0 +1,45 @@
+# secrets / local env
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+config.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# caches / temp / backups
+*.bak
+*.bak.*
+.js_reverse_cache/
+js_reverse_cache/
+.camoufox-runtime/
+tmp/
+temp/
+*.log
+
+# large / binary dumps often produced by reverse work
+*.har
+*.heapsnapshot
+*.trace
+*.zip
+*.7z

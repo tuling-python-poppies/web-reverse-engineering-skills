@@ -1,0 +1,41 @@
+{
+  "skill_name": "skill-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "这个 skill 的 SKILL.md 快 500 行了，帮我把长流程拆到 references，同时保持触发描述不变并验证结构。",
+      "expected_output": "应先确认允许编辑的路径，再拆分长流程到 references，精简主 SKILL.md，运行 validator，并报告行数和引用完整性。",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "The response preserves the skill name and trigger intent",
+        "The response moves long workflow details to references rather than deleting them",
+        "The response validates the resulting skill structure"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "帮我给现有 skill 补 trigger evals，重点覆盖 browser hook、入口定位、补环境、AST 解混淆之间的 near-miss 负例。",
+      "expected_output": "应先确认是否允许改动 eval 文件，再生成 should-trigger 和 should-not-trigger 查询，覆盖相邻 skill 边界，并说明如何评估触发准确率。",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "The response creates or proposes realistic trigger eval queries",
+        "The response includes near-miss negative cases across neighboring skills",
+        "The response points to the description optimization workflow or equivalent evaluation path"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我想把刚才的逆向流程整理成一个新 skill，不需要完整 benchmark，先给我一个轻量版 SKILL.md 和 3 条测试 prompt。",
+      "expected_output": "应先确认允许创建目录/文件，再按轻量模式创建 skill 草案和测试 prompts，不应强制完整 benchmark。",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "The response adapts to a lightweight collaboration instead of forcing a full eval loop",
+        "The response drafts a concise skill structure",
+        "The response includes a small set of realistic test prompts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "wpr-ast-template-project",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Conservative directory-based AST deobfuscation template for WPR work orders",
+  "scripts": {
+    "decode": "node src/main.js -i input.js -o output.js",
+    "decode:bootstrap": "node src/main.js --execute-bootstrap --trusted-bootstrap -i input.js -o output.js",
+    "decode:input": "node src/main.js",
+    "metrics": "node src/tools/collect-residue-metrics.js output.js",
+    "compare": "node src/tools/compare-with-reference.js output.js reference.js",
+    "check": "node --check src/main.js && node --check src/lib/core.js && node --check src/plugins/common.js && node --check src/plugins/obfuscator.js && node --check src/plugins/sojson.js && node --check src/plugins/sojsonv7.js && node --check src/plugins/awsc.js && node --check src/visitors/fold-binary.js && node --check src/visitors/remove-empty.js && node --check src/visitors/split-sequence.js && node --check src/tools/collect-residue-metrics.js && node --check src/tools/compare-with-reference.js && node --check test-fixtures/run-regressions.js",
+    "test": "node test-fixtures/run-regressions.js"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.27.0",
+    "@babel/parser": "^7.27.0",
+    "@babel/traverse": "^7.27.0",
+    "@babel/types": "^7.27.0"
+  }
+}

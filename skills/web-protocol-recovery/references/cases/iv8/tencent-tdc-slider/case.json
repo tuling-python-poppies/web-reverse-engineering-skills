@@ -1,0 +1,92 @@
+{
+    "schemaVersion":  "web-protocol-recovery-case/v1",
+    "caseId":  "iv8-tencent-tdc-slider",
+    "revision":  1,
+    "status":  "verified",
+    "family":  "verifier",
+    "runtime":  "iv8",
+    "caseKind":  "implementation",
+    "verificationClass":  "historical-user-attested",
+    "requiresFreshVerification":  true,
+    "secretPolicy":  "redacted-pull-live",
+    "match":  {
+                  "signals":  [
+                                  "vendor:tencent",
+                                  "product:tdc",
+                                  "captcha-type:slider",
+                                  "telemetry:eks-collect"
+                              ],
+                  "minimumIndependentSignals":  3,
+                  "negativeSignals":  [
+
+                                      ]
+              },
+    "protocolPatterns":  [
+                             "vendor:tencent",
+                             "product:tdc",
+                             "captcha-type:slider",
+                             "telemetry:eks-collect"
+                         ],
+    "sourceProvider":  "iv8",
+    "product":  {
+                    "vendor":  "Tencent",
+                    "product":  "TDC CAPTCHA",
+                    "version":  "legacy",
+                    "subtype":  "slider"
+                },
+    "providerChain":  [
+                          "verifier",
+                          "iv8",
+                          "python-collector"
+                      ],
+    "dependencies":  {
+                         "python":  "\u003e=3.9",
+                         "iv8":  "installed runtime",
+                         "requests":  "installed",
+                         "opencv":  "optional",
+                         "ddddocr":  "optional"
+                     },
+    "preRead":  [
+                    {
+                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
+                        "sha256":  "a61da951c5f80bcf250ba597a161dfe34ceeb2c75f257ddddb1c5b840aba1b95"
+                    }
+                ],
+    "liveState":  {
+                      "mode":  "browser-export-json",
+                      "retention":  "memory-only",
+                      "requiredCookies":  [
+
+                                          ],
+                      "optionalCookies":  [
+
+                                          ],
+                      "cookieNamePatterns":  [
+
+                                             ],
+                      "storageKeys":  [
+
+                                      ]
+                  },
+    "artifacts":  {
+                      "process":  {
+                                      "path":  "PROCESS.md",
+                                      "sha256":  "2511e464494eb991799caa9a6bad84bae40363f7d9d559fdbc024a2786bb654a"
+                                  },
+                      "pullLiveState":  {
+                                            "path":  "pull_live_state.py",
+                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+                                        },
+                      "assets":  [
+
+                                 ],
+                      "entry":  {
+                                    "path":  "entry.py",
+                                    "sha256":  "1ba931fc6da51d46692bad193c9fd1a8b1b49f413cef4bba5e5ef9b81427bb09"
+                                }
+                  },
+    "verification":  {
+                         "sourceCommit":  "95be929~1",
+                         "requiresFreshVerification":  true
+                     }
+}

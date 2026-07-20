@@ -20,6 +20,8 @@ Canonical executable templates:
 - `scripts/crypto_api.js`
 - `scripts/storage.js`
 
+If the observation boundary is concrete but the safest hook surface, log fields, restore strategy, or adjacent hook family is unclear, read `references/observation-boundary.md` first, then only the relevant topic file from `references/index.md`. Do not read topic files for routine template use.
+
 Additional boundaries stay target-driven rather than becoming a second snippet library:
 
 - hook jQuery transport only when initiator evidence proves `$.ajax`, `ajaxPrefilter`, or `beforeSend` owns the mutation

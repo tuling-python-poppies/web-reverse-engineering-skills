@@ -15,13 +15,17 @@ nextRead: <paths per read-budget>
 
 Do not paste the full intake form. Do not open Camoufox unless its Phase 2 criteria are already met.
 
+For a non-trigger boundary response, do not emit the four-line protocol header. Say the request is outside web-protocol-recovery and name the nearest normal workflow or skill.
+
 ## evidence
 
 1. Ask only for missing request/source/trigger context. Before fresh Chrome recon, require authorization basis, exact scheme/host/port/absolute route prefix, `browserReconAllowed=yes`, and explicit approval for unpreventable automatic browser-network side effects.
 2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web.
-3. Capture real request, initiator, or precise blocker.
-4. Stop before any engine/session/target transition that requires durable evidence. Do not ask for `projectRoot`, retention, or scale when no write/live replay is proposed; if such a transition becomes necessary, activate the project-root gate and ask once before the save or switch.
-5. A blocker may change the Provider route without changing shape. Expand the deliverable only when the user expands scope or explicitly accepts the smallest larger shape.
+3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser navigation, live egress, account/session use, target-code execution, dependency install, file write, raw artifact save, verifier submission, mutation, retry, scale-up, or retention is proposed, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
+4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
+5. Capture real request, initiator, or precise blocker.
+6. Stop before any engine/session/target transition that requires durable evidence. Do not ask for `projectRoot`, retention, or scale when no write/live replay is proposed; if such a transition becomes necessary, activate the project-root gate and ask once before the save or switch.
+7. A blocker may change the Provider route without changing shape. Expand the deliverable only when the user expands scope or explicitly accepts the smallest larger shape.
 
 ## local-proof
 

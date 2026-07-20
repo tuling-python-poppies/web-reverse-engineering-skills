@@ -11,7 +11,7 @@ web-protocol-recovery is the only public reverse skill. It owns intake, scope, p
 
 ## TL;DR
 
-先用下面的人话规则做内部判断；对外回复仍必须从四行机器头开始：
+先用下面的人话规则做内部判断；协议任务的对外回复仍必须从四行机器头开始：
 
 1. 用户只想“看 sign / token / 请求入口”时，先交 `evidence`：找真实请求、入口、状态来源或阻塞点，不写 collector。
 2. 用户给了 HAR、源码、固定向量、响应样本，先走 `evidence-reuse` 或 `local-proof`，能不开浏览器就不开。
@@ -25,7 +25,7 @@ Plain terms: **gate family** = what blocks replay; **route** = selected Provider
 
 ## Non-Negotiables
 
-First response and every subsequent gated turn begin with these four lines. `route` is a short Provider ID or `evidence-reuse`, never a file path or gate family. Inline local-proof includes `acceptanceTest` and `result`.
+First response and every subsequent gated turn begin with these four lines. `route` is a short Provider ID or `evidence-reuse`, never a file path or gate family. Inline local-proof includes `acceptanceTest` and `result`. Exception: for a non-trigger boundary response, do not emit the four-line protocol header; state that the request is outside web-protocol-recovery and name the nearest normal workflow or skill.
 ```
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>

@@ -32,7 +32,7 @@
   {
     "id": 7,
     "prompt": "帮我写一个公开文档里的 REST API client，不涉及 sign、token、cookie 或挑战",
-    "expected": "non-trigger boundary; ordinary public API client is outside web-protocol-recovery; do not force a route"
+    "expected": "non-trigger boundary; ordinary public API client is outside web-protocol-recovery; do not emit four-line protocol header; do not force a route"
   },
   {
     "id": 8,

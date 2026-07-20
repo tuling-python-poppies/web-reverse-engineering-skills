@@ -13,10 +13,12 @@ Plain terms: **gate family** = what blocks replay; **route** = selected Provider
 
 ## Non-Negotiables
 
-Every WPR response begins with literal `shape:` and `route:` lines. The route field uses a short Provider ID or `evidence-reuse`, never a file path or gate family. Inline local-proof includes `acceptanceTest` and `result`.
+First response and every subsequent gated turn begin with these four lines. `route` is a short Provider ID or `evidence-reuse`, never a file path or gate family. Inline local-proof includes `acceptanceTest` and `result`.
 ```
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>
+nextAsk: <only fields needed now>
+nextRead: <paths per read-budget>
 ```
 
 Four mandatory policy overlays when their trigger is hit — case read, scope/budget reset, Chrome auto-traffic gate, and denied live replay — are owned by `references/methodology/success-shape-scripts.md`.
@@ -30,7 +32,7 @@ Four mandatory policy overlays when their trigger is hit — case read, scope/bu
 
 ## Phase 0: Intake
 
-Do not paste the full intake form on the first reply. Emit `shape` / `route` / `nextAsk` / `nextRead` and ask only for fields required by the next gated action.
+Do not paste the full intake form on the first reply. Use the four-line template above; `nextAsk` lists only fields required by the next gated action.
 
 Before navigation, live HTTP, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
 

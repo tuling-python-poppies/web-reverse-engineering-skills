@@ -2,11 +2,15 @@
 
 `web-protocol-recovery-simple/v1` is the only project layout used by web-protocol-recovery and all internal providers.
 
+This layout is part of the architecture contract. Providers may not create or preserve a second layout for compatibility.
+
 ## Root Selection
 
 Before the first filesystem write, use an explicit user-supplied folder. If none was supplied, ask once whether to use the current directory or a custom directory. Record the absolute `projectRoot` and reuse it for the entire task. Read-only reconnaissance may continue before this decision, but no trace, source, screenshot, request export, or generated code may be saved.
 
 Never add a wrapper directory below the selected root. Never let a provider ask for a second landing directory.
+
+Forbidden as generated or required directories: `collector/`, `analysis/`, `input/`, `logs/`, provider-named project roots, and any second task root. Existing user files with those names may be read only when explicitly supplied as evidence; new delivery files still promote into `web-protocol-recovery-simple/v1` paths.
 
 Reject a selected root or output path when any existing component is a symlink, Windows junction, mount-point reparse path, or hard-linked file. Resolve containment without following those aliases. Create new files by exclusive atomic publication and never overwrite an existing path.
 
@@ -65,4 +69,4 @@ The default user command is:
 python main.py
 ```
 
-`main.js` and `mod.js` are local implementation helpers, not competing project entry points. Do not require `python -m collector.main` and do not create mandatory `collector/`, `analysis/`, `input/`, or `logs/` directories.
+`main.js` and `mod.js` are local implementation helpers, not competing project entry points. Do not require `python -m collector.main` and do not create `collector/`, `analysis/`, `input/`, or `logs/` directories.

@@ -13,6 +13,8 @@
 
 Use this provider for WMPF, WeChatAppEx, AppService, miniapp WebView, WMPFDebugger, or `127.0.0.1:62000` targets. web-protocol-recovery owns the reverse task; this provider owns WMPF process/lease custody, target selection, and miniapp runtime IDs for the duration of its work order.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only captures bounded evidence, writes assigned cache artifacts under `web-protocol-recovery-simple/v1`, and returns the next narrow blocker or Provider recommendation.
+
 Before locating, starting, attaching to, or stopping WMPFDebugger, require `runtimeCustody.providerOwnsLease=true`. A false or omitted value blocks lifecycle work; never infer lease custody from the selected Provider.
 
 ## Startup

@@ -15,6 +15,8 @@
 
 Use iv8 when web-protocol-recovery proves that browser-like local JavaScript execution is the smallest faithful implementation: signing bundles, server challenge state, browser tokens, XHR/fetch mutation, trusted input, verifier runtime proof, or a root-registry-selected case.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned runtime probes/helpers under `web-protocol-recovery-simple/v1`, then returns one explicit artifact or blocker for Python-owned HTTP.
+
 Python retains live HTTP ownership. iv8 returns one explicit artifact such as a cookie, sign/header dict, final URL, wrapped body, telemetry object, or decoded payload.
 
 ## Evidence First
@@ -31,7 +33,7 @@ After the API gate, use a new bounded work order for exactly one next reference:
 
 ## Project Shape
 
-Use web-protocol-recovery's assigned `projectRoot`. Temporary scripts, downloaded assets, net logs, and environment snapshots stay under `js_reverse_cache/iv8/` or `js_reverse_cache/source/`. Stable compact code belongs in root `main.py` or assigned `utils/`; do not create another project, `collector/`, or standalone helper tree.
+Use web-protocol-recovery's assigned `projectRoot`. Temporary scripts, downloaded assets, net logs, and environment snapshots stay under `js_reverse_cache/iv8/` or `js_reverse_cache/source/`. Stable compact code belongs in root `main.py` or assigned `utils/`; do not create another project, `collector/`, or alternate helper tree.
 
 Generated helpers must be import-safe, use editable nonsecret inputs, have bounded runtime deadlines, and produce no network or file side effects on import. Use one coherent browser/session baseline; never mix cookies, UA, storage, TLS, and environment fields from different captures. Python owns all live HTTP, and verifier submission requires the work order to allow both live replay and the `verifier` action class.
 

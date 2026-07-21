@@ -13,6 +13,8 @@
 
 Use this provider after web-protocol-recovery classifies the target as verifier-gated and freezes one coherent verifier round. It implements perception and proof-input preparation; web-protocol-recovery retains protocol ownership and iv8 may implement the official browser runtime proof builder.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned verifier assets/fixtures under `web-protocol-recovery-simple/v1`, then returns candidate proof inputs, confidence, and semantic verifier evidence.
+
 Read `references/replay-playbook.md` for family-specific round binding, perception, coordinate normalization, and proof-input procedures.
 
 Required inputs are provider/product/version/subtype, get/load and verify request shapes, one-round state, asset dimensions, coordinate spaces, proof-builder evidence, authorization, and an objective success predicate.

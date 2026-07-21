@@ -8,12 +8,13 @@ Read focused generic references when the symptom matches. First response loads 0
 2. Prefer the selected `PROVIDER.md` over generic essays.
 3. First response: 0-2 paths; the initial dispatch window caps at 3 after one blocker expansion.
 4. Never preload the whole tree, all cases, or sibling playbooks "just in case".
-5. Do not open Camoufox for ordinary evidence-only work, but preserve a direct Camoufox route when the user explicitly requests Camoufox/SpiderMonkey or the Phase 2 engine criteria are already met. Do not open collector/layout docs with no write planned.
+5. Do not open Camoufox for ordinary evidence-only work, but preserve a direct Camoufox route when the user explicitly requests Camoufox/SpiderMonkey or recorded second-engine criteria are already met. Do not open collector/layout docs with no write planned.
 6. When escalating, add exactly one path and state why.
 
 ## Core (start / route / stop)
 
 - `references/methodology/success-shape-scripts.md` for default first path by deliverable
+- `references/methodology/architecture.md` when ownership, Provider boundaries, or project shape is unclear
 - `references/methodology/read-budget.md` when tempted to load more files
 - `references/startup-triage-playbook.md` when the target is fresh and the first question is "what kind of fight is this?"
 - `references/workflow-overview.md` for the shortest end-to-end execution map

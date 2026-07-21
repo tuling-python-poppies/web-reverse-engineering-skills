@@ -14,6 +14,8 @@
 
 Use this provider after web-protocol-recovery has proved the real endpoint and moving protocol state. It owns the stable browser-free implementation assigned under `main.py` and `utils/`.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only implementation Provider that may own final live HTTP, and only inside assigned `web-protocol-recovery-simple/v1` paths.
+
 Python owns live HTTP, session/cookie handling, request budgets, retries, pagination, parsing, decode, persistence, and output. JavaScript, WASM, or iv8 helpers remain narrow local artifact generators. The final path never drives a browser.
 
 Start from the `web-protocol-recovery-simple/v1` layout. Reject symlinks, Windows junctions/reparse paths, and hard-linked files before writing. Publish only explicitly requested missing files atomically and never overwrite an existing path. Keep `main.py` compact and move only distinct stable responsibilities into `utils/sign.py`, `utils/runtime.py`, `utils/decode.py`, `utils/client.py`, or similarly narrow files. Do not generate a package framework or mandatory directories.

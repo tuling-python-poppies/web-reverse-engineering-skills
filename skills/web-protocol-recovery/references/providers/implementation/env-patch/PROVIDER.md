@@ -16,6 +16,8 @@
 
 Use this provider only with known target JS and a known entry or `script-load-only` runtime goal. It iterates run -> diagnose missing environment -> add the smallest module -> verify the target behavior.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned env probes or verified JS helpers under `web-protocol-recovery-simple/v1`, then returns fixed-vector proof or a blocker.
+
 ## Trust Gate
 
 `node:vm` is not a security boundary. Before executing target JS or custom environment modules, record source path, SHA-256, provenance, static review of Node capabilities/dynamic evaluation, and explicit execution approval. Untrusted material remains static-only.

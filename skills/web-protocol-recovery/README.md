@@ -5,6 +5,7 @@
 ## Route Index
 
 - Start/dispatch: `SKILL.md`
+- Architecture and ownership boundaries: `references/methodology/architecture.md`
 - Default shape scripts and mandatory overlays: `references/methodology/success-shape-scripts.md`
 - Authorization, scope, budget, execution, runtime, and cleanup contract: `references/methodology/provider-work-order.md`
 - Project root and output layout: `references/methodology/project-layout.md`
@@ -31,7 +32,7 @@ references/providers/
     python-collector/PROVIDER.md
 ```
 
-Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of scope, project root, acceptance, and browser-free delivery.
+Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
 
 ## Cases
 

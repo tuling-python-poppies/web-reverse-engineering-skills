@@ -13,6 +13,8 @@
 
 Use this provider only after web-protocol-recovery identifies one concrete observation boundary: a method, property, constructor, field, or URL-filtered request. It produces reversible observation code and never discovers a broad unknown entry by spraying global hooks.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only produces bounded hook code or assigned cache/helper artifacts under `web-protocol-recovery-simple/v1`, then returns observed evidence or a blocker.
+
 Canonical executable templates:
 
 - `scripts/xhr_fetch.js`

@@ -9,6 +9,8 @@ argument-hint: "<target URL | request/source sample | artifact directory> [evide
 
 web-protocol-recovery is the only public reverse skill. It owns intake, scope, project root, evidence, provider routing, acceptance, and final delivery. Internal providers are modules, not peer skills.
 
+Architecture contract: `references/methodology/architecture.md`. It defines web-protocol-recovery as the decision hub, Providers as internal skills, and `web-protocol-recovery-simple/v1` as the only landing layout.
+
 ## TL;DR
 
 先用下面的人话规则做内部判断；协议任务的对外回复仍必须从四行机器头开始：
@@ -50,7 +52,7 @@ Four mandatory policy overlays when their trigger is hit — case read, scope/bu
 
 1. Final delivery is browser-free. Python owns live HTTP; local JS/WASM/iv8 only as narrow artifact generators.
 2. Evidence precedes implementation: real request, moving state, mutation point, one objective acceptance test.
-3. One `projectRoot` and `web-protocol-recovery-simple/v1`. Providers never choose another landing path.
+3. One `projectRoot` and `web-protocol-recovery-simple/v1`. Providers never choose another landing path or project shape.
 4. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
 5. Browser engines/profiles are lifecycle-serialized. IDs never cross engine/session/target boundaries.
 6. Account state, verifier submission, mutations, target-code execution, raw secrets, dependency installs, and collection scale need explicit confirmation.
@@ -117,7 +119,7 @@ Canonical mutation order: wire request -> interceptor -> bootstrap asset -> expo
 
 ## Phase 4: Providers
 
-Read `references/methodology/provider-work-order.md` and issue one bounded work order:
+Read `references/methodology/provider-work-order.md` and issue one bounded work order. The architecture contract keeps global methodology in web-protocol-recovery; Provider files are capability manuals only:
 
 | Need | Route | Provider entry |
 |---|---|---|
@@ -180,7 +182,7 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not put a gate family (`signer-gated`, etc.) or file path in `route`.
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
-- Do not open Camoufox on ordinary Web without its Phase 2 criteria.
+- Do not open Camoufox on ordinary Web without explicit Camoufox wording or recorded second-engine criteria.
 - Do not open both Chromium and Camoufox recon without a Camoufox selection criterion.
 - Do not load a sibling case after one registry match failed current evidence.
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.
@@ -197,4 +199,4 @@ Full anti-pattern detail: `references/anti-patterns-playbook.md`.
 
 ## References
 
-By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Methodology: `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, or verification.
+By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Methodology: `architecture.md`, `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, layout, or verification.

@@ -13,6 +13,8 @@
 
 Use this provider for bounded whole-file or source-region structural restoration after web-protocol-recovery identifies the relevant bundle. It does not locate network entry points and does not own request replay.
 
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only transforms assigned source into assigned cache/callable artifacts under `web-protocol-recovery-simple/v1`, then returns hashes, proof, and unresolved blockers.
+
 ## Inputs And Outputs
 
 Require a local source path/hash, target family evidence, desired readable or callable output, approved AST cache paths, and a semantic acceptance test. Preserve the original source. Write intermediate products only under `js_reverse_cache/ast/`; promote a callable verified result only to an explicitly assigned `main.js` or `utils/*.js` path.

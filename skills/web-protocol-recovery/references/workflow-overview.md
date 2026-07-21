@@ -2,6 +2,8 @@
 
 Use this as the shortest end-to-end route map. Canonical field definitions and commands live in the linked contracts.
 
+Architecture and ownership boundaries live in `methodology/architecture.md`: web-protocol-recovery is the decision hub, Providers are internal skills, and all writes use `web-protocol-recovery-simple/v1`.
+
 ## 1. Gate
 
 - Emit the required `shape:` and `route:` lines from `methodology/success-shape-scripts.md`.

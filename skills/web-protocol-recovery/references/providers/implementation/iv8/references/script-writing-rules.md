@@ -4,7 +4,7 @@
 
 ## 默认骨架
 
-顶部放可编辑常量和缓存目录。只有 `SKILL.md` Permission Gate 已通过，且 `rootMode`、`write_scope`、绝对 write root 三者匹配后才创建 `js_reverse_cache/`。`offline-skeleton` 是验证模式，不是 write scope；`no-write` 时只在回复中给代码，不运行文件模板。
+顶部放可编辑常量和缓存目录。只有 web-protocol-recovery 工作单给出绝对 `projectRoot`、`layout=web-protocol-recovery-simple/v1`、非 `no-write` 的 `writeMode` 和精确 `allowedPaths` 后才创建 `js_reverse_cache/`。`offline-skeleton` 是验证模式，不是写入模式；`no-write` 时只在回复中给代码，不运行文件模板。
 
 skill 自带案例的最小 JS/HTML 素材放在对应 `references/cases/iv8/<case-id>/assets/`。新任务下载的素材仍必须写入当前项目的 `js_reverse_cache/`，不要写回 skill。只有明确确认案例回写时，才按 `references/case-ingestion-rules.md` 复制最小、公开、无凭证的 frozen 素材。
 
@@ -12,35 +12,32 @@ skill 自带案例的最小 JS/HTML 素材放在对应 `references/cases/iv8/<ca
 
 创建新任务基础模板时，默认创建 `utils/iv8_silent.py` 和 `utils/logger.py`，主脚本只导入 `import_iv8_silent()` 和 `logger`；不要在每个主脚本里重复粘贴 iv8 banner 静默代码或 loguru fallback 代码，除非用户明确要求单文件交付。
 
-上述默认骨架只适用于独立脚本模式。若任务来自已有协议恢复项目，或输入中已经包含 `project_root`、`collector/`、`analysis/`、`js_reverse_cache/`，必须改用已有协议项目嵌入模式：
+所有新任务都写入 web-protocol-recovery 分配的 `web-protocol-recovery-simple/v1` 项目根。若用户提供了旧项目或旧目录结构，把它当输入证据读取；不要继续生成旧布局。iv8 只能写这些路径：
 
-- 不创建新的项目根目录。
-- 不在协议项目根目录生成 standalone `main.py`。
-- 不创建新的 `utils/iv8_silent.py` 或 `utils/logger.py`，除非上游明确指定这些路径。
-- 稳定 helper 写入 `collector/helpers/iv8_runtime.py`、`collector/helpers/runtime_bridge.py` 或上游指定的 `collector/helpers/*.py`。
-- 临时 probe 写入 `js_reverse_cache/tasks/<task-id>/iv8_probe.py`。
-- 下载的 HTML/JS/环境快照仍写入已有协议项目的 `js_reverse_cache/`，例如 `js_reverse_cache/html/`、`js_reverse_cache/scripts/`、`js_reverse_cache/state/`。
-- 固定输入输出样本写入 `analysis/runtime_vectors/` 或上游指定的分析文件。
-- 最终只向 Python collector 返回一个明确 artifact，不接管最终 HTTP、分页、持久化或业务解析。
+- 稳定 helper：`utils/iv8_silent.py`、`utils/logger.py`，或工作单明确分配的 `utils/*.py`。
+- 临时 probe、netLog、运行快照：`js_reverse_cache/iv8/`。
+- 下载的 HTML/JS/WASM/图片等原始素材：`js_reverse_cache/source/` 或 `js_reverse_cache/iv8/`。
+- 固定输入输出样本：`js_reverse_cache/samples/` 或稳定 `tests/`。
+- 最终只向 Python-owned `main.py` 返回一个明确 artifact，不接管最终 HTTP、分页、持久化或业务解析。
 
-嵌入模式的最小文件形态：
+禁止生成 `collector/`、`analysis/`、`input/`、`logs/`、provider 专用项目根或第二 landing 目录。
+
+统一项目形态：
 
 ```text
-<protocol-project>/
-  collector/
-    helpers/
-      iv8_runtime.py
-      runtime_bridge.py
+<project-root>/
+  main.py
+  utils/
+    iv8_silent.py
+    logger.py
   js_reverse_cache/
-    tasks/<task-id>/iv8_probe.py
-    scripts/
-    html/
-    state/
-  analysis/
-    runtime_vectors/
+    iv8/
+    source/
+    samples/
+  tests/
 ```
 
-如果缺少上游指定的 `project_root`、目标写入路径、输入 artifact、预期输出或验收标准，先要求补齐，不要自行选择输出目录。
+如果缺少 web-protocol-recovery 指定的 `projectRoot`、目标写入路径、输入 artifact、预期输出或验收标准，先要求补齐，不要自行选择输出目录。
 
 ```python
 # pyright: reportMissingImports=false
@@ -69,23 +66,19 @@ BROWSER_BASELINE = "browser"  # browser / devtools / manual / default
 ACCOUNT_SESSION_USE = "none"  # none / approved-identifiers-only / approved-account-bound
 APPROVED_COOKIE_NAMES = ()  # required when using approved-identifiers-only
 APPROVED_STORAGE_NAMES = ()  # use local:<key> or session:<key>
-# Refuse to create files until the confirmed scope is supplied.
-ROOT_MODE = ""  # standalone / existing-project / task-cache-only / no-write
-WRITE_SCOPE = ""  # standalone / embedded-helper / task-cache-only
-WRITE_ROOT = Path("")  # approved absolute targetLandingRoot or task cache root
-EXPECTED_SCOPE = {
-    "standalone": "standalone",
-    "existing-project": "embedded-helper",
-    "task-cache-only": "task-cache-only",
-    "no-write": "no-write",
-}.get(ROOT_MODE)
-if EXPECTED_SCOPE is None or WRITE_SCOPE != EXPECTED_SCOPE:
-    raise RuntimeError("rootMode and write_scope are missing or inconsistent")
-if ROOT_MODE == "no-write" or not WRITE_ROOT.is_absolute():
-    raise RuntimeError("an approved absolute write root is required before file creation")
-WORK_DIR = WRITE_ROOT.resolve()
-CACHE_DIR = WORK_DIR / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+# Refuse to create files until web-protocol-recovery assigns the project root.
+PROJECT_ROOT = Path("")  # approved absolute projectRoot
+WRITE_MODE = ""  # project-root / no-write
+if WRITE_MODE not in {"project-root", "no-write"}:
+    raise RuntimeError("write mode is missing or invalid")
+if WRITE_MODE == "no-write" or not PROJECT_ROOT.is_absolute():
+    raise RuntimeError("an approved absolute projectRoot is required before file creation")
+WORK_DIR = PROJECT_ROOT.resolve()
+CACHE_ROOT = WORK_DIR / "js_reverse_cache"
+CACHE_DIR = CACHE_ROOT / "iv8"
+SOURCE_DIR = CACHE_ROOT / "source"
+SAMPLES_DIR = CACHE_ROOT / "samples"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 BROWSER_ENV_PATH = CACHE_DIR / "browser_env.json"
 ```
 

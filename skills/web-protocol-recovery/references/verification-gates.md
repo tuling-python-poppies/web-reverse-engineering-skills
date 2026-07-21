@@ -16,7 +16,7 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 - relevant MCP capabilities considered through `references/tool-playbook.md` before declaring a tooling blocker
 - clean baseline captured before invasive tooling when the target is verifier-gated or behavior-sensitive
 - normal-Chrome baseline captured before any CloakBrowser escalation on the Chromium route without upstream evidence, unless normal Chrome was unavailable and that blocker is documented
-- CloakBrowser use, if any, has explicit fingerprint, anti-bot, or environment-verification evidence and was done through `launch_browser({cloakBinaryPath: "..."})` on `js-reverse-mcp`
+- CloakBrowser use, if any, has explicit fingerprint, anti-bot, or environment-verification evidence and was done through `launch_browser({headless:false, cloakBinaryPath: "..."})` on `js-reverse-mcp` unless the user explicitly asked for hidden Cloak
 
 ## Replay And Helper Gates
 

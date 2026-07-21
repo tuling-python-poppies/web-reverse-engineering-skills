@@ -1426,7 +1426,7 @@ Must conclude:
 - `指纹浏览器` means CloakBrowser in this skill
 - call `js-reverse-mcp_browser_binary_info` first: check `cloak_active` (bool) and `cloak_binary_path` (string or null)
 - if `cloak_active` is true, navigate directly without calling `launch_browser`
-- if `cloak_active` is false and `cloak_binary_path` is a non-empty string, call `js-reverse-mcp_launch_browser({cloakBinaryPath: <cloak_binary_path>})` then navigate
+- if `cloak_active` is false and `cloak_binary_path` is a non-empty string, call `js-reverse-mcp_launch_browser({headless:false, cloakBinaryPath: <cloak_binary_path>})` then navigate unless the user explicitly asked for hidden Cloak
 - if `cloak_binary_path` is null, ask the user for the CloakBrowser executable path; do not invent an absolute path
 - recognize `--cloak` / `--cloakBinaryPath` as js-reverse-mcp server startup arguments; they are reflected in `browser_binary_info`'s `cloak_active` / `cloak_binary_path` fields
 - do not call any Camoufox browser tool as a substitute

@@ -21,7 +21,7 @@ invisible, one-pass, or any response whose `captcha_type` is not `slide`.
 
 ## Goal And Proven Result
 
-The final path is browser-free at runtime: Python owns live egress and iv8 executes the
+The final path is browser-free at runtime: Python owns HTTP and iv8 executes the
 official Geetest JavaScript needed to construct the verifier URL and encrypted
 `w` parameter.
 

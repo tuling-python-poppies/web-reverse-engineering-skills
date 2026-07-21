@@ -11,7 +11,7 @@ web-protocol-recovery is the only public protocol-recovery skill and the only de
 3. `projectRoot`, `web-protocol-recovery-simple/v1`, allowed paths, and promotion rules;
 4. acceptance tests, Provider result acceptance/rejection, cleanup state, and final delivery.
 
-Internal Providers are skills owned by this skill, not peer skills. A Provider receives one bounded work order, performs only its assigned capability, returns evidence/code/blockers, and gives control back to web-protocol-recovery.
+Internal Providers are internal skills owned by this skill, not peer top-level skills. Same meaning: decision hub routes and accepts; each Provider is the executable skill for one capability. A Provider receives one bounded work order, performs only its assigned capability, returns evidence/code/blockers, and gives control back to web-protocol-recovery.
 
 ## Dispatch Loop
 

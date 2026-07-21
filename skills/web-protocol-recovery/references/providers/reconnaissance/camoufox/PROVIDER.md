@@ -31,12 +31,38 @@ Require target URL/action, target field or request, exact scheme/host/port/route
 
 ## Evidence Ladder
 
-Use request metadata and initiators first, then source search, narrow page hooks, source instrumentation, transparent JSVMP probes, and custom-build `trace_property_access` only when the hypothesis requires it. Detectable proxy instrumentation is not a fallback for signed anti-bot targets. The connected MCP tool schema is authoritative; do not infer arguments from old recipes. If web-protocol-recovery selected a reusable case, consume it only through the root registry.
+Climb only while the named acceptance gap remains. Connected MCP tool schema is authoritative.
 
-The root registry exposes four historical `python-node` patterns: dual-sign `cacheOpts` interception, universal VMP source instrumentation, JSVMP XHR-interceptor `a_bogus` env emulation, and Ruishu 6 `412` cookie sdenv rebuild. Select one only through `references/cases/registry.json`, then open its declared `references/cases/python-node/<case-id>/PROCESS.md` in a bounded work order. Use Provider-local `references/jsdom-env-patches.md` only for a proven jsdom environment blocker. Historical wording is evidence, not permission for navigation, target-code execution, account state, dependencies, or live replay.
+1. **Request metadata** — capture list + one target request; headers/query redacted per artifact policy.
+2. **Initiator / source** — request initiator stack, then `search_code` / script get for the entry.
+3. **Narrow hooks** — presets or single-function hooks for I/O boundaries (xhr/fetch/crypto/cookie) when the target is not signature-sensitive to observer effects.
+4. **Source instrumentation** — `instrumentation(action='install')` on the VMP/script URL pattern; prefer AST; reload so probes run before page JS when scripts are sync-loaded.
+5. **Transparent JSVMP probe** — `hook_jsvmp_interpreter(mode='transparent')` when property/call traffic must be seen without proxy wrapping.
+6. **Engine trace** — custom-build `trace_property_access` only when SpiderMonkey/engine-level proof is the acceptance test.
+
+Rules:
+
+- Detectable `mode='proxy'` instrumentation is not a fallback for signed anti-bot targets (RS/Akamai-style). Prefer source instrumentation or transparent mode.
+- Install hooks/routes **before** navigate for sync-loaded SDKs; if already navigated, use instrumentation reload rather than silent miss.
+- Do not treat HTTP `200` or a non-empty signature as semantic success.
+- Reusable cases only via root `references/cases/registry.json` → declared `python-node` PROCESS. Provider-local `references/jsdom-env-patches.md` only after a proved jsdom environment blocker.
+- Historical case wording is evidence, not permission for navigation, target-code execution, account state, dependencies, or live replay.
+
+Operational step order and anti-patterns: `references/ops-ladder.md` when the work order names it.
 
 Save approved artifacts only under the work order's `js_reverse_cache/recon/camoufox/` or `js_reverse_cache/source/` paths. Return request/source evidence, environment reads, fixed samples, observer-effect notes, and a precise next provider. Do not generate a second project or final collector.
 
+## Failure Recovery
+
+| Trigger | First fix | Still fails → stop |
+|---|---|---|
+| js-reverse still open | Close js-reverse; re-check exclusive ownership | Blocker: dual-engine contamination |
+| check_environment fails | Report deps/browser residual; clear only if task-owned | Offline vectors only if possible |
+| User-owned browser needs invasive hooks | Ask hub for new task-owned browser work order | Do not reset/close user browser |
+| Sync SDK missed hooks | Install + instrumentation reload | Name script URL pattern blocker |
+| Signed target breaks under proxy hooks | Drop proxy; use source instrumentation / transparent | Do not escalate to broader proxy |
+| Generic 403/412 without Camoufox criterion | Return blocker for Chromium or evidence-reuse | Do not stay on Camoufox by default |
+
 ## Cleanup
 
-Remove only task-owned hooks, routes, interceptors, captures, and browser state. Close only a task-owned browser. Mark volatile IDs stale after navigation, reload, cleanup, or close.
+Remove only task-owned hooks, routes, interceptors, captures, and browser state. Close only a task-owned browser. Mark volatile IDs stale after navigation, reload, cleanup, or close. `cleanup.complete=false` while any task-owned resource remains live.

@@ -48,5 +48,20 @@
     "id": 10,
     "prompt": "我贴了请求头和 JS，你顺便线上跑一次验证并把结果保存到项目目录",
     "expected": "read-only evidence path exits before action; live replay and writes need explicit gates/project root; no live HTTP or file save until approved"
+  },
+  {
+    "id": 11,
+    "prompt": "微信小程序已经开着，接口关键词是 /api/order，先抓请求和入口，不要写 collector",
+    "expected": "route:wechat-miniapp; shape:evidence; lease/target gate; list_network_requests with url_filter; no collector; cleanup/lease rules known"
+  },
+  {
+    "id": 12,
+    "prompt": "入口已知，要用 iv8 本地跑出 sign 再交给 Python，先不要写业务请求代码",
+    "expected": "route:iv8; API-first api-inventory work order before code; artifact boundary named; Python owns live HTTP; no browser MCP from iv8"
+  },
+  {
+    "id": 13,
+    "prompt": "用户明确要求 Camoufox 做 SpiderMonkey 引擎级属性追踪，普通 Chrome 证据已不可信",
+    "expected": "route:camoufox; close js-reverse first; evidence ladder; not generic 403; no final browser collector"
   }
 ]

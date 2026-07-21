@@ -17,12 +17,12 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 |---|---|---|
 | Ordinary Web flow, redirects, network, initiators, source, breakpoints, wrappers, WebSocket | `references/providers/reconnaissance/chromium-recon/PROVIDER.md` | Camoufox unless its engine criteria are met |
 | Explicit CloakBrowser / 指纹浏览器 / fingerprint / stealth wording, or first proved fingerprint escalation | Chromium Recon Provider, Cloak tier | Camoufox as a name substitute |
-| Explicit Camoufox/SpiderMonkey or engine-event property tracing | `references/providers/reconnaissance/camoufox/PROVIDER.md` | Chromium contexts in parallel |
-| WMPF/AppService/WeChat miniapp debugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` | Web browser reconnaissance |
+| Explicit Camoufox/SpiderMonkey or engine-event property tracing | `references/providers/reconnaissance/camoufox/PROVIDER.md` (+ optional `camoufox/references/ops-ladder.md`) | Chromium contexts in parallel |
+| WMPF/AppService/WeChat miniapp debugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` (+ optional `wechat-miniapp/references/ops-playbook.md`) | Web browser reconnaissance |
 | One known reversible observation boundary | `references/providers/implementation/browser-hooks/PROVIDER.md` | Broad unknown-entry discovery |
 | Identified source region needs structural restoration | `references/providers/implementation/ast/PROVIDER.md` | Network ownership or final delivery |
 | Concrete environment-read mismatch is proved | `references/providers/implementation/env-patch/PROVIDER.md` | Guessing broad browser surfaces |
-| Narrow artifact needs host-visible JS semantics | `references/embedded-browser-runtime-playbook.md`, then `references/providers/implementation/iv8/PROVIDER.md` | Full rendering/interaction as delivery |
+| Narrow artifact needs host-visible JS semantics | `references/embedded-browser-runtime-playbook.md`, then `references/providers/implementation/iv8/PROVIDER.md` (API gate: `iv8/references/api-inventory.md`) | Full rendering/interaction as delivery |
 | Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` | Treating it as an ordinary signer |
 | Protocol is proved and browser-free Python delivery remains | `references/providers/implementation/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
 

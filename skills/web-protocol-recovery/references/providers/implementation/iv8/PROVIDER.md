@@ -11,7 +11,13 @@
 - Final live HTTP should stay in a browser (forbidden; Python owns HTTP).
 - No artifact boundary is named yet.
 
-**vs env-patch:** iv8 = browser-like host; env-patch = smallest Node module gaps.
+## vs env-patch
+
+| If | Prefer |
+|---|---|
+| Known entry needs a few missing Node/jsdom surfaces | `env-patch` |
+| Bundle expects browser-like host, timers, XHR/fetch semantics, or full page-like runtime | `iv8` |
+| Both plausible | name the artifact boundary; pick the smaller host that still produces that artifact |
 
 Use iv8 when web-protocol-recovery proves that browser-like local JavaScript execution is the smallest faithful implementation: signing bundles, server challenge state, browser tokens, XHR/fetch mutation, trusted input, verifier runtime proof, or a root-registry-selected case.
 
@@ -37,4 +43,19 @@ Use web-protocol-recovery's assigned `projectRoot`. Temporary scripts, downloade
 
 Generated helpers must be import-safe, use editable nonsecret inputs, have bounded runtime deadlines, and produce no network or file side effects on import. Use one coherent browser/session baseline; never mix cookies, UA, storage, TLS, and environment fields from different captures. Python owns all live HTTP, and verifier submission requires the work order to allow both live replay and the `verifier` action class.
 
-Run `py_compile` and deterministic/fixed-vector checks before approved live replay. Require semantic response success, not only non-empty iv8 output or HTTP `200`. Return runtime/API versions, case used, artifact shape, verification, side effects, and remaining host dependencies.
+Run `py_compile` and deterministic/fixed-vector checks before approved live replay. Require semantic response success, not only non-empty iv8 output or HTTP `200`.
+
+## Failure Recovery
+
+| Trigger | First fix | Still fails → stop |
+|---|---|---|
+| API inventory missing or member probe fails | One corrective API-gate work order only | Blocker: installed iv8 version + missing members; no code write |
+| Registry case disagrees with current evidence | Stop case reuse immediately | Return to hub evidence routing; no sibling case |
+| Import runs network or file I/O | Make import side-effect free; move I/O behind explicit call | Reject helper until import-safe |
+| Mixed session baseline (cookie/UA/storage from different captures) | Rebuild from one coherent capture | Blocker naming mismatched fields |
+| Non-empty sign but semantic fail | Diff fixed vectors / response shape / challenge markers | Do not scale; return precise mismatch |
+| Needs browser recon for fresh baseline | Do not call browser MCP from iv8 | Return blocker for recon Provider work order |
+
+## Exit
+
+Return runtime/API versions, case id used (if any), artifact shape and path, fixed-vector acceptance state, side effects, remaining host dependencies, cleanup state, and the next hub action (python-collector, another implementation Provider, or stop). Do not claim delivery complete while Python live HTTP ownership is still unproved when the shape requires it.

@@ -22,7 +22,9 @@ references/providers/
   reconnaissance/
     chromium-recon/PROVIDER.md
     camoufox/PROVIDER.md
+    camoufox/references/ops-ladder.md
     wechat-miniapp/PROVIDER.md
+    wechat-miniapp/references/ops-playbook.md
   implementation/
     browser-hooks/PROVIDER.md
     ast/PROVIDER.md
@@ -32,7 +34,7 @@ references/providers/
     python-collector/PROVIDER.md
 ```
 
-Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
+Internal skills are Providers under this tree (not peer top-level skills). Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
 
 ## Cases
 

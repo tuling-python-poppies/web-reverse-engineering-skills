@@ -139,7 +139,7 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 3. Content type, challenge markers, business result, and data shape pass.
 4. Signatures, cookies, headers, and wrapped bodies regenerate at the canonical request boundary.
 5. Page/retry/concurrency/duration scale only after repeatable first request + confirmation.
-6. Final live HTTP is browser-free; local JS/WASM/iv8 only as narrow artifact generators.
+6. Preserve the delivery invariant from Non-Negotiables: Python owns final live HTTP; local runtimes only produce narrow artifacts.
 
 ## Case Reuse And Writeback
 

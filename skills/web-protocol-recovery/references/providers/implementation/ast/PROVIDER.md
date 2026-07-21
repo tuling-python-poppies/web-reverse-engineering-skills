@@ -28,5 +28,7 @@ Read at most one after a proved blocker, per the read budget:
 - `references/decode-action-pipelines.md`: family detection order (obfuscator/sojson/awsc/common) and per-family pass pipelines behind the scaffold.
 - `references/control-flow-patterns.md`: control-flow-flattening, dispatcher, and while-switch structural recovery patterns for the aggressive task-cache rewrites.
 - `references/instrumentation-patterns.md`: when static rewriting must stop and switch to AST-level instrumentation for runtime-state-driven state machines.
+- `references/template-usage.md`: when to use the single-file scaffold versus the directory template, and how to keep readable output separate from callable output.
+- `references/residue-metrics.md`: how to interpret the bundled residue metric tools without treating lower counts as semantic proof.
 
 Return input/output hashes, passes used, parse/reparse result, residue metrics, semantic fixture result, unresolved constructs, and whether output is readable-only or callable.

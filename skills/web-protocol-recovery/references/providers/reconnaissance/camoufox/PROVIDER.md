@@ -22,7 +22,7 @@ Require target URL/action, target field or request, exact scheme/host/port/route
 ## Startup
 
 1. Confirm js-reverse is closed and no other provider owns an active target browser.
-2. Run Camoufox environment self-check before launching, then apply the normalized scope and budget guard before every Provider-initiated navigation/request/WebSocket send. Automatic redirects/subresources are blocked when interception exists and otherwise recorded only in cumulative `observedAutomatic`; they never consume a Provider-initiated budget category.
+2. Run the connected Camoufox MCP `check_environment` self-check before launching, then apply the normalized scope and budget guard before every Provider-initiated navigation/request/WebSocket send. Automatic redirects/subresources are blocked when interception exists and otherwise recorded only in cumulative `observedAutomatic`; they never consume a Provider-initiated budget category.
 3. For a new provider-owned browser, record ownership and start metadata-only network capture.
 4. For an existing user-owned browser, stay read-only: do not clear captures/state, install global persistent probes, reset, or close it.
 5. Keep first navigation hook-free for signed challenge/JSVMP targets; establish redirect/status/request behavior before instrumentation.

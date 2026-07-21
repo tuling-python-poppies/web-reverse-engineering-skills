@@ -4,7 +4,7 @@
 >
 > 使用方式：
 >
-> 1. 在 Phase 0.5 指纹匹配时，若检测到 VMP 特征（`search_code(keyword='switch', script_url=..., context_chars=500)` 命中密集 switch/case 解释器片段），直接走本案例的「已验证定位路径」
+> 1. 在 registry 指纹匹配时，若检测到 VMP 特征（`search_code(keyword='switch', script_url=..., context_chars=500)` 命中密集 switch/case 解释器片段），直接走本案例的「已验证定位路径」
 > 2. 完成一次具体站点逆向后，通过 root registry 和 `case-writeback.md` 创建新的独立案例；不要复制本历史证据文件作为未验证实现。
 
 ---
@@ -85,7 +85,7 @@ Step 5 — 装兜底 hook（若 Step 2 没走 pre_inject_hooks）
   # （RS/Akamai），不要这样用 hook_jsvmp_interpreter，改为：
   #   - instrumentation(action='install', mode="ast")  （首选）
   #   - hook_jsvmp_interpreter(mode="transparent")  （备选）
-  # 参考 SKILL.md "反爬类型识别与工具选择" 章节
+  # 参考根 SKILL.md 的 gate family 与 Provider routing 章节
   inject_hook_preset(preset='debugger_bypass')
 
 Step 6 — instrumentation(action='reload') 让探针先于 VMP 生效
@@ -172,7 +172,7 @@ function genSign(input) {
 }
 ```
 
-### 分支 C：hot_keys 多（30+） + cookie 来自 HTTP Set-Cookie → 路径 B jsdom 环境伪装
+### 分支 C：hot_keys 多（30+） + cookie 来自 HTTP Set-Cookie → env-patch / jsdom 环境伪装
 
 见 `references/providers/reconnaissance/camoufox/references/jsdom-env-patches.md` + `references/cases/python-node/jsvmp-xhr-interceptor-env-emulation/PROCESS.md`。
 
@@ -206,7 +206,7 @@ function genSign(input) {
 
 ## 指纹匹配时的权重建议
 
-作为 Phase 0.5 指纹匹配的备选路径，本案例应命中以下任一条件即触发"尝试源码级插桩"：
+作为 registry 指纹匹配的备选路径，本案例应命中以下任一条件即触发"尝试源码级插桩"：
 
 - **高权重（直接走）**：`search_code(keyword='switch', script_url=..., context_chars=500)` 命中密集 switch/case 解释器片段
 - **中权重（优先试）**：单 JS > 200KB + 含 while-switch + 参数长度 128/192/256 + Base64 变体

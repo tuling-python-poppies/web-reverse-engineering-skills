@@ -26,8 +26,8 @@ Use this provider only with known target JS and a known entry or `script-load-on
 2. Select and order the smallest modules from `env/` using `references/env-modules.md`. Read `references/loading-order.md` instead, in a later iteration, only when a multi-module dependency or replacement order remains the current blocker.
 3. Repeat diagnosis while preserving proxy/gap monitoring with selected modules.
 4. Keep generated patches and probes under `js_reverse_cache/env/` and load them through that explicit path. Built-in module names always resolve from the Provider and cannot be shadowed by the project. Relative project modules reject symlink, junction, traversal, and real-path escape.
-5. After runtime success, trigger the known signer/cookie/header behavior and compare fixed vectors or browser intermediates.
-6. Promote only verified stable output to assigned `mod.js` and `main.js`; web-protocol-recovery owns final `main.py` integration.
+5. After runtime success, read `references/verification-and-replay.md` before claiming functional success; trigger the known signer/cookie/header behavior and compare fixed vectors or browser intermediates.
+6. Promote only verified stable output to assigned `mod.js` and `main.js`; use `templates/` only as project-local skeletons, and web-protocol-recovery owns final `main.py` integration.
 
 `success:true` only means the observable runtime path did not throw. It is not signer or replay proof. Return module load errors, unresolved paths, input/output hashes, functional result, first divergence, and residual environment assumptions.
 
@@ -38,3 +38,5 @@ Use this provider only with known target JS and a known entry or `script-load-on
 - `references/node-detection.md`: repair Node/VM identity and reflected-shape leaks.
 - `references/webpack.md`: expose only the webpack runtime boundary needed by the target.
 - `references/limitations.md`: recognize opcode-level or real-engine gaps that environment modules cannot close.
+- `references/path-upgrade-checklist.md`: decide whether to keep shrinking env-patch, move to iv8/browser-like runtime, or stop for WASM/engine blockers.
+- `references/delivery-templates.md`: use the bundled `templates/main.py`, `templates/main.js`, and `templates/mod.js` without turning load success into replay proof.

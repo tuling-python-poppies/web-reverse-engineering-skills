@@ -1429,7 +1429,7 @@ Must conclude:
 - if `cloak_active` is false and `cloak_binary_path` is a non-empty string, call `js-reverse-mcp_launch_browser({cloakBinaryPath: <cloak_binary_path>})` then navigate
 - if `cloak_binary_path` is null, ask the user for the CloakBrowser executable path; do not invent an absolute path
 - recognize `--cloak` / `--cloakBinaryPath` as js-reverse-mcp server startup arguments; they are reflected in `browser_binary_info`'s `cloak_active` / `cloak_binary_path` fields
-- do not call `camoufox-reverse-mcp_launch_browser` or any Camoufox browser tool as a substitute
+- do not call any Camoufox browser tool as a substitute
 - mark the browser visit as reconnaissance only; final protocol delivery remains browser-free
 
 ## Task 20: Dual reconnaissance profile isolation

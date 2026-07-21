@@ -15,20 +15,20 @@
 使用 MCP 工具捕获请求：
 
 ```
-[camoufox-reverse] launch_browser()
-[camoufox-reverse] navigate(url="https://example.com/data")
-[camoufox-reverse] network_capture(action='start')
+Camoufox MCP: launch_browser()
+Camoufox MCP: navigate(url="https://example.com/data")
+Camoufox MCP: network_capture(action='start')
 
 → 触发翻页交互
-[camoufox-reverse] click(selector=".next-page")
+Camoufox MCP: click(selector=".next-page")
 
-[camoufox-reverse] list_network_requests
+Camoufox MCP: list_network_requests
 → 发现数据接口: /api/v1/products
 
-[camoufox-reverse] get_network_request(request_id=42)
+Camoufox MCP: get_network_request(request_id=42)
 → 获取完整请求信息
 
-[camoufox-reverse] get_request_initiator(request_id=42)
+Camoufox MCP: get_request_initiator(request_id=42)
 → 直接定位签名函数 generateSign
 ```
 
@@ -52,17 +52,17 @@ Headers:
 ### 搜索加密入口
 
 ```
-[camoufox-reverse] search_code(keyword="sign=")
+Camoufox MCP: search_code(keyword="sign=")
 → 在 /static/js/app.js 第 1234 行找到: params.sign = generateSign(page, timestamp)
 
-[camoufox-reverse] search_code(keyword="generateSign")
+Camoufox MCP: search_code(keyword="generateSign")
 → 在 /static/js/utils.js 第 567 行找到函数定义
 ```
 
 ### 读取关键代码
 
 ```
-[camoufox-reverse] scripts(action='get', url="https://example.com/static/js/utils.js")
+Camoufox MCP: scripts(action='get', url="https://example.com/static/js/utils.js")
 ```
 
 还原后的关键代码：
@@ -79,10 +79,10 @@ function generateSign(page, timestamp) {
 ### 注入 Hook 验证
 
 ```
-[camoufox-reverse] inject_hook_preset(preset="xhr")
-[camoufox-reverse] hook_function(function_path="window.generateSign", mode='intercept', position='before', hook_code="console.log('[generateSign]', arguments)")
-[camoufox-reverse] reload()
-[camoufox-reverse] get_console_logs
+Camoufox MCP: inject_hook_preset(preset="xhr")
+Camoufox MCP: hook_function(function_path="window.generateSign", mode='intercept', position='before', hook_code="console.log('[generateSign]', arguments)")
+Camoufox MCP: reload()
+Camoufox MCP: get_console_logs
 ```
 
 伪断点捕获：

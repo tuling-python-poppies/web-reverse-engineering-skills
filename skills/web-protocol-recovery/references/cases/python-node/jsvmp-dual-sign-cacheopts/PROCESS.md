@@ -8,7 +8,7 @@
 
 ---
 
-## 技术指纹（供 Phase 0.5 自动匹配）
+## 技术指纹（供 registry 自动匹配）
 
 ### JS 特征
 - [x] `webmssdk.es5.js` — JSVMP 签名引擎（380KB+），UMD 导出到 `window.byted_acrawler`
@@ -91,7 +91,7 @@
 
 ---
 
-## 已验证定位路径（Phase 0.5 命中后直接执行）
+## 已验证定位路径（registry 命中后直接执行）
 
 ### Phase 1：网络捕获定位接口
 
@@ -322,7 +322,7 @@ async function requestWithFirefoxTLS(url, headers) {
 
 ## 浏览器指纹采集方法
 
-使用 camoufox-reverse-mcp 在 Firefox 内核浏览器中采集指纹：
+使用 `camoufox` Provider 的 Camoufox MCP 会话在 Firefox 内核浏览器中采集指纹：
 
 ```
 步骤 1: launch_browser({headless: false, os_type: "macos", locale: "zh-CN"})

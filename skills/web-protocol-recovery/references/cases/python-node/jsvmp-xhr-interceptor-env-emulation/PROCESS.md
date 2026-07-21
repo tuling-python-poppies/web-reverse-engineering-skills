@@ -8,7 +8,7 @@
 
 ---
 
-## 技术指纹（供 Phase 0.5 自动匹配）
+## 技术指纹（供 registry 自动匹配）
 
 ### JS 特征
 - [x] `window['_$webrt_1668687510']` — JSVMP 解释器入口函数，接受十六进制字节码字符串
@@ -221,7 +221,7 @@ grep -c "userAgentData\|navigator\.connection\|getBattery\|window\.chrome\|perfo
 ### Phase 4：环境指纹对比（核心突破点）
 
 ```
-步骤 10: 用 camoufox-reverse-mcp 启动反检测浏览器，navigate 到目标页面
+步骤 10: 用 `camoufox` Provider 的 Camoufox MCP 会话启动反检测浏览器，navigate 到目标页面
 步骤 11: 通过 evaluate_js 分批采集浏览器完整环境指纹
          （navigator 24项 / screen 10项 / window 40项 / document 16项 /
           performance 12项 / toString 7项 / Function.toString 6项 /
@@ -416,7 +416,7 @@ function generateABogus(fullUrl, cookieStr) {
 
 ## 浏览器指纹采集方法
 
-使用 camoufox-reverse-mcp 在真实浏览器中采集指纹的完整流程：
+使用 `camoufox` Provider 的 Camoufox MCP 会话在真实浏览器中采集指纹的完整流程：
 
 ```
 步骤 1: launch_browser({headless: false, os_type: "macos", locale: "zh-CN"})

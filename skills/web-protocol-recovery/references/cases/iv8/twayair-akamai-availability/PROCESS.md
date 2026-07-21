@@ -74,7 +74,7 @@ Moving state (names only; values are pulled live and never stored):
 
 1. `chromium-recon` (Cloak tier) — prove the 403/document gate, capture collector path, sensor POST shape, NetFunnel envelope, cookie family names.
 2. `iv8` — isolated JSContext runs the real collector; a parent-owned XHR bridge forwards only the collector's requests; stats gate on `postCount>=1 && signalCount>=110 && active==0`.
-3. `python-collector` — parent process owns all live HTTP (curl_cffi TLS profile), cookies, NetFunnel, business forms, parse, and bounds.
+3. `python-collector` — parent process owns all live egress (curl_cffi TLS profile), cookies, NetFunnel, business forms, parse, and bounds.
 
 ## Minimal Implementation (what entry.py demonstrates)
 

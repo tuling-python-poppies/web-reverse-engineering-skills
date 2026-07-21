@@ -1,7 +1,7 @@
 # ============================================================
 # T'way Akamai Bot Manager — iv8 sensor bridge pattern (educational).
 # This entry demonstrates the reusable pattern only:
-#   Python parent owns ALL live HTTP; the isolated iv8 child runs the
+#   Python parent owns ALL live egress; the isolated iv8 child runs the
 #   Akamai collector and emits the sensor POST through a parent-answered
 #   XHR bridge. Importing this module performs no network and no writes.
 # Run gate for real targets stays with web-protocol-recovery work orders.
@@ -320,7 +320,7 @@ AKAMAI_BRIDGE_INSTALL = r"""
 def _iv8_worker(connection, payload):
     """Child process: build JSContext, run collector, forward XHR to parent.
 
-    The child NEVER owns live HTTP. Each staged request is sent to the parent
+    The child NEVER owns live egress. Each staged request is sent to the parent
     as a frame; the parent answers with response bytes + visible cookies,
     which the child injects back into the page before continuing.
     """

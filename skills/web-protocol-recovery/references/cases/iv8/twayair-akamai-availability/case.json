@@ -1,166 +1,164 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-twayair-akamai-availability",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "challenge",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "freshly-verified",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "vendor:akamai",
-                                  "cookie:bm_s",
-                                  "cookie:ak_bmsc",
-                                  "path:espO2PwrZm-collector",
-                                  "queue:netfunnel",
-                                  "site:twayair"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-                                          "vendor:ruishu",
-                                          "sdk:webmssdk"
-                                      ]
-              },
-    "exactScopes":  [
-                        {
-                            "scheme":  "https",
-                            "host":  "www.twayair.com",
-                            "port":  443,
-                            "routePrefix":  "/app"
-                        },
-                        {
-                            "scheme":  "https",
-                            "host":  "www.twayair.com",
-                            "port":  443,
-                            "routePrefix":  "/espO2PwrZm"
-                        },
-                        {
-                            "scheme":  "https",
-                            "host":  "www.twayair.com",
-                            "port":  443,
-                            "routePrefix":  "/akam"
-                        },
-                        {
-                            "scheme":  "https",
-                            "host":  "www.twayair.com",
-                            "port":  443,
-                            "routePrefix":  "/ajax/booking"
-                        },
-                        {
-                            "scheme":  "https",
-                            "host":  "csnf.twayair.com",
-                            "port":  443,
-                            "routePrefix":  "/ts.wseq"
-                        }
-                    ],
-    "protocolPatterns":  [
-                             "vendor:akamai",
-                             "cookie:bm_s",
-                             "cookie:ak_bmsc",
-                             "path:espO2PwrZm-collector",
-                             "queue:netfunnel",
-                             "runtime:iv8-sensor-bridge",
-                             "site:twayair"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "Akamai",
-                    "product":  "Bot Manager",
-                    "version":  "web-sensor",
-                    "subtype":  "twayair-sensor-netfunnel"
-                },
-    "providerChain":  [
-                          "chromium-recon",
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  ">=3.11",
-                         "iv8":  "installed runtime",
-                         "curl_cffi":  "installed",
-                         "beautifulsoup4":  "installed",
-                         "lxml":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "99d96e7bbeee379f1e5a1a3dd3b241461e9bc286d17ee4153d674ef7420b82fc"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-                                              "bm_s",
-                                              "bm_so",
-                                              "bm_ss",
-                                              "bm_sv",
-                                              "bm_mi",
-                                              "bm_lso",
-                                              "ak_bmsc",
-                                              "NetFunnel_ID",
-                                              "SESSION",
-                                              "WMONID",
-                                              "SETTINGS_REGION",
-                                              "SETTINGS_LANGUAGE",
-                                              "SETTINGS_CURRENCY"
-                                          ],
-                      "cookieNamePatterns":  [
-                                                 "^bm_",
-                                                 "^ak_"
-                                             ],
-                      "storageKeys":  [
-                                          "ak_bm_tab_id"
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "29e9133c9542f51714d1235fa5e525f49f28cdc6c192741be78f834002ccaead"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "a16e9605848d948fdfab98c0e7d140f90781baee71efbed6e8fb6b999eb3cb75"
-                                        },
-                      "assets":  [
-                                     {
-                                         "path":  "fixtures/vectors.json",
-                                         "sha256":  "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
-                                     },
-                                     {
-                                         "path":  "fixtures/response.sample.json",
-                                         "sha256":  "722b68beee48bb29e4db1d7015efb0c2a54575d34fcc00ced08819778fbbf245"
-                                     }
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "4ebb8e1fb60cfb8427332d643a027b408d6819c75c7dbcc8b7500abe829e0021"
-                                }
-                  },
-    "verification":  {
-                         "executed":  true,
-                         "passed":  true,
-                         "executedAt":  "2026-07-21",
-                         "testCommand":  "python -m unittest discover -s tests -v",
-                         "testArtifact":  {
-                                              "path":  "tests/test_vectors.py",
-                                              "sha256":  "63c5a3406a35779787e216868ea8410032c0e547659ebd1cd8a97e26f941f98f"
-                                          },
-                         "evidenceArtifact":  {
-                                                  "path":  "fixtures/vectors.json",
-                                                  "sha256":  "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
-                                              },
-                         "proof":  {
-                                        "offlineBridge":  "post_count=1 signal_count=116 worker_message_count=1 runtime_error_count=0 via case-local python entry.py",
-                                        "unitTests":  "3/3 case-local: parser + vectors shape + offline probe",
-                                        "liveChain":  "source-project shape only: landing 200 -> collector 200 -> sensor 200 -> NetFunnel OK -> main 200 -> choose 200 -> availability 200 (~314KB), flights TW301/TW303/TW305/TW307",
-                                        "caseLocalTests":  "3/3 passed 2026-07-21"
-                                    }
-                     }
+    "schemaVersion": "web-protocol-recovery-case/v1",
+    "caseId": "iv8-twayair-akamai-availability",
+    "revision": 1,
+    "status": "verified",
+    "family": "challenge",
+    "runtime": "iv8",
+    "caseKind": "implementation",
+    "verificationClass": "freshly-verified",
+    "requiresFreshVerification": true,
+    "secretPolicy": "redacted-pull-live",
+    "match": {
+        "signals": [
+            "vendor:akamai",
+            "cookie:bm_s",
+            "cookie:ak_bmsc",
+            "path:espO2PwrZm-collector",
+            "queue:netfunnel",
+            "site:twayair"
+        ],
+        "minimumIndependentSignals": 2,
+        "negativeSignals": [
+            "vendor:ruishu",
+            "sdk:webmssdk"
+        ]
+    },
+    "exactScopes": [
+        {
+            "scheme": "https",
+            "host": "www.twayair.com",
+            "port": 443,
+            "routePrefix": "/app"
+        },
+        {
+            "scheme": "https",
+            "host": "www.twayair.com",
+            "port": 443,
+            "routePrefix": "/espO2PwrZm"
+        },
+        {
+            "scheme": "https",
+            "host": "www.twayair.com",
+            "port": 443,
+            "routePrefix": "/akam"
+        },
+        {
+            "scheme": "https",
+            "host": "www.twayair.com",
+            "port": 443,
+            "routePrefix": "/ajax/booking"
+        },
+        {
+            "scheme": "https",
+            "host": "csnf.twayair.com",
+            "port": 443,
+            "routePrefix": "/ts.wseq"
+        }
+    ],
+    "protocolPatterns": [
+        "vendor:akamai",
+        "cookie:bm_s",
+        "cookie:ak_bmsc",
+        "path:espO2PwrZm-collector",
+        "queue:netfunnel",
+        "runtime:iv8-sensor-bridge",
+        "site:twayair"
+    ],
+    "sourceProvider": "iv8",
+    "product": {
+        "vendor": "Akamai",
+        "product": "Bot Manager",
+        "version": "web-sensor",
+        "subtype": "twayair-sensor-netfunnel"
+    },
+    "providerChain": [
+        "chromium-recon",
+        "iv8",
+        "python-collector"
+    ],
+    "dependencies": {
+        "python": ">=3.11",
+        "iv8": "installed runtime",
+        "curl_cffi": "installed",
+        "beautifulsoup4": "installed",
+        "lxml": "installed"
+    },
+    "preRead": [
+        {
+            "path": "references/providers/implementation/iv8/references/api-inventory.md",
+            "sha256": "99d96e7bbeee379f1e5a1a3dd3b241461e9bc286d17ee4153d674ef7420b82fc"
+        }
+    ],
+    "liveState": {
+        "mode": "browser-export-json",
+        "retention": "memory-only",
+        "requiredCookies": [],
+        "optionalCookies": [
+            "bm_s",
+            "bm_so",
+            "bm_ss",
+            "bm_sv",
+            "bm_mi",
+            "bm_lso",
+            "ak_bmsc",
+            "NetFunnel_ID",
+            "SESSION",
+            "WMONID",
+            "SETTINGS_REGION",
+            "SETTINGS_LANGUAGE",
+            "SETTINGS_CURRENCY"
+        ],
+        "cookieNamePatterns": [
+            "^bm_",
+            "^ak_"
+        ],
+        "storageKeys": [
+            "ak_bm_tab_id"
+        ]
+    },
+    "artifacts": {
+        "process": {
+            "path": "PROCESS.md",
+            "sha256": "febc5b387bb639cff991e098ff47f96e2f8139c9f75497ae8fc53aab71ed7721"
+        },
+        "pullLiveState": {
+            "path": "pull_live_state.py",
+            "sha256": "a16e9605848d948fdfab98c0e7d140f90781baee71efbed6e8fb6b999eb3cb75"
+        },
+        "assets": [
+            {
+                "path": "fixtures/vectors.json",
+                "sha256": "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
+            },
+            {
+                "path": "fixtures/response.sample.json",
+                "sha256": "722b68beee48bb29e4db1d7015efb0c2a54575d34fcc00ced08819778fbbf245"
+            }
+        ],
+        "entry": {
+            "path": "entry.py",
+            "sha256": "08db55ced9f4a94f0ea8b43d3a75935c568dad2a9919c102d9d4ae125e4d8179"
+        }
+    },
+    "verification": {
+        "executed": true,
+        "passed": true,
+        "executedAt": "2026-07-21",
+        "testCommand": "python -m unittest discover -s tests -v",
+        "testArtifact": {
+            "path": "tests/test_vectors.py",
+            "sha256": "63c5a3406a35779787e216868ea8410032c0e547659ebd1cd8a97e26f941f98f"
+        },
+        "evidenceArtifact": {
+            "path": "fixtures/vectors.json",
+            "sha256": "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
+        },
+        "proof": {
+            "offlineBridge": "post_count=1 signal_count=116 worker_message_count=1 runtime_error_count=0 via case-local python entry.py",
+            "unitTests": "3/3 case-local: parser + vectors shape + offline probe",
+            "liveChain": "source-project shape only: landing 200 -> collector 200 -> sensor 200 -> NetFunnel OK -> main 200 -> choose 200 -> availability 200 (~314KB), flights TW301/TW303/TW305/TW307",
+            "caseLocalTests": "3/3 passed 2026-07-21"
+        }
+    }
 }

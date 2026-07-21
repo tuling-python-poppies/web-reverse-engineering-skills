@@ -1,93 +1,81 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-geetest-v4-slider",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "verifier",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "vendor:geetest",
-                                  "version:v4",
-                                  "captcha-type:slider",
-                                  "protocol:slide"
-                              ],
-                  "minimumIndependentSignals":  3,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "vendor:geetest",
-                             "version:v4",
-                             "captcha-type:slider",
-                             "protocol:slide"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "Geetest",
-                    "product":  "CAPTCHA",
-                    "version":  "v4",
-                    "subtype":  "slider"
-                },
-    "providerChain":  [
-                          "verifier",
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "curl_cffi":  "installed",
-                         "ddddocr":  "installed",
-                         "opencv":  "installed",
-                         "pillow":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "99d96e7bbeee379f1e5a1a3dd3b241461e9bc286d17ee4153d674ef7420b82fc"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "89d656f696f39eba7cfbb64f68840dcf18acab22f8eb51e2988188f77eb5b5fc"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "c7bf3990a3db66c71c0257ceeca37184da6ac4779ee4143f5679e07af7ea399f"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+    "schemaVersion": "web-protocol-recovery-case/v1",
+    "caseId": "iv8-geetest-v4-slider",
+    "revision": 1,
+    "status": "verified",
+    "family": "verifier",
+    "runtime": "iv8",
+    "caseKind": "implementation",
+    "verificationClass": "historical-user-attested",
+    "requiresFreshVerification": true,
+    "secretPolicy": "redacted-pull-live",
+    "match": {
+        "signals": [
+            "vendor:geetest",
+            "version:v4",
+            "captcha-type:slider",
+            "protocol:slide"
+        ],
+        "minimumIndependentSignals": 3,
+        "negativeSignals": []
+    },
+    "protocolPatterns": [
+        "vendor:geetest",
+        "version:v4",
+        "captcha-type:slider",
+        "protocol:slide"
+    ],
+    "sourceProvider": "iv8",
+    "product": {
+        "vendor": "Geetest",
+        "product": "CAPTCHA",
+        "version": "v4",
+        "subtype": "slider"
+    },
+    "providerChain": [
+        "verifier",
+        "iv8",
+        "python-collector"
+    ],
+    "dependencies": {
+        "python": ">=3.9",
+        "iv8": "installed runtime",
+        "curl_cffi": "installed",
+        "ddddocr": "installed",
+        "opencv": "installed",
+        "pillow": "installed"
+    },
+    "preRead": [
+        {
+            "path": "references/providers/implementation/iv8/references/api-inventory.md",
+            "sha256": "99d96e7bbeee379f1e5a1a3dd3b241461e9bc286d17ee4153d674ef7420b82fc"
+        }
+    ],
+    "liveState": {
+        "mode": "browser-export-json",
+        "retention": "memory-only",
+        "requiredCookies": [],
+        "optionalCookies": [],
+        "cookieNamePatterns": [],
+        "storageKeys": []
+    },
+    "artifacts": {
+        "process": {
+            "path": "PROCESS.md",
+            "sha256": "0354654aa9e0a9dd7634f50a15a28ee289a5d6b40456405d5d0b9baa1e15f178"
+        },
+        "pullLiveState": {
+            "path": "pull_live_state.py",
+            "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+        },
+        "assets": [],
+        "entry": {
+            "path": "entry.py",
+            "sha256": "c7bf3990a3db66c71c0257ceeca37184da6ac4779ee4143f5679e07af7ea399f"
+        }
+    },
+    "verification": {
+        "sourceCommit": "95be929~1",
+        "requiresFreshVerification": true
+    }
 }

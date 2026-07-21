@@ -1,88 +1,78 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "camoufox-jsvmp-xhr-interceptor-env-emulation",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "signer",
-    "runtime":  "python-node",
-    "caseKind":  "evidence",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "sdk:webmssdk",
-                                  "sdk:byted_acrawler",
-                                  "config:_SdkGlueInit",
-                                  "parameter:a_bogus",
-                                  "method:xhr-interceptor-jsdom"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "sdk:webmssdk",
-                             "sdk:byted_acrawler",
-                             "config:_SdkGlueInit",
-                             "parameter:a_bogus",
-                             "method:xhr-interceptor-jsdom"
-                         ],
-    "sourceProvider":  "camoufox",
-    "product":  {
-                    "vendor":  "ByteDance",
-                    "product":  "JSVMP a_bogus signing",
-                    "version":  "legacy",
-                    "subtype":  "xhr-interceptor-jsdom-env-emulation"
-                },
-    "providerChain":  [
-                          "camoufox",
-                          "browser-hooks",
-                          "env-patch"
-                      ],
-    "dependencies":  {
-                         "camoufox":  "connected runtime",
-                         "javascript":  "target supplied"
-                     },
-    "preRead":  [
-
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-                                              "ttwid"
-                                          ],
-                      "optionalCookies":  [
-                                              "msToken",
-                                              "odin_tt",
-                                              "__ac_nonce",
-                                              "__ac_signature",
-                                              "s_v_web_id"
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "e279e74fd46caa7b3200a9be00992edaca77c39f7956655bc6ebd0d70784b071"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "b26444b4c4ffb80370074ffcc09ad3e18d23548f6da5dad01242bc566e5b1bba"
-                                        },
-                      "assets":  [
-
-                                 ]
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+    "schemaVersion": "web-protocol-recovery-case/v1",
+    "caseId": "camoufox-jsvmp-xhr-interceptor-env-emulation",
+    "revision": 1,
+    "status": "verified",
+    "family": "signer",
+    "runtime": "python-node",
+    "caseKind": "evidence",
+    "verificationClass": "historical-user-attested",
+    "requiresFreshVerification": true,
+    "secretPolicy": "redacted-pull-live",
+    "match": {
+        "signals": [
+            "sdk:webmssdk",
+            "sdk:byted_acrawler",
+            "config:_SdkGlueInit",
+            "parameter:a_bogus",
+            "method:xhr-interceptor-jsdom"
+        ],
+        "minimumIndependentSignals": 2,
+        "negativeSignals": []
+    },
+    "protocolPatterns": [
+        "sdk:webmssdk",
+        "sdk:byted_acrawler",
+        "config:_SdkGlueInit",
+        "parameter:a_bogus",
+        "method:xhr-interceptor-jsdom"
+    ],
+    "sourceProvider": "camoufox",
+    "product": {
+        "vendor": "ByteDance",
+        "product": "JSVMP a_bogus signing",
+        "version": "legacy",
+        "subtype": "xhr-interceptor-jsdom-env-emulation"
+    },
+    "providerChain": [
+        "camoufox",
+        "browser-hooks",
+        "env-patch"
+    ],
+    "dependencies": {
+        "camoufox": "connected runtime",
+        "javascript": "target supplied"
+    },
+    "preRead": [],
+    "liveState": {
+        "mode": "browser-export-json",
+        "retention": "memory-only",
+        "requiredCookies": [
+            "ttwid"
+        ],
+        "optionalCookies": [
+            "msToken",
+            "odin_tt",
+            "__ac_nonce",
+            "__ac_signature",
+            "s_v_web_id"
+        ],
+        "cookieNamePatterns": [],
+        "storageKeys": []
+    },
+    "artifacts": {
+        "process": {
+            "path": "PROCESS.md",
+            "sha256": "86dba7b11a1c1dd71225f60aa4d74aca0d8de854a3d677f77ffe220086e7db57"
+        },
+        "pullLiveState": {
+            "path": "pull_live_state.py",
+            "sha256": "b26444b4c4ffb80370074ffcc09ad3e18d23548f6da5dad01242bc566e5b1bba"
+        },
+        "assets": []
+    },
+    "verification": {
+        "sourceCommit": "95be929~1",
+        "requiresFreshVerification": true
+    }
 }

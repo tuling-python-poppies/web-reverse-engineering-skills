@@ -1,0 +1,44 @@
+{
+  "query": {
+    "trip_type": "OW",
+    "departure": "ICN",
+    "arrival": "KIX",
+    "date": "2026-07-23",
+    "adults": 1,
+    "currency": "KRW"
+  },
+  "tickets": [
+    {
+      "flight_number": "TW303",
+      "aircraft": "B737-8",
+      "date": "2026-07-23",
+      "departure": {"airport": "ICN", "time": "10:50"},
+      "arrival": {"airport": "KIX", "time": "13:00"},
+      "duration": "02:10",
+      "stops": 0,
+      "fares": [
+        {
+          "fare_type": "event",
+          "booking_class": "D",
+          "currency": "KRW",
+          "price": null,
+          "seats": 0,
+          "sold_out": true,
+          "cabin_baggage_kg": 10,
+          "checked_baggage": "없음"
+        },
+        {
+          "fare_type": "smart",
+          "booking_class": "P",
+          "currency": "KRW",
+          "price": 202400,
+          "seats": 4,
+          "sold_out": false,
+          "cabin_baggage_kg": 10,
+          "checked_baggage": "15KG"
+        }
+      ]
+    }
+  ],
+  "note": "Structure sample only; prices/seats are time-varying."
+}

@@ -109,7 +109,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/chinatax-ruishu/case.json",
-                                       "sha256":  "382a4676764ef5aa36ec7b3fe1e40767f87399519ca35e154e5d44e1c1839c96"
+                                       "sha256":  "d27794a0a80cec9a1137941790e7a91b042386dc4acbb566027758f722bdf479"
                                    }
                   },
                   {
@@ -131,7 +131,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/chng-ruishu-announcement/case.json",
-                                       "sha256":  "6aba8e1d5aba970074b53b0bfd249c69a7cf8039ccefea1f35e400eccb7049e7"
+                                       "sha256":  "adba35172667951a44d3eea4a7b4d31f6e55302166f5f96761933ddb47b34771"
                                    }
                   },
                   {
@@ -153,7 +153,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/cqvip-journal-search/case.json",
-                                       "sha256":  "d9c10b77067e3339ac51a9afb3cda0b7ace29ea4a0960ca7c532d3ae17e9a5c7"
+                                       "sha256":  "ce54b06e794795c0e0b6b712689153a98de3333168fe6bdec35780074979564e"
                                    }
                   },
                   {
@@ -175,7 +175,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/customs-ruishu/case.json",
-                                       "sha256":  "c571209991edc1526b185df4468ce9db55a1c2145ff7f71606a725ca806d043f"
+                                       "sha256":  "4225d677c8655fa17d3060350d3b29c7ffcce68ca3d8f1cd3b7a5b9ca6a73c59"
                                    }
                   },
                   {
@@ -197,7 +197,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/douyin-bdms/case.json",
-                                       "sha256":  "0e38e1a3a25e76633dce955eae728843b10fde4587f86ec08842e3580009bf3e"
+                                       "sha256":  "41a7e7bd30b1a21ebb3f6e51579f5402bcb6829c1098a43f492749715e355301"
                                    }
                   },
                   {
@@ -219,7 +219,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/geetest-v4-slider/case.json",
-                                       "sha256":  "294c8011d47b32f67abdc4bd0d60f773646fc9dd9ca4c0ebd806a8c3ae284116"
+                                       "sha256":  "bd34525a29a8b0bf73175ff8326480d8cccaafd468fe75866824c089b862f718"
                                    }
                   },
                   {
@@ -241,7 +241,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/geetest-v4-word-click/case.json",
-                                       "sha256":  "806ae105c060094b4c904471de8beaf3867b85ce5eed8db10c9b8987ad6a48b3"
+                                       "sha256":  "3cbffb3a489f7269412a95e59cbd348832f92fedabb5829c75f61a515d95f3c7"
                                    }
                   },
                   {
@@ -262,7 +262,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/jd-h5st/case.json",
-                                       "sha256":  "3a75e5f837b48cadfc9be7c1415fd3b947c09a7720e95c8a588097e84c9d6f3b"
+                                       "sha256":  "56b8754d06e87bdd04ae91d0f1222a96ab085a24f9e331a6262fa2d11c484192"
                                    }
                   },
                   {
@@ -284,7 +284,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/nmpa-md5-cookie/case.json",
-                                       "sha256":  "2fffd37d6ae041edcd601bca023051f60a707ee6549b15d7ea6afa2fbd028de2"
+                                       "sha256":  "c1a2759fd872b62840881b229d49569db8ab4cd9404e721a2d705ac1d98ee10d"
                                    }
                   },
                   {
@@ -306,7 +306,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/ouyeel-202-cookie-url/case.json",
-                                       "sha256":  "3433d4a255d14521129e3521941eb1dc4eef0a8a1646a86b6e155dbf978eaa5b"
+                                       "sha256":  "570c231ee7501b28f5986536b74ffb8694c062753e5d59106e3001e7be8f5553"
                                    }
                   },
                   {
@@ -328,7 +328,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/pdd-anti-content/case.json",
-                                       "sha256":  "4ea9abcbc15833ff3cd7cf67bf105722c8b3eeed3c73f0d56018cc15c4595e4a"
+                                       "sha256":  "c4cb7b43fb185ea73d21ac4956d17ba3a720137b394acd666a81dd7faaedbb27"
                                    }
                   },
                   {
@@ -350,7 +350,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/tencent-tdc-slider/case.json",
-                                       "sha256":  "deb1b570afacd04d6f09aa8947e8118acee495e9d3033d1ecc2edab192f92086"
+                                       "sha256":  "316780b89eb0175b397ee8905fbed3802e67f9a388f8d9baf3045fd11fd4f57c"
                                    }
                   },
                   {
@@ -373,7 +373,7 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/xhs-homefeed/case.json",
-                                       "sha256":  "5cf0b9cbf4b41d57e34f1c782538083a8841eb3d0ab8ddf7207f52028ae3b494"
+                                       "sha256":  "2de0f34dc9f1f82bdac66f59a65e5ecaacc2d4f2987991232c0ba1f0c1f5bd4d"
                                    }
                   },
                   {
@@ -394,7 +394,32 @@
                                 },
                       "manifest":  {
                                        "path":  "iv8/zhipin-stoken/case.json",
-                                       "sha256":  "3445bd531382417e04383ad8b5cb5fdc67dd3e6a8b4d8a1b93ac79820b4dc6ba"
+                                       "sha256":  "d4bd739fff6fd3adfef86f489de78c8f8fc6c630f217d0852e0afa20c9c5615d"
+                                   }
+                  },
+                  {
+                      "caseId":  "iv8-twayair-akamai-availability",
+                      "family":  "challenge",
+                      "status":  "verified",
+                      "runtime":  "iv8",
+                      "match":  {
+                                    "signals":  [
+                                                    "vendor:akamai",
+                                                    "cookie:bm_s",
+                                                    "cookie:ak_bmsc",
+                                                    "path:espO2PwrZm-collector",
+                                                    "queue:netfunnel",
+                                                    "site:twayair"
+                                                ],
+                                    "minimumIndependentSignals":  2,
+                                    "negativeSignals":  [
+                                                            "vendor:ruishu",
+                                                            "sdk:webmssdk"
+                                                        ]
+                                },
+                      "manifest":  {
+                                       "path":  "iv8/twayair-akamai-availability/case.json",
+                                       "sha256":  "4e6b4eeda3ee12b2e613ce84fc52e0c93c10c73bb369f80f48e99e3eec21eed6"
                                    }
                   }
               ]

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "twayair-akamai-vectors/v1",
+  "offline_bridge": {
+    "description": "Synthetic collector in iv8 must stage exactly one CPR GET and one sensor POST; parent answers deterministically.",
+    "expected": {
+      "post_count": 1,
+      "signal_count": 116,
+      "worker_message_count": 1,
+      "runtime_error_count": 0
+    },
+    "cpr_path": "/_sec/cpr/params",
+    "collector_identity": {
+      "response_header": "stored-attribute-sha-checksum",
+      "observed_checksum_prefix": "91ba45f02dacf5d1"
+    }
+  },
+  "parser_fixture": {
+    "description": "Availability HTML fragment with one flight, one open fare and one sold-out fare.",
+    "expected_flights": 1,
+    "expected_flight_number": "TW303",
+    "expected_open_fare": {
+      "fare_type": "smart",
+      "booking_class": "W",
+      "currency": "KRW",
+      "price": 302400,
+      "seats": 3,
+      "sold_out": false
+    },
+    "expected_soldout_fare": {
+      "fare_type": "event",
+      "sold_out": true
+    }
+  },
+  "live_proof_summary": {
+    "executed_at": "2026-07-21",
+    "stages": [
+      {"name": "landing_collector", "status": 200, "signal_count": 116},
+      {"name": "main_collector", "status": 200, "signal_count": 116},
+      {"name": "choose", "status": 200},
+      {"name": "availability", "status": 200, "bytes": 314068}
+    ],
+    "flights_observed": ["TW301", "TW303", "TW305", "TW307"],
+    "cheapest_price_krw_observed": 202400,
+    "note": "Live values are recorded as proof shape only; they are time-varying and are NOT acceptance vectors."
+  }
+}

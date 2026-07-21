@@ -45,7 +45,7 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 |---|---|
 | `main.py` | Final live-egress entry; compact; no browser driving |
 | `utils/sign.py`, `utils/runtime.py`, `utils/decode.py`, `utils/client.py` | Narrow stable helpers only when a distinct responsibility exists |
-| `main.js` / `mod.js` | Optional local artifact generators from other Providers; not the HTTP owner |
+| `main.js` / `mod.js` | Optional local artifact generators from other Providers; not the live-egress owner |
 | `js_reverse_cache/**` | Volatile evidence/probes; never the steady-state collector |
 | `tests/**` or `js_reverse_cache/samples/**` | Fixed vectors and regression fixtures |
 | `output/**` | User-requested data only after bounds are set |

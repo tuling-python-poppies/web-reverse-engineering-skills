@@ -646,7 +646,7 @@ Must conclude:
 Prompt:
 
 ```text
-Python already owns HTTP, retries, parsing, and persistence, but cookie recovery still calls an embedded runtime on every request. The user explicitly asked me to remove iv8 too. May I declare the collector complete because no browser is involved?
+Python already owns live egress, retries, parsing, and persistence, but cookie recovery still calls an embedded runtime on every request. The user explicitly asked me to remove iv8 too. May I declare the collector complete because no browser is involved?
 ```
 
 Expected route:

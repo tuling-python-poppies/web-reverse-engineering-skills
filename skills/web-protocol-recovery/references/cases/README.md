@@ -4,9 +4,9 @@
 
 Cases are grouped by delivery runtime:
 
-- `iv8/`: Python owns HTTP while iv8 executes the browser-dependent artifact generator.
+- `iv8/`: Python owns live egress while iv8 executes the browser-dependent artifact generator.
 - `pure-python/`: Python-only protocol or algorithm implementations; currently reserved for future cases.
-- `python-node/`: Python owns HTTP while Node.js/jsdom constructs protocol artifacts. Restored documents without a standalone verified helper use `caseKind=evidence` and do not pretend to provide an implementation entry.
+- `python-node/`: Python owns live egress while Node.js/jsdom constructs protocol artifacts. Restored documents without a standalone verified helper use `caseKind=evidence` and do not pretend to provide an implementation entry.
 
 All cases use `web-protocol-recovery-case/v1`. Historical restorations use `verificationClass=historical-user-attested` and always require fresh target verification. New writeback uses `verificationClass=freshly-verified` with executable test and JSON evidence artifacts.
 

@@ -21,7 +21,7 @@
 
 Use iv8 when web-protocol-recovery proves that browser-like local JavaScript execution is the smallest faithful implementation: signing bundles, server challenge state, browser tokens, XHR/fetch mutation, trusted input, verifier runtime proof, or a root-registry-selected case.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned runtime probes/helpers under `web-protocol-recovery-simple/v1`, then returns one explicit artifact or blocker for Python-owned HTTP.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned runtime probes/helpers under `web-protocol-recovery-simple/v1`, then returns one explicit artifact or blocker for Python-owned live egress.
 
 Python retains live-egress ownership. iv8 returns one explicit artifact such as a cookie, sign/header dict, final URL, wrapped body, telemetry object, or decoded payload.
 

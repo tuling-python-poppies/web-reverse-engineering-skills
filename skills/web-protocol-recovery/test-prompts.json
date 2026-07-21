@@ -47,7 +47,7 @@
   {
     "id": 10,
     "prompt": "我贴了请求头和 JS，你顺便线上跑一次验证并把结果保存到项目目录",
-    "expected": "read-only evidence path exits before action; live replay and writes need explicit gates/project root; no live HTTP or file save until approved"
+    "expected": "read-only evidence path exits before action; live replay and writes need explicit gates/project root; no live egress or file save until approved"
   },
   {
     "id": 11,
@@ -57,7 +57,7 @@
   {
     "id": 12,
     "prompt": "入口已知，要用 iv8 本地跑出 sign 再交给 Python，先不要写业务请求代码",
-    "expected": "route:iv8; API-first api-inventory work order before code; artifact boundary named; Python owns live HTTP; no browser MCP from iv8"
+    "expected": "route:iv8; API-first api-inventory work order before code; artifact boundary named; Python owns live egress; no browser MCP from iv8"
   },
   {
     "id": 13,

@@ -62,6 +62,8 @@ Object.defineProperty(document, Symbol.toStringTag, { value: 'HTMLDocument', con
 
 函数外形先匹配浏览器的 `name` / `length` descriptor，再用诊断器自动加载的全局 `safefunction()` 统一提供 native-looking `Function.prototype.toString`；不要每个函数手写 `toString`。该 helper 用闭包内 `WeakMap` 保存 source，不应改变 `Reflect.ownKeys(func)` 或函数自身 descriptor；把这两项也纳入反射回归。
 
+当模块化路径仍无法统一构造器外形、`toString` 或需要定向 `monitor` 时，在 advanced gate 满足后改用 `scripts/advanced-env-engine.js` 的 `setFuncNative` / `setObjNative` / `getNativeProto`（见 `references/advanced-env-path.md`），不要并行发明第三套 toString 补丁。
+
 ## 注意
 
 这些对策不能保证绕过所有检测。VMP 可能在 opcode 层面完成检测，不经过外部 JS API。遇到这种情况，返回该 blocker；只有在新的 work order 将 `references/limitations.md` 选为唯一 Provider-local reference 后再读取。

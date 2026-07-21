@@ -164,4 +164,6 @@
 node <provider-dir>/scripts/gap-log-module-advisor.js js_reverse_cache/env/gap-log.json
 ```
 
-`recommendedModules` 输出为相对 `env/` 的路径（如 `bom/navigator-fingerprint.js`）。最终加载仍以本表前缀匹配与类别排序为准；advisor 只缩短候选，不替代固定向量验收。native/prototype/descriptor/`toString` 压力不会映射成虚假模块，应读 `node-detection.md` 与 `path-upgrade-checklist.md`。
+`recommendedModules` 输出为相对 `env/` 的路径（如 `bom/navigator-fingerprint.js`）。最终加载仍以本表前缀匹配与类别排序为准；advisor 只缩短候选，不替代固定向量验收。
+
+native/prototype/descriptor/`toString` 压力不会映射成虚假 `env/` 模块：先读 `node-detection.md`；若仍需统一 native 外形或定向 monitor，在 gate 满足后走 `references/advanced-env-path.md`（可选 advanced 分支），宿主语义仍不对则按 `path-upgrade-checklist.md` 转 iv8 或 blocker。

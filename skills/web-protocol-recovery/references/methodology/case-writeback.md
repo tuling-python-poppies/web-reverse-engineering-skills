@@ -29,7 +29,7 @@ references/cases/<runtime>/<case-id>/
     test_vectors.py      # optional offline test
 ```
 
-Runtime directories are `iv8`, `pure-python`, and `python-node`. Families remain `signer`, `challenge`, `verifier`, `decode`, `session`, `transport`, and `miniapp`; they describe the protocol gate and remain manifest metadata rather than directory owners.
+Runtime directories are `iv8`, `pure-python`, and `python-node`. Families remain `signer`, `challenge`, `verifier`, `decode`, `session`, and `transport`; they describe the protocol gate and remain manifest metadata rather than directory owners. Miniapp is recorded as a platform/runtime tag, never as a gate family.
 
 ## Metadata
 

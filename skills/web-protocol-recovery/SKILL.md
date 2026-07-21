@@ -20,7 +20,7 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 3. 用户明确说“不上线 / 本地证明 / 固定向量”，保持离线；不要要 live replay、账号、项目目录或请求预算。
 4. 用户说小程序、Camoufox、Cloak、WebSocket、protobuf 等，只决定 `route` 或 gate，不自动升级到完整采集器。
 5. 真要打开浏览器、发请求、写文件、用账号、装依赖、提交验证码或扩大采集前，先停下补 gate。
-6. 最终 live HTTP 只能由 Python collector 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
+6. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
 7. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
 
 Plain terms: **gate family** = what blocks replay; **route** = selected Provider or `evidence-reuse`, never a gate family; **canonical mutation point** = where the wire payload is finally changed; **success shape** = smallest deliverable; **engine provenance** = which browser/runtime produced an ID. Cite stable section names, not line numbers; line numbers drift after edits.
@@ -41,7 +41,7 @@ Human meaning of the four-line header:
 |---|---|
 | `shape` | Deliverable depth: evidence only, local proof, minimal replay, or full collector. |
 | `evidence` | Find the real request, initiator, state writer, mutation point, or precise blocker; do not write the collector. |
-| `local-proof` | Prove fixed vectors, decode, restored source, or helper output offline; do not send live HTTP. |
+| `local-proof` | Prove fixed vectors, decode, restored source, or helper output offline; do not send live egress. |
 | `compact-replay` | Build the smallest browser-free replay, usually one short `main.py`, then verify one approved request. |
 | `collector` | Build the stable browser-free Python collector with explicit bounds. |
 | `route` | Tool path: `evidence-reuse`, `chromium-recon`, `camoufox`, `wechat-miniapp`, or one implementation Provider. |
@@ -50,7 +50,7 @@ Human meaning of the four-line header:
 
 Four mandatory policy overlays when their trigger is hit — case read, scope/budget reset, Chrome auto-traffic gate, and denied live replay — are owned by `references/methodology/success-shape-scripts.md`.
 
-1. Final delivery is browser-free. Python owns live HTTP; local JS/WASM/iv8 only as narrow artifact generators.
+1. Final delivery is browser-free. Python owns live egress (HTTP requests, WebSocket handshakes, and sent frames); local JS/WASM/iv8 only as narrow artifact generators.
 2. Evidence precedes implementation: real request, moving state, mutation point, one objective acceptance test.
 3. One `projectRoot` and `web-protocol-recovery-simple/v1`. Providers never choose another landing path or project shape.
 4. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
@@ -69,20 +69,20 @@ First-turn routing rules:
 2. Explicit offline/local/vector wording beats heavier routing: use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider.
 3. Platform/runtime words choose only the route, not the deliverable depth: miniapp means `route: wechat-miniapp`; Camoufox means `route: camoufox`; neither upgrades to `collector` by itself.
 4. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
-5. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, replay live HTTP, or scaffold a collector on the first turn.
+5. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
 6. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
 
 Read-Only Evidence Fast Path:
 
-Use this path when all conditions hold: `shape: evidence`; supplied artifact, request snippet, source sample, registry metadata, or static question is enough for the next step; no browser navigation, live HTTP/WebSocket send, account/session use, target-code execution, dependency install, file write, raw artifact save, verifier submission, mutation, retry, scale-up, or retention is proposed.
+Use this path when all conditions hold: `shape: evidence`; supplied artifact, request snippet, source sample, registry metadata, or static question is enough for the next step; no browser navigation, live egress, account/session use, target-code execution, dependency install, file write, raw artifact save, verifier submission, mutation, retry, scale-up, or retention is proposed.
 
 Allowed actions: emit the four-line header, use `route: evidence-reuse` unless reading one selected Provider `PROVIDER.md` or one bounded Provider-local reference is the smallest next read, inspect supplied text/files and bounded references, name the request/function/state source/blocker, and ask only missing sample/context fields. Do not execute Provider tools or ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization until a gated action becomes necessary.
 
 If any fast-path condition becomes false, stop before the action and record the applicable gate below. The fast path never grants browser navigation, live egress, writes, account/session use, or broader collection.
 
-Before navigation, live HTTP, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
+Before navigation, live egress, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
 
-Chrome baseline blocked unless `browserNavigationSideEffectsApproved=yes` AND `automaticObservationStopThreshold>=1`. Observed automatic destinations are evidence, never authorization.
+Chrome baseline blocked unless `browserReconAllowed=yes`, exact top-level scope, one navigation budget unit, prior cumulative `observedAutomatic`, `browserNavigationSideEffectsApproved=yes`, and `automaticObservationStopThreshold>=1` are recorded. Observed automatic destinations are evidence, never authorization.
 
 Smallest success shape:
 
@@ -92,6 +92,8 @@ Smallest success shape:
 | `local-proof` | fixed vectors, decode, restored source, or callable helper; a saved helper always reports vector acceptance state, artifact path, and SHA-256 |
 | `compact-replay` | short root `main.py`, often with a narrow runtime helper |
 | `collector` | stable browser-free Python path with bounds |
+
+Local-proof can run pure data transforms on supplied samples offline. Executing target-supplied JS/WASM/HTML remains target-code execution and requires the `executionPolicy` gate even when no live egress is allowed.
 
 Default scripts: `references/methodology/success-shape-scripts.md`.
 
@@ -109,7 +111,7 @@ Prefer supplied artifacts or one registry case before opening a browser. Fresh r
 | `camoufox` | Explicit Camoufox, or engine-level/SpiderMonkey/Camoufox instrumentation, or untrustworthy Cloak result | `references/providers/reconnaissance/camoufox/PROVIDER.md` |
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
-Chromium ladder: Chrome DevTools baseline -> Chrome parked -> js-reverse normal Chrome -> Cloak only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox.
+Chromium ladder: Chrome DevTools baseline -> Chrome parked -> js-reverse normal Chrome headless -> visible CloakBrowser only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox.
 
 ## Phase 3: Gate Family
 
@@ -137,11 +139,11 @@ Chains are sequential (typical: recon -> AST -> env/iv8 -> collector). Validate 
 Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 1. Fixed-output parity or named checkpoints match captured truth.
-2. One approved minimal live replay succeeds on a coherent session.
+2. For `compact-replay`, one approved minimal live replay succeeds on a coherent session; for `collector`, the minimal request repeats successfully or the next cursor/page is proved before scale.
 3. Content type, challenge markers, business result, and data shape pass.
 4. Signatures, cookies, headers, and wrapped bodies regenerate at the canonical request boundary.
 5. Page/retry/concurrency/duration scale only after repeatable first request + confirmation.
-6. Preserve the delivery invariant from Non-Negotiables: Python owns final live HTTP; local runtimes only produce narrow artifacts.
+6. Preserve the delivery invariant from Non-Negotiables: Python owns final live egress; local runtimes only produce narrow artifacts.
 
 ## Case Reuse And Writeback
 
@@ -174,7 +176,7 @@ why: <smallest honest move>
 
 🔴 CHECKPOINT · 🛑 STOP before: account secrets export; CAPTCHA/verifier/form/order/payment/mutation submit; page/retry/concurrency/rate/duration scale-up; untrusted dependency/code install; raw artifact save without approved fields; bundled case-library writes. Static reads, metadata-only indexes, redacted samples, and offline deterministic tests need no pause.
 
-Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, scale ↔ `requestBudget`, raw save ↔ `artifactPolicy`, target code/install ↔ `executionPolicy`, recon nav ↔ `browserReconAllowed` + Chrome side-effect approval, live HTTP ↔ `liveReplayAllowed`.
+Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, scale ↔ `requestBudget`, raw save ↔ `artifactPolicy`, target code/install ↔ `executionPolicy`, recon nav ↔ `browserReconAllowed` + Chrome side-effect approval, live egress ↔ `liveReplayAllowed`.
 
 ## Do Not
 

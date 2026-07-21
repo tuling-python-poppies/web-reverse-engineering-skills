@@ -1,6 +1,6 @@
 # Embedded Browser Runtime Playbook
 
-Use a local embedded runtime only when evidence proves it is the smallest faithful implementation boundary. This is browser-free but not runtime-free: Python owns live HTTP while iv8, Node, or WASM returns one narrow deterministic artifact.
+Use a local embedded runtime only when evidence proves it is the smallest faithful implementation boundary. This is browser-free but not runtime-free: Python owns live egress while iv8, Node, or WASM returns one narrow deterministic artifact.
 
 ## Entry Conditions
 

@@ -4,7 +4,7 @@
 
 Read this file in a dedicated iv8 work order before authoring or modifying any iv8 code, including restored cases. Record the installed iv8 version, the exact members the intended case uses, and one offline member probe. The installed runtime remains authoritative when a historical example differs.
 
-This inventory is one Provider-local reference. Opening one linked API example, `script-writing-rules.md`, the case taxonomy, a process document, or a case script requires a later accepted work order under the normal read budget. Historical examples and cases are restored byte-for-byte; their presence is not authorization to run live HTTP, submit a verifier, install dependencies, or retain account state. Python and the web-protocol-recovery work order still own live HTTP and side-effect gates.
+This inventory is one Provider-local reference. Opening one linked API example, `script-writing-rules.md`, the case taxonomy, a process document, or a case script requires a later accepted work order under the normal read budget. Historical examples and cases are restored byte-for-byte; their presence is not authorization to run live egress, submit a verifier, install dependencies, or retain account state. Python and the web-protocol-recovery work order still own live egress and side-effect gates.
 
 The historical API inventory below is preserved verbatim. Where its original case-first order conflicts with the web-protocol-recovery gate above, the web-protocol-recovery gate controls execution order.
 

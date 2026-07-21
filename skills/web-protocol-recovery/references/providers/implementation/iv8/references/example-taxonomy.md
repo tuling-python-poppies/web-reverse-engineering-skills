@@ -4,7 +4,7 @@ The root `references/cases/registry.json` is the only case selector. This file e
 
 ## Runtime Boundary
 
-An `iv8` case uses Python for live HTTP and iv8 only for the browser-dependent artifact generator: cookie, signed URL, header set, wrapped body, verifier proof, or decoded payload. Cases that need Node.js/jsdom instead are grouped under `python-node`; implementations requiring no JavaScript runtime belong under `pure-python`.
+An `iv8` case uses Python for live egress and iv8 only for the browser-dependent artifact generator: cookie, signed URL, header set, wrapped body, verifier proof, or decoded payload. Cases that need Node.js/jsdom instead are grouped under `python-node`; implementations requiring no JavaScript runtime belong under `pure-python`.
 
 ## Restored iv8 Cases
 

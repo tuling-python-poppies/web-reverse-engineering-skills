@@ -11,20 +11,20 @@ For each task:
 3. verify the proposed delivery shape
 4. fail the test if the answer drifts into browser automation as final delivery
 
-Legacy `Expected route` headings below mean expected reference reads, never the canonical `route:` field. Canonical routes are short Provider IDs or `evidence-reuse` only.
+Legacy `Expected route` headings below mean expected reference owners, never the canonical `route:` field and never permission to read every listed file in one dispatch window. Canonical routes are short Provider IDs or `evidence-reuse` only. Apply `references/methodology/read-budget.md`: a first response reads 0-2 paths, one named blocker may add exactly one path once, and later listed references require a new accepted Provider result, user answer, or blocker expansion.
 
 ## Pass criteria across the whole suite
 
-- authorization/scope is recorded before the first browser navigation or live request; unknown authorization remains offline
+- authorization/scope is recorded before the first browser navigation or live egress; unknown authorization remains offline
 - raw artifacts are opt-in, gitignored, access-scoped, and retention-bounded; metadata/redacted evidence is the default
 - generated collectors bound pages, retries, timeout, response bytes, backoff, and concurrency; mutations are not retried without an idempotency contract
 - generated transport disables implicit environment proxies, preserves CookieJar domain/path scope, and declares TLS/CA/redirect ownership
 - scaffold updates reject symlinks, junctions, hard links, and incomplete ignore rules; they never overwrite existing files and publish new files atomically
 - generated outputs are exclusive by default, atomically published, and CSV-safe
-- the startup gate is emitted on fresh targets
+- the mandatory four-line protocol header is emitted first on protocol tasks; the startup gate follows with only applicable fields on fresh targets
 - blocked tools are reported explicitly instead of being silently skipped
 - paired `chrome-devtools` and `js-reverse-mcp` recon stays sequential and profile-isolated unless explicit profile reuse is requested and documented
-- dual recon is lifecycle-exclusive: no cross-family parallel preflight, Chrome is honestly reported as parked when its last page cannot close, ordinary js-reverse starts headless at runtime, evidence-based headful fallback remains available, and js-reverse closes before a return to Chrome
+- dual recon is lifecycle-exclusive: no cross-family parallel preflight, Chrome is honestly reported as parked when its last page cannot close, ordinary js-reverse starts headless at runtime, visible CloakBrowser is used only after explicit/fingerprint selection unless the user asks for hidden Cloak, and js-reverse closes before a return to Chrome
 - final delivery stays pure protocol
 - Python remains the preferred collector language
 - generated collector scaffolds remain Python 3.9+ compatible and support `python main.py` from the project root
@@ -33,7 +33,7 @@ Legacy `Expected route` headings below mean expected reference reads, never the 
 - structured transport and decode-chain cases route correctly
 - cookie provenance is made explicit when rotating cookies gate replay
 - transport pre-gates are separated from signer/cookie/decode problems before app semantics are visible
-- embedded runtime and iv8 routes stay browser-free, local, narrow, and subordinate to Python-owned live HTTP
+- embedded runtime and iv8 routes stay browser-free, local, narrow, and subordinate to Python-owned live egress
 - challenge artifact harvest is preferred over broad DOM patching when a getter, egress request, wrapped body, token, or outbound Cookie is already visible
 - escalation ladder proof is required before moving to a heavier runtime, broader patch surface, or transport exception
 - pagination route pivots and raw-source route metadata are treated as protocol state when later pages diverge
@@ -203,7 +203,7 @@ Must conclude:
 - activate chrome-devtools first and save the baseline artifacts
 - close extra Chrome pages and report the final page as `parked` at `about:blank`, not `closed`
 - only then start ordinary js-reverse normal Chrome headless via runtime launch options
-- preserve headful fallback for recorded interaction, rendering, fingerprint, or headless/headful mismatch evidence
+- preserve visible mode for CloakBrowser/fingerprint selection; ordinary js-reverse stays headless unless a separately approved blocker requires visibility
 - close js-reverse before returning to Chrome
 - never place the two browser tool families in one parallel batch
 
@@ -627,7 +627,7 @@ Must conclude:
 Prompt:
 
 ```text
-The embedded-runtime decision is already made and iv8 is the chosen host. I need concrete guidance on when to use page.load versus DOM insertion, how to drive timers, and how to keep live HTTP in Python.
+The embedded-runtime decision is already made and iv8 is the chosen host. I need concrete guidance on when to use page.load versus DOM insertion, how to drive timers, and how to keep live egress in Python.
 ```
 
 Expected route:
@@ -639,7 +639,7 @@ Must conclude:
 
 - use `page.load` only when lifecycle, scripts, or request hooks matter
 - use logical time by default and advance only as far as the evidence requires
-- keep live HTTP in Python and treat iv8 as local bootstrap plus artifact extraction only
+- keep live egress in Python and treat iv8 as local bootstrap plus artifact extraction only
 
 ## Task 13D1: Browser-free path still depends on embedded runtime
 
@@ -790,7 +790,7 @@ Expected route:
 
 Must conclude:
 
-- encode the threshold as a hard timeout across live HTTP and local helper stages
+- encode the threshold as a hard timeout across live egress and local helper stages
 - abort immediately on threshold breach instead of retrying it away
 - report the enforced threshold in the final handoff
 
@@ -1384,7 +1384,7 @@ Must conclude:
 
 - prove Python/tiny-helper parity failed before choosing iv8
 - use iv8 only to recover one explicit artifact such as wrapped body or outbound Cookie
-- Python owns live HTTP, retries, parsing, persistence, and scaling
+- Python owns live egress, retries, parsing, persistence, and scaling
 - state whether the result is browser-free only or also runtime-free
 
 ## Task 18C: Challenge runtime already emits the decisive artifact

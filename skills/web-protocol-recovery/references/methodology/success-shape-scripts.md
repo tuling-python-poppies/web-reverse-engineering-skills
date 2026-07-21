@@ -1,6 +1,6 @@
 # Default Scripts By Success Shape
 
-Use these as the first path. Escalate only after naming a concrete blocker. Full Phase 0 fields still apply before navigation, live HTTP, account/session use, or writes become relevant.
+Use these as the first path. Escalate only after naming a concrete blocker. Full Phase 0 fields still apply before navigation, live egress, account/session use, target-code execution, dependency install, or writes become relevant.
 
 ## Shared First Response
 
@@ -19,7 +19,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## evidence
 
-1. Ask only for missing request/source/trigger context. Before fresh Chrome recon, require authorization basis, exact scheme/host/port/absolute route prefix, `browserReconAllowed=yes`, and explicit approval for unpreventable automatic browser-network side effects.
+1. Ask only for missing request/source/trigger context. Before fresh Chrome recon, require authorization basis, exact scheme/host/port/absolute route prefix, `browserReconAllowed=yes`, one navigation budget unit, prior cumulative `observedAutomatic`, and explicit approval for unpreventable automatic browser-network side effects.
 2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web.
 3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser navigation, live egress, account/session use, target-code execution, dependency install, file write, raw artifact save, verifier submission, mutation, retry, scale-up, or retention is proposed, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
 4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
@@ -32,9 +32,10 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 1. Begin with `shape: local-proof` and `route: evidence-reuse` for a self-contained deterministic proof, or the selected implementation Provider when one is needed. Never put `decode-gated` or another gate family in `route`.
 2. Confirm fixed vectors, source path, or decoded sample inputs.
 3. Read one implementation provider only when needed: `browser-hooks`, `ast`, `env-patch`, `iv8`, or `verifier`. A self-contained deterministic decode may remain inline.
-4. Enumerate every supplied fixed vector. Execute them for a proof request; for a planning-only request, list them under `acceptanceTest` and report `result: not run (planning only)` rather than claiming parity.
-5. Include labeled `acceptanceTest` and `result` fields even when the proof is inline and produces no saved artifact; include path and SHA-256 only when it does.
-6. Stop at verified local proof unless the user asks for live replay or collector. Escalate only after acceptance passes.
+4. Enumerate every supplied fixed vector. Pure data transforms may run offline. Executing target-supplied JS/WASM/HTML still requires `executionPolicy.targetCodeExecution=approved-reviewed-hash`, matching SHA-256 approval, and a capability-denied sandbox even when live egress is denied.
+5. Execute approved vectors for a proof request; for a planning-only request, list them under `acceptanceTest` and report `result: not run (planning only)` rather than claiming parity.
+6. Include labeled `acceptanceTest` and `result` fields even when the proof is inline and produces no saved artifact; include path and SHA-256 only when it does.
+7. Stop at verified local proof unless the user asks for live replay or collector. Escalate only after acceptance passes.
 
 ## compact-replay
 
@@ -42,7 +43,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 2. Ordinary Web first response must include:
    ```text
    layout: web-protocol-recovery-simple/v1
-   reconSequence: Chrome DevTools clean baseline -> Chrome parked -> js-reverse normal Chrome
+   reconSequence: Chrome DevTools clean baseline -> Chrome parked -> js-reverse normal Chrome headless -> visible CloakBrowser only after explicit/fingerprint selection
    ```
 3. Recover one short root `main.py` path, often with a narrow iv8/helper artifact generator.
 4. Verify fixed vectors, then one approved minimal live replay.
@@ -54,7 +55,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 2. Same ordinary-Web first-response literals as compact-replay.
 3. Prove real endpoint and moving state before scaffolding.
 4. Read `references/providers/implementation/python-collector/PROVIDER.md` only after protocol proof.
-5. Final path is browser-free Python; scale only after repeatable first request and explicit confirmation.
+5. Final path is browser-free Python; Python owns live egress. Scale only after repeatable first request and explicit confirmation.
 
 ## WeChat Route Overlay
 
@@ -93,7 +94,7 @@ When a baseline is requested but Chrome-specific approval is missing, answer wit
 ```text
 shape: evidence
 route: chromium-recon
-nextAsk: browserNavigationSideEffectsApproved=yes and automaticObservationStopThreshold=<positive integer>
+nextAsk: browserReconAllowed=yes, browserNavigationSideEffectsApproved=yes, automaticObservationStopThreshold=<positive integer>, requestBudget.remaining>=1 navigation unit, prior observedAutomatic object
 nextRead: none
 scope: scheme=<exact> host=<exact> port=<exact> route=<absolute prefix>
 chromeBaseline: blocked pending side-effect approval
@@ -109,7 +110,7 @@ shape: REQUESTED_SHAPE
 route: evidence-reuse
 nextAsk: explicit liveReplayAllowed=yes only if live verification is still requested
 nextRead: none
-status: blocked; HTTP request/retry/WebSocket egress denied
+status: blocked; HTTP request/retry/WebSocket handshake/sent-frame egress denied
 requestBudget: consumed=0; remaining=<unchanged>
 nextAction: continue offline fixed-vector verification only
 ```

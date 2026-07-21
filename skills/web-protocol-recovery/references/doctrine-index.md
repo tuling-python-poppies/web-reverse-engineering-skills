@@ -24,7 +24,7 @@ Use this file only for family-level invariants when the target is still broad. I
 
 13. **Narrow exceptions remain narrow.** A page-specific header, transport profile, cookie rotation, route pivot, or parser exception must not contaminate the whole collector.
 14. **Escalate one rung at a time.** Name the surviving proof, exact blind spot, and why the next layer is the smallest layer that answers it.
-15. **Embedded runtimes are scalpels.** They may return one cookie, URL, header set, body, proof, or decoded payload; Python keeps live HTTP ownership and the runtime must not become a second browser.
+15. **Embedded runtimes are scalpels.** They may return one cookie, URL, header set, body, proof, or decoded payload; Python keeps live-egress ownership and the runtime must not become a second browser.
 16. **Harvest beats over-solving.** When a reviewed local runtime already exposes the authoritative artifact at a getter, serializer, packer, or egress boundary, full VM/DOM parity is not the goal.
 17. **Weak enforcement remains conditional evidence.** One route accepting an empty or simplified field does not remove that field from stricter route families.
 

@@ -69,7 +69,7 @@ Prefer these boundaries over one-off instance patching when the target keeps reb
 - prototype methods such as `XMLHttpRequest.prototype.open` or `.send`
 - constructor-time wrappers
 - transport-wrapper ingress before mutation
-- request egress after mutation but before live HTTP
+- request egress after mutation but before final live egress
 
 If the runtime can replace one instance method and skip your patch, that patch surface is too low.
 

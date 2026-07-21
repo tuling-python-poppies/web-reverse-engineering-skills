@@ -29,7 +29,7 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 - cookie provenance proven when rotating cookies gate replay
 - cookie provenance, slot placement, and session-chain integrity proven when they matter
 - login or pairing bootstrap replay confirmed when the target needs a warm session before business traffic
-- embedded runtime use, if any, proven by fixed inputs, explicit artifact extraction, Python-owned live HTTP, and a clear browser-free versus runtime-free handoff
+- embedded runtime use, if any, proven by fixed inputs, explicit artifact extraction, Python-owned live egress, and a clear browser-free versus runtime-free handoff
 - escalation-ladder reasoning recorded before any heavier runtime, broader patch surface, or transport exception was introduced
 
 ## Stateful, Transport, And Verifier Gates
@@ -45,11 +45,11 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 
 ## Delivery Gates
 
-- live replay succeeds repeatedly
-- pagination or cursor advance confirmed
+- `compact-replay` has one approved semantic live replay; `collector` repeats the minimal request or proves the next cursor/page before scale
+- pagination or cursor advance confirmed when in scope
 - account-bound constraints documented
 - list-versus-detail permission boundaries documented when access levels differ
 - page-specific exceptions documented
-- final Python collector runs without browser automation or browser profiles
+- final Python collector or local protocol client runs without browser automation or browser profiles
 - final JS helper, if any, runs locally without browser automation or DOM dependence
 - output saved in the requested format

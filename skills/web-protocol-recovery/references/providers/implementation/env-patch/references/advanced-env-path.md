@@ -179,4 +179,4 @@ After fixed-vector (or named checkpoint) acceptance:
 
 1. Merge verified host construction into assigned root `mod.js` / `main.js`.
 2. Keep the engine copy and probes under `js_reverse_cache/env/` or drop them if no longer needed.
-3. Return hashes, first divergence (if any), residual assumptions, and hand final live HTTP to python-collector / hub.
+3. Return hashes, first divergence (if any), residual assumptions, and hand final live egress to python-collector / hub.

@@ -37,7 +37,7 @@ Use `iv8` for browser-visible semantics such as:
 - native-looking surfaces such as `canvas`, WebGL, layout, or `Function.prototype.toString`
 
 Do not let `iv8` become the HTTP client, browser profile, or hidden final collector.
-Python still owns live HTTP, retries, parsing, persistence, and scaling.
+Python still owns live egress, retries, parsing, persistence, and scaling.
 If you cannot name the single artifact you expect to recover, you probably do not need `iv8` yet.
 
 ## Minimal setup

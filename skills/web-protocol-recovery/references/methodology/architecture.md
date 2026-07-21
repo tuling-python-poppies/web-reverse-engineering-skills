@@ -33,7 +33,7 @@ Every Provider must obey these boundaries:
 2. Do not create a second project, wrapper tree, package framework, or alternate layout.
 3. Do not write outside assigned `allowedPaths`.
 4. Do not open a sibling Provider reference or case unless web-protocol-recovery issues a new work order.
-5. Do not own final live HTTP unless the selected Provider is `python-collector` under an accepted delivery work order.
+5. Do not own final live egress unless the selected Provider is `python-collector` under an accepted delivery work order.
 6. Do not claim completion while task-owned browser/session/worker/runtime resources remain live.
 
 Provider-local references are operational manuals for that capability. They may explain how to use hooks, AST visitors, env modules, iv8 APIs, or verifier tactics, but they do not define the global methodology, escalation policy, project layout, or final delivery contract.
@@ -78,10 +78,10 @@ Forbidden layout roots and mandatory directories: `collector/`, `analysis/`, `in
 The chain is always sequential:
 
 ```text
-evidence/recon -> one implementation Provider -> fixed-vector/local proof -> python-collector or compact replay -> approved live replay -> optional scale
+evidence/recon -> one implementation Provider -> fixed-vector/local proof -> python-collector or compact replay -> approved live-egress replay -> optional scale
 ```
 
-Browser, JS, WASM, env-patch, and iv8 may produce only narrow artifacts such as a sign/header dict, cookie value, encoded frame, decoded payload, or callable helper. Python owns all final live HTTP.
+Browser, JS, WASM, env-patch, and iv8 may produce only narrow artifacts such as a sign/header dict, cookie value, encoded frame, decoded payload, or callable helper. Python owns all final live egress.
 
 ## Maintenance Rule
 

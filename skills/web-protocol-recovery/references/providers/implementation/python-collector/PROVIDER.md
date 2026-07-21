@@ -4,7 +4,7 @@
 
 - Real endpoint and moving protocol state are already proved.
 - Desired result is `compact-replay` or `collector` under `web-protocol-recovery-simple/v1`.
-- Final live HTTP must be browser-free Python.
+- Final live egress must be browser-free Python.
 
 ## Do Not Select When
 
@@ -13,11 +13,11 @@
 - Scaffold would overwrite existing `main.py` or create wrapper trees (reject).
 - Live replay / request budget / action class are still denied or empty.
 
-Use this provider after web-protocol-recovery has proved the real endpoint and moving protocol state. It owns the stable browser-free implementation assigned under `main.py` and `utils/`.
+Use this provider after web-protocol-recovery has proved the real endpoint and moving protocol state. It owns the stable browser-free live-egress implementation assigned under `main.py` and `utils/`.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only implementation Provider that may own final live HTTP, and only inside assigned `web-protocol-recovery-simple/v1` paths.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only implementation Provider that may own final live egress, and only inside assigned `web-protocol-recovery-simple/v1` paths.
 
-Python owns live HTTP, session/cookie handling, request budgets, retries, pagination, parsing, decode, persistence, and output. JavaScript, WASM, or iv8 helpers remain narrow local artifact generators. The final path never drives a browser.
+Python owns live egress, session/cookie handling, request budgets, retries, pagination, parsing, decode, persistence, and output. JavaScript, WASM, or iv8 helpers remain narrow local artifact generators. The final path never drives a browser.
 
 ## Scaffold
 
@@ -43,7 +43,7 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 
 | Path | Owner role |
 |---|---|
-| `main.py` | Final live HTTP entry; compact; no browser driving |
+| `main.py` | Final live-egress entry; compact; no browser driving |
 | `utils/sign.py`, `utils/runtime.py`, `utils/decode.py`, `utils/client.py` | Narrow stable helpers only when a distinct responsibility exists |
 | `main.js` / `mod.js` | Optional local artifact generators from other Providers; not the HTTP owner |
 | `js_reverse_cache/**` | Volatile evidence/probes; never the steady-state collector |
@@ -85,4 +85,4 @@ Return: absolute paths created or updated, fixed-vector and live acceptance stat
 | Fixed vectors fail | Diff first divergence; fix helper/serialization | No live egress |
 | Live `200` but wrong body/shape/challenge | Treat as fail; capture semantic mismatch | Do not scale |
 | Import has network/browser side effects | Make import-safe; move I/O behind explicit call | Reject helper |
-| Budget remaining 0 | Offline vectors only | No live HTTP until user raises budget |
+| Budget remaining 0 | Offline vectors only | No live egress until user raises budget |

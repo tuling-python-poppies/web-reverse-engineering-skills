@@ -38,7 +38,7 @@ Internal skills are Providers under this tree (not peer top-level skills). Provi
 
 ## Cases
 
-The root registry indexes 18 hash-bound `web-protocol-recovery-case/v1` manifests grouped by runtime: 14 `iv8`, zero current `pure-python`, and four `python-node` evidence cases. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
+The root registry indexes 19 hash-bound `web-protocol-recovery-case/v1` manifests grouped by runtime: 15 `iv8`, zero current `pure-python`, and four `python-node` evidence cases. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
 
 ## Runtime Helpers
 

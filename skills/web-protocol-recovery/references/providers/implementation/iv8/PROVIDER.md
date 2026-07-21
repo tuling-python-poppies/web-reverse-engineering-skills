@@ -3,12 +3,12 @@
 ## Select When
 
 - Browser-like local JS is the smallest faithful path: signing bundles, challenge state, browser tokens, XHR/fetch mutation, trusted input, verifier runtime proof, or a root-registry-selected runtime case.
-- One explicit artifact must return to Python-owned live HTTP.
+- One explicit artifact must return to Python-owned live egress.
 
 ## Do Not Select When
 
 - Only minimal Node/jsdom gaps for a known entry (prefer env-patch).
-- Final live HTTP should stay in a browser (forbidden; Python owns HTTP).
+- Final live egress should stay in a browser (forbidden; Python owns egress).
 - No artifact boundary is named yet.
 
 ## vs env-patch
@@ -23,11 +23,11 @@ Use iv8 when web-protocol-recovery proves that browser-like local JavaScript exe
 
 Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned runtime probes/helpers under `web-protocol-recovery-simple/v1`, then returns one explicit artifact or blocker for Python-owned HTTP.
 
-Python retains live HTTP ownership. iv8 returns one explicit artifact such as a cookie, sign/header dict, final URL, wrapped body, telemetry object, or decoded payload.
+Python retains live-egress ownership. iv8 returns one explicit artifact such as a cookie, sign/header dict, final URL, wrapped body, telemetry object, or decoded payload.
 
 ## Evidence First
 
-web-protocol-recovery selects cases only through `../../../cases/registry.json`. The 14 restored implementations and their process documents live under the registry-selected `../../../cases/iv8/<case-id>/` directory. Provider-local API examples and taxonomy are supporting runtime material, never alternate selectors.
+web-protocol-recovery selects cases only through `../../../cases/registry.json`. Restored implementations and their process documents live under the registry-selected `../../../cases/iv8/<case-id>/` directory. Provider-local API examples and taxonomy are supporting runtime material, never alternate selectors.
 
 ## Mandatory API-First Sequence
 
@@ -41,7 +41,7 @@ After the API gate, use a new bounded work order for exactly one next reference:
 
 Use web-protocol-recovery's assigned `projectRoot`. Temporary scripts, downloaded assets, net logs, and environment snapshots stay under `js_reverse_cache/iv8/` or `js_reverse_cache/source/`. Stable compact code belongs in root `main.py` or assigned `utils/`; do not create another project, `collector/`, or alternate helper tree.
 
-Generated helpers must be import-safe, use editable nonsecret inputs, have bounded runtime deadlines, and produce no network or file side effects on import. Use one coherent browser/session baseline; never mix cookies, UA, storage, TLS, and environment fields from different captures. Python owns all live HTTP, and verifier submission requires the work order to allow both live replay and the `verifier` action class.
+Generated helpers must be import-safe, use editable nonsecret inputs, have bounded runtime deadlines, and produce no network or file side effects on import. Use one coherent browser/session baseline; never mix cookies, UA, storage, TLS, and environment fields from different captures. Python owns all live egress, and verifier submission requires the work order to allow both live replay and the `verifier` action class.
 
 Run `py_compile` and deterministic/fixed-vector checks before approved live replay. Require semantic response success, not only non-empty iv8 output or HTTP `200`.
 
@@ -58,4 +58,4 @@ Run `py_compile` and deterministic/fixed-vector checks before approved live repl
 
 ## Exit
 
-Return runtime/API versions, case id used (if any), artifact shape and path, fixed-vector acceptance state, side effects, remaining host dependencies, cleanup state, and the next hub action (python-collector, another implementation Provider, or stop). Do not claim delivery complete while Python live HTTP ownership is still unproved when the shape requires it.
+Return runtime/API versions, case id used (if any), artifact shape and path, fixed-vector acceptance state, side effects, remaining host dependencies, cleanup state, and the next hub action (python-collector, another implementation Provider, or stop). Do not claim delivery complete while Python live-egress ownership is still unproved when the shape requires it.

@@ -5,7 +5,7 @@ This is a Provider-local maintenance summary. Root `references/methodology/case-
 ## Eligibility
 
 - The current project has one stable browser-free Python entry.
-- iv8 returns one explicit artifact and does not own live HTTP.
+- iv8 returns one explicit artifact and does not own live egress.
 - Fixed-vector or semantic replay acceptance passed.
 - The entry compiles, is import-safe, and performs no network/file activity on import.
 - Required iv8 APIs and versions are recorded after the mandatory API gate.

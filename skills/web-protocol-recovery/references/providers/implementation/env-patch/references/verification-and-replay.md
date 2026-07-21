@@ -12,7 +12,7 @@ Verification flow:
 2. Trigger the known behavior: SDK init call, XHR send, direct signer call, cookie writer, or header builder.
 3. Compare output shape against browser evidence: length, prefix, segment count, encoding, cookie name, header name, and stable fields.
 4. Move verified env state into root `mod.js` and the callable JS entry into root `main.js` only after fixed-vector parity passes.
-5. Let root `main.py` own live HTTP only after web-protocol-recovery's live replay gate is approved.
+5. Let root `main.py` own live egress only after web-protocol-recovery's live replay gate is approved.
 
 For hook-style SDKs, keep this order:
 

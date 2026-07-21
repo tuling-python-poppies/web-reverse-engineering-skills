@@ -26,7 +26,7 @@ Architecture and ownership boundaries live in `methodology/architecture.md`: web
 
 - Capture the real request, initiator, exact wire structure, and one objective acceptance test.
 - Issue one bounded implementation Provider work order only when a named blocker remains.
-- Escalate one rung at a time; Python keeps live HTTP ownership and local JS/WASM/iv8 returns one explicit artifact.
+- Escalate one rung at a time; Python keeps live-egress ownership and local JS/WASM/iv8 returns one explicit artifact.
 
 ## 5. Verify And Deliver
 

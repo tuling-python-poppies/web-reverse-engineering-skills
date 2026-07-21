@@ -96,12 +96,12 @@ shape: <compact-replay|collector>
 route: <implementation Provider ID>
 
 ## Implementation Decision
-- Implementation form: Python / Python + JS helper / Python + WASM helper / Python + bootstrap helper
+- Implementation form: Python HTTP client / Python WebSocket client / Python + JS helper / Python + WASM helper / Python + bootstrap helper
 - Why this form:
   1.
   2.
   3.
-- Browser-free status: no browser runtime in final collector
+- Browser-free status: no browser runtime in final live-egress path
 - Runtime-free status: no local embedded runtime / embedded runtime remains only for explicit artifact extraction
 
 Protocol contract
@@ -147,7 +147,7 @@ endpoint: <scheme/host/port/route>
 movingState: <signatures/cookies/headers/body fields>
 transportKind: <HTTP/WebSocket/GraphQL/etc.>
 decodeChain: <ordered steps or none>
-verification: <fixed parity + approved replay + semantic/data-shape checks>
+verification: <fixed parity + approved live-egress replay + semantic/data-shape checks>
 browserLifecycle: <engines opened/parked/closed and ID disposition>
 limits: <page/retry/concurrency/rate/duration bounds>
 caseWriteback: <not-eligible|offer-pending|declined|accepted>

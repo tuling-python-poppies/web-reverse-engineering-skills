@@ -101,4 +101,4 @@ Prefer isolating the one helper output the request needs over heroic full recove
 
 ## Delivery rule
 
-If a tiny helper wrapper around the VM output is enough for protocol replay, use that instead of full recovery. Final live HTTP stays browser-free and Python-owned.
+If a tiny helper wrapper around the VM output is enough for protocol replay, use that instead of full recovery. Final live egress stays browser-free and Python-owned.

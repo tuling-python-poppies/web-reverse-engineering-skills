@@ -155,3 +155,13 @@
 ## 项目本地自定义补丁
 
 没有匹配的内置模块时，把最小补丁写到项目的 `js_reverse_cache/env/ai-generated/<name>.js`，并通过 `--env js_reverse_cache/env/ai-generated/<name>.js` 显式加载。诊断器不会扫描目录或执行已安装 skill 内的生成样例。补丁必须保留来源、SHA-256、静态审查和固定向量证据。
+
+## Gap log 快捷归因
+
+已有 Proxy / diagnostic gap log（JSON）时，可先跑：
+
+```text
+node <provider-dir>/scripts/gap-log-module-advisor.js js_reverse_cache/env/gap-log.json
+```
+
+`recommendedModules` 输出为相对 `env/` 的路径（如 `bom/navigator-fingerprint.js`）。最终加载仍以本表前缀匹配与类别排序为准；advisor 只缩短候选，不替代固定向量验收。native/prototype/descriptor/`toString` 压力不会映射成虚假模块，应读 `node-detection.md` 与 `path-upgrade-checklist.md`。

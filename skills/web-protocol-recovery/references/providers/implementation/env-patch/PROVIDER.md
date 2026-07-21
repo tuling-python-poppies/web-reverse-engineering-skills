@@ -25,13 +25,27 @@ Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, l
 ## Workflow
 
 1. From the approved project root, run `<provider-dir>/scripts/vm-browser-gap-diagnose.js --trusted-code` without env modules. The current directory is the project path boundary, not the Provider directory.
-2. Select and order the smallest modules from `env/` using `references/env-modules.md`. Read `references/loading-order.md` instead, in a later iteration, only when a multi-module dependency or replacement order remains the current blocker.
+2. Select and order the smallest modules from `env/` using `references/env-modules.md`. When a Proxy/diagnostic gap log already exists, run `scripts/gap-log-module-advisor.js <gap-log.json>` first; treat `recommendedModules` as path candidates relative to `env/`, then confirm each against `env-modules.md` before loading.
 3. Repeat diagnosis while preserving proxy/gap monitoring with selected modules.
 4. Keep generated patches and probes under `js_reverse_cache/env/` and load them through that explicit path. Built-in module names always resolve from the Provider and cannot be shadowed by the project. Relative project modules reject symlink, junction, traversal, and real-path escape.
-5. After runtime success, read `references/verification-and-replay.md` before claiming functional success; trigger the known signer/cookie/header behavior and compare fixed vectors or browser intermediates.
-6. Promote only verified stable output to assigned `mod.js` and `main.js`; use `templates/` only as project-local skeletons, and web-protocol-recovery owns final `main.py` integration.
+5. When diagnosis needs real browser seed values (UA, screen, storage, fingerprint samples) and no approved seed artifact exists, use `scripts/browser-seed-collector.js` as a DevTools Console/Snippets paste. It only reads local page state and prints JSON; save the redacted result under `js_reverse_cache/env/` or feed it via `--profile-file`. Do not start or switch a browser from this provider solely to collect seeds—request recon evidence or reuse an already-open authorized page.
+6. After runtime success, read `references/verification-and-replay.md` before claiming functional success; trigger the known signer/cookie/header behavior and compare fixed vectors or browser intermediates.
+7. Promote only verified stable output to assigned `mod.js` and `main.js`; use `templates/` only as project-local skeletons, and web-protocol-recovery owns final `main.py` integration.
 
 `success:true` only means the observable runtime path did not throw. It is not signer or replay proof. Return module load errors, unresolved paths, input/output hashes, functional result, first divergence, and residual environment assumptions.
+
+## Optional Scripts
+
+| Script | When | Output |
+|---|---|---|
+| `scripts/vm-browser-gap-diagnose.js` | Default diagnose loop | gap / undefined paths |
+| `scripts/gap-log-module-advisor.js` | Gap log exists; need module shortlist | `recommendedModules` under `env/` |
+| `scripts/browser-seed-collector.js` | Need real browser seed for profile | Console JSON (no network) |
+| `scripts/webpack-module-runtime.js` | Webpack runtime boundary only | load/expose helpers |
+
+## Runtime Boundary
+
+This provider's only environment path is `env/core/*` monitors, the `env/` module tree, project-local `js_reverse_cache/env/ai-generated/*.js` patches, and the scripts listed above. Do not introduce a second parallel runtime engine under this provider. If native/prototype/descriptor pressure remains the first divergence after minimal modules, return a blocker or escalate to iv8 per `references/path-upgrade-checklist.md`.
 
 ## Optional References
 

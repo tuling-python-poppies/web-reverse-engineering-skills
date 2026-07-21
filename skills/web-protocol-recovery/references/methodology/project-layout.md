@@ -61,6 +61,16 @@ Downloaded HTML/JS/WASM/fonts/images, network exports, screenshots, browser stat
 
 `js_reverse_cache/private/` is never copied into the bundled skill or case library. Raw account/session artifacts require explicit field, path, and retention approval. Existing project files are never overwritten; choose a new approved path or leave the user-owned file unchanged.
 
+## Scaffold (optional first write)
+
+When the work order needs new empty layout paths under an absolute `projectRoot`, python-collector may call:
+
+```text
+python <skill-root>/scripts/providers/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm [flags]
+```
+
+Create only requested missing files; never overwrite. See the python-collector Provider for flags and reject rules.
+
 ## Entry Points
 
 The default user command is:

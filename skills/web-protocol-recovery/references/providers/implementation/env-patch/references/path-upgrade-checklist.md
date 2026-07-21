@@ -32,6 +32,6 @@ Stop env-patch and return a blocker when:
 3. output is a downgrade variant despite coherent browser seeds and fixed vectors;
 4. the required behavior depends on a real engine feature the Provider cannot emulate.
 
-## Advanced Branch Policy
+## Runtime Boundary
 
-Older standalone advanced engines are not a second default architecture in this Provider. Use the current `env/core/*` monitor modules, `env/` module tree, `references/loading-order.md`, and project-local patches first. If those cannot model native/prototype/descriptor pressure, return a blocker or move to iv8 instead of grafting a parallel runtime engine into the installed skill.
+This provider has one architecture: `env/core/*` monitors, the `env/` module tree, `references/loading-order.md`, `scripts/gap-log-module-advisor.js` for gap-log shortlisting, and project-local patches. Do not add a second parallel runtime engine under env-patch. If those tools cannot model native/prototype/descriptor pressure, return a blocker or move to iv8.

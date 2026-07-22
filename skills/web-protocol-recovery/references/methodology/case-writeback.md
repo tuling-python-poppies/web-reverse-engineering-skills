@@ -39,6 +39,8 @@ A `freshly-verified` case binds distinct `verification.testArtifact` executable 
 
 `registry.json` is the machine-readable source of truth. Future tasks read only the registry first and select only `status=verified`. A site case requires one matching `exactScopes` object (`scheme`, canonical host, explicit port, absolute route prefix) or at least two independent high-confidence signals. A generic parameter name, `_0x`, `412`, or one SDK string never selects a case alone.
 
+Hash cascade is mandatory after any hash-bound edit: recompute SHA-256 of the changed target file, update the corresponding `case.json` field (`artifacts.process` / `entry` / `pullLiveState` / `assets[]` / `preRead[]`), then recompute that `case.json` and update `registry.json` `manifest.sha256`. Shared `preRead` targets require every referencing case to be updated. Before commit, run `python scripts/verify_case_hashes.py` from the skill root and require exit 0.
+
 Historical user attestation does not replace fresh current-target acceptance and never authorizes embedded live requests, dependencies, verifier submission, account state, or raw persistence. New work must use `freshly-verified`; restored historical manifests are read-only except for credential removal, path migration, or integrity repairs explicitly approved by the user.
 
 ## PROCESS.md
@@ -51,6 +53,6 @@ Never write back `js_reverse_cache/private/`, cookie/token values, Authorization
 
 ## Update Rules
 
-Update an existing case only when vendor, product generation, protocol family, and subtype still match. Increment revision and verification time. A changed product generation, verifier subtype, incompatible wire shape, or different state model creates a new case. Mark obsolete cases `stale` or `deprecated`; do not silently rewrite their identity.
+Update an existing case only when vendor, product generation, protocol family, and subtype still match. Increment revision and verification time. Apply the hash cascade above for every touched process/entry/asset/preRead/manifest. A changed product generation, verifier subtype, incompatible wire shape, or different state model creates a new case. Mark obsolete cases `stale` or `deprecated`; do not silently rewrite their identity.
 
 Promote a lesson into generic web-protocol-recovery methodology only when it applies across sites and the user separately approves that methodology path. Default writeback changes only the case directory and registry.

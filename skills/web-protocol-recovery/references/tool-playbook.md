@@ -46,6 +46,17 @@ JS_ACTIVE_HEADLESS -> JS_CLOSED -> JS_CLOAK_VISIBLE
 - Close js-reverse before returning to Chrome or escalating to Camoufox.
 - Clear task-owned hooks, routes, captures, cookies/storage/cache when the context is disposable; otherwise report owner, retained scope, reason, and deadline.
 
+### Headless acceptance (`effective_headless`)
+
+`effective_headless` is the preferred launch-result field meaning the process is actually headless (not merely requested). Acceptance for ordinary normal-Chrome recon:
+
+1. Request: `launch_browser({headless:true, cloakBinaryPath:""})`.
+2. Prefer returned fields: Cloak inactive, and either `effective_headless=true` or an equivalent explicit headless confirmation (`headless=true` with no headful/window flag).
+3. Missing `effective_headless` is not automatic pass or fail by itself: re-check launch args and available page/binary status; fail if a normal OS browser window opened for this task or headless cannot be proved.
+4. Fail closed on visible normal Chrome, Cloak active on a normal-Chrome step, or headful/windowed launch reports. Return a tooling blocker; do not navigate until relaunch is accepted.
+
+Boolean authorization gates (`browserReconAllowed`, `browserNavigationSideEffectsApproved`, `liveReplayAllowed`, etc.) use JSON `true`/`false` only; never record `yes`/`no` for those fields.
+
 The Chromium Recon Provider owns exact launch, park, CloakBrowser-path, headless/headful, and cleanup calls. The Camoufox Provider owns its separate runtime lifecycle.
 
 ## Escalation Conditions

@@ -19,7 +19,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## evidence
 
-1. Ask only for missing request/source/trigger context. Before fresh Chrome recon, require authorization basis, exact scheme/host/port/absolute route prefix, `browserReconAllowed=yes`, one navigation budget unit, prior cumulative `observedAutomatic`, and explicit approval for unpreventable automatic browser-network side effects.
+1. Ask only for missing request/source/trigger context. Before fresh Chrome recon, require authorization basis, exact scheme/host/port/absolute route prefix, `browserReconAllowed=true`, one navigation budget unit, prior cumulative `observedAutomatic`, and explicit approval for unpreventable automatic browser-network side effects. Boolean gates use JSON `true`/`false` only (never `yes`/`no`).
 2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web.
 3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser navigation, live egress, account/session use, target-code execution, dependency install, file write, raw artifact save, verifier submission, mutation, retry, scale-up, or retention is proposed, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
 4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
@@ -63,7 +63,7 @@ WeChat is a route, not a success shape. Keep the selected `evidence`, `local-pro
 
 1. Confirm the debugger endpoint belongs to the user.
 2. Read `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md`.
-3. Initial target listing may run under `no-write` and `liveReplayAllowed=no`.
+3. Initial target listing may run under `no-write` and `liveReplayAllowed=false`.
 4. Complete intake before account/session payloads, triggered actions, or saved evidence.
 5. Keep miniapp IDs inside the WeChat lease; never reuse them on Chromium/Camoufox/iv8.
 
@@ -94,7 +94,7 @@ When a baseline is requested but Chrome-specific approval is missing, answer wit
 ```text
 shape: evidence
 route: chromium-recon
-nextAsk: browserReconAllowed=yes, browserNavigationSideEffectsApproved=yes, automaticObservationStopThreshold=<positive integer>, requestBudget.remaining>=1 navigation unit, prior observedAutomatic object
+nextAsk: browserReconAllowed=true, browserNavigationSideEffectsApproved=true, automaticObservationStopThreshold=<positive integer>, requestBudget.remaining>=1 navigation unit, prior observedAutomatic object
 nextRead: none
 scope: scheme=<exact> host=<exact> port=<exact> route=<absolute prefix>
 chromeBaseline: blocked pending side-effect approval
@@ -103,12 +103,12 @@ automaticTraffic: observed destinations are evidence, never authorization; stop 
 
 ## Gate: Denied Live-Replay Overlay
 
-For a requested `compact-replay` or `collector` with `liveReplayAllowed=no`, preserve that requested shape but keep execution offline:
+For a requested `compact-replay` or `collector` with `liveReplayAllowed=false`, preserve that requested shape but keep execution offline:
 
 ```text
 shape: REQUESTED_SHAPE
 route: evidence-reuse
-nextAsk: explicit liveReplayAllowed=yes only if live verification is still requested
+nextAsk: explicit liveReplayAllowed=true only if live verification is still requested
 nextRead: none
 status: blocked; HTTP request/retry/WebSocket handshake/sent-frame egress denied
 requestBudget: consumed=0; remaining=<unchanged>

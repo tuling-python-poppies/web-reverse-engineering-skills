@@ -82,7 +82,7 @@ If any fast-path condition becomes false, stop before the action and record the 
 
 Before navigation, live egress, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
 
-Chrome baseline blocked unless `browserReconAllowed=yes`, exact top-level scope, one navigation budget unit, prior cumulative `observedAutomatic`, `browserNavigationSideEffectsApproved=yes`, and `automaticObservationStopThreshold>=1` are recorded. Observed automatic destinations are evidence, never authorization.
+Chrome baseline blocked unless `browserReconAllowed=true`, exact top-level scope, one navigation budget unit, prior cumulative `observedAutomatic`, `browserNavigationSideEffectsApproved=true`, and `automaticObservationStopThreshold>=1` are recorded. Boolean gates use JSON `true`/`false` only (never `yes`/`no`). Observed automatic destinations are evidence, never authorization.
 
 Smallest success shape:
 

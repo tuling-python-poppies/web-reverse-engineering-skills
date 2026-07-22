@@ -2,7 +2,7 @@
 
 本文件用于把单一浏览器页面上下文、调试工具快照或用户样本接入 `iv8` 复现链路。目标不是把浏览器整体载入 iv8，而是把可用来源的采样结果归一成 iv8 可承接的 `environment`、`config`、`page.load`、`netLog`、`wrapNative`、storage/cookie 和 Python 请求重放材料。
 
-本文件只说明 evidence owner 应采什么，以及 iv8 receiver 如何消费 artifact。它不授权 iv8 receiver 启动、切换或调用浏览器工具；`SKILL.md` 的 Packet Permission 与 Side-Effect Gate 始终优先。`browserReconAllowed != yes` 时不导航，`liveReplayAllowed != yes` 时不下载页面/脚本/图片或发目标 HTTP，账号/session 范围未批准时不导入相应 Cookie/storage。
+本文件只说明 evidence owner 应采什么，以及 iv8 receiver 如何消费 artifact。它不授权 iv8 receiver 启动、切换或调用浏览器工具；`SKILL.md` 的 gate 与 Side-Effect 规则始终优先。`browserReconAllowed != true` 时不导航，`liveReplayAllowed != true` 时不下载页面/脚本/图片或发目标 HTTP，账号/session 范围未批准时不导入相应 Cookie/storage。布尔 gate 只用 JSON `true`/`false`，不用 `yes`/`no`。
 
 ## 四层流程
 
@@ -16,7 +16,7 @@
 按以下顺序选择一个 baseline 来源：
 
 1. 已有 web-protocol-recovery evidence Provider 结果：先查 bundled case 和 reverse-process，再复用该 Provider 已经记录的同一 engine/session/target。原浏览器仍 live 时由该 evidence Provider 调用 source ID 并导出当前环境；iv8 只消费批准的 `browser_env.json`/artifact，不跨 MCP 调用 ID。
-2. 没有上游浏览器证据的新 standalone 任务：若已知入口仍需要 fresh browser baseline，iv8 Provider 在 `browserReconAllowed=yes` 后向 web-protocol-recovery 返回 blocker，由 web-protocol-recovery 选择 reconnaissance Provider 并发出 bounded work order；iv8 receiver 不直接调用 `js-reverse-mcp`、CloakBrowser 或其它 browser MCP。
+2. 没有上游浏览器证据的新 standalone 任务：若已知入口仍需要 fresh browser baseline，iv8 Provider 在 `browserReconAllowed=true` 后向 web-protocol-recovery 返回 blocker，由 web-protocol-recovery 选择 reconnaissance Provider 并发出 bounded work order；iv8 receiver 不直接调用 `js-reverse-mcp`、CloakBrowser 或其它 browser MCP。
 3. 用户提供的抓包、HTML、JS、Cookie、headers 或环境快照：用于无法直接打开目标页但仍要完成 iv8 复现的场景。
 4. iv8 默认 environment：仅用于目标不依赖真实浏览器环境，或用户接受残余风险的场景。
 

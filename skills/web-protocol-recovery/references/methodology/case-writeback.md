@@ -53,6 +53,6 @@ Never write back `js_reverse_cache/private/`, cookie/token values, Authorization
 
 ## Update Rules
 
-Update an existing case only when vendor, product generation, protocol family, and subtype still match. Increment revision and verification time. Apply the hash cascade above for every touched process/entry/asset/preRead/manifest. A changed product generation, verifier subtype, incompatible wire shape, or different state model creates a new case. Mark obsolete cases `stale` or `deprecated`; do not silently rewrite their identity.
+Update an existing case only when vendor, product generation, protocol family, and subtype still match. Increment revision and verification time. Apply the hash cascade above for every touched process/entry/asset/preRead/verification.* /manifest. A changed product generation, verifier subtype, incompatible wire shape, or different state model creates a new case. Mark obsolete cases `stale` or `deprecated`; do not silently rewrite their identity.
 
 Promote a lesson into generic web-protocol-recovery methodology only when it applies across sites and the user separately approves that methodology path. Default writeback changes only the case directory and registry.

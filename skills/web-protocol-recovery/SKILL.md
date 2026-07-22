@@ -117,7 +117,7 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Known observation boundary, reversible hook | `browser-hooks` | `references/providers/implementation/browser-hooks/PROVIDER.md` |
 | Whole-file/source structure recovery | `ast` | `references/providers/implementation/ast/PROVIDER.md` |
 | Known JS entry in Node/vm/jsdom | `env-patch` | `references/providers/implementation/env-patch/PROVIDER.md` |
-| Browser-like local runtime / XHR netLog / registry runtime case | `iv8` | `references/providers/implementation/iv8/PROVIDER.md` |
+| Browser-like local runtime / XHR netLog / registry runtime case | `iv8` | `references/providers/implementation/iv8/PROVIDER.md`; stable Python import uses `utils/iv8_silent.import_iv8_silent()` |
 | OCR / slider / click / coordinates | `verifier` | `references/providers/implementation/verifier/PROVIDER.md` |
 | Stable browser-free Python delivery | `python-collector` | `references/providers/implementation/python-collector/PROVIDER.md` |
 

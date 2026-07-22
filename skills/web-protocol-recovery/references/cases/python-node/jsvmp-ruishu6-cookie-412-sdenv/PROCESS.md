@@ -1,7 +1,7 @@
 # JSVMP-RS6+Cookie生成+412挑战+sdenv补环境
 
 > 难度：★★★★★
-> 还原方案：E: jsdom 环境模拟（sdenv 魔改 jsdom + C++ V8 Addon）
+> 还原方案：jsdom 环境模拟（sdenv 增强 jsdom + C++ V8 Addon）
 > 实现语言：Node.js
 > 最后验证日期：2026-04-17
 
@@ -102,8 +102,8 @@
   window 仅出现 3 次（环境访问全部通过 JSVMP 字节码间接进行）。
 
 步骤 8: 补环境方案选型
-  参考开源社区的手动补环境方案和 sdenv/纯算/JsRpc 多方案，
-  确定 sdenv（魔改 jsdom + C++ V8 Addon）是RS6的最优纯 Node.js 方案。
+  对比手动补环境、sdenv、纯算、浏览器远程执行等路径后，
+  为本案选定 sdenv（增强 jsdom + C++ V8 Addon）作为纯 Node.js 运行路径。
 ```
 
 ---
@@ -114,7 +114,7 @@
 
 ```javascript
 /**
- * RS6 Cookie 生成 — 基于 sdenv (魔改 jsdom + C++ V8 Addon)
+ * RS6 Cookie 生成 — 基于 sdenv (增强 jsdom + C++ V8 Addon)
  * 依赖: npm install sdenv (需要 pnpm 安装 + node-gyp 编译原生模块)
  * 原理:
  *   sdenv 的核心是 documentAll.node (51行C++)，用 V8 的
@@ -211,7 +211,7 @@ class RuishuClient {
 | 变体 | 差异点 | 影响 |
 |------|--------|------|
 | RS 4/5 代 vs 6 代 | RS6 JS 文件约 230KB，比 4/5 代（约 200KB）更大，环境检测项更多 | 4/5 代可通过手动补环境成功，6 代手动补环境极其困难，建议直接用 sdenv |
-| Cookie-only vs Cookie+URL后缀 | 大部分RS站点只需要 Cookie 即可访问。少数站点还需要 URL 后缀签名 | sdenv 只能生成 Cookie，不能生成 URL 后缀。需要后缀的站点建议用 JsRpc 方案 |
+| Cookie-only vs Cookie+URL后缀 | 大部分RS站点只需要 Cookie 即可访问。少数站点还需要 URL 后缀签名 | sdenv 只能生成 Cookie，不能生成 URL 后缀。需要后缀的站点改走浏览器远程执行或完整浏览器路径 |
 | HTTP vs HTTPS | 部分RS站点使用 HTTP，其他使用 HTTPS | sdenv 的 `jsdomFromUrl` 两种协议都支持；证书链异常时提供显式可信 CA，不得关闭 TLS 校验 |
 | 静态页面 vs API 接口 | 列表页和详情页可能是纯静态 HTML（服务端渲染），用 cheerio 解析即可。其他站点可能有 JSON API 接口 | API 请求可能需要额外的签名参数（如 `sign = MD5(itemId + searchValue + timestamp)`） |
 | `$_ts` 配置差异 | 不同站点的 `$_ts` 配置结构可能不同，有的只有 `nsd` 和 `cd`，其他可能还有 `cp`、`aebi` 等字段 | sdenv 方案不需要关心这些差异，因为它让RS JS 自己解析配置 |

@@ -59,7 +59,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "808ee8deaaa7eff5096c10ea8edd9e6e8e913702fefdda9f021fcc2ca4af1eaf"
+            "sha256": "fa89fb185a9bf771f01c1f066ae17b57af71a965f91a0ea1eb4b37665ae9aa57"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",

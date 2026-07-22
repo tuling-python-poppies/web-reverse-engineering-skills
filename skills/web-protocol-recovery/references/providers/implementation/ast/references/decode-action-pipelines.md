@@ -1,8 +1,8 @@
 # Decode Action Pipelines
 
-这份文档把 `Decode_action-main` 的核心结构抽成可复用的方法论，供 web-protocol-recovery 的 AST Provider 在实际任务里直接套用。
+这份文档把常见 decode-action / AST 去混淆流水线的核心结构整理成可复用方法论，供 web-protocol-recovery 的 AST Provider 在实际任务里直接套用。
 
-目标不是照搬仓库代码，而是继承它最有效的设计：
+目标不是绑定某个外部仓库，而是固定下列有效设计：
 
 1. 先识别家族
 2. 再选择 plugin 式 pipeline
@@ -11,9 +11,9 @@
 
 如果用户明确希望“先别精修，先给我一个能跑的模板把第一版结果打出来”，直接从 bundled script `scripts/decode_action_scaffold.js` 起手，然后再按本文件的家族说明继续加 pass。
 
-## 仓库结构要点
+## 主入口结构要点
 
-`Decode_action-main` 的主入口大致是：
+典型主入口大致是：
 
 1. 读取 `input.js`
 2. 依次尝试多个 plugin
@@ -37,7 +37,7 @@
 2. 再试兜底型通用清理
 3. 如果某个家族没有命中，不要强行继续用它的假设做后续替换
 
-## 可以直接借鉴的设计
+## 推荐设计
 
 ### 1. Plugin 负责“家族级策略”
 
@@ -174,7 +174,7 @@ skill 中应保持这种拆法：
 
 ## 推荐的轮次切分
 
-参考 `Decode_action-main`，建议这样拆：
+建议按下列轮次拆分：
 
 ### Round 1: Detect and Normalize
 

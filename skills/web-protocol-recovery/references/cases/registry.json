@@ -231,14 +231,20 @@
                 "signals": [
                     "parameter:h5st",
                     "runtime:ParamsSignMain",
-                    "site:jd"
+                    "site:jd",
+                    "script:js_security_v3_main",
+                    "api:api.m.jd.com"
                 ],
                 "minimumIndependentSignals": 2,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "vendor:imperva",
+                    "vendor:akamai",
+                    "vendor:ruishu"
+                ]
             },
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "32305d6d7d49a7aa38862094656b70380e2002ab5ec86654d8a9712842562197"
+                "sha256": "ca8a0294000b4e6f59a0f7d78c24d92fb21b5ec31d4b3987c672f4562ea60da1"
             }
         },
         {

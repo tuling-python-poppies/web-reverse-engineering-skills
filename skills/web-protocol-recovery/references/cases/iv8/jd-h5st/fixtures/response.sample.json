@@ -1,0 +1,58 @@
+{
+  "note": "Redacted structural sample of recommend_like_m success payload (no secrets).",
+  "response": {
+    "st": "2026/07/22 21:20:32",
+    "pt": "2026/07/22 21:20:32",
+    "rs": "0",
+    "fn": "item_rec",
+    "data": {
+      "feeds": {
+        "name": "guess-you-like-feeds",
+        "tpl": "9002",
+        "content": [
+          {
+            "tpl": "9041",
+            "type": "0",
+            "id": "10000000000001",
+            "name": "Sample Product A",
+            "price": "99.00",
+            "jdPrice": "99.00",
+            "oriprice": "99.00",
+            "link": "https://item.m.jd.com/product/10000000000001.html",
+            "imgprefix": "//img14.360buyimg.com/n1/",
+            "imgbase": "jfs/t1/sample/a.jpg",
+            "ext": {
+              "cate1": 1,
+              "cate2": 2,
+              "cate3": 3,
+              "shopId": 10001,
+              "brandId": 20001
+            }
+          },
+          {
+            "tpl": "9041",
+            "type": "0",
+            "id": "10000000000002",
+            "name": "Sample Product B",
+            "price": "199.00",
+            "jdPrice": "199.00",
+            "oriprice": "199.00",
+            "link": "https://item.m.jd.com/product/10000000000002.html",
+            "imgprefix": "//img14.360buyimg.com/n1/",
+            "imgbase": "jfs/t1/sample/b.jpg",
+            "ext": {
+              "cate1": 1,
+              "cate2": 2,
+              "cate3": 4,
+              "shopId": 10002,
+              "brandId": 20002
+            }
+          }
+        ]
+      },
+      "tab": []
+    },
+    "errcode": "0",
+    "errmsg": ""
+  }
+}

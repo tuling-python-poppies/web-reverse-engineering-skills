@@ -1,94 +1,153 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-jd-h5st",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "signer",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "parameter:h5st",
-                                  "runtime:ParamsSignMain",
-                                  "site:jd"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "parameter:h5st",
-                             "runtime:ParamsSignMain",
-                             "site:jd"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "JD",
-                    "product":  "h5st",
-                    "version":  "legacy",
-                    "subtype":  "ParamsSignMain"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "curl_cffi":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "89aec321930863534af562787e0aeb266e25de3dd319b537d6c695b9dca7fb9c"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-                                        },
-                      "assets":  [
-                                     {
-                                         "path":  "assets/jd_index.html",
-                                         "sha256":  "854715a902f10a4283427a6647212f45fe2c2103763eff66315a0fafabae65d7"
-                                     },
-                                     {
-                                         "path":  "assets/js_security_v3_main.js",
-                                         "sha256":  "047572354d08d792724293c3bc2e6a2884560bedcc2274cfbc9b198e57ee1a37"
-                                     }
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "46d22d02704e59316e6e9c1b945a6658f2782ce0114234405c90662e4404864f"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v1",
+  "caseId": "iv8-jd-h5st",
+  "revision": 2,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "parameter:h5st",
+      "runtime:ParamsSignMain",
+      "site:jd",
+      "script:js_security_v3_main",
+      "api:api.m.jd.com"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": [
+      "vendor:imperva",
+      "vendor:akamai",
+      "vendor:ruishu"
+    ]
+  },
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "m.jd.com",
+      "port": 443,
+      "routePrefix": "/"
+    },
+    {
+      "scheme": "https",
+      "host": "api.m.jd.com",
+      "port": 443,
+      "routePrefix": "/api"
+    },
+    {
+      "scheme": "https",
+      "host": "storage.360buyimg.com",
+      "port": 443,
+      "routePrefix": "/webcontainer/main/js_security_v3_main.js"
+    },
+    {
+      "scheme": "https",
+      "host": "cactus.jd.com",
+      "port": 443,
+      "routePrefix": "/request_algo"
+    }
+  ],
+  "protocolPatterns": [
+    "parameter:h5st",
+    "runtime:ParamsSignMain",
+    "body:sha256-hex",
+    "script:js_security_v3_main",
+    "api:recommend_like_m",
+    "site:jd"
+  ],
+  "sourceProvider": "iv8",
+  "product": {
+    "vendor": "JD",
+    "product": "h5st",
+    "version": "js_security_v3_main",
+    "subtype": "ParamsSignMain-2088b"
+  },
+  "providerChain": [
+    "chromium-recon",
+    "iv8",
+    "python-collector"
+  ],
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "curl_cffi": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "3AB9D23F7A4B3CSS",
+      "3AB9D23F7A4B3C9B",
+      "sdtoken",
+      "cd_eid"
+    ],
+    "cookieNamePatterns": [
+      "^__jd",
+      "^mba_"
+    ],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "dab8f5a99f854827950a725d5ed163af1fa8dfb6232399638daf6e4a75e78d6d"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+    },
+    "assets": [
+      {
+        "path": "assets/jd_index.html",
+        "sha256": "854715a902f10a4283427a6647212f45fe2c2103763eff66315a0fafabae65d7"
+      },
+      {
+        "path": "assets/js_security_v3_main.js",
+        "sha256": "047572354d08d792724293c3bc2e6a2884560bedcc2274cfbc9b198e57ee1a37"
+      },
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "8edacc393660d6da23695091aa74765a5b33ab8eaca2014b0a8e0a77d98471bb"
+      },
+      {
+        "path": "fixtures/response.sample.json",
+        "sha256": "59067c5f1578ecd2b73a4ed511acf52245c6abfd97db198405185cf98dd2816b"
+      }
+    ],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "3bf74903c856fe3fb4b1bf5575be668bcecea6cbf12404f1a8818fc91b218601"
+    }
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-07-22",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "c6b8f507a73b8cdcf509aa7211ad3ab9092f06e439872097fe4f23baefea209b"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/vectors.json",
+      "sha256": "8edacc393660d6da23695091aa74765a5b33ab8eaca2014b0a8e0a77d98471bb"
+    },
+    "proof": {
+      "offlineVectors": "body sha256 vector, product parser sample, import-safe offline run",
+      "unitTests": "4/4 case-local offline tests passed 2026-07-22",
+      "liveChain": "chromium-recon on m.jd.com + live js_security_v3_main.js: iv8 h5st then recommend_like_m HTTP 200 with data.feeds.content product rows (~20 items, id/name/price)",
+      "invalidationNote": "historical frozen assets alone can emit h5st but often get recommend_like_m 403; prefer live bundle download each run",
+      "caseLocalTests": "python -m unittest discover -s tests -v"
+    }
+  }
 }

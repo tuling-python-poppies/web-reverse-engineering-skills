@@ -218,10 +218,13 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
     if (args.cache or args.output) and not args.gitignore:
         raise ValueError("cache and output paths require --gitignore protection")
     directories = []
+    want_logger = args.logger or args.iv8_silent
     if args.cache:
         directories.append("js_reverse_cache")
-        directories.extend(f"js_reverse_cache/{name}" for name in args.cache_namespace)
-    want_logger = args.logger or args.iv8_silent
+        # Only create namespaces explicitly requested via --cache-namespace.
+        # Never pre-create recon/source/ast/env/iv8/samples/private by default.
+        for ns in args.cache_namespace:
+            directories.append(f"js_reverse_cache/{ns}")
     if args.utils or args.iv8_silent or want_logger:
         directories.append("utils")
     if args.tests:
@@ -231,7 +234,16 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
 
     files = []
     if args.entry:
-        files.append(("main.py", '"""web-protocol-recovery project entry."""\n\n\ndef main():\n    raise NotImplementedError("implementation not generated yet")\n\n\nif __name__ == "__main__":\n    main()\n'))
+        files.append(
+            (
+                "main.py",
+                '"""web-protocol-recovery project entry."""\n\n\n'
+                "def main():\n"
+                '    raise NotImplementedError("implementation not generated yet")\n\n\n'
+                'if __name__ == "__main__":\n'
+                "    main()\n",
+            )
+        )
     if args.iv8_silent:
         files.append(("utils/iv8_silent.py", IV8_SILENT_PY))
     if want_logger:
@@ -244,12 +256,18 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
                 "README.md",
                 "# web-protocol-recovery Project\n\n"
                 "Run with `python main.py`.\n\n"
-                "Dynamic evidence stays under `js_reverse_cache/` (never OS temp as primary storage).\n"
-                "Optional: install `loguru` for richer logs; `utils/logger.py` falls back to print.\n",
+                "Dynamic evidence stays under `js_reverse_cache/` (never OS temp).\n"
+                "Create only needed cache namespaces (on-demand).\n"
+                "Optional: install `loguru`; `utils/logger.py` falls back to print.\n",
             )
         )
     if args.gitignore:
-        files.append((".gitignore", "config.local.json\njs_reverse_cache/**\noutput/**\n__pycache__/\n*.pyc\n"))
+        files.append(
+            (
+                ".gitignore",
+                "config.local.json\njs_reverse_cache/**\noutput/**\n__pycache__/\n*.pyc\n",
+            )
+        )
 
     created: list[str] = []
     with PlainPathGuard() as guard:

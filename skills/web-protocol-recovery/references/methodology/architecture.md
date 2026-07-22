@@ -40,38 +40,14 @@ Provider-local references are operational manuals for that capability. They may 
 
 ## Unified Project Layout
 
-All writes use `web-protocol-recovery-simple/v1`:
+The canonical tree is `references/methodology/project-layout.md`. This architecture file owns the layout invariant only:
 
-```text
-<project-root>/
-  main.py
-  main.js
-  mod.js
-  utils/
-  tests/
-  output/
-  js_reverse_cache/
-    recon/
-    source/
-    ast/
-    env/
-    iv8/
-    samples/
-    private/
-```
+1. all writes use `web-protocol-recovery-simple/v1` under one absolute `projectRoot`;
+2. only paths required by the current task are created, and a valid final delivery may contain only `main.py`;
+3. reconnaissance, AST, env-patch, iv8, verifier, and sample artifacts stay in their assigned `js_reverse_cache/**` or `tests/**` paths until accepted;
+4. final Python HTTP, pagination, decode, storage, and output are owned by root `main.py` and assigned `utils/**` helpers.
 
-Only create paths required by the current task. A valid final delivery may contain only `main.py`.
-
-Stable code is promoted only after fixed-vector or approved live semantic acceptance passes:
-
-1. reconnaissance artifacts stay under `js_reverse_cache/recon/**` and `js_reverse_cache/source/**`;
-2. AST intermediates stay under `js_reverse_cache/ast/**`;
-3. env-patch probes stay under `js_reverse_cache/env/**`, with verified helpers promoted to root `mod.js` and `main.js` only when assigned;
-4. iv8 probes, assets, net logs, and runtime snapshots stay under `js_reverse_cache/iv8/**` or `js_reverse_cache/source/**`;
-5. fixed redacted vectors belong under `js_reverse_cache/samples/**` or stable `tests/**`;
-6. final Python HTTP, pagination, decode, storage, and output are owned by root `main.py` and narrow `utils/**` helpers.
-
-Forbidden layout roots and mandatory directories: `collector/`, `analysis/`, `input/`, `logs/`, provider-specific project folders, and any second landing directory.
+Forbidden generated roots/directories are defined in `project-layout.md`; Providers must not restate or fork the tree.
 
 ## Acceptance Chain
 

@@ -35,18 +35,7 @@ nextAsk: <only fields needed now>
 nextRead: <paths per read-budget>
 ```
 
-Human meaning of the four-line header:
-
-| Field | Plain-language meaning |
-|---|---|
-| `shape` | Deliverable depth: evidence only, local proof, minimal replay, or full collector. |
-| `evidence` | Find the real request, initiator, state writer, mutation point, or precise blocker; do not write the collector. |
-| `local-proof` | Prove fixed vectors, decode, restored source, or helper output offline; do not send live egress. |
-| `compact-replay` | Build the smallest browser-free replay, usually one short `main.py`, then verify one approved request. |
-| `collector` | Build the stable browser-free Python collector with explicit bounds. |
-| `route` | Tool path: `evidence-reuse`, `chromium-recon`, `camoufox`, `wechat-miniapp`, or one implementation Provider. |
-| `nextAsk` | The only user fields or approvals needed before the next gated action. |
-| `nextRead` | The exact internal reference path(s) allowed by the read budget. |
+Header meanings: `shape` is deliverable depth; `route` is the selected Provider or `evidence-reuse`; `nextAsk` lists only gates or fields needed before the next action; `nextRead` lists exact paths allowed by the read budget. Per-shape scripts and gated overlays live in `references/methodology/success-shape-scripts.md`.
 
 Four mandatory policy overlays when their trigger is hit — case read, scope/budget reset, Chrome auto-traffic gate, and denied live replay — are owned by `references/methodology/success-shape-scripts.md`.
 
@@ -80,9 +69,7 @@ Allowed actions: emit the four-line header, use `route: evidence-reuse` unless r
 
 If any fast-path condition becomes false, stop before the action and record the applicable gate below. The fast path never grants browser navigation, live egress, writes, account/session use, or broader collection.
 
-Before navigation, live egress, account/session use, target-code execution, dependency install, or writes, record the applicable gate from `references/methodology/provider-work-order.md`: authorization basis, exact scheme/host/port/absolute-route-prefix and query scope, action class, account/session disposition, browser recon, navigation side-effects, live replay, shared request budget, artifact policy, and execution policy. An omitted gate is deny/offline, never implied approval. Unknown authorization, non-exact scope, or empty budget stays offline. Pre-egress: canonicalize scope, reserve one mutually exclusive unit; a consumed unit is never refunded. Route switches never reset budget or automatic-observation state. Public reachability is not account/mutation/collection permission.
-
-Chrome baseline blocked unless `browserReconAllowed=true`, exact top-level scope, one navigation budget unit, prior cumulative `observedAutomatic`, `browserNavigationSideEffectsApproved=true`, and `automaticObservationStopThreshold>=1` are recorded. Boolean gates use JSON `true`/`false` only (never `yes`/`no`). Observed automatic destinations are evidence, never authorization.
+Before navigation, live egress, account/session use, target-code execution, dependency install, or writes, record only the applicable gate fields from `references/methodology/provider-work-order.md`. An omitted gate is deny/offline. Unknown authorization, non-exact scope, empty budget, unapproved execution, unapproved artifacts, or unapproved session use stays offline. Pre-egress accounting and Chrome automatic-traffic handling are canonical in `provider-work-order.md` and `success-shape-scripts.md`; route switches never reset them. Public reachability is not account, mutation, or collection permission.
 
 Smallest success shape:
 
@@ -107,11 +94,13 @@ Prefer supplied artifacts or one registry case before opening a browser. Fresh r
 
 | Route | Signal | Provider entry |
 |---|---|---|
-| `chromium-recon` | Ordinary Web; Cloak/指纹/fingerprint/anti-detection/stealth browser wording | `references/providers/reconnaissance/chromium-recon/PROVIDER.md` |
+| `chromium-recon` | Ordinary Web; Cloak/指纹/fingerprint/anti-detection/stealth browser wording starts here as a Chromium-tier question | `references/providers/reconnaissance/chromium-recon/PROVIDER.md` |
 | `camoufox` | Explicit Camoufox, or engine-level/SpiderMonkey/Camoufox instrumentation, or untrustworthy Cloak result | `references/providers/reconnaissance/camoufox/PROVIDER.md` |
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
-Chromium recon: after recon gates, fresh targets need a **mandatory paired pass** before the final collector — (1) `chrome-devtools` baseline, (2) park Chrome, (3) `js-reverse` mutation (explicit `launch_browser`; headless preferred unless user wants visible ordinary Chrome). Skip a half only with a real tool blocker or documented exception (evidence-reuse / offline local-proof / non-Chromium route). “No ordinary window” may skip only the **visible DevTools window**; js-reverse remains required. After paired pass, optional visible Cloak on 指纹/Cloak/stealth wording or fingerprint evidence; close js-reverse before Camoufox. js-reverse: no auto-launch default; after `close_browser`, relaunch headless before further actions; brief relaunch flash OK, persistent headful after acceptance is a blocker.
+CloakBrowser is a Chromium recon tier, not a `route`. Use `camoufox` only for explicit Camoufox/SpiderMonkey/engine-level criteria or after an untrustworthy Cloak result is recorded.
+
+Chromium recon: after recon gates, fresh targets need a **mandatory paired pass** before the final collector — (1) `chrome-devtools` baseline, (2) park Chrome, (3) `js-reverse` mutation (explicit `launch_browser`; headless preferred unless user wants visible ordinary Chrome). Skip a half only with a real tool blocker or documented exception (evidence-reuse / offline local-proof / non-Chromium route). “No ordinary window” may skip only the **visible DevTools window**; js-reverse remains required. After paired pass, optional visible Cloak on 指纹/Cloak/stealth wording or fingerprint evidence; close js-reverse before any Camoufox route. js-reverse: no auto-launch default; after `close_browser`, relaunch headless before further actions; brief relaunch flash OK, persistent headful after acceptance is a blocker.
 
 ## Phase 3: Gate Family
 
@@ -132,7 +121,7 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | OCR / slider / click / coordinates | `verifier` | `references/providers/implementation/verifier/PROVIDER.md` |
 | Stable browser-free Python delivery | `python-collector` | `references/providers/implementation/python-collector/PROVIDER.md` |
 
-Chains are sequential (typical: recon -> AST -> env/iv8 -> collector). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime. When stable Python code imports iv8, use `utils/iv8_silent.py` via `import_iv8_silent()` so the package import banner does not pollute CLI/JSON output; keep runtime diagnostic logs. Details: the iv8 Provider.
+Chains are sequential (typical: recon -> AST -> env/iv8 -> collector). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime. Runtime helper details, including iv8 import hygiene, live in the selected Provider docs.
 
 ## Phase 5: Verification
 

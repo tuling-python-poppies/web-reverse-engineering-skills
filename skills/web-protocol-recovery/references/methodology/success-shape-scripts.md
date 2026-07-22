@@ -43,7 +43,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 2. Ordinary Web first response must include:
    ```text
    layout: web-protocol-recovery-simple/v1
-    reconSequence: mandatory paired pass (chrome-devtools clean baseline -> Chrome parked -> js-reverse mutation, explicit launch; headless preferred for mutation) -> visible CloakBrowser only after explicit/fingerprint selection
+   reconSequence: mandatory paired pass (chrome-devtools clean baseline -> Chrome parked -> js-reverse mutation, explicit launch; headless preferred for mutation) -> visible CloakBrowser only after explicit/fingerprint selection
    ```
 3. Recover one short root `main.py` path, often with a narrow iv8/helper artifact generator.
 4. Verify fixed vectors, then one approved minimal live replay.
@@ -107,10 +107,12 @@ automaticTraffic: observed destinations are evidence, never authorization; stop 
 
 ## Gate: Denied Live-Replay Overlay
 
-For a requested `compact-replay` or `collector` with `liveReplayAllowed=false`, preserve that requested shape but keep execution offline:
+For a requested `compact-replay` or `collector` with `liveReplayAllowed=false`, preserve that requested shape but keep execution offline.
+
+If the requested shape is `compact-replay`, answer:
 
 ```text
-shape: REQUESTED_SHAPE
+shape: compact-replay
 route: evidence-reuse
 nextAsk: explicit liveReplayAllowed=true only if live verification is still requested
 nextRead: none
@@ -119,7 +121,7 @@ requestBudget: consumed=0; remaining=<unchanged>
 nextAction: continue offline fixed-vector verification only
 ```
 
-Replace `REQUESTED_SHAPE` with the exact requested `compact-replay` or `collector` value; never emit the placeholder.
+If the requested shape is `collector`, answer the same block with `shape: collector`. Never emit a combined or placeholder shape.
 
 ## Gate: Runtime Cleanup Overlay
 

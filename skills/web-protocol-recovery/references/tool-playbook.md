@@ -95,16 +95,13 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | H2 reset, TLS EOF, handshake timeout, UA/HTTP-version split before semantics | `transport-pre-gate-playbook.md` |
 | Page and wire disagree on route | `decoy-and-real-request-playbook.md` |
 | Wrapper changes query/body/header slots | `transport-wrapper-playbook.md` |
-| Helper named md5/btoa/sha but fixed inputs disagree with stdlib | `patched-helper-playbook.md` (then `crypto-patterns.md`) |
-| Browser vs local multi-layer mismatch; redirect/wrapper triage still open | `env-diff-playbook.md` (then `environment-patch-playbook.md`) |
-| Live inspection unstable; debugger traps / self-rewriting sources | `anti-debug-playbook.md` (then `offline-inline-deob-playbook.md`) |
-| Getter / XHR-fetch egress already emits decisive artifact | `challenge-artifact-harvest-playbook.md` |
-| Same-endpoint `202`/JS then cookie then data; refresh function renews params | `server-js-cookie-bootstrap-playbook.md` |
-| Tiny side script/WASM/font/config owns next-request state | `side-asset-bootstrap-playbook.md` |
-| Full challenge session chain / envelope family / executionPolicy | `challenge-state-envelope-playbook.md` |
+| Helper named md5/btoa/sha but fixed inputs disagree with stdlib | `crypto-patterns.md` (optional thin `patched-helper-playbook.md` only if already open) |
+| Browser vs local multi-layer mismatch; redirect/wrapper triage still open | `environment-patch-playbook.md` |
+| Live inspection unstable; debugger traps / self-rewriting sources | `offline-inline-deob-playbook.md` |
+| Challenge harvest / server-JS cookie / side asset / full envelope | `challenge-state-envelope-playbook.md` (one file only) |
 | Public passive key/config/nonce and encrypted wrapper | `public-bootstrap-envelope-playbook.md` |
-| Captcha / one-shot verifier gates business request | `verifier-replay-playbook.md` (solver work: verifier Provider) |
-| Output depends on navigator/DOM/reflection/native surfaces after env layer is named | `environment-patch-playbook.md` |
+| Captcha / one-shot verifier gates business request | `providers/implementation/verifier/references/replay-playbook.md` |
+| Output depends on navigator/DOM/reflection/native surfaces | `environment-patch-playbook.md` |
 | Encoded/compressed/font/binary response | `response-decode-playbook.md` |
 | Replay exists but `403`/`412`/`429`, business error, stale state, or pacing remains | `troubleshooting-playbook.md` |
 

@@ -29,6 +29,7 @@ Sequential Providers start a new handoff window only after web-protocol-recovery
 4. Never preload "the whole references tree", all cases, or multiple sibling playbooks "just in case".
 5. Do not open Camoufox docs on ordinary Web starts.
 6. Do not open collector/project-layout docs for pure evidence-only work with no write planned.
+7. Same symptom family: load only the canonical thick path once per window. Thin stubs (`challenge-artifact-harvest`, `server-js-cookie-bootstrap`, `side-asset-bootstrap`, `env-diff`, `anti-debug`, `patched-helper`, root `verifier-replay`) must not be paired with their thick target in the same dispatch window; if a stub was opened by mistake, the next allowed path is only its `nextRead` pointer and counts as the expansion.
 
 ## Reject These Requests
 

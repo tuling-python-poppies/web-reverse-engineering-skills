@@ -16,7 +16,7 @@ Use this provider for ordinary Web reconnaissance and the first fingerprint-brow
 
 Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only captures bounded evidence, writes assigned cache artifacts under `web-protocol-recovery-simple/v1`, and returns the next narrow blocker or Provider recommendation.
 
-## Mandatory Paired Pass (spider-king aligned)
+## Mandatory Paired Pass
 
 On every **fresh Chromium** target, before writing the final collector or claiming complete protocol proof, complete both halves of a lightweight paired pass:
 

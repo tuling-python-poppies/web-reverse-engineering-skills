@@ -100,13 +100,12 @@ First move:
 - if challenge HTML plus scripts appear to seed the cookie, URL suffix, or verifier token, route to `references/embedded-browser-runtime-playbook.md`
 - if a bootstrap runtime exposes a getter after init or self-issues the decisive request, route to `references/challenge-state-envelope-playbook.md`
 
-Primary references:
+Primary references (pick one first path):
 
-- `references/providers/implementation/verifier/PROVIDER.md`
-- `references/troubleshooting-playbook.md`
-- `references/cookie-provenance-playbook.md` when cookies mutate during the verifier
-- `references/embedded-browser-runtime-playbook.md` when offline bootstrap may recover verifier state
-- `references/challenge-state-envelope-playbook.md` when the verifier answer can be harvested locally from a runtime boundary
+- `references/providers/implementation/verifier/references/replay-playbook.md` when captcha/one-shot verification is the gate
+- `references/challenge-state-envelope-playbook.md` when a bootstrap getter/egress already has the artifact
+- `references/troubleshooting-playbook.md` when replay is close but unstable
+- later only if needed: verifier PROVIDER, cookie-provenance, embedded-browser-runtime
 
 ### `decode-gated`
 

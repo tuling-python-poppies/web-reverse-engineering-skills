@@ -190,7 +190,7 @@ Must conclude:
 Prompt:
 
 ```text
-Start a fresh ordinary Web target with the spider-king-aligned Chromium recon: mandatory chrome-devtools + js-reverse paired pass, then optional Cloak only if fingerprint evidence appears. Do not change my global MCP config. Do not open chrome-devtools and js-reverse in parallel.
+Start a fresh ordinary Web target with mandatory chrome-devtools + js-reverse paired pass, then optional Cloak only if fingerprint evidence appears. Do not change my global MCP config. Do not open chrome-devtools and js-reverse in parallel.
 ```
 
 Expected route:

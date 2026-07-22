@@ -1,38 +1,12 @@
 # Side Asset Bootstrap Playbook
 
-Ownership: early identification that a tiny side script/WASM/font/config owns the next-request state. After the asset is identified, state chain and harvest go to `challenge-state-envelope-playbook.md` / `challenge-artifact-harvest-playbook.md`. Response-only decode maps stay in `response-decode-playbook.md`.
+Thin entry only. Prefer the canonical challenge playbook on first load.
 
-Use this reference when:
+## When
 
-- a tiny side script, `.wasm`, font file, or challenge JS changes request behavior
-- the main bundle is noisy but a small asset controls the real signer or decoder
-- the first response returns executable JS, offsets, or assets needed by the next request
+- a tiny side script, `.wasm`, font, offset, or config asset owns next-request state
+- the main bundle is noisy but a small asset controls signer/decoder/mapping
 
-## Core rule
+## Next read (exactly one)
 
-Small side assets often carry the whole secret.
-
-## Asset classes to inspect early
-
-- `.wasm` signers
-- side scripts such as `/offset`
-- server-returned JS bootstrap payloads
-- dynamic fonts or glyph maps
-- responses that set cookies and return executable code in the same step
-
-## Working method
-
-1. identify which asset changes the next request's state
-2. execute or emulate that asset locally
-3. carry the resulting cookies, globals, keys, or mappings into the next request
-4. keep the asset step as a local helper, not a browser dependency
-
-## Common traps
-
-- over-reversing the main bundle while ignoring a tiny side asset
-- treating bootstrap JS as noise
-- rendering fonts in a browser instead of decoding them locally
-
-## Delivery rule
-
-If the side asset is part of the protocol contract, keep it in the collector as a local helper or decoder.
+`references/challenge-state-envelope-playbook.md` — **Side asset** section. Response-only glyph/decode maps without challenge state → `response-decode-playbook.md`.

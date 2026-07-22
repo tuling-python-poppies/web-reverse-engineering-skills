@@ -1,29 +1,15 @@
 # Anti Debug Playbook
 
-Ownership: investigation-path change under anti-debug. Deeper offline extract steps: `offline-inline-deob-playbook.md`. Timer/hook recipes: `providers/implementation/browser-hooks/references/runtime.md`. Delivery remains browser-free.
+Thin entry only.
 
-Use this file when live tooling becomes unstable or the page fights inspection.
+## When
 
-## Recognition signals
+- repeated debugger pauses, DevTools-triggered timing changes, self-rewriting sources, or inspection timeouts
 
-- repeated debugger pauses
-- DevTools-triggered timing changes
-- source disappears or self-rewrites after load
-- MCP or browser tools time out under inspection
+## Rule
 
-## Response plan
+Anti-debug changes the investigation path, not the delivery target. Collector remains protocol-only.
 
-1. save HTML and inline scripts
-2. save downloaded assets
-3. move deobfuscation offline
-4. use fixed inputs instead of long interactive sessions
-5. reduce runtime inspection to the smallest possible hook or snapshot
+## Next read (exactly one)
 
-## Common traps
-
-- brute-forcing the live page after anti-debug is obvious
-- assuming the protocol is impossible because the page is annoying to inspect
-
-## Delivery rule
-
-Anti-debug changes the investigation path, not the delivery target. The collector still needs to be protocol-only.
+`references/offline-inline-deob-playbook.md` for offline extract. Timer/hook recipes only if needed later: `providers/implementation/browser-hooks/references/runtime.md`.

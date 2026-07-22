@@ -1,31 +1,19 @@
 # Verifier Replay Playbook
 
-Ownership: protocol-level method for captcha/one-shot verifier gates (identify → reconstruct → replay → business request). Executable solver/OCR/coordinate work: `providers/implementation/verifier/PROVIDER.md`. Do not treat UI clicks as delivery.
+Thin entry only. Do not treat this file as the full method.
 
-Use this reference when:
+## When
 
-- data requests are gated behind captcha, one-shot verification, or click-order challenges
-- there is no meaningful business signer, but requests still fail until a verifier passes
-- browser clicks appear to unlock the next request
+- business traffic waits on captcha, one-shot verification, or click-order challenges
+- there is no meaningful business signer, but requests fail until a verifier passes
+- UI clicks appear to unlock the next request
 
-## Core rule
+## Rule
 
-The verifier output is the real dynamic parameter.
+Verifier output is the real dynamic parameter. Final delivery is protocol replay, not UI automation.
 
-## Working method
+## Next read (exactly one)
 
-1. identify the verifier request and response
-2. determine what output authorizes the next business request
-3. solve or reconstruct that output locally
-4. replay the verifier in protocol form
-5. send the business request with the resulting token, cookie, or coordinates
+`references/providers/implementation/verifier/references/replay-playbook.md` for family binding, freeze-one-round, JSONP framing, coordinate/proof packaging, and local solver notes.
 
-## Common traps
-
-- hunting for a fake business-layer signer while ignoring the verifier
-- automating clicks instead of understanding the verifier payload
-- treating the verifier as UI-only behavior
-
-## Delivery rule
-
-Do not simulate UI interaction in the final solution. Reproduce the verifier as protocol data.
+Implementation work order: `references/providers/implementation/verifier/PROVIDER.md`.

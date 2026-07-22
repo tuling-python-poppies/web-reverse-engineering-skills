@@ -1,32 +1,23 @@
 # Patched Helper Playbook
 
-Ownership: fixed-input proof that a standard-named helper is patched or custom. Algorithm families: `crypto-patterns.md`. Broader local-vs-live environment work after the helper is proven: `env-diff-playbook.md` / `environment-patch-playbook.md`.
+Thin entry only.
 
-Use this reference when:
+## When
 
-- helper names look standard, but outputs do not match standard libraries
-- functions named `md5`, `btoa`, `atob`, `sha1`, or similar behave strangely
-- local reproduction fails even though the helper name looks familiar
+- helpers named `md5`, `btoa`, `atob`, `sha1`, or similar disagree with standard libraries on fixed inputs
 
-## Core rule
+## Rule
 
-Names do not prove behavior. Fixed-input validation does.
+Names do not prove behavior. Fixed-input validation does. Ship fixed-input self-checks with the collector.
 
-## Minimum validation loop
+## Minimum loop
 
-1. choose a fixed input such as `"abc"` or a captured timestamp
-2. record browser or page output
-3. run the local candidate implementation
-4. compare intermediate states as well as the final output
-5. only then decide whether the helper is standard, patched, or fully custom
+1. freeze input (e.g. `"abc"` or captured timestamp)
+2. record live helper output
+3. run local candidate
+4. compare intermediates and final
+5. classify standard / patched / custom
 
-## Common signs of patching
+## Next read (exactly one)
 
-- the output alphabet differs from normal Base64
-- the digest matches neither standard MD5 nor SHA families
-- the helper uses DOM state, side scripts, or odd lookup tables
-- output length or padding rules differ from the standard implementation
-
-## Delivery rule
-
-Ship fixed-input self-checks with the collector so future site changes fail loudly.
+`references/crypto-patterns.md` for algorithm families. Broader env triage: `environment-patch-playbook.md`.

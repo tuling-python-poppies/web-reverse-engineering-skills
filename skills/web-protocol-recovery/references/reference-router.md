@@ -29,8 +29,7 @@ Read focused generic references when the symptom matches. First response loads 0
 
 - `references/decoy-and-real-request-playbook.md` when the page and the wire disagree on the real endpoint
 - `references/transport-wrapper-playbook.md` when transport wrappers rewrite params, headers, or payloads
-- `references/patched-helper-playbook.md` when helper names look standard but fixed inputs disagree
-- `references/crypto-patterns.md` when signatures or standard-looking helper outputs do not match fixed inputs (after or with patched-helper)
+- `references/crypto-patterns.md` when signatures or standard-looking helper outputs do not match fixed inputs (fixed-input name-lie loop also in thin `patched-helper-playbook.md` if already opened)
 - `references/obfuscation-guide.md` when packed code or string tables dominate the bundle
 
 ## Cookies, Bootstrap State, And Sessions
@@ -38,31 +37,26 @@ Read focused generic references when the symptom matches. First response loads 0
 - `references/cookie-provenance-playbook.md` when a cookie is blocking replay but the writer or refresh path is still unclear
 - `references/session-contract-playbook.md` when results or submission are account-bound
 - `references/public-bootstrap-envelope-playbook.md` when a public page needs passive keys, config, nonce, entry cookies, or an encrypted wrapper
-- `references/challenge-artifact-harvest-playbook.md` when a getter, XHR/fetch egress, or alternate route already emits the decisive artifact (prefer before full envelope modeling)
-- `references/server-js-cookie-bootstrap-playbook.md` when the same endpoint returns executable JS (often `202`) then data after a derived cookie, or a refresh function renews params
-- `references/side-asset-bootstrap-playbook.md` when a tiny side script/WASM/font/config owns next-request state
-- `references/challenge-state-envelope-playbook.md` when the full session chain, envelope family, or executionPolicy hash is required after harvest/bootstrap identification
+- `references/challenge-state-envelope-playbook.md` for executable challenge, harvest boundary, server-JS cookie double-call, or tiny side assets (one file; do not also load harvest/server-js/side-asset stubs in the same window)
 
 ## Host-Bound Runtime And Local Execution
 
-- `references/env-diff-playbook.md` when browser vs local multi-layer triage (redirect/wrapper/helper/env) is still open
-- `references/environment-patch-playbook.md` when the divergent layer is already a missing host surface, load-order, or host-contract gap
+- `references/environment-patch-playbook.md` for browser-vs-local triage, redirect/wrapper layers, and minimal host patches
 - `references/embedded-browser-runtime-playbook.md` when host-visible JavaScript semantics are needed without a full browser
 - `references/providers/implementation/iv8/PROVIDER.md` after the embedded-runtime playbook selects `iv8`; the Provider routes to its runtime cheatsheet after API verification
 - `references/hook-techniques.md` when runtime proof is faster than static reading
-- `references/anti-debug-playbook.md` when live inspection is unstable; then `offline-inline-deob-playbook.md` for extract steps
+- `references/offline-inline-deob-playbook.md` when live inspection is unstable, anti-debug noise is high, or inline/eval-packed code must move offline
 
 ## Transport, Decode, And Structured Payloads
 
 - `references/transport-pre-gate-playbook.md` when TLS, ALPN, UA, HTTP version, or route admission blocks semantics before signer/cookie analysis
 - `references/response-decode-playbook.md` when the payload needs local decode before it becomes usable data
 - `references/structured-transport-playbook.md` when GraphQL, WebSocket, protobuf, msgpack, or binary envelopes carry the real contract
-- `references/offline-inline-deob-playbook.md` when inline scripts, eval-packed code, anti-debug, or delimiter hazards push the work offline
 - `references/jsvmp-analysis-playbook.md` when a custom VM or bytecode interpreter hides the logic
 
 ## Verifiers, Pagination, And Narrow Exceptions
 
-- `references/verifier-replay-playbook.md` when captcha or one-shot verification is the protocol gate (method); use `providers/implementation/verifier/PROVIDER.md` for solver/OCR work
+- `references/providers/implementation/verifier/references/replay-playbook.md` when captcha or one-shot verification is the protocol gate (canonical method); work order via `providers/implementation/verifier/PROVIDER.md`
 - `references/pagination-route-pivot-playbook.md` when later pages pivot route families or raw pager metadata beats parsed DOM
 - `references/page-specific-exception-playbook.md` when only one page or one request behaves differently
 - `references/troubleshooting-playbook.md` when replay logic is almost correct but still unstable

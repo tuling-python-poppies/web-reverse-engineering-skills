@@ -1,8 +1,17 @@
 # Challenge State Envelope Playbook
 
-Use this playbook when executable bootstrap code or a side asset derives state before replay works, or when the approved local runtime already emits the decisive cookie, header, URL, body, token, or decoded payload.
+Canonical first path for executable/stateful bootstrap, harvest boundaries, server-JS cookie double-call, and tiny side assets. Thin stubs (`challenge-artifact-harvest`, `server-js-cookie-bootstrap`, `side-asset-bootstrap`) only redirect here — do not load a stub and this file in the same dispatch window.
 
-When a getter, XHR/fetch egress, or alternate route already exposes the decisive artifact, start with `challenge-artifact-harvest-playbook.md` and only escalate here for session-chain, envelope-family, or executionPolicy work. Same-endpoint server-JS cookie patterns: `server-js-cookie-bootstrap-playbook.md`. Tiny controlling assets first: `side-asset-bootstrap-playbook.md`.
+Use `public-bootstrap-envelope-playbook.md` when bootstrap is passive public data (key/config/nonce) with no challenge execution or derived client state.
+
+## Variant index
+
+| Symptom | Section |
+|---|---|
+| Getter / XHR-fetch egress / alternate route already has artifact | Harvest-first |
+| Same endpoint `202`/JS then cookie then data; refresh function | Server-JS cookie bootstrap |
+| Tiny `.wasm`/side script/font/config owns next state | Side asset |
+| Full session chain, envelope family, executionPolicy | Fast Execution Path |
 
 ## Boundary
 
@@ -15,8 +24,6 @@ This file owns executable and stateful bootstrap:
 - one encoded envelope family spans request and response fields
 - an approved local runtime exposes a getter or outgoing request containing the final artifact
 
-Use `public-bootstrap-envelope-playbook.md` instead when the bootstrap artifact is passive public data such as a key, config blob, or nonce and no challenge execution or derived client state is involved.
-
 ## Core Model
 
 Challenge output is protocol state, not decoration. Keep three concerns separate:
@@ -26,6 +33,62 @@ Challenge output is protocol state, not decoration. Keep three concerns separate
 3. **Harvest boundary:** getter, transport egress, lower serializer/packer, or alternate route.
 
 Recover the artifact at the nearest stable boundary. Full deobfuscation or perfect DOM parity is optional when a smaller faithful boundary already proves and returns the replayable artifact.
+
+## Harvest-first
+
+Use when the decisive artifact is already visible before full challenge modeling.
+
+Typical stable boundaries (prefer in order supported by evidence):
+
+- exposed getter after synchronous init
+- outgoing XHR or fetch call (body, decisive headers, derived cookie)
+- lower serializer, signer, packer, or export below a failing facade
+- cleaner alternate route that avoids the challenge
+
+Path:
+
+1. Classify path: getter / egress / bypass.
+2. Preserve scheduler when timers, microtasks, lifecycle, or self-issued requests matter (script insertion over blocking `vm` when needed).
+3. Patch the smallest faithful boundary (one missing env read, code-gen edge, local request hook, or narrow success stub).
+4. Harvest one explicit artifact and hand real HTTP back to Python.
+5. Reacquire version-randomized bootstrap assets rather than assuming one patch stays valid.
+
+Do not finish every timer callback when one getter already returns the artifact. Do not let the local runtime issue unapproved live business HTTP when only local mutation evidence was needed.
+
+## Server-JS cookie bootstrap
+
+Use when the same endpoint (or a page refresh function) drives cookie/token state:
+
+Typical flow:
+
+1. call without the derived cookie/token
+2. receive challenge response (often `202`) with executable JS (sometimes in `JSON.data`)
+3. execute payload in a minimal sandbox → cookie, storage, or token
+4. replay same endpoint with new state → real data array
+
+Refresh-function variant: obfuscated bootstrap script + exposed renew function + optional in-memory timestamp slot (both must refresh).
+
+Hook variant: global `beforeSend`/ajax wrapper rewrites body/headers while response encrypts only a `data` field — port both request mutation and response-field decryption.
+
+Capture: first request, status, body shape, exact cookie/token written, second-request deltas, page-specific headers, parallel in-memory values.
+
+Minimal sandbox start: `window`, `document.cookie`, `navigator.userAgent`, `location`, `Date`/`Math`, timers, base64/URI helpers. Add only when errors prove need. Parse the specific cookie value, not the whole raw string blindly.
+
+Delivery shape: small extract helper + Python collector that challenge → helper → replay → aggregate. Done only after helper is consistent, replay returns real data twice+, and page-specific rules are documented.
+
+Cookie writer still unknown after this path → `cookie-provenance-playbook.md` as a later expansion only.
+
+## Side asset
+
+Small assets often carry the whole secret. Inspect early:
+
+- `.wasm` signers
+- side scripts (e.g. `/offset`)
+- server-returned JS bootstrap payloads
+- dynamic fonts or glyph maps
+- responses that set cookies and return executable code together
+
+Method: identify which asset changes next-request state → execute/emulate locally → carry cookies/globals/keys/mappings into the next request → keep as local helper, not browser dependency. Do not over-reverse the main bundle while ignoring a tiny asset. Prefer local glyph maps over browser font rendering when decode is the goal. Response-only decode without challenge state → `response-decode-playbook.md`.
 
 ## Fast Execution Path
 
@@ -46,13 +109,7 @@ Recover the artifact at the nearest stable boundary. Full deobfuscation or perfe
 4. Preserve scheduler and script-order semantics only as needed.
    Use script insertion or an event-capable runtime when timers, microtasks, lifecycle, or self-issued requests matter. Do not force blocking evaluation when it deadlocks the real path. Add environment fields only after a concrete missing read.
 
-5. Choose the smallest faithful harvest boundary.
-   Prefer, in order supported by evidence:
-   - exposed getter after initialization
-   - intercepted local XHR/fetch egress
-   - one synthetic request through an already-hooked transport primitive
-   - lower serializer, signer, packer, or export below a failing facade
-   - cleaner route that avoids the challenge
+5. Choose the smallest faithful harvest boundary (see Harvest-first).
 
 6. Map shared envelopes once.
    For each related field record wire name, version/fixed prefix, checksum scope, alphabet/remap, state-derived prefix, encrypted segment, and payload anchor. Prove whether each field needs business plaintext alone or also current state bytes.

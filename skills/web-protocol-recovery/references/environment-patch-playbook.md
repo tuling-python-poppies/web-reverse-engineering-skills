@@ -1,8 +1,47 @@
 # Environment Patch Playbook
 
-Ownership: minimal host-surface / load-order / host-contract patches after the divergent layer is already named. Wide multi-layer triage (redirect vs wrapper vs helper vs env): `env-diff-playbook.md` first. Implementation work order: `providers/implementation/env-patch/PROVIDER.md`.
+Canonical first path when browser vs local diverge or host surfaces are missing. Thin stub `env-diff-playbook.md` only redirects here. Implementation work order: `providers/implementation/env-patch/PROVIDER.md`.
 
-Use this file when extracted logic runs in a local runtime but outputs still differ from the page.
+## Triage before patching
+
+Environment mismatch is evidence, not a reason to surrender to automation.
+
+### Redirect and wrapper-page
+
+Before reversing any signer, confirm whether the landing page is a wrapper:
+
+1. record the full redirect chain
+2. compare initial page, final page, and real network request
+3. check whether the final page rewrites paths, headers, body fields, or cookies
+4. treat compatibility or migration pages as wrappers, not canonical business logic
+
+### Separate layers
+
+Always separate:
+
+1. transport and redirect admission
+2. request-wrapper and serialization mutation
+3. algorithm/helper behavior on fixed inputs
+4. host environment and runtime scheduling
+
+Do not assume a correct hash proves the whole protocol. A redirect shell, wrong final URL, or missing request usually belongs above environment emulation; a helper mismatch on frozen inputs belongs below it.
+
+### Standard-vs-patched helpers
+
+When a helper looks like MD5, SHA, AES, HMAC, or Base64 but behaves strangely, run the fixed-input loop in `patched-helper-playbook.md`, then algorithm notes in `crypto-patterns.md`. Compare final output, normalization, byte conversion, and intermediates before blaming host env.
+
+### Narrowing order
+
+1. live page in browser
+2. isolated page helper plus direct dependencies
+3. local runtime with the smallest possible environment patch
+4. pure Python reimplementation if practical
+
+Same fixed input and intermediate values at every layer. Goal: smallest local environment that still reproduces live output.
+
+### Network sanity (before blaming signer)
+
+URL/method/body, headers/cookies, proxy inheritance, origin/referer, response content type and raw body, decode path if shape looks right but parsed data is wrong.
 
 ## Common mismatch sources
 
@@ -22,15 +61,6 @@ Use this file when extracted logic runs in a local runtime but outputs still dif
 
 ## Working method
 
-Separate four layers before patching:
-
-1. transport and redirect admission
-2. request-wrapper and serialization mutation
-3. algorithm/helper behavior on fixed inputs
-4. host environment and runtime scheduling
-
-Prove the first divergent layer. A redirect shell, wrong final URL, or missing request usually belongs above environment emulation; a helper mismatch on frozen inputs belongs below it.
-
 1. classify the gap first: missing surface, load-order contract, or host-object contract mismatch
 2. compare helper outputs on the same fixed inputs
 3. compare structural metrics such as length, repeated blocks, and field presence before chasing semantics
@@ -47,20 +77,16 @@ Before widening the environment, verify final URL, response content type, redire
 
 ## Verification rule
 
-Loading success is only a milestone.
-A helper that no longer throws can still emit an empty, downgraded, or structurally wrong artifact.
+Loading success is only a milestone. A helper that no longer throws can still emit an empty, downgraded, or structurally wrong artifact.
 
 Before live replay:
 
 1. rerun the decisive artifact in the same patched environment, hook placement, and load order you plan to ship
 2. compare fixed-input browser and local outputs by structure first: length, prefix, segment count, field presence, encoding, or emitted headers and body
-3. for hook-driven runtimes, treat order as part of the contract:
-   - environment surfaces or fake transport primitive
-   - target bundle
-   - capture hook or observation boundary
-   - init or config
-   - trigger
+3. for hook-driven runtimes, treat order as part of the contract: environment surfaces or fake transport → target bundle → capture hook → init/config → trigger
 4. if a target polyfill or wrapper replaces your early hook, move the hook after that replacement or upward to a stable boundary every call must cross
+
+Resolved only after: smallest local runtime reproduces live helper output on fixed inputs; final request succeeds at least twice; decode steps match captured raw payloads when relevant; collector runs without browser automation; remaining patch surface is documented.
 
 ## Boundary-selection rule
 
@@ -87,6 +113,14 @@ If the runtime can replace one instance method and skip your patch, that patch s
 - calling the job done because the helper loads without throwing
 - swallowing every runtime error and hiding recursion, stack overflow, or corrupted VM state
 - blaming crypto before checking environment-sensitive branches
+
+## Preferred delivery shapes
+
+- pure Python when logic is fully understood
+- Python plus isolated JS helper when HTTP stays in Python and the helper is already stable
+- Python plus tiny local patch surface when one helper needs a small patched runtime without a browser session
+
+Never accept browser-backed replay, page-context `fetch` as the collector, or hidden profile state as protocol.
 
 ## Delivery rule
 

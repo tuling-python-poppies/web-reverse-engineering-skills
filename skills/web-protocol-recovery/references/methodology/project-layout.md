@@ -61,6 +61,15 @@ Downloaded HTML/JS/WASM/fonts/images, network exports, screenshots, browser stat
 
 `js_reverse_cache/private/` is never copied into the bundled skill or case library. Raw account/session artifacts require explicit field, path, and retention approval. Existing project files are never overwritten; choose a new approved path or leave the user-owned file unchanged.
 
+## Absolute Path And Temp Policy
+
+1. After `projectRoot` is recorded, every task-owned write must stay under that root. Preferred volatile tree: `js_reverse_cache/**` (and `output/**` only when the user asked for data files).
+2. Forbidden as primary storage for task evidence: `%TEMP%`, `%TMP%`, `AppData\Local\Temp`, agent `opencode` temp roots, skill package directories, Desktop drop folders outside `projectRoot`, and any second cache root invented for convenience.
+3. MCP tools that require an absolute file path must receive a path already under `projectRoot/js_reverse_cache/...` whenever the tool allows it.
+4. If a tool refuses project paths and forces an external absolute path: (a) name that blocker, (b) copy the artifact into the matching `js_reverse_cache/` namespace immediately after the tool returns, (c) point subsequent work at the project copy only, (d) do not make `main.py` or stable helpers depend on the external path.
+5. Do not delete `js_reverse_cache/` and leave the only copy of cookies/state in OS temp. Private state belongs in `js_reverse_cache/private/` with gitignore protection.
+6. Scaffold creates cache dirs only under the absolute `projectRoot` passed to `scaffold_project.py`.
+
 ## Scaffold (optional first write)
 
 When the work order needs new empty layout paths under an absolute `projectRoot`, python-collector may call:

@@ -10,7 +10,7 @@ skill 自带案例的最小 JS/HTML 素材放在对应 `references/cases/iv8/<ca
 
 读取 bundled case 时只通过 root `references/cases/registry.json` 选择一个 manifest，先读其 `PROCESS.md`，再读 `entry.py` 和当前验收所需的声明资产。不得绕过 registry 浏览 sibling 案例。
 
-创建新任务基础模板时，默认创建 `utils/iv8_silent.py` 和 `utils/logger.py`，主脚本只导入 `import_iv8_silent()` 和 `logger`；不要在每个主脚本里重复粘贴 iv8 banner 静默代码或 loguru fallback 代码，除非用户明确要求单文件交付。
+创建新任务基础模板时，默认创建 `utils/iv8_silent.py` 和 `utils/logger.py`，主脚本只导入 `import_iv8_silent()` 和 `logger`；不要在每个主脚本里重复粘贴 iv8 banner 静默代码或 loguru fallback 代码，除非用户明确要求单文件交付。进度日志用 `logger.info`，不要用裸 `print` 替代共享 logger（用户明确要求 console-only 的最终结果表除外）。动态素材只写 `js_reverse_cache/**`，禁止默认写 OS temp / AppData temp / agent temp。
 
 所有新任务都写入 web-protocol-recovery 分配的 `web-protocol-recovery-simple/v1` 项目根。若用户提供了旧项目或旧目录结构，把它当输入证据读取；不要继续生成旧布局。iv8 只能写这些路径：
 

@@ -42,9 +42,11 @@ Four mandatory policy overlays when their trigger is hit — case read, scope/bu
 1. Final delivery is browser-free. Python owns live egress (HTTP requests, WebSocket handshakes, and sent frames); local JS/WASM/iv8 only as narrow artifact generators.
 2. Evidence precedes implementation: real request, moving state, mutation point, one objective acceptance test.
 3. One `projectRoot` and `web-protocol-recovery-simple/v1`. Providers never choose another landing path or project shape.
-4. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
-5. Browser engines/profiles are lifecycle-serialized. IDs never cross engine/session/target boundaries.
-6. Account state, verifier submission, mutations, target-code execution, raw secrets, dependency installs, and collection scale need explicit confirmation.
+4. All dynamic evidence (recon dumps, challenge JS/HTML, screenshots, browser state, probes, net logs, MCP exports) writes only under `<projectRoot>/js_reverse_cache/**`. Never default to `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, skill directories, or any path outside the approved project root.
+5. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
+6. Browser engines/profiles are lifecycle-serialized. IDs never cross engine/session/target boundaries.
+7. Account state, verifier submission, mutations, target-code execution, raw secrets, dependency installs, and collection scale need explicit confirmation.
+8. When delivery uses iv8 (or the iv8 silent helper), also create `utils/logger.py` (optional `loguru` with PrintLogger fallback). Progress logs use `logger.info`; do not paste loguru/print fallbacks into every main script.
 
 ## Phase 0: Intake
 
@@ -179,6 +181,9 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.
 - Do not store raw cookies/tokens/HAR/private bodies or absolute local paths in the case library.
 - Do not treat public reachability as account, mutation, or collection permission.
+- Do not write task evidence under `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, or any non-project path when `projectRoot` is known.
+- Do not treat OS temp as primary storage; if a tool forces an absolute path outside the project, copy the artifact into `js_reverse_cache/**` immediately and stop depending on the external copy.
+- Do not deliver iv8/collector scripts with only bare `print` for progress when `utils/logger.py` is the project standard.
 
 Full anti-pattern detail: `references/anti-patterns-playbook.md`.
 

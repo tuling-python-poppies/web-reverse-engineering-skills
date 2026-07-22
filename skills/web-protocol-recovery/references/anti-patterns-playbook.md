@@ -212,6 +212,54 @@ Self-check:
 
 - could you rerun the diff from a clean stable base tomorrow?
 
+## Anti-pattern: Dump evidence into OS temp instead of project `js_reverse_cache/`
+
+Temptation:
+
+- write recon/MCP exports under `%TEMP%`, `AppData\Local\Temp`, or an agent `opencode` temp folder
+- hardcode that temp path in `main.py` after delivery
+- wipe project `js_reverse_cache/` while keeping the only working cookie/state in temp
+
+Why it is false progress:
+
+- violates `web-protocol-recovery-simple/v1` ownership of volatile evidence
+- delivery cannot be re-run from the project root alone
+- secrets and large dumps leak outside the gitignored project cache contract
+
+Smallest honest next move:
+
+- create or reuse `<projectRoot>/js_reverse_cache/<namespace>/`
+- save or copy all evidence there
+- read only project-relative cache paths from stable code
+
+Self-check:
+
+- if `%TEMP%` is wiped, can the project still locate its evidence and private state?
+
+## Anti-pattern: Ship iv8/collector progress with only bare `print` and no `utils/logger.py`
+
+Temptation:
+
+- paste `print("...")` through the main script
+- omit `utils/logger.py` even though iv8 delivery rules require the shared logger helper
+- re-implement ad-hoc loguru try/except in every `main.py`
+
+Why it is false progress:
+
+- drifts from the old iv8-web-reverse and current iv8 `script-writing-rules` template
+- loses optional `loguru` without a single fallback helper
+- makes progress logs inconsistent and harder to redacted-bound
+
+Smallest honest next move:
+
+- create `utils/logger.py` from the iv8 template (optional loguru + PrintLogger)
+- `from utils.logger import logger` and use `logger.info` for progress
+- keep final console tables only when the user explicitly wants console-only results
+
+Self-check:
+
+- does a re-runnable iv8/collector delivery include `utils/logger.py` without duplicating fallback code in `main.py`?
+
 ## Entry format for new anti-patterns
 
 When a shortcut recurs across more than one job, add it in this shape:

@@ -65,6 +65,26 @@ def import_iv8_silent():
         return importlib.import_module("iv8")
 '''
 
+LOGGER_PY = '''import sys
+
+try:
+    from loguru import logger
+except ImportError:
+    class PrintLogger:
+        @staticmethod
+        def info(message, *args):
+            if args:
+                message = message.format(*args)
+            out = getattr(sys.stdout, "buffer", None)
+            if out:
+                out.write((message + "\\n").encode("utf-8", errors="replace"))
+                out.flush()
+            else:
+                print(message)
+
+    logger = PrintLogger()
+'''
+
 
 def ensure_plain_path(path: Path) -> None:
     path = absolute_no_resolve(path)
@@ -201,7 +221,8 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
     if args.cache:
         directories.append("js_reverse_cache")
         directories.extend(f"js_reverse_cache/{name}" for name in args.cache_namespace)
-    if args.utils or args.iv8_silent:
+    want_logger = args.logger or args.iv8_silent
+    if args.utils or args.iv8_silent or want_logger:
         directories.append("utils")
     if args.tests:
         directories.append("tests")
@@ -213,10 +234,20 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
         files.append(("main.py", '"""web-protocol-recovery project entry."""\n\n\ndef main():\n    raise NotImplementedError("implementation not generated yet")\n\n\nif __name__ == "__main__":\n    main()\n'))
     if args.iv8_silent:
         files.append(("utils/iv8_silent.py", IV8_SILENT_PY))
+    if want_logger:
+        files.append(("utils/logger.py", LOGGER_PY))
     if args.requirements:
         files.append(("requirements.txt", ""))
     if args.readme:
-        files.append(("README.md", "# web-protocol-recovery Project\n\nRun with `python main.py`.\n"))
+        files.append(
+            (
+                "README.md",
+                "# web-protocol-recovery Project\n\n"
+                "Run with `python main.py`.\n\n"
+                "Dynamic evidence stays under `js_reverse_cache/` (never OS temp as primary storage).\n"
+                "Optional: install `loguru` for richer logs; `utils/logger.py` falls back to print.\n",
+            )
+        )
     if args.gitignore:
         files.append((".gitignore", "config.local.json\njs_reverse_cache/**\noutput/**\n__pycache__/\n*.pyc\n"))
 
@@ -280,7 +311,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--iv8-silent",
         action="store_true",
-        help="create utils/iv8_silent.py for silent iv8 package import",
+        help="create utils/iv8_silent.py for silent iv8 package import (also creates utils/logger.py)",
+    )
+    parser.add_argument(
+        "--logger",
+        action="store_true",
+        help="create utils/logger.py (optional loguru + PrintLogger fallback)",
     )
     parser.add_argument("--tests", action="store_true")
     parser.add_argument("--output", action="store_true")

@@ -23,12 +23,17 @@ Use this file when signatures, encryption, or helper outputs look suspicious.
 - a UUID, nonce, or session value looks standard at first glance but contains an inserted fixed-width segment, prefix, or checksum-derived fragment
 - the apparent key, iv, seed, or hash source comes from slicing, concatenating, trimming, or decorating a config field instead of using it directly
 
-## Fixed-input validation loop
+## Fixed-input validation loop (name-lie helpers)
 
-1. freeze a tiny input such as `"abc"`
-2. freeze a live input such as a captured timestamp
-3. compare browser output with local output
+When a helper is named `md5`, `btoa`, `sha1`, or similar but may be patched:
+
+1. freeze a tiny input such as `"abc"` and a live input such as a captured timestamp
+2. record browser/page output
+3. run the local candidate on the same inputs
 4. compare intermediate strings, not only final digests
+5. classify standard / patched / custom before trusting stdlib or porting
+
+Ship fixed-input self-checks with the collector so future site changes fail loudly.
 
 ## Cross-runtime porting loop
 

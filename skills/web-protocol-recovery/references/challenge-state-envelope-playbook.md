@@ -1,6 +1,6 @@
 # Challenge State Envelope Playbook
 
-Canonical first path for executable/stateful bootstrap, harvest boundaries, server-JS cookie double-call, and tiny side assets. Thin stubs (`challenge-artifact-harvest`, `server-js-cookie-bootstrap`, `side-asset-bootstrap`) only redirect here — do not load a stub and this file in the same dispatch window.
+Canonical first path for executable/stateful bootstrap, harvest boundaries, server-JS cookie double-call, and tiny side assets. Load this file once per challenge symptom; do not open sibling challenge playbooks for the same window.
 
 Use `public-bootstrap-envelope-playbook.md` when bootstrap is passive public data (key/config/nonce) with no challenge execution or derived client state.
 

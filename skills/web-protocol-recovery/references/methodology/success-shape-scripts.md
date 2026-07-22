@@ -87,6 +87,10 @@ When asked about case read policy, use `route: evidence-reuse` and echo the exac
 
 When asked about scope or budget reset, use `route: evidence-reuse`. Echo exact scheme/host/port/prefix, verify pre-egress check before every navigation/request/retry/WebSocket handshake/sent frame, state shared total/remaining and one-unit consumption, and note the Chrome automatic-network exception per `references/methodology/provider-work-order.md`.
 
+## Maintenance note
+
+`references/official-self-test-task-suite.md` is for skill self-test/maintenance only; do not load it on ordinary protocol tasks.
+
 ## Gate: Chrome Automatic-Traffic Overlay
 
 When a baseline is requested but Chrome-specific approval is missing, answer without launching:

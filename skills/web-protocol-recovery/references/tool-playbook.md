@@ -95,7 +95,7 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | H2 reset, TLS EOF, handshake timeout, UA/HTTP-version split before semantics | `transport-pre-gate-playbook.md` |
 | Page and wire disagree on route | `decoy-and-real-request-playbook.md` |
 | Wrapper changes query/body/header slots | `transport-wrapper-playbook.md` |
-| Helper named md5/btoa/sha but fixed inputs disagree with stdlib | `crypto-patterns.md` (optional thin `patched-helper-playbook.md` only if already open) |
+| Helper named md5/btoa/sha but fixed inputs disagree with stdlib | `crypto-patterns.md` |
 | Browser vs local multi-layer mismatch; redirect/wrapper triage still open | `environment-patch-playbook.md` |
 | Live inspection unstable; debugger traps / self-rewriting sources | `offline-inline-deob-playbook.md` |
 | Challenge harvest / server-JS cookie / side asset / full envelope | `challenge-state-envelope-playbook.md` (one file only) |

@@ -29,7 +29,7 @@ Read focused generic references when the symptom matches. First response loads 0
 
 - `references/decoy-and-real-request-playbook.md` when the page and the wire disagree on the real endpoint
 - `references/transport-wrapper-playbook.md` when transport wrappers rewrite params, headers, or payloads
-- `references/crypto-patterns.md` when signatures or standard-looking helper outputs do not match fixed inputs (fixed-input name-lie loop also in thin `patched-helper-playbook.md` if already opened)
+- `references/crypto-patterns.md` when signatures or standard-looking helper outputs do not match fixed inputs
 - `references/obfuscation-guide.md` when packed code or string tables dominate the bundle
 
 ## Cookies, Bootstrap State, And Sessions
@@ -37,7 +37,7 @@ Read focused generic references when the symptom matches. First response loads 0
 - `references/cookie-provenance-playbook.md` when a cookie is blocking replay but the writer or refresh path is still unclear
 - `references/session-contract-playbook.md` when results or submission are account-bound
 - `references/public-bootstrap-envelope-playbook.md` when a public page needs passive keys, config, nonce, entry cookies, or an encrypted wrapper
-- `references/challenge-state-envelope-playbook.md` for executable challenge, harvest boundary, server-JS cookie double-call, or tiny side assets (one file; do not also load harvest/server-js/side-asset stubs in the same window)
+- `references/challenge-state-envelope-playbook.md` for executable challenge, harvest boundary, server-JS cookie double-call, or tiny side assets (single canonical file for that family)
 
 ## Host-Bound Runtime And Local Execution
 
@@ -68,10 +68,10 @@ Read focused generic references when the symptom matches. First response loads 0
 - `references/pattern-atlas.md#symptom-index` for symptom -> first move
 - `references/minimal-verifiable-facts-playbook.md` when durable facts must be recorded
 
-## Maintaining This Skill
+## Maintaining This Skill (not ordinary protocol tasks)
 
 - `references/methodology/knowledge-maintenance.md`
-- `references/official-self-test-task-suite.md`
+- `references/official-self-test-task-suite.md` — self-test only; never first-load on live recovery work
 - `references/methodology/provider-work-order.md`
 - `references/methodology/project-layout.md`
 - `references/methodology/case-writeback.md`

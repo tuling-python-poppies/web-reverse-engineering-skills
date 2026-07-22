@@ -1,6 +1,6 @@
 # Environment Patch Playbook
 
-Canonical first path when browser vs local diverge or host surfaces are missing. Thin stub `env-diff-playbook.md` only redirects here. Implementation work order: `providers/implementation/env-patch/PROVIDER.md`.
+Canonical first path when browser vs local diverge or host surfaces are missing. Implementation work order: `providers/implementation/env-patch/PROVIDER.md`.
 
 ## Triage before patching
 
@@ -28,7 +28,7 @@ Do not assume a correct hash proves the whole protocol. A redirect shell, wrong 
 
 ### Standard-vs-patched helpers
 
-When a helper looks like MD5, SHA, AES, HMAC, or Base64 but behaves strangely, run the fixed-input loop in `patched-helper-playbook.md`, then algorithm notes in `crypto-patterns.md`. Compare final output, normalization, byte conversion, and intermediates before blaming host env.
+When a helper looks like MD5, SHA, AES, HMAC, or Base64 but behaves strangely, use the fixed-input name-lie loop in `crypto-patterns.md` before blaming host env.
 
 ### Narrowing order
 

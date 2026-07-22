@@ -10,7 +10,7 @@ Before the first filesystem write, use an explicit user-supplied folder. If none
 
 Never add a wrapper directory below the selected root. Never let a provider ask for a second landing directory.
 
-Forbidden as generated or required directories: `collector/`, `analysis/`, `input/`, `logs/`, provider-named project roots, and any second task root. Existing user files with those names may be read only when explicitly supplied as evidence; new delivery files still promote into `web-protocol-recovery-simple/v1` paths.
+Forbidden generated or required directories: `collector/`, `analysis/`, `input/`, `logs/`, provider-named project roots, and any second task root. Existing user files with those names may be read only when explicitly supplied as evidence; new delivery files still promote into `web-protocol-recovery-simple/v1` paths.
 
 Reject a selected root or output path when any existing component is a symlink, Windows junction, mount-point reparse path, or hard-linked file. Resolve containment without following those aliases. Create new files by exclusive atomic publication and never overwrite an existing path.
 

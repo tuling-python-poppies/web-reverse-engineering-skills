@@ -48,7 +48,7 @@
     "preRead": [
         {
             "path": "references/providers/implementation/iv8/references/api-inventory.md",
-            "sha256": "99d96e7bbeee379f1e5a1a3dd3b241461e9bc286d17ee4153d674ef7420b82fc"
+            "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
         }
     ],
     "liveState": {

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "web-protocol-recovery-vector/v1",
+  "caseId": "iv8-bangkokair-reese84-booking",
+  "notes": "Redacted shapes only; no live tokens or full private responses.",
+  "oauthResponseShape": {
+    "type": "amadeusOAuth2Token",
+    "token_type": "Bearer",
+    "access_token": "<redacted>",
+    "expires_in": 1799,
+    "state": "approved"
+  },
+  "searchRequestShape": {
+    "commercialFareFamilies": ["PGPROMO"],
+    "itineraries": [
+      {
+        "originLocationCode": "BKK",
+        "destinationLocationCode": "CNX",
+        "departureDateTime": "2026-08-12T00:00:00.000",
+        "isRequestedBound": true
+      }
+    ],
+    "travelers": [{ "passengerTypeCode": "ADT" }],
+    "searchPreferences": { "showSoldOut": false, "showMilesPrice": false }
+  },
+  "searchResponseSample": {
+    "data": {
+      "airBoundGroups": [
+        {
+          "boundDetails": {
+            "originLocationCode": "BKK",
+            "destinationLocationCode": "CNX",
+            "duration": 4800,
+            "segments": [
+              { "flightId": "SEG-PG215-BKKCNX-2026-08-12-0800" }
+            ]
+          },
+          "airBounds": [
+            {
+              "airBoundId": "SAMPLE-BOUND-ID",
+              "fareFamilyCode": "PGPROMO",
+              "isCheapestOffer": true,
+              "availabilityDetails": [
+                {
+                  "flightId": "SEG-PG215-BKKCNX-2026-08-12-0800",
+                  "cabin": "eco",
+                  "bookingClass": "Q",
+                  "statusCode": "HK",
+                  "quota": 1
+                }
+              ],
+              "prices": {
+                "totalPrices": [
+                  {
+                    "base": 2400,
+                    "total": 2630,
+                    "currencyCode": "THB",
+                    "totalTaxes": 130
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dictionaries": {
+      "flight": {
+        "SEG-PG215-BKKCNX-2026-08-12-0800": {
+          "marketingAirlineCode": "PG",
+          "marketingFlightNumber": "215",
+          "departure": {
+            "locationCode": "BKK",
+            "dateTime": "2026-08-12T08:00:00.000+07:00"
+          },
+          "arrival": {
+            "locationCode": "CNX",
+            "dateTime": "2026-08-12T09:20:00.000+07:00"
+          },
+          "duration": 4800
+        }
+      }
+    }
+  },
+  "expectedParsedFirstRow": {
+    "flight": "PG215",
+    "origin": "BKK",
+    "destination": "CNX",
+    "depart": "2026-08-12T08:00:00.000+07:00",
+    "arrive": "2026-08-12T09:20:00.000+07:00",
+    "fare_family": "PGPROMO",
+    "total": 2630,
+    "currency": "THB"
+  },
+  "fareFamilyCodesKnown": ["PGPROMO", "PGSAVER", "PGFREEDOM", "PGBLUE"],
+  "invalidFareFamilyExample": "CFFBAS"
+}

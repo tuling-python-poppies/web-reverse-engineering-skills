@@ -362,6 +362,32 @@
             }
         },
         {
+            "caseId": "iv8-bangkokair-reese84-booking",
+            "family": "challenge",
+            "status": "verified",
+            "runtime": "iv8",
+            "match": {
+                "signals": [
+                    "vendor:imperva",
+                    "vendor:reese84",
+                    "cookie:reese84",
+                    "header:x-d-token",
+                    "api:amadeus-dapi",
+                    "site:bangkokair"
+                ],
+                "minimumIndependentSignals": 2,
+                "negativeSignals": [
+                    "vendor:akamai",
+                    "vendor:ruishu",
+                    "sdk:webmssdk"
+                ]
+            },
+            "manifest": {
+                "path": "iv8/bangkokair-reese84-booking/case.json",
+                "sha256": "acd0295a487cbd5a5638fe26adc842655f31e8807d18da3825ac311682c7fc4e"
+            }
+        },
+        {
             "caseId": "iv8-twayair-akamai-availability",
             "family": "challenge",
             "status": "verified",

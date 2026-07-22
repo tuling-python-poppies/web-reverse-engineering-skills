@@ -24,6 +24,7 @@ ARTIFACT_KEYS = ("process", "entry", "pullLiveState")
 VERIFICATION_ARTIFACT_KEYS = ("testArtifact", "evidenceArtifact")
 IGNORED_CASE_DIR_NAMES = {".pytest_cache", "__pycache__"}
 IGNORED_CASE_FILE_NAMES = {".DS_Store", "Thumbs.db"}
+CASE_RUNTIME_DIR_NAMES = {"iv8", "pure-python", "python-node"}
 
 
 def sha256_file(path: Path) -> str:
@@ -140,6 +141,21 @@ def iter_case_files(case_dir: Path) -> list[str]:
             continue
         files.append(path.relative_to(case_dir).as_posix())
     return files
+
+
+def find_case_dirs_without_manifest(cases_root: Path) -> list[str]:
+    missing: list[str] = []
+    for runtime_dir in sorted(cases_root.iterdir()):
+        if not runtime_dir.is_dir() or runtime_dir.name not in CASE_RUNTIME_DIR_NAMES:
+            continue
+        for case_dir in sorted(runtime_dir.iterdir()):
+            if not case_dir.is_dir() or case_dir.name in IGNORED_CASE_DIR_NAMES:
+                continue
+            if (case_dir / "case.json").exists():
+                continue
+            if iter_case_files(case_dir):
+                missing.append(case_dir.relative_to(cases_root).as_posix())
+    return missing
 
 
 def verify_case(skill_root: Path, case_json: Path, mismatches: list[str], ok: list[str]) -> None:
@@ -308,6 +324,9 @@ def main(argv: list[str] | None = None) -> int:
     if not case_files:
         print(f"no case.json under {cases_root}", file=sys.stderr)
         return 1
+
+    for case_dir in find_case_dirs_without_manifest(cases_root):
+        mismatches.append(f"case directory missing case.json: {case_dir}")
 
     for case_json in case_files:
         verify_case(skill_root, case_json, mismatches, ok)

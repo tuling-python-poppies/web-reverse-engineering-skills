@@ -1,0 +1,146 @@
+{
+    "schemaVersion": "web-protocol-recovery-case/v1",
+    "caseId": "iv8-bangkokair-reese84-booking",
+    "revision": 1,
+    "status": "verified",
+    "family": "challenge",
+    "runtime": "iv8",
+    "caseKind": "implementation",
+    "verificationClass": "freshly-verified",
+    "requiresFreshVerification": true,
+    "secretPolicy": "redacted-pull-live",
+    "match": {
+        "signals": [
+            "vendor:imperva",
+            "vendor:reese84",
+            "cookie:reese84",
+            "header:x-d-token",
+            "api:amadeus-dapi",
+            "site:bangkokair"
+        ],
+        "minimumIndependentSignals": 2,
+        "negativeSignals": [
+            "vendor:akamai",
+            "vendor:ruishu",
+            "sdk:webmssdk"
+        ]
+    },
+    "exactScopes": [
+        {
+            "scheme": "https",
+            "host": "digital.bangkokair.com",
+            "port": 443,
+            "routePrefix": "/booking"
+        },
+        {
+            "scheme": "https",
+            "host": "digital.bangkokair.com",
+            "port": 443,
+            "routePrefix": "/_Incapsula_Resource"
+        },
+        {
+            "scheme": "https",
+            "host": "api-des.bangkokair.com",
+            "port": 443,
+            "routePrefix": "/v1/security/oauth2/token"
+        },
+        {
+            "scheme": "https",
+            "host": "api-des.bangkokair.com",
+            "port": 443,
+            "routePrefix": "/v2/search/air-bounds"
+        }
+    ],
+    "protocolPatterns": [
+        "vendor:imperva",
+        "vendor:reese84",
+        "cookie:reese84",
+        "header:x-d-token",
+        "challenge:randomized-path",
+        "oauth:client-credentials",
+        "api:amadeus-dapi",
+        "site:bangkokair"
+    ],
+    "sourceProvider": "iv8",
+    "product": {
+        "vendor": "Imperva",
+        "product": "Reese84",
+        "version": "web-challenge",
+        "subtype": "bangkokair-booking-availability"
+    },
+    "providerChain": [
+        "chromium-recon",
+        "iv8",
+        "python-collector"
+    ],
+    "dependencies": {
+        "python": ">=3.11",
+        "curl_cffi": "installed",
+        "iv8": "optional for offline challenge solving",
+        "loguru": "optional"
+    },
+    "preRead": [
+        {
+            "path": "references/providers/implementation/iv8/references/api-inventory.md",
+            "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+        }
+    ],
+    "liveState": {
+        "mode": "browser-export-json",
+        "retention": "memory-only",
+        "requiredCookies": [
+            "reese84"
+        ],
+        "optionalCookies": [
+            "___utmvc",
+            "prxCookie",
+            "xctrc"
+        ],
+        "cookieNamePatterns": [
+            "^visid_incap_",
+            "^incap_ses_",
+            "^nlbi_"
+        ],
+        "storageKeys": []
+    },
+    "artifacts": {
+        "process": {
+            "path": "PROCESS.md",
+            "sha256": "91b75f3fc2ede9673cf5da82cb8e7a41d90d07cb2412cf0c2e53fbf431a260bd"
+        },
+        "pullLiveState": {
+            "path": "pull_live_state.py",
+            "sha256": "573af1f21fbae48f293d30c7b9cb9521881f7c1ddb6d8594bcaf29e236e0d2b6"
+        },
+        "assets": [
+            {
+                "path": "fixtures/vectors.json",
+                "sha256": "5fb378bdb969c8ee96fa858dd63d3f2f1dc9deee87a27918b9eae2ffeae40719"
+            }
+        ],
+        "entry": {
+            "path": "entry.py",
+            "sha256": "4fe39bbc631d2c11941cd5e130c44d64a855f310c772453b3f3f8f9f22e716dc"
+        }
+    },
+    "verification": {
+        "executed": true,
+        "passed": true,
+        "executedAt": "2026-07-22",
+        "testCommand": "python -m unittest discover -s tests -v",
+        "testArtifact": {
+            "path": "tests/test_vectors.py",
+            "sha256": "458f9fad3168d9e929c527b9059ee2d6e2da2ee82815112c91bfc9070b79c535"
+        },
+        "evidenceArtifact": {
+            "path": "fixtures/response.sample.json",
+            "sha256": "ea38e11f78f99795a53b09bd873be861ca469f62cecea6230f8bd6ababef363a"
+        },
+        "proof": {
+            "offlineVectors": "case-local parser, payload shape, import-safe run, and live-state selector tests",
+            "unitTests": "4/4 case-local offline tests passed 2026-07-22",
+            "liveChain": "approved session with fresh reese84: OAuth 200 -> air-bounds 200; BKK-CNX sample produced priced bounds including PG215 08:00-09:20 PGPROMO 2630 THB",
+            "caseLocalTests": "python -m unittest discover -s tests -v"
+        }
+    }
+}

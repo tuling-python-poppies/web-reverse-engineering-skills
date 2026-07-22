@@ -111,7 +111,7 @@ Prefer supplied artifacts or one registry case before opening a browser. Fresh r
 | `camoufox` | Explicit Camoufox, or engine-level/SpiderMonkey/Camoufox instrumentation, or untrustworthy Cloak result | `references/providers/reconnaissance/camoufox/PROVIDER.md` |
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
-Chromium ladder: js-reverse normal Chrome headless by default -> optional Chrome DevTools visible baseline only after explicit window/baseline approval -> Chrome parked -> visible CloakBrowser only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox. Ordinary browser windows are denied by default; if normal Chrome would launch headful, stop and report a tooling blocker instead of navigating.
+Chromium ladder: explicit js-reverse normal Chrome headless launch + Headless Acceptance (not auto-launch/CLI default) -> optional Chrome DevTools visible baseline only after explicit window/baseline approval -> Chrome parked -> visible CloakBrowser only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox. Ordinary browser windows are denied by default; residual headful after `close_browser` (runtime overrides cleared) requires another explicit headless launch before any browser action; brief relaunch flash is allowed, persistent headful after acceptance is a tooling blocker.
 
 ## Phase 3: Gate Family
 

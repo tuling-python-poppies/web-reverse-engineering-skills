@@ -32,15 +32,20 @@ The ordinary dual-recon route is serialized:
 
 ```text
 IDLE -> JS_ACTIVE_HEADLESS -> JS_CLOSED
+IDLE | RESIDUAL_HEADFUL -> JS_RELAUNCH_HEADLESS (brief flash OK) -> JS_ACTIVE_HEADLESS
 IDLE -> CHROME_ACTIVE_VISIBLE_APPROVED -> CHROME_PARKED -> JS_ACTIVE_HEADLESS -> JS_CLOSED
 JS_ACTIVE_HEADLESS -> JS_CLOSED -> CHROME_ACTIVE_VISIBLE_APPROVED
 JS_ACTIVE_HEADLESS -> JS_CLOSED -> JS_CLOAK_VISIBLE
+JS_CLOSED + auto-launch headful -> RESIDUAL_HEADFUL (must relaunch; do not navigate)
 ```
 
 - Never place `chrome-devtools-mcp` and `js-reverse-mcp` browser calls in one parallel batch.
 - Keep profiles isolated unless the user explicitly accepts shared-state contamination.
 - Save approved evidence before a switch; old page/request/script IDs become stale.
-- Ordinary Chromium reconnaissance defaults to `js-reverse-mcp_launch_browser({headless:true, cloakBinaryPath:""})`; a visible normal-Chrome window is a blocker unless the user explicitly asked for a visible ordinary browser.
+- Ordinary Chromium reconnaissance requires an **explicit** `js-reverse-mcp_launch_browser({headless:true, cloakBinaryPath:""})` plus Headless Acceptance before navigate/capture/debug; MCP auto-launch and CLI defaults are not the ordinary default.
+- A brief window flash while closing residual headful Chrome during relaunch is allowed; a normal-Chrome window that remains after acceptance is a blocker unless the user explicitly asked for a visible ordinary browser.
+- `close_browser` clears runtime headless overrides; the next tool may auto-launch CLI headful. After close, re-run explicit headless launch before any further browser action, or stay closed.
+- Cloak remains visible by default unless the user asks for hidden Cloak; that visibility exception applies only to Cloak, not normal Chrome.
 - Use `chrome-devtools-mcp` only as a visible clean-baseline exception after explicit window/baseline approval or a named DevTools-only evidence blocker.
 - Park Chrome with only a sacrificial `about:blank`; this isolates lifecycle but does not erase profile state.
 - Close js-reverse before returning to Chrome or escalating to Camoufox.
@@ -50,10 +55,11 @@ JS_ACTIVE_HEADLESS -> JS_CLOSED -> JS_CLOAK_VISIBLE
 
 `effective_headless` is the preferred launch-result field meaning the process is actually headless (not merely requested). Acceptance for ordinary normal-Chrome recon:
 
-1. Request: `launch_browser({headless:true, cloakBinaryPath:""})`.
+1. Request: `launch_browser({headless:true, cloakBinaryPath:""})` (explicit; not auto-launch).
 2. Prefer returned fields: Cloak inactive, and either `effective_headless=true` or an equivalent explicit headless confirmation (`headless=true` with no headful/window flag).
-3. Missing `effective_headless` is not automatic pass or fail by itself: re-check launch args and available page/binary status; fail if a normal OS browser window opened for this task or headless cannot be proved.
-4. Fail closed on visible normal Chrome, Cloak active on a normal-Chrome step, or headful/windowed launch reports. Return a tooling blocker; do not navigate until relaunch is accepted.
+3. Missing `effective_headless` is not automatic pass or fail by itself: re-check launch args and available page/binary status; fail if a normal OS browser window remains for this task after relaunch settles, or headless cannot be proved.
+4. Relaunch from residual headful may flash once while the old process closes; that flash alone is not failure and not success—judge the settled state.
+5. Fail closed on persistent visible normal Chrome after acceptance, Cloak active on a normal-Chrome step, or headful/windowed launch reports. Return a tooling blocker; do not navigate until relaunch is accepted.
 
 Boolean authorization gates (`browserReconAllowed`, `browserNavigationSideEffectsApproved`, `liveReplayAllowed`, etc.) use JSON `true`/`false` only; never record `yes`/`no` for those fields.
 

@@ -200,8 +200,10 @@ Expected route:
 Must conclude:
 
 - run local environment checks without launching both browsers
-- start ordinary js-reverse normal Chrome headless via runtime launch options before navigation
-- stop with a tooling blocker if the normal Chrome launch is headful or opens a window without explicit approval
+- start ordinary js-reverse normal Chrome via explicit `launch_browser({headless:true, cloakBinaryPath:""})` and Headless Acceptance before navigation; do not treat MCP auto-launch or CLI default as the ordinary default
+- if residual normal Chrome is headful, relaunch headless first (brief OS flash while the old process closes is allowed); require settled `effective_headless=true` and no lasting normal-Chrome window
+- stop with a tooling blocker if after acceptance normal Chrome remains headful or a window persists without explicit visible-ordinary-browser approval
+- after any `close_browser`, re-run explicit headless launch before the next navigate/capture/debug action (close clears runtime headless overrides)
 - use chrome-devtools only after explicit visible-baseline approval or a named DevTools-only blocker, then close extra Chrome pages and report the final page as `parked` at `about:blank`, not `closed`
 - preserve visible mode for CloakBrowser/fingerprint selection; ordinary js-reverse stays headless unless the user explicitly requests a visible ordinary browser
 - close js-reverse before returning to Chrome

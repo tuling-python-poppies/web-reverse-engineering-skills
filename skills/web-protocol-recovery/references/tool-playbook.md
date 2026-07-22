@@ -31,13 +31,17 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 The ordinary dual-recon route is serialized:
 
 ```text
-IDLE -> CHROME_ACTIVE -> CHROME_PARKED -> JS_ACTIVE_HEADLESS|JS_ACTIVE_HEADFUL -> JS_CLOSED
-JS_ACTIVE_* -> JS_CLOSED -> CHROME_ACTIVE
+IDLE -> JS_ACTIVE_HEADLESS -> JS_CLOSED
+IDLE -> CHROME_ACTIVE_VISIBLE_APPROVED -> CHROME_PARKED -> JS_ACTIVE_HEADLESS -> JS_CLOSED
+JS_ACTIVE_HEADLESS -> JS_CLOSED -> CHROME_ACTIVE_VISIBLE_APPROVED
+JS_ACTIVE_HEADLESS -> JS_CLOSED -> JS_CLOAK_VISIBLE
 ```
 
 - Never place `chrome-devtools-mcp` and `js-reverse-mcp` browser calls in one parallel batch.
 - Keep profiles isolated unless the user explicitly accepts shared-state contamination.
 - Save approved evidence before a switch; old page/request/script IDs become stale.
+- Ordinary Chromium reconnaissance defaults to `js-reverse-mcp_launch_browser({headless:true, cloakBinaryPath:""})`; a visible normal-Chrome window is a blocker unless the user explicitly asked for a visible ordinary browser.
+- Use `chrome-devtools-mcp` only as a visible clean-baseline exception after explicit window/baseline approval or a named DevTools-only evidence blocker.
 - Park Chrome with only a sacrificial `about:blank`; this isolates lifecycle but does not erase profile state.
 - Close js-reverse before returning to Chrome or escalating to Camoufox.
 - Clear task-owned hooks, routes, captures, cookies/storage/cache when the context is disposable; otherwise report owner, retained scope, reason, and deadline.
@@ -46,7 +50,7 @@ The Chromium Recon Provider owns exact launch, park, CloakBrowser-path, headless
 
 ## Escalation Conditions
 
-Move from normal Chrome to the Chromium Cloak tier only after explicit wording or evidence of fingerprint/automation/environment sensitivity, headless/headful divergence, or observer effect. Record the exact evidence and keep final delivery browser-free.
+Move from normal Chrome to the Chromium Cloak tier only after explicit wording or evidence of fingerprint/automation/environment sensitivity, headless/headful divergence, or observer effect. CloakBrowser remains visible by default unless the user explicitly asks for hidden Cloak. Record the exact evidence and keep final delivery browser-free.
 
 Move from Chromium to Camoufox only for explicit Camoufox/SpiderMonkey requests or a proved need for Camoufox-specific engine tracing. A `403`, `412`, or `429` alone is not sufficient.
 

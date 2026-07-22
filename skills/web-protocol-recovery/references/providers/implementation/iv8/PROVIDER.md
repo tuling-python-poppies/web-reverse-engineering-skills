@@ -41,6 +41,26 @@ After the API gate, use a new bounded work order for exactly one next reference:
 
 Use web-protocol-recovery's assigned `projectRoot`. Temporary scripts, downloaded assets, net logs, and environment snapshots stay under `js_reverse_cache/iv8/` or `js_reverse_cache/source/`. Stable compact code belongs in root `main.py` or assigned `utils/`; do not create another project, `collector/`, or alternate helper tree.
 
+### Silent iv8 import
+
+Stable Python iv8 helpers and any final `main.py` that imports iv8 must not use top-level `import iv8` or `from iv8 import ...`. Create or reuse `utils/iv8_silent.py` and load iv8 with:
+
+```python
+from utils.iv8_silent import import_iv8_silent
+
+iv8 = import_iv8_silent()
+```
+
+Template source of truth: `references/script-writing-rules.md` section `utils/iv8_silent.py`. Do not invent a second helper body that can drift.
+
+Rules:
+
+1. Silent import only suppresses the iv8 package import banner. Keep runtime diagnostic logs (for example EnvironmentAccessor errors).
+2. Do not wrap the whole collector, network calls, or event-loop work in a silent stdout/stderr redirect.
+3. One-shot throwaway probes under `js_reverse_cache/iv8/` may use a bare import. Scripts a user will re-run should still prefer `import_iv8_silent()`.
+4. Bundled case `entry.py` files that still bare-import iv8 are historical examples, not new-delivery templates. New delivery code must not copy that import style.
+5. The helper stays import-safe: no target URL, cookie, token, network, or file side effects.
+
 Generated helpers must be import-safe, use editable nonsecret inputs, have bounded runtime deadlines, and produce no network or file side effects on import. Use one coherent browser/session baseline; never mix cookies, UA, storage, TLS, and environment fields from different captures. Python owns all live egress, and verifier submission requires the work order to allow both live replay and the `verifier` action class.
 
 Run `py_compile` and deterministic/fixed-vector checks before approved live replay. Require semantic response success, not only non-empty iv8 output or HTTP `200`.

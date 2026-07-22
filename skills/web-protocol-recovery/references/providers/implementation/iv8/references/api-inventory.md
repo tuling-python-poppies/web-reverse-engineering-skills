@@ -39,12 +39,18 @@ The following `.py` files are part of this skill:
 
 Use `iv8.JSContext(...)` as the execution boundary. Create a fresh context for clean state, and use one context per thread.
 
+Stable delivery code should silent-import iv8 so the package banner does not pollute CLI/JSON output. Keep runtime diagnostic logs. Template source: `script-writing-rules.md` section `utils/iv8_silent.py`.
+
 ```python
-import iv8
+from utils.iv8_silent import import_iv8_silent
+
+iv8 = import_iv8_silent()
 
 with iv8.JSContext() as ctx:
     print(ctx.eval("1 + 2"))
 ```
+
+Historical `api-examples/*.py` or case `entry.py` files that still bare-import iv8 are examples only; new delivery code must not copy that import style.
 
 Common constructor parameters:
 

@@ -111,7 +111,7 @@ Prefer supplied artifacts or one registry case before opening a browser. Fresh r
 | `camoufox` | Explicit Camoufox, or engine-level/SpiderMonkey/Camoufox instrumentation, or untrustworthy Cloak result | `references/providers/reconnaissance/camoufox/PROVIDER.md` |
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
-Chromium ladder: Chrome DevTools baseline -> Chrome parked -> js-reverse normal Chrome headless -> visible CloakBrowser only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox.
+Chromium ladder: js-reverse normal Chrome headless by default -> optional Chrome DevTools visible baseline only after explicit window/baseline approval -> Chrome parked -> visible CloakBrowser only after explicit selection or fingerprint/observer evidence -> close js-reverse before Camoufox. Ordinary browser windows are denied by default; if normal Chrome would launch headful, stop and report a tooling blocker instead of navigating.
 
 ## Phase 3: Gate Family
 
@@ -132,7 +132,7 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | OCR / slider / click / coordinates | `verifier` | `references/providers/implementation/verifier/PROVIDER.md` |
 | Stable browser-free Python delivery | `python-collector` | `references/providers/implementation/python-collector/PROVIDER.md` |
 
-Chains are sequential (typical: recon -> AST -> env/iv8 -> collector). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime.
+Chains are sequential (typical: recon -> AST -> env/iv8 -> collector). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime. When stable Python code imports iv8, use `utils/iv8_silent.py` via `import_iv8_silent()` so the package import banner does not pollute CLI/JSON output; keep runtime diagnostic logs. Details: the iv8 Provider.
 
 ## Phase 5: Verification
 

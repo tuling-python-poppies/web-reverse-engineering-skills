@@ -25,7 +25,7 @@ First write may use the skill-root scaffold (absolute `projectRoot` required, ne
 
 ```text
 python <skill-root>/scripts/providers/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm \
-  [--entry] [--utils] [--tests] [--cache] [--cache-namespace recon|source|ast|env|iv8|samples|private] \
+  [--entry] [--utils] [--iv8-silent] [--tests] [--cache] [--cache-namespace recon|source|ast|env|iv8|samples|private] \
   [--output] [--requirements] [--readme] [--gitignore]
 ```
 
@@ -36,6 +36,7 @@ Rules:
 3. Create only requested missing paths; never overwrite an existing file.
 4. Cache/output require `--gitignore` so `js_reverse_cache/**` and `output/**` stay untracked.
 5. Do not generate `collector/`, `analysis/`, package frameworks, or a second landing root.
+6. When the final collector will import iv8, pass `--iv8-silent` so scaffold creates `utils/iv8_silent.py` (and `utils/` if needed). The delivered `main.py` must still call `import_iv8_silent()`.
 
 Layout details: `references/methodology/project-layout.md`. Delivery gate checklist: `references/delivery-gate-playbook.md`.
 
@@ -45,12 +46,13 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 |---|---|
 | `main.py` | Final live-egress entry; compact; no browser driving |
 | `utils/sign.py`, `utils/runtime.py`, `utils/decode.py`, `utils/client.py` | Narrow stable helpers only when a distinct responsibility exists |
+| `utils/iv8_silent.py` | Required when the final collector depends on iv8; silent import only; template from the iv8 Provider `script-writing-rules.md` |
 | `main.js` / `mod.js` | Optional local artifact generators from other Providers; not the live-egress owner |
 | `js_reverse_cache/**` | Volatile evidence/probes; never the steady-state collector |
 | `tests/**` or `js_reverse_cache/samples/**` | Fixed vectors and regression fixtures |
 | `output/**` | User-requested data only after bounds are set |
 
-Keep `main.py` short. Move only proven stable pieces into `utils/`. Do not import helpers whose import side effects open network, patch globals, or require a live browser.
+Keep `main.py` short. Move only proven stable pieces into `utils/`. Do not import helpers whose import side effects open network, patch globals, or require a live browser. When the final collector needs iv8, create or reuse `utils/iv8_silent.py` and load it with `iv8 = import_iv8_silent()`; do not top-level `import iv8` in the delivered `main.py`.
 
 ## Acceptance (all required before scale)
 

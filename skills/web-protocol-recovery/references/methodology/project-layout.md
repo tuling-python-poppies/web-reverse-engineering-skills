@@ -51,7 +51,7 @@ Create only paths required by the current task. A valid delivery may contain onl
 - Reconnaissance providers write only assigned `js_reverse_cache/recon/**` and `js_reverse_cache/source/**` paths.
 - AST writes intermediate products under `js_reverse_cache/ast/`; promote only a callable, verified result to `main.js` or `utils/*.js`.
 - env-patch writes probes under `js_reverse_cache/env/`; verified stable output may become `mod.js` and `main.js`.
-- iv8 writes probes and net logs under `js_reverse_cache/iv8/`; stable Python helpers belong in `utils/` or the compact `main.py`.
+- iv8 writes probes and net logs under `js_reverse_cache/iv8/`; stable Python helpers belong in `utils/` or the compact `main.py`. When the delivery imports iv8, `utils/iv8_silent.py` is an allowed stable helper for silent package import only.
 - verifier keeps transient images under `js_reverse_cache/source/` and fixed redacted vectors under `js_reverse_cache/samples/` or stable `tests/`.
 - python-collector owns stable HTTP, pagination, decode, and storage helpers assigned under `main.py` and `utils/`.
 

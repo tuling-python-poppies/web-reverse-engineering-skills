@@ -31,6 +31,39 @@ REQUIRED_GITIGNORE_RULES = {
     "__pycache__/",
     "*.pyc",
 }
+IV8_SILENT_PY = '''import contextlib
+import importlib
+import io
+import os
+import sys
+
+
+@contextlib.contextmanager
+def silent_import():
+    sys.stdout.flush()
+    sys.stderr.flush()
+    stdout = sys.__stdout__ or sys.stdout
+    stderr = sys.__stderr__ or sys.stderr
+    saved_stdout = os.dup(stdout.fileno())
+    saved_stderr = os.dup(stderr.fileno())
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    try:
+        os.dup2(devnull, stdout.fileno())
+        os.dup2(devnull, stderr.fileno())
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            yield
+    finally:
+        os.dup2(saved_stdout, stdout.fileno())
+        os.dup2(saved_stderr, stderr.fileno())
+        os.close(saved_stdout)
+        os.close(saved_stderr)
+        os.close(devnull)
+
+
+def import_iv8_silent():
+    with silent_import():
+        return importlib.import_module("iv8")
+'''
 
 
 def ensure_plain_path(path: Path) -> None:
@@ -168,7 +201,7 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
     if args.cache:
         directories.append("js_reverse_cache")
         directories.extend(f"js_reverse_cache/{name}" for name in args.cache_namespace)
-    if args.utils:
+    if args.utils or args.iv8_silent:
         directories.append("utils")
     if args.tests:
         directories.append("tests")
@@ -178,6 +211,8 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
     files = []
     if args.entry:
         files.append(("main.py", '"""web-protocol-recovery project entry."""\n\n\ndef main():\n    raise NotImplementedError("implementation not generated yet")\n\n\nif __name__ == "__main__":\n    main()\n'))
+    if args.iv8_silent:
+        files.append(("utils/iv8_silent.py", IV8_SILENT_PY))
     if args.requirements:
         files.append(("requirements.txt", ""))
     if args.readme:
@@ -242,6 +277,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cache", action="store_true")
     parser.add_argument("--cache-namespace", action="append", default=[])
     parser.add_argument("--utils", action="store_true")
+    parser.add_argument(
+        "--iv8-silent",
+        action="store_true",
+        help="create utils/iv8_silent.py for silent iv8 package import",
+    )
     parser.add_argument("--tests", action="store_true")
     parser.add_argument("--output", action="store_true")
     parser.add_argument("--requirements", action="store_true")

@@ -10,12 +10,13 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 - target family classified and initial routing recorded
 - canonical mutation point identified
 - selected reconnaissance Provider and reason recorded
-- on the Chromium route, first-pass `chrome-devtools` and `js-reverse-mcp` evidence captured for fresh targets, or evidence-reuse/tool-blocker path documented
+- on the Chromium route, ordinary first-pass evidence used `js-reverse-mcp` normal Chrome headless, or a visible Chrome DevTools baseline was explicitly approved and documented
 - on direct Camoufox or WeChat routes, Provider ownership, target lifecycle, durable evidence, and cleanup recorded instead of claiming Chromium passes
 - dual browser reconnaissance, when used, ran sequentially with isolated browser contexts/profiles, or explicit profile reuse and contamination risk were documented
 - relevant MCP capabilities considered through `references/tool-playbook.md` before declaring a tooling blocker
-- clean baseline captured before invasive tooling when the target is verifier-gated or behavior-sensitive
+- clean baseline captured before invasive tooling when the target is verifier-gated or behavior-sensitive; visible Chrome DevTools baseline requires explicit window/baseline approval
 - normal-Chrome baseline captured before any CloakBrowser escalation on the Chromium route without upstream evidence, unless normal Chrome was unavailable and that blocker is documented
+- normal `js-reverse-mcp` use, if any, was launched with `launch_browser({headless:true, cloakBinaryPath:""})` and no visible ordinary-browser window; otherwise the task records an explicit visible-browser approval or tooling blocker
 - CloakBrowser use, if any, has explicit fingerprint, anti-bot, or environment-verification evidence and was done through `launch_browser({headless:false, cloakBinaryPath: "..."})` on `js-reverse-mcp` unless the user explicitly asked for hidden Cloak
 
 ## Replay And Helper Gates

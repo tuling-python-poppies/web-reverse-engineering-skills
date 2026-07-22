@@ -189,7 +189,7 @@ Must conclude:
 Prompt:
 
 ```text
-Start a fresh target with the required chrome-devtools baseline and js-reverse mutation pass, but do not open several browser windows at once. Do not change my global MCP config.
+Start a fresh target with the required ordinary js-reverse mutation pass. Do not open a normal browser window unless I explicitly approve it, and do not change my global MCP config.
 ```
 
 Expected route:
@@ -200,10 +200,10 @@ Expected route:
 Must conclude:
 
 - run local environment checks without launching both browsers
-- activate chrome-devtools first and save the baseline artifacts
-- close extra Chrome pages and report the final page as `parked` at `about:blank`, not `closed`
-- only then start ordinary js-reverse normal Chrome headless via runtime launch options
-- preserve visible mode for CloakBrowser/fingerprint selection; ordinary js-reverse stays headless unless a separately approved blocker requires visibility
+- start ordinary js-reverse normal Chrome headless via runtime launch options before navigation
+- stop with a tooling blocker if the normal Chrome launch is headful or opens a window without explicit approval
+- use chrome-devtools only after explicit visible-baseline approval or a named DevTools-only blocker, then close extra Chrome pages and report the final page as `parked` at `about:blank`, not `closed`
+- preserve visible mode for CloakBrowser/fingerprint selection; ordinary js-reverse stays headless unless the user explicitly requests a visible ordinary browser
 - close js-reverse before returning to Chrome
 - never place the two browser tool families in one parallel batch
 
@@ -1426,7 +1426,7 @@ Must conclude:
 - `指纹浏览器` means CloakBrowser in this skill
 - call `js-reverse-mcp_browser_binary_info` first: check `cloak_active` (bool) and `cloak_binary_path` (string or null)
 - if `cloak_active` is true, navigate directly without calling `launch_browser`
-- if `cloak_active` is false and `cloak_binary_path` is a non-empty string, call `js-reverse-mcp_launch_browser({headless:false, cloakBinaryPath: <cloak_binary_path>})` then navigate unless the user explicitly asked for hidden Cloak
+- if `cloak_active` is false and `cloak_binary_path` is a non-empty string, call `js-reverse-mcp_launch_browser({headless:false, cloakBinaryPath: <cloak_binary_path>})` then navigate unless the user explicitly asked for hidden Cloak; this visible default applies only to Cloak, not normal Chrome
 - if `cloak_binary_path` is null, ask the user for the CloakBrowser executable path; do not invent an absolute path
 - recognize `--cloak` / `--cloakBinaryPath` as js-reverse-mcp server startup arguments; they are reflected in `browser_binary_info`'s `cloak_active` / `cloak_binary_path` fields
 - do not call any Camoufox browser tool as a substitute

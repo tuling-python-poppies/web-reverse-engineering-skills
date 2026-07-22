@@ -198,8 +198,8 @@ The final URL is accepted only when query parsing finds a non-empty `w`.
 For the transparent 80x80-style slices used in the verified flow, treat the
 `ddddocr` result as a versioned adapter boundary, not as a permanent API.
 The 3.13 reference environment used a newer implementation that returned
-`target=[center_x, center_y]`; the Python 3.9 `spider_base` environment used
-`ddddocr 1.5.6`, which returned `target=[x1, y1, x2, y2]`. The old
+`target=[center_x, center_y]`; the Python 3.9 + `ddddocr 1.5.6` environment
+returned `target=[x1, y1, x2, y2]`. The old
 `simple_target=False` path can also derive an empty crop from an RGBA slice.
 Depending on the Pillow/OpenCV versions, this surfaces as `ValueError`,
 `SystemError`, or OpenCV 4.13's assertion:

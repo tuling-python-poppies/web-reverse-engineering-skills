@@ -24,7 +24,7 @@ Legacy `Expected route` headings below mean expected reference owners, never the
 - the mandatory four-line protocol header is emitted first on protocol tasks; the startup gate follows with only applicable fields on fresh targets
 - blocked tools are reported explicitly instead of being silently skipped
 - paired `chrome-devtools` and `js-reverse-mcp` recon stays sequential and profile-isolated unless explicit profile reuse is requested and documented
-- dual recon is lifecycle-exclusive: no cross-family parallel preflight, Chrome is honestly reported as parked when its last page cannot close, ordinary js-reverse starts headless at runtime, visible CloakBrowser is used only after explicit/fingerprint selection unless the user asks for hidden Cloak, and js-reverse closes before a return to Chrome
+- dual recon is lifecycle-exclusive: no cross-family parallel preflight, ordinary Web defaults to Chrome DevTools visible baseline then parked Chrome, js-reverse mutation uses explicit headless launch unless the user asks for a visible ordinary browser or a documented no-window skip, Chrome is honestly reported as parked when its last page cannot close, visible CloakBrowser is used only after explicit/fingerprint selection unless the user asks for hidden Cloak, and js-reverse closes before a return to Chrome
 - final delivery stays pure protocol
 - Python remains the preferred collector language
 - generated collector scaffolds remain Python 3.9+ compatible and support `python main.py` from the project root
@@ -189,7 +189,7 @@ Must conclude:
 Prompt:
 
 ```text
-Start a fresh target with the required ordinary js-reverse mutation pass. Do not open a normal browser window unless I explicitly approve it, and do not change my global MCP config.
+Start a fresh ordinary Web target with the default Chromium recon ladder, then run the js-reverse mutation pass if needed. Do not change my global MCP config. Do not open chrome-devtools and js-reverse in parallel.
 ```
 
 Expected route:
@@ -200,12 +200,13 @@ Expected route:
 Must conclude:
 
 - run local environment checks without launching both browsers
-- start ordinary js-reverse normal Chrome via explicit `launch_browser({headless:true, cloakBinaryPath:""})` and Headless Acceptance before navigation; do not treat MCP auto-launch or CLI default as the ordinary default
-- if residual normal Chrome is headful, relaunch headless first (brief OS flash while the old process closes is allowed); require settled `effective_headless=true` and no lasting normal-Chrome window
-- stop with a tooling blocker if after acceptance normal Chrome remains headful or a window persists without explicit visible-ordinary-browser approval
-- after any `close_browser`, re-run explicit headless launch before the next navigate/capture/debug action (close clears runtime headless overrides)
-- use chrome-devtools only after explicit visible-baseline approval or a named DevTools-only blocker, then close extra Chrome pages and report the final page as `parked` at `about:blank`, not `closed`
-- preserve visible mode for CloakBrowser/fingerprint selection; ordinary js-reverse stays headless unless the user explicitly requests a visible ordinary browser
+- ordinary Web default: Chrome DevTools visible clean baseline after recon gates, then park Chrome (`about:blank`, report `parked`, not `closed`)
+- skip the visible DevTools baseline only when the user explicitly requires no ordinary window / background-only recon; document that skip
+- when the js-reverse mutation/source pass is needed, use explicit `launch_browser({headless:true, cloakBinaryPath:""})` and Headless Acceptance; do not treat MCP auto-launch or CLI default as that pass
+- if residual normal Chrome is headful during a required headless js-reverse pass, relaunch headless first (brief OS flash while the old process closes is allowed); require settled `effective_headless=true` and no lasting normal-Chrome window
+- stop with a tooling blocker if after headless acceptance normal Chrome remains headful without explicit visible-ordinary-browser approval
+- after any js-reverse `close_browser`, re-run explicit launch for the next intended mode before the next navigate/capture/debug action (close clears runtime headless overrides)
+- preserve visible mode for CloakBrowser/fingerprint selection; ordinary js-reverse mutation stays headless unless the user explicitly requests a visible ordinary browser
 - close js-reverse before returning to Chrome
 - never place the two browser tool families in one parallel batch
 

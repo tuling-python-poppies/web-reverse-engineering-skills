@@ -1,5 +1,7 @@
 # Environment Patch Playbook
 
+Ownership: minimal host-surface / load-order / host-contract patches after the divergent layer is already named. Wide multi-layer triage (redirect vs wrapper vs helper vs env): `env-diff-playbook.md` first. Implementation work order: `providers/implementation/env-patch/PROVIDER.md`.
+
 Use this file when extracted logic runs in a local runtime but outputs still differ from the page.
 
 ## Common mismatch sources

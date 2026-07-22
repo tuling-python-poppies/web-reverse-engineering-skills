@@ -2,6 +2,8 @@
 
 Use this playbook when executable bootstrap code or a side asset derives state before replay works, or when the approved local runtime already emits the decisive cookie, header, URL, body, token, or decoded payload.
 
+When a getter, XHR/fetch egress, or alternate route already exposes the decisive artifact, start with `challenge-artifact-harvest-playbook.md` and only escalate here for session-chain, envelope-family, or executionPolicy work. Same-endpoint server-JS cookie patterns: `server-js-cookie-bootstrap-playbook.md`. Tiny controlling assets first: `side-asset-bootstrap-playbook.md`.
+
 ## Boundary
 
 This file owns executable and stateful bootstrap:

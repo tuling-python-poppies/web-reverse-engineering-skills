@@ -10,13 +10,13 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 - target family classified and initial routing recorded
 - canonical mutation point identified
 - selected reconnaissance Provider and reason recorded
-- on the Chromium route, ordinary first-pass evidence used a visible Chrome DevTools clean baseline after recon gates, or a documented no-window skip into the js-reverse pass
+- on the Chromium route, fresh targets completed a **mandatory paired pass**: visible Chrome DevTools clean baseline after recon gates **and** a js-reverse mutation/source pass, unless a real external blocker or documented exception (evidence-reuse / offline local-proof) is recorded; a no-window exception may skip only the visible DevTools window, not the js-reverse half
 - on direct Camoufox or WeChat routes, Provider ownership, target lifecycle, durable evidence, and cleanup recorded instead of claiming Chromium passes
-- dual browser reconnaissance, when used, ran sequentially with isolated browser contexts/profiles, or explicit profile reuse and contamination risk were documented
+- dual browser reconnaissance ran sequentially with isolated browser contexts/profiles, or explicit profile reuse and contamination risk were documented
 - relevant MCP capabilities considered through `references/tool-playbook.md` before declaring a tooling blocker
 - clean baseline captured before invasive tooling when the target is verifier-gated or behavior-sensitive
-- normal-Chrome / DevTools baseline captured before any CloakBrowser escalation on the Chromium route without upstream evidence, unless that baseline was unavailable and that blocker is documented
-- normal `js-reverse-mcp` use, if any, used explicit `launch_browser({headless:true, cloakBinaryPath:""})` for the mutation pass and no unintended ordinary-browser window; otherwise the task records an explicit visible-ordinary-browser approval, a documented no-window skip from DevTools, or a tooling blocker
+- paired-pass (or documented blocker) evidence captured before any CloakBrowser escalation on the Chromium route without upstream fingerprint evidence, unless that baseline path was unavailable and that blocker is documented
+- normal `js-reverse-mcp` use used explicit `launch_browser({headless:true, cloakBinaryPath:""})` for the mutation pass and no unintended ordinary-browser window; otherwise the task records an explicit visible-ordinary-browser approval or a tooling blocker
 - CloakBrowser use, if any, has explicit fingerprint, anti-bot, or environment-verification evidence and was done through `launch_browser({headless:false, cloakBinaryPath: "..."})` on `js-reverse-mcp` unless the user explicitly asked for hidden Cloak
 
 ## Replay And Helper Gates

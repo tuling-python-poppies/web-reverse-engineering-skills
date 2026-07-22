@@ -43,7 +43,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 2. Ordinary Web first response must include:
    ```text
    layout: web-protocol-recovery-simple/v1
-    reconSequence: Chrome DevTools clean baseline -> Chrome parked -> js-reverse normal Chrome (explicit launch; headless preferred for mutation) -> visible CloakBrowser only after explicit/fingerprint selection
+    reconSequence: mandatory paired pass (chrome-devtools clean baseline -> Chrome parked -> js-reverse mutation, explicit launch; headless preferred for mutation) -> visible CloakBrowser only after explicit/fingerprint selection
    ```
 3. Recover one short root `main.py` path, often with a narrow iv8/helper artifact generator.
 4. Verify fixed vectors, then one approved minimal live replay.

@@ -38,7 +38,7 @@ route: <chromium-recon|camoufox|wechat-miniapp>
 - Selected recon Provider and reason:
 - Evidence mode: fresh browser baseline / evidence reuse / blocked-tool limited path
 - Provider result: proved / skipped / blocked and why
-- Chromium passes, when selected: chrome-devtools result; js-reverse-mcp result
+- Chromium paired pass, when selected: chrome-devtools baseline result; js-reverse-mcp mutation result; any missing-half blocker; optional Cloak tier if used
 - Direct route, when selected: Camoufox or WeChat ownership/lifecycle/cleanup result
 - Recon isolation: separate profiles / explicit profile reuse with contamination risk / not applicable
 - Page type: SSR / CSR / SPA / MPA / hybrid

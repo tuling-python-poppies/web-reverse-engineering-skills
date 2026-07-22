@@ -12,10 +12,11 @@ Complete these four checks first:
 
 1. reconnaissance route and tool sanity
     - select Chromium, Camoufox, or WeChat before launching; explicit Camoufox and WMPF requests bypass the Chromium ladder
+    - on Chromium: confirm whether both `chrome-devtools` and `js-reverse` are usable; fresh targets require a **mandatory lightweight paired pass** (DevTools baseline then js-reverse mutation) before the final collector unless a real blocker or documented exception applies
     - run `scripts/check_reverse_env.py` when local execution is available
-    - follow `references/tool-playbook.md#dual-recon-browser-lifecycle-gate` for serialized Chromium phases, profile isolation, headful exceptions, and cleanup
+    - follow `references/tool-playbook.md` Browser Lifecycle for serialized Chromium phases, profile isolation, headful exceptions, Cloak tier, and cleanup
     - note local iv8 or transport-client availability only when host-bound bootstrap or transport admission is suspected
-    - report blockers instead of warming multiple engines to test availability
+    - report blockers instead of warming multiple engines to test availability; do not skip a paired half silently
 2. artifact directory discipline
     - complete `references/methodology/project-layout.md` before the first write; do not create a root or cache implicitly
     - save approved dynamic materials only under the selected project's `js_reverse_cache/`

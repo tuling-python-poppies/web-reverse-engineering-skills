@@ -45,6 +45,8 @@ Reject a selected root or output path when any existing component is a symlink, 
 
 Create only paths required by the current task. A valid delivery may contain only `main.py`.
 
+**On-demand rule:** do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|samples|private`, `tests/`, or `output/` just because they appear in the layout diagram. Create a subdirectory only when the first write for that namespace is about to happen (or the user/work order explicitly requests it via scaffold `--cache-namespace` / `--tests` / `--output`). Empty placeholder trees are forbidden.
+
 ## Ownership
 
 - web-protocol-recovery owns `main.py` and final integration.

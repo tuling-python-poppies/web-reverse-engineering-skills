@@ -9,7 +9,7 @@
     "id": 2,
     "scenario": "典型场景：全量评估",
     "prompt": "评估所有 skills 的质量",
-    "expected": "skill 应执行 Phase 0.5-1：扫描所有 SKILL.md → 跑 runtime 中立性 gate → 用 9 维 rubric 打基线分 → 输出评分卡片（按分数排序，标注短板维度），不进入 Phase 2 优化循环"
+    "expected": "skill 应执行 Phase 0-1：解析 skillsRoot/darwinRoot → 检查 git 状态和 results.tsv → 扫描所有 SKILL.md → 跑 runtime 中立性 gate → 用 9 维 rubric 打基线分 → 输出评分卡片（按分数排序，标注短板维度），不进入 Phase 2 优化循环"
   },
   {
     "id": 3,

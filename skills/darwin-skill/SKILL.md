@@ -90,13 +90,13 @@ rubric 设计依据来自 **SkillLens 论文（arXiv 2605.23899）** + **本机 
 
 skill 应当能在 Claude Code / Codex / Cursor / OpenClaw / Hermes / Gemini CLI / OpenCode 等 50+ skills-compatible runtime 通用——否则其他 agent 解析时会被「在 Claude Code 里」「Claude Code skill」等措辞误判为「不是给我用的」直接拒装（实例：nuwa-skill 因此被 Marvis agent 拒绝）。
 
-### Phase 1 基线评估时强制跑一次红灯扫描
+### Phase 1 基线评估时强制跑一次红灯候选扫描
 
 ```bash
-grep -nE "(在 Claude Code|Claude Code skill|Claude Code 用户|Cursor only|Codex 中|^\[!\[Claude Code|~/\.claude/skills/[a-z]|/plugin install\b)" SKILL.md README.md 2>/dev/null
+grep -nE "(在 Claude Code|Claude Code skill|Claude Code 用户|Cursor only|Codex 中|^\[!\[Claude Code|~/\.claude/skills/[a-z]|/plugin install\b)" SKILL.md README*.md 2>/dev/null
 ```
 
-输出非空 = 红灯命中 → 强制把 Phase 2 第一轮定为 P0「runtime drift 修复」（写入 results.tsv 的 note 列 `runtime_warn=N`）。
+输出非空 = 候选命中，不等于红灯。逐条过滤：frontmatter 触发词、红灯/绿灯示例、扫描命令本身、明确标注的 runtime-specific 章节、commit/changelog 不计入 `runtime_warn`。过滤后 `runtime_warn > 0` 才强制把 Phase 2 第一轮定为 P0「runtime drift 修复」（写入 results.tsv 的 note 列 `runtime_warn=N`）。
 
 ### 例外（允许的「Claude Code 痕迹」）
 
@@ -112,11 +112,13 @@ frontmatter 触发词、花叔生态内部 skill 名引用、明确标注 runtim
 
 ```
 1. 确认优化范围：
-   - 全部skills → 扫描 .claude/skills/*/SKILL.md
-   - 指定skills → 用户指定列表
-2. 创建 git 分支：auto-optimize/YYYYMMDD-HHMM
-3. 初始化 results.tsv（如不存在）
-4. 读取现有 results.tsv 了解历史优化记录
+   - 全部skills → 从当前安装位置解析 `skillsRoot`，扫描 `skillsRoot/*/SKILL.md`
+   - 指定skills → 用户指定列表，逐个解析为绝对路径
+2. 解析 `darwinRoot`（本 skill 所在目录）并使用 `darwinRoot/results.tsv`；不要假设 `.claude/skills/`。
+3. 检查 git 仓库和工作树：记录 `git status --short`；若目标 skill 或 results.tsv 之外已有未提交改动，先展示并停下确认，后续 `git add` 只允许显式 pathspec。
+4. 创建 git 分支：auto-optimize/YYYYMMDD-HHMM
+5. 初始化 results.tsv（如不存在）
+6. 读取现有 results.tsv 了解历史优化记录
 ```
 
 ### Phase 0.5: 测试Prompt设计
@@ -198,14 +200,19 @@ for each skill:
 
     # Step 3: 执行改进
     编辑 SKILL.md
-    git add + commit（message: "optimize {skill}: {改进摘要}"）
+    git diff -- <target-skill>/SKILL.md <target-skill>/test-prompts.json <darwinRoot>/results.tsv
+    git add -- <本轮实际改动的显式路径>
+    git commit -m "optimize {skill}: {改进摘要}"
 
     # Step 4: 重新评估
     - 结构维度：主agent重新打分
     - 效果维度：spawn独立子agent重跑测试prompt（关键！不能自己评自己）
 
     # Step 5: 决策
-    if 新总分 > 旧总分:
+    if 本轮只有 dry_run 且没有至少 1 个 full_test 或用户显式确认:
+      status = "pending_full_test"
+      记录候选分数但不推进旧分；停下请求 full_test 或人审保留
+    else if 新总分 > 旧总分:
       status = "keep"，更新旧总分
       # HL-4 见好就收：连续2轮 Δ < 2 分 → break 进 Phase 3
       if last_delta < 2.0 and this_delta < 2.0:
@@ -235,7 +242,7 @@ for each skill:
 
 ```
 1. 选一个瓶颈skill
-2. git stash 保存当前最优版本
+2. `git stash push -- <target-skill>/SKILL.md` 保存当前最优版本；不要使用无 pathspec 的 `git stash`
 3. 从头重写SKILL.md（不是微调，是重新组织结构和表达方式）
 4. 重新评估
 5. if 重写版 > stash版: 采用重写版
@@ -284,7 +291,7 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 ```
 
 新增 `eval_mode` 列：`full_test`（跑了子agent测试）或 `dry_run`（模拟推演）。
-文件位置：`.claude/skills/darwin-skill/results.tsv`
+文件位置：`<darwinRoot>/results.tsv`
 
 ---
 
@@ -342,7 +349,7 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 | results.tsv 缺失 | 文件不存在 | 新建并写表头行（9列：含 eval_mode） |
 | results.tsv 损坏 | 列数不匹配 / 非TSV | 备份为 `.bak.YYYYMMDD-HHMM` 后重建，告知用户 |
 | 分支已存在 | `git checkout -b` 失败 | 分支名末尾加 `-2` / `-3`；第3次失败则切回现有分支并询问继续还是新起 |
-| `git revert` 失败 | 冲突 / 工作树脏 | 先 `git stash`，重试；仍失败则从上一个 commit 的 SKILL.md 读出覆盖当前文件手动恢复 |
+| `git revert` 失败 | 冲突 / 工作树脏 | 只对本轮显式路径使用 `git stash push -- <paths>`，重试；仍失败则停下展示冲突和可恢复路径，禁止覆盖用户已有未提交改动 |
 | MAX_ROUNDS 触顶（默认3） | 已跑3轮仍有短板 | 不强制 break，展示当前最弱维度问用户「继续加1轮 / 进入Phase 2.5 / 收工」 |
 | 优化后超 150% 体积 | 新文件 > 原 × 1.5 | 拒绝提交，回到改进步骤精简（删冗余/合并重复），再评 |
 | test-prompts.json 已存在 | 文件已在 skill 目录 | 默认复用并展示，问用户「复用 / 重写 / 追加」三选一 |
@@ -381,7 +388,7 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 5. **尊重花叔风格** — 中文为主、简洁为上
 6. **可回滚** — 所有改动在git分支上，用git revert而非reset --hard
 7. **评分独立性** — 效果维度必须用子agent或至少干跑验证，不能在同一上下文里「改完直接评」
-8. **Runtime 中立性** — skill 必须能在 Claude Code、Codex、Cursor、OpenClaw、Hermes 等任何 skills-compatible runtime 中正常运行。除非 skill 名明确绑定单一 runtime（如 `xxx-codex`、`huashu-slides-codex`），任何「在 Claude Code 里」「Claude Code skill」「单一 badge 钉死」「安装命令只给 `.claude/skills/` 一种路径」都视为 gate 不通过，须在 P0 优先修复（详见「Runtime 适配性审查」章节）
+8. **Runtime 中立性** — skill 必须能在 Claude Code、Codex、Cursor、OpenClaw、Hermes 等任何 skills-compatible runtime 中正常运行。除非 skill 名明确绑定单一 runtime（如 `xxx-codex`、`huashu-slides-codex`），任何用户安装/使用说明钉死单一 runtime、单一 badge、或单一私有路径都视为 gate 不通过，须在 P0 优先修复（详见「Runtime 适配性审查」章节）
 
 ---
 
@@ -397,13 +404,13 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 ### 单个优化
 ```
 用户："优化 huashu-slides 这个skill"
-→ 只对指定skill执行 Phase 0.5-2
+→ 只对指定skill执行 Phase 0-2
 ```
 
 ### 仅评估不改
 ```
 用户："评估所有skills的质量"
-→ 只执行 Phase 0.5-1（设计测试prompt + 基线评估），不进入优化循环
+→ 只执行 Phase 0-1（初始化范围/results.tsv + 设计测试prompt + 基线评估），不进入优化循环
 ```
 
 ### 查看历史
@@ -464,12 +471,13 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
    - data-field="date" → 当前日期
 3. 随机选择风格：hash 设为 swiss/terminal/newspaper 之一
 4. 用 scripts/screenshot.mjs 截图（2x 高清，只截 .card 元素，自动 open 图片）：
-   node .claude/skills/darwin-skill/scripts/screenshot.mjs \
+   node <darwinRoot>/scripts/screenshot.mjs \
      /abs/path/to/card.html /abs/path/to/output.png
    # 回退方案（脚本失败时）：
    npx playwright screenshot "file:///path/to/card.html#[theme]" \
      output.png --viewport-size=960,1280 --wait-for-timeout=2000
 5. 提示用户查看成果卡片 PNG
+```
 
 ### 资源文件速查
 

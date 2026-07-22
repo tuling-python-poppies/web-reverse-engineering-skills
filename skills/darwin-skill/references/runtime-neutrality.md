@@ -58,11 +58,11 @@
 
 ---
 
-## 红灯扫描快速命令
+## 红灯候选扫描快速命令
 
 ```bash
-# 在 skill 目录跑这个 grep，输出即红灯命中
-grep -nE "(在 Claude Code|Claude Code skill|Claude Code 用户|Cursor only|Codex 中|^\[!\[Claude Code|~/\.claude/skills/[a-z]|/plugin install\b)" SKILL.md README.md 2>/dev/null
+# 在 skill 目录跑这个 grep，输出是候选命中，不是最终红灯
+grep -nE "(在 Claude Code|Claude Code skill|Claude Code 用户|Cursor only|Codex 中|^\[!\[Claude Code|~/\.claude/skills/[a-z]|/plugin install\b)" SKILL.md README*.md 2>/dev/null
 ```
 
-输出非空 = 该 skill 未通过 gate，必须在优化循环里修复。
+逐条过滤：frontmatter 触发词、红灯/绿灯示例、扫描命令本身、明确标注的 runtime-specific 章节、commit/changelog 不计入红灯。过滤后仍有用户安装/使用说明钉死单一 runtime 的命中，才判定该 skill 未通过 gate，必须在优化循环里修复。

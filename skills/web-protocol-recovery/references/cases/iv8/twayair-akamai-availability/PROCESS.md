@@ -2,11 +2,25 @@
 
 Read this first before using this case's `entry.py`.
 
+## What `entry.py` is (and is not)
+
+This case's `entry.py` is an **offline probe** for the reusable iv8 sensor-bridge pattern:
+
+- runs a synthetic collector through the parent/child XHR bridge
+- gates on fixed offline vectors (`post_count=1`, `signal_count=116`, worker/runtime counters)
+- imports and runs with no live network when exercised by the case-local unit tests / offline probe
+
+It is **not** the full live T'way delivery script. Live egress (`curl_cffi` TLS profile, flight date, route, proxy) lives in project delivery code guided by this PROCESS, not in the offline `entry.py`.
+
+Env names below (`CURL_PROFILE`, `AKAMAI_FLIGHT_DATE`, `AKAMAI_DEPARTURE`, `AKAMAI_ARRIVAL`, `AKAMAI_PROXY`) are **recommended delivery knobs**. They are not implemented by this offline `entry.py`.
+
 ## Goal
 
-Reproduce T'way Airlines public flight availability queries without a browser: run the Akamai Bot Manager collector in an isolated `iv8` process (sensor generation only), keep HTTP and cookies in the Python parent, then parse the public availability response.
+Document and reuse a browser-free T'way Airlines availability recovery pattern: run the Akamai Bot Manager collector in an isolated `iv8` process (sensor generation only), keep HTTP and cookies in the Python parent, then parse the public availability response.
 
-Success predicate: a fresh run passes the offline bridge vector (post_count=1, signal_count=116, worker_message_count=1, runtime_error_count=0) and one approved live chain returns availability HTTP 200 with parseable flight/fare structures (non-empty itinerary for a day that has inventory).
+Case-local success predicate (what this library entry proves offline): a fresh run of `entry.py` / case unit tests passes the offline bridge vector (`post_count=1`, `signal_count=116`, `worker_message_count=1`, `runtime_error_count=0`).
+
+Delivery success predicate (source project / live work order, not this offline entry): one approved live chain returns availability HTTP 200 with parseable flight/fare structures (non-empty itinerary for a day that has inventory).
 
 ## Match And Exclusion Signals
 
@@ -76,7 +90,9 @@ Moving state (names only; values are pulled live and never stored):
 2. `iv8` — isolated JSContext runs the real collector; a parent-owned XHR bridge forwards only the collector's requests; stats gate on `postCount>=1 && signalCount>=110 && active==0`.
 3. `python-collector` — parent process owns all live egress (curl_cffi TLS profile), cookies, NetFunnel, business forms, parse, and bounds.
 
-### curl_cffi TLS profile (runtime-bound)
+### curl_cffi TLS profile (live delivery only)
+
+Applies to **live delivery code**, not this case's offline `entry.py` (which does not import `curl_cffi`).
 
 Pick `impersonate=` from the **installed** curl_cffi build, not from the live Chrome major:
 
@@ -89,13 +105,15 @@ Hardcoding `chrome146` on curl_cffi 0.13.0 raises at Session init:
 
 `ImpersonateError: Impersonating chrome146 is not supported`
 
-Recommended pattern in delivery:
+This is the failure seen under conda env `spider_base` when delivery code assumes a newer TLS profile than the installed curl_cffi supports.
 
-1. Prefer the highest **supported** profile on the current env (e.g. `chrome136` on 0.13.0).
+Recommended pattern in live delivery:
+
+1. Prefer the highest **supported** profile on the current env (e.g. `chrome136` on 0.13.0 / `spider_base`).
 2. Keep HTTP `User-Agent` / `Sec-CH-UA` on the live browser major when required for document consistency (e.g. Chrome 150 Client Hints) — TLS profile and UA major may differ.
 3. Optional: resolve profile dynamically from `curl_cffi.requests.impersonate.BrowserType` / package version rather than a fixed string.
 
-### Search date / empty itinerary
+### Search date / empty itinerary (live delivery only)
 
 Protocol success (sensor 116, NetFunnel, choose 200) can still end with Korean empty inventory:
 
@@ -103,17 +121,25 @@ Protocol success (sensor 116, NetFunnel, choose 200) can still end with Korean e
 
 That is **business inventory**, not Akamai failure. Do not hardcode “today” as `FLIGHT_DATE` — same-day OW is often empty/sold-out.
 
-Recommended delivery defaults:
+Recommended live delivery defaults (not implemented by offline `entry.py`):
 
 - `FLIGHT_DATE = (date.today() + timedelta(days=7)).isoformat()` from the host clock
 - Overrides: `AKAMAI_FLIGHT_DATE=YYYY-MM-DD`, optional `AKAMAI_DEPARTURE` / `AKAMAI_ARRIVAL`
 - Empty-body diagnostics must print the configured `dep-arr date` so operators can change inventory without re-debugging the sensor
 
-## Minimal Implementation (what entry.py demonstrates)
+## Minimal Implementation
 
-1. Python parent loads the challenge (page HTML + collector JS) and constructs the iv8 environment (UA/screen/canvas/system-colors consistent with the approved profile).
-2. iv8 child installs the in-case XHR bridge (`__akamaiBridge.take/fulfill/stats`), evaluates the collector, and never performs network itself.
-3. Parent executes each forwarded request against the live site, fulfills the staged XHR with body/status/headers (and optional `context.add_resource` after page load), returns changed visible cookies to the child, merges JS-set cookies into the Python cookie jar.
+### What this case's `entry.py` demonstrates offline
+
+1. Synthetic collector through the iv8 parent/child XHR bridge (`__akamaiBridge.take/fulfill/stats`).
+2. Offline request answers for CPR params + sensor POST only (no live site egress).
+3. Gate: exactly 1 sensor POST, 116 signals, 1 SharedWorker message, 0 runtime errors.
+
+### What live delivery must still implement outside this offline entry
+
+1. Python parent loads the real challenge (page HTML + collector JS) and constructs the iv8 environment (UA/screen/canvas/system-colors consistent with the approved profile).
+2. iv8 child installs the XHR bridge, evaluates the real collector, and never performs network itself.
+3. Parent executes each forwarded request against the live site with a **supported** `curl_cffi` TLS profile, fulfills staged XHR, and merges cookies.
 4. Gate: exactly 1 sensor POST, >=110 signals, 1 SharedWorker message, 0 runtime errors, no pending XHR at settle.
 5. Then NetFunnel enter/complete, main navigation with full document Sec-Fetch headers, chooseItinerary form POST, layerAvailabilityList XHR POST, parse.
 
@@ -124,20 +150,20 @@ Case-local unit tests: parser + vectors shape + offline probe — PASS.
 
 Live chain (source project, approved proxy; shape only, 2026-07-21): landing 200 → collector 200 → sensor 200 → NetFunnel OK → main 200 → choose 200 → availability 200 (~314KB); flights TW301/TW303/TW305/TW307.
 
-Live re-verify (2026-07-23, conda `spider_base`, curl_cffi 0.13.0):
+Live re-verify (2026-07-23, source/live delivery under conda `spider_base`, curl_cffi 0.13.0 — not this offline `entry.py`):
 
-1. Fail closed: `CURL_PROFILE=chrome146` → `ImpersonateError` at Session init.
-2. Fix: `CURL_PROFILE=chrome136` (env max) while UA/CH remain Chrome 150-shaped.
+1. Fail closed: live delivery used `impersonate=chrome146` → `ImpersonateError` at Session init because spider_base curl_cffi maxes at `chrome136`.
+2. Fix in live delivery: use highest supported profile (`chrome136` on 0.13.0) while UA/CH remain Chrome 150-shaped.
 3. Full protocol chain reached availability HTML; fixed same-day date `2026-07-23` returned empty itinerary Korean copy (inventory, not sensor).
-4. Fix: default flight date = host `date.today() + 7 days`; override via `AKAMAI_FLIGHT_DATE`.
+4. Fix in live delivery: default flight date = host `date.today() + 7 days`; override via `AKAMAI_FLIGHT_DATE`.
 
 ## Dependencies
 
 - python >= 3.11 (spawned iv8 worker via multiprocessing Pipe)
-- `iv8` runtime installed
-- `curl_cffi` (TLS profile must be one **supported by the installed build**; 0.13.0 → max `chrome136`. UA/Client-Hints may still mirror a newer live browser major.)
-- `beautifulsoup4` + `lxml`
-- Optional egress proxy via environment variable (e.g. `AKAMAI_PROXY`)
+- `iv8` runtime installed (required for offline probe and live delivery)
+- `beautifulsoup4` + `lxml` (parser tests / live parse)
+- Live delivery only: `curl_cffi` with a TLS profile supported by the **installed** build (0.13.0 / spider_base → max `chrome136`. UA/Client-Hints may still mirror a newer live browser major.)
+- Live delivery optional egress proxy via environment variable (e.g. `AKAMAI_PROXY`)
 
 ## Invalidation Signals
 

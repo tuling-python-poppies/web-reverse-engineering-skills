@@ -79,17 +79,26 @@
     ],
     "dependencies": {
         "python": ">=3.11",
-        "iv8": "installed runtime",
-        "curl_cffi": "installed; TLS profile must exist on the installed build (0.13.0 max chrome136)",
-        "beautifulsoup4": "installed",
-        "lxml": "installed"
+        "iv8": "installed runtime (required for offline entry.py probe)",
+        "beautifulsoup4": "installed (parser tests / live parse)",
+        "lxml": "installed (parser tests / live parse)",
+        "curl_cffi": "live delivery only; TLS profile must exist on the installed build (0.13.0 / spider_base max chrome136)"
     },
-    "deliveryNotes": {
-        "curlTlsProfile": "Use highest supported curl_cffi impersonate on the current env (chrome136 on 0.13.0). Do not hardcode chrome146 unless BrowserType lists it.",
+    "entryScope": {
+        "kind": "offline-probe",
+        "implementsLiveEgress": false,
+        "implementsCurlCffi": false,
+        "implementsFlightDateOverrides": false,
+        "proves": "iv8 parent/child Akamai sensor bridge offline vectors only"
+    },
+    "recommendedDeliveryNotes": {
+        "appliesTo": "live delivery / source project, not this offline entry.py",
+        "curlTlsProfile": "Use highest supported curl_cffi impersonate on the current env (chrome136 on 0.13.0 / spider_base). Do not hardcode chrome146 unless BrowserType lists it.",
         "httpUaMajor": "May mirror live Chrome Client Hints (e.g. 150) independently of TLS profile major.",
         "flightDateDefault": "date.today() + 7 days on host clock; same-day often empty inventory",
         "flightDateOverrideEnv": "AKAMAI_FLIGHT_DATE=YYYY-MM-DD",
-        "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL"
+        "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL",
+        "spiderBaseLesson20260723": "conda spider_base curl_cffi 0.13.0 rejects chrome146; use chrome136 and treat empty same-day itinerary as inventory"
     },
     "preRead": [
         {
@@ -127,7 +136,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "9db1d2f8057a0dfa837c4b486fc0d9e9ddaf28f72cdfde2a1984e7a7e6983aac"
+            "sha256": "50e532c449441387a0402f41b318de90dbea82f5cd07fdea487e90552f9fad18"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -164,11 +173,11 @@
         "proof": {
             "offlineBridge": "post_count=1 signal_count=116 worker_message_count=1 runtime_error_count=0 via case-local python entry.py",
             "unitTests": "3/3 case-local: parser + vectors shape + offline probe",
-            "liveChain": "source-project 2026-07-21: full chain availability 200 + flights TW301/303/305/307; re-verify 2026-07-23 spider_base curl_cffi 0.13.0: chrome146 ImpersonateError fixed via chrome136; same-day empty itinerary diagnosed as inventory",
+            "liveChain": "source-project 2026-07-21: full chain availability 200 + flights TW301/303/305/307; re-verify 2026-07-23 live delivery under spider_base curl_cffi 0.13.0: chrome146 ImpersonateError fixed via chrome136; same-day empty itinerary diagnosed as inventory (not this offline entry.py)",
             "caseLocalTests": "3/3 passed 2026-07-21",
-            "opsFixes20260723": [
-                "CURL_PROFILE must match installed curl_cffi (chrome136 on 0.13.0)",
-                "FLIGHT_DATE default host today+7; override AKAMAI_FLIGHT_DATE"
+            "opsFixes20260723LiveDeliveryOnly": [
+                "live delivery CURL_PROFILE / impersonate must match installed curl_cffi (chrome136 on 0.13.0 spider_base)",
+                "live delivery FLIGHT_DATE default host today+7; override AKAMAI_FLIGHT_DATE; not implemented by offline entry.py"
             ]
         }
     }

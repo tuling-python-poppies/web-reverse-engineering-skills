@@ -106,7 +106,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "91b75f3fc2ede9673cf5da82cb8e7a41d90d07cb2412cf0c2e53fbf431a260bd"
+            "sha256": "dd9e7038a198d5b6cc37cb48f0871c28b4503c4da5a09ed7d2448146c9b3a957"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -140,7 +140,8 @@
             "offlineVectors": "case-local parser, payload shape, import-safe run, and live-state selector tests",
             "unitTests": "4/4 case-local offline tests passed 2026-07-22",
             "liveChain": "approved session with fresh reese84: OAuth 200 -> air-bounds 200; BKK-CNX sample produced priced bounds including PG215 08:00-09:20 PGPROMO 2630 THB",
-            "caseLocalTests": "python -m unittest discover -s tests -v"
+            "caseLocalTests": "python -m unittest discover -s tests -v",
+            "successLevels": "L1 business replay verified; L2 challenge generate not default-claimed"
         }
     }
 }

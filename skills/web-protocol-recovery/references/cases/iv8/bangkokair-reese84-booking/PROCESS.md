@@ -6,7 +6,17 @@ Read this first before using this case's `entry.py`.
 
 Reproduce Bangkok Airways public flight availability queries without a browser: harvest a fresh Reese84 cookie (via browser export or iv8 challenge solver), keep HTTP and cookies in the Python parent, obtain an OAuth token, then call `/v2/search/air-bounds` and parse real flight numbers, times, and fares.
 
-Success predicate: one approved live chain returns OAuth 200 + air-bounds 200 with parseable `airBoundGroups` and `dictionaries.flight` (flight number, depart/arrive datetime, total price, fare family).
+### Success levels (do not collapse)
+
+| Level | Predicate | Notes |
+|---|---|---|
+| **L1 business replay** | Fresh `reese84` present → OAuth 200 → `/v2/search/air-bounds` 200 with parseable `airBoundGroups` + `dictionaries.flight` | Current `entry.py` live path when `REESE84` / pull_live_state supplies cookie |
+| **L2 challenge generate** | iv8 runs randomized challenge JS (page.load + pyHttp bridge) and obtains a **new** `reese84` without pasting browser cookie values into code | Higher cost; UA/Client-Hints/Canvas coherence required |
+| **L3 two-session** | L2 (or L1 refresh) succeeds on two independent cold sessions | Required before claiming stable collector |
+
+Default claimed success for this case library is **L1 + offline vectors**. L2/L3 are documented advancement, not automatic on import.
+
+Success predicate (minimum for verificationClass freshly-verified L1): OAuth 200 + air-bounds 200 with flight number, depart/arrive datetime, total price, fare family.
 
 ## Match And Exclusion Signals
 
@@ -106,8 +116,19 @@ Moving state (names only; values pulled live, never stored in the case library):
 ## Fixed-Vector / Live Proof (executed 2026-07-22)
 
 - Offline: fixture shape for air-bounds sample (groups present, flight dict keys, total price fields) — PASS via case tests.
-- Live (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX sample date produced 13 priced bounds including PG215 08:00–09:20 PGPROMO 2630 THB; cheapest total matched parse — PASS.
+- Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX sample date produced 13 priced bounds including PG215 08:00–09:20 PGPROMO 2630 THB; cheapest total matched parse — PASS.
+- Live **L2**: not claimed complete in case library entry by default; implement via reese84-iv8 protocol (challenge discovery → gpc/solution → token install) when authorized.
 - Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`; no OS temp as primary storage; on-demand cache namespaces only.
+
+## Diagnostics: token/cookie present but still blocked
+
+When OAuth works but air-bounds returns challenge HTML / 403 with `SWJIYLWA`:
+
+1. Refresh `reese84` (export new browser state to `js_reverse_cache/private/`, do not reuse OS temp as only copy).
+2. Confirm `x-d-token` equals current reese84 value on API host.
+3. Align UA + Client-Hints + curl_cffi impersonate generation.
+4. If interstitial/UTMVC markers appear, run UTMVC path before treating signer as broken.
+5. Invalid `commercialFareFamilies` yields JSON error 36917 (not the same as Imperva 403 HTML).
 
 ## Dependencies
 

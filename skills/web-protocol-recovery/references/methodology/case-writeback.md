@@ -56,3 +56,10 @@ Never write back `js_reverse_cache/private/`, cookie/token values, Authorization
 Update an existing case only when vendor, product generation, protocol family, and subtype still match. Increment revision and verification time. Apply the hash cascade above for every touched process/entry/asset/preRead/verification.* /manifest. A changed product generation, verifier subtype, incompatible wire shape, or different state model creates a new case. Mark obsolete cases `stale` or `deprecated`; do not silently rewrite their identity.
 
 Promote a lesson into generic web-protocol-recovery methodology only when it applies across sites and the user separately approves that methodology path. Default writeback changes only the case directory and registry.
+
+## Commit Hygiene
+
+1. Prefer a **case-only commit** for `references/cases/**` + `registry.json` hash cascade. Do not mix darwin score rows (`skills/darwin-skill/results.tsv`) into the same commit when avoidable.
+2. Prefer a **methodology-only commit** for SKILL/layout/anti-pattern/scaffold changes.
+3. Prefer a **chore commit** for `.gitattributes`, score TSV, and pure formatting.
+4. After case edits, run from skill root: `python scripts/preflight.py` (hashes + key unittests + entry discipline scan).

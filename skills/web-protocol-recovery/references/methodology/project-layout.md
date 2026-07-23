@@ -72,6 +72,16 @@ Downloaded HTML/JS/WASM/fonts/images, network exports, screenshots, browser stat
 5. Do not delete `js_reverse_cache/` and leave the only copy of cookies/state in OS temp. Private state belongs in `js_reverse_cache/private/` with gitignore protection.
 6. Scaffold creates cache dirs only under the absolute `projectRoot` passed to `scaffold_project.py`.
 
+## Pre-Write Checklist (5 questions)
+
+Before any new file/dir under a task project, answer yes to all applicable:
+
+1. **projectRoot?** Absolute approved root is recorded and the path is inside it.
+2. **Necessary namespace?** Creating `recon|source|ast|env|iv8|samples|private` only because the next write needs that folder (not "layout completeness").
+3. **Not OS temp as primary?** Not writing primary evidence under `%TEMP%` / `AppData\Local\Temp` / agent temp roots.
+4. **Logger?** iv8 or multi-step collector delivery has or will create `utils/logger.py` and uses it for progress.
+5. **No empty tree?** No empty placeholder directories will remain after this step unless a file is written into them immediately.
+
 ## Scaffold (optional first write)
 
 When the work order needs new empty layout paths under an absolute `projectRoot`, python-collector may call:

@@ -244,7 +244,7 @@
             },
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "ca8a0294000b4e6f59a0f7d78c24d92fb21b5ec31d4b3987c672f4562ea60da1"
+                "sha256": "20a57a5cefce48069e8c70a757979eaeaab7394bc1fe9d5b24364ece533434be"
             }
         },
         {
@@ -390,7 +390,7 @@
             },
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "acd0295a487cbd5a5638fe26adc842655f31e8807d18da3825ac311682c7fc4e"
+                "sha256": "382b55dcf6e64c0a86789705d499ca1fbec899ff7286b7bb2bde9fb4baf35f5a"
             }
         },
         {

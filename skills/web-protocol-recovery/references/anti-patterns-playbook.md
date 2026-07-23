@@ -260,6 +260,71 @@ Self-check:
 
 - does a re-runnable iv8/collector delivery include `utils/logger.py` without duplicating fallback code in `main.py`?
 
+## Anti-pattern: Treat non-empty sign/token as success
+
+Temptation:
+
+- celebrate a long `h5st` / cookie / token string
+- skip business body parse because HTTP tooling "looks fine"
+
+Why it is false progress:
+
+- frozen or stale signers can still emit long tokens while the business API returns 403 empty body
+- delivery needs product/data shape, not token aesthetics
+
+Smallest honest next move:
+
+- define the semantic payload fields up front
+- require HTTP status + content-type + parsed business rows
+- when token exists but business fails, prefer live bundle/env refresh over more token printing
+
+Self-check:
+
+- if the token were replaced by random bytes of the same length, would your acceptance still fail?
+
+## Anti-pattern: Expired cookie/session export as a stable solution
+
+Temptation:
+
+- reuse yesterday's `browser_state.json` / `reese84` / risk cookies forever
+- delete project cache and keep the only state in OS temp
+
+Why it is false progress:
+
+- TTL and rotation make one-shot exports decay
+- private state outside `js_reverse_cache/private/` breaks project-local reproduction
+
+Smallest honest next move:
+
+- store state under `js_reverse_cache/private/` (gitignored)
+- document refresh path (browser export or challenge regenerate)
+- fail closed with a clear "state expired" when business gate returns challenge HTML
+
+Self-check:
+
+- can a cold machine reproduce after wiping OS temp, with only project files + documented refresh steps?
+
+## Anti-pattern: Pre-create empty layout trees
+
+Temptation:
+
+- mkdir every diagram folder under `js_reverse_cache/` up front
+- leave empty `assets/` / `samples/` / `recon/` after cleanup
+
+Why it is false progress:
+
+- violates on-demand layout
+- confuses "structure exists" with "evidence exists"
+
+Smallest honest next move:
+
+- create a namespace only when writing the first file into it
+- delete empty leftover dirs after tasks
+
+Self-check:
+
+- would `dir /s` show any empty evidence folder that never received a file?
+
 ## Entry format for new anti-patterns
 
 When a shortcut recurs across more than one job, add it in this shape:

@@ -22,8 +22,11 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 5. 真要打开浏览器、发请求、写文件、用账号、装依赖、提交验证码或扩大采集前，先停下补 gate。
 6. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
 7. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
+8. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
 
 Plain terms: **gate family** = what blocks replay; **route** = selected Provider or `evidence-reuse`, never a gate family; **canonical mutation point** = where the wire payload is finally changed; **success shape** = smallest deliverable; **engine provenance** = which browser/runtime produced an ID. Cite stable section names, not line numbers; line numbers drift after edits.
+
+Skill self-check after edits: `python scripts/preflight.py` from this skill root.
 
 ## Non-Negotiables
 
@@ -184,6 +187,9 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not write task evidence under `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, or any non-project path when `projectRoot` is known.
 - Do not treat OS temp as primary storage; if a tool forces an absolute path outside the project, copy the artifact into `js_reverse_cache/**` immediately and stop depending on the external copy.
 - Do not deliver iv8/collector scripts with only bare `print` for progress when `utils/logger.py` is the project standard.
+- Do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|samples|private` trees "for completeness".
+- Do not treat non-empty sign/token, one HTTP 200, or an expired cookie/session export as semantic success.
+- Do not mix case-library edits and darwin `results.tsv` score rows in the same commit when avoidable.
 
 Full anti-pattern detail: `references/anti-patterns-playbook.md`.
 
@@ -195,4 +201,4 @@ Full anti-pattern detail: `references/anti-patterns-playbook.md`.
 
 ## References
 
-By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Methodology: `architecture.md`, `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, layout, or verification.
+By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Discipline mini suite: `references/discipline-self-test-min.md`. Preflight: `python scripts/preflight.py`. Methodology: `architecture.md`, `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, layout, or verification.

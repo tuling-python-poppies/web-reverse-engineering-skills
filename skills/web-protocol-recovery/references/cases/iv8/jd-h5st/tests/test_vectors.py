@@ -55,6 +55,19 @@ class JdH5stVectorTests(unittest.TestCase):
         self.assertEqual(shape["containsAppIdSegment"], "2088b")
         self.assertEqual(shape["segmentSeparator"], ";")
 
+    def test_acceptance_matrix_documents_frozen_vs_live(self) -> None:
+        matrix = self.vectors["acceptanceMatrix"]
+        self.assertGreaterEqual(len(matrix), 2)
+        by_key = {(row["bundle"], row["functionId"]): row for row in matrix}
+        frozen_rec = by_key[("historical-frozen-assets", "recommend_like_m")]
+        live_rec = by_key[("live-js_security_v3_main", "recommend_like_m")]
+        self.assertTrue(frozen_rec["expectSignNonEmpty"])
+        self.assertEqual(frozen_rec["expectHttp"], 403)
+        self.assertFalse(frozen_rec["expectProducts"])
+        self.assertEqual(live_rec["expectHttp"], 200)
+        self.assertTrue(live_rec["expectProducts"])
+        self.assertTrue(self.vectors["invalidation"]["nonEmptyH5stNotEnough"])
+
 
 if __name__ == "__main__":
     unittest.main()

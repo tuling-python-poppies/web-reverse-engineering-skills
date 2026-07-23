@@ -117,7 +117,7 @@
       },
       {
         "path": "fixtures/vectors.json",
-        "sha256": "8edacc393660d6da23695091aa74765a5b33ab8eaca2014b0a8e0a77d98471bb"
+        "sha256": "f11ff8d506331b8bfcc5eef173d6d3e0f787dd21af32355a4d75b39f95c713a0"
       },
       {
         "path": "fixtures/response.sample.json",
@@ -136,11 +136,11 @@
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "c6b8f507a73b8cdcf509aa7211ad3ab9092f06e439872097fe4f23baefea209b"
+      "sha256": "abb7188d2717f371aa45e59ead25952a0810aba57dc2c20708e65f449a2a6f36"
     },
     "evidenceArtifact": {
       "path": "fixtures/vectors.json",
-      "sha256": "8edacc393660d6da23695091aa74765a5b33ab8eaca2014b0a8e0a77d98471bb"
+      "sha256": "f11ff8d506331b8bfcc5eef173d6d3e0f787dd21af32355a4d75b39f95c713a0"
     },
     "proof": {
       "offlineVectors": "body sha256 vector, product parser sample, import-safe offline run",

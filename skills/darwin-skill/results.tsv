@@ -31,3 +31,4 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-23T19:00	3586592	darwin-skill	-	-	keep	ledger	pin ledger reorder commit ref after d9c5842	full_test
 2026-07-23T19:08	266530e	web-protocol-recovery	-	-	keep	case-gates	always run scripts/test_preflight.py, including --skip-tests; missing self-test fails closed; strict preflight PASS	full_test
 2026-07-23T19:10	c9ab510	darwin-skill	-	-	keep	ledger	record always-run preflight self-test gate	full_test
+2026-07-23T19:20	f54ee86	web-protocol-recovery	-	-	keep	case-gates	document always-run self-tests and cover fail-closed/--skip-tests behavior; preflight self-tests 8/8 PASS; strict preflight PASS	full_test

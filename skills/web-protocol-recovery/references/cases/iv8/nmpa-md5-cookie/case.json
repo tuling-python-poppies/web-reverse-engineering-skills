@@ -1,89 +1,79 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-nmpa-md5-cookie",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "signer",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "algorithm:md5",
-                                  "state:cookie-derived",
-                                  "challenge:http-412",
-                                  "site:nmpa"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "algorithm:md5",
-                             "state:cookie-derived",
-                             "challenge:http-412",
-                             "site:nmpa"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "NMPA",
-                    "product":  "MD5 cookie signer",
-                    "version":  "legacy",
-                    "subtype":  "challenge-plus-business-sign"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-                                              "acw_tc"
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "b311119a38caae496a3c50a64d0bea64adce7f83a0615e4deb4137eea356353b"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7d09ff9b17503b07bb7e6aa2e46167aec0101742d68747bca6458176bd3dc02d"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "283163cb75a88de0bb81b11b4b5d51a25954d521154d21d9c91131eb98a44e01"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v1",
+  "caseId": "iv8-nmpa-md5-cookie",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "algorithm:md5",
+      "state:cookie-derived",
+      "challenge:http-412",
+      "site:nmpa"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "algorithm:md5",
+    "state:cookie-derived",
+    "challenge:http-412",
+    "site:nmpa"
+  ],
+  "sourceProvider": "iv8",
+  "product": {
+    "vendor": "NMPA",
+    "product": "MD5 cookie signer",
+    "version": "legacy",
+    "subtype": "challenge-plus-business-sign"
+  },
+  "providerChain": [
+    "iv8",
+    "python-collector"
+  ],
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "acw_tc"
+    ],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "b311119a38caae496a3c50a64d0bea64adce7f83a0615e4deb4137eea356353b"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7d09ff9b17503b07bb7e6aa2e46167aec0101742d68747bca6458176bd3dc02d"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "ac0c4bc621c593b4a4b5c0a995c2b24dcae36112b623b0ffed9edd02dfa0bb35"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  }
 }

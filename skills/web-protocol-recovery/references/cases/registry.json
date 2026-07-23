@@ -107,7 +107,7 @@
             },
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
-                "sha256": "75b67201168459cf772f93df93406c95e6f581bac90808bf9aeb7c658ee388b6"
+                "sha256": "a212d3e224da01807331e73bd27484f97c74185179deca6d895999a9e2e563bd"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -173,7 +173,7 @@
             },
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
-                "sha256": "c93a81ef469809dab4a80c995a242b12cca72f8118fb3dd848764cb6e5b96781"
+                "sha256": "2cceabae304dbe7741dd7b2eb8c32784f3b13f7cad1f76ce68c949f778efa841"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -195,7 +195,7 @@
             },
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
-                "sha256": "bac9919e19f180435eaa6795512d983dea3b4ad79585ef9ea57c426737729b5f"
+                "sha256": "a4472896c591c4d7ab145161d4de993eddfce3b7d05174be8ca98c1ec3404bd3"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -322,7 +322,7 @@
             },
             "manifest": {
                 "path": "iv8/nmpa-md5-cookie/case.json",
-                "sha256": "1dd7a98b613a962abdfdde69e1373800256a0a66cbe2eb543ff6d93a81740b18"
+                "sha256": "1cc3b29280cb630d05b3c8784054cad4d6abad9d14da0162f8c81c9ae511f60e"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -344,7 +344,7 @@
             },
             "manifest": {
                 "path": "iv8/ouyeel-202-cookie-url/case.json",
-                "sha256": "fc2d600532ea42e2c300f3afd15a7fe58c4d7aae1745b66bd214927e006e4d88"
+                "sha256": "8f90efc84b4ae97f3c2def1ebcf5763927d08927caa67de8932411fc3159c2e8"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -388,7 +388,7 @@
             },
             "manifest": {
                 "path": "iv8/tencent-tdc-slider/case.json",
-                "sha256": "caea4082d05988cda65cb716dbcb85d752a48069fcccd74e42ebcec047510215"
+                "sha256": "5a26e65984f7973bbdb259b34fbe245c0c336d68290af3c94c269a7fa0e0d48e"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

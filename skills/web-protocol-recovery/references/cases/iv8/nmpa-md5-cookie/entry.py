@@ -98,43 +98,49 @@ headers = {
 }
 cookies = {}
 
-response = requests.get(url, params=params, headers=headers, cookies=cookies)
 
-if response.status_code != 200:
-    cookies.update(response.cookies.get_dict())
-    save_text("nmpa_challenge.html", response.text)
+def main():
+    response = requests.get(url, params=params, headers=headers, cookies=cookies)
 
-    # 预取外部 JS（供 page resources 离线解析）
-    js_match = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', response.text)
-    js_path = js_match.group(1)
-    js_full_url = environment['location']['origin'] + js_path
-    js_response = requests.get(js_full_url, headers=headers, cookies=cookies)
-    save_text("nmpa_rs_source_code.js", js_response.text)
+    if response.status_code != 200:
+        cookies.update(response.cookies.get_dict())
+        save_text("nmpa_challenge.html", response.text)
 
-    start_time = time.time()
-    with _iv8().JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
-        snapshot = {
-            "baseURL": environment['location']['href'],
-            "html": response.text,
-            "headers": [[k, v] for k, v in response.headers.items()],
-            "resources": {
-                js_full_url: js_response.text,
+        # 预取外部 JS（供 page resources 离线解析）
+        js_match = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', response.text)
+        js_path = js_match.group(1)
+        js_full_url = environment['location']['origin'] + js_path
+        js_response = requests.get(js_full_url, headers=headers, cookies=cookies)
+        save_text("nmpa_rs_source_code.js", js_response.text)
+
+        start_time = time.time()
+        with _iv8().JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
+            snapshot = {
+                "baseURL": environment['location']['href'],
+                "html": response.text,
+                "headers": [[k, v] for k, v in response.headers.items()],
+                "resources": {
+                    js_full_url: js_response.text,
+                }
             }
-        }
 
-        ctx.expose(snapshot, "snapshot")
+            ctx.expose(snapshot, "snapshot")
 
-        # 加载页面
-        ctx.eval("__iv8__.page.load(__iv8__.data.snapshot);")
+            # 加载页面
+            ctx.eval("__iv8__.page.load(__iv8__.data.snapshot);")
 
-        # 获取cookie
-        document_cookie_str = ctx.eval('document.cookie')
-        cookies.update(cookie_header_to_dict(document_cookie_str))
-        print(f"计算耗时：{time.time() - start_time:.2f} 秒")
+            # 获取cookie
+            document_cookie_str = ctx.eval('document.cookie')
+            cookies.update(cookie_header_to_dict(document_cookie_str))
+            print(f"计算耗时：{time.time() - start_time:.2f} 秒")
 
-        response = requests.get(url, params=params, headers=headers, cookies=cookies)
+            response = requests.get(url, params=params, headers=headers, cookies=cookies)
 
+            print(f"status={response.status_code} bytes={len(response.content)}")
+    else:
+        print("正常请求")
         print(f"status={response.status_code} bytes={len(response.content)}")
-else:
-    print("正常请求")
-    print(f"status={response.status_code} bytes={len(response.content)}")
+
+
+if __name__ == "__main__":
+    main()

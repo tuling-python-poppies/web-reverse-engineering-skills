@@ -1,89 +1,77 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-customs-ruishu",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "challenge",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "vendor:ruishu",
-                                  "flow:two-stage-cookie",
-                                  "transport:xhr-rewrite",
-                                  "site:customs"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "vendor:ruishu",
-                             "flow:two-stage-cookie",
-                             "transport:xhr-rewrite",
-                             "site:customs"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "Ruishu",
-                    "product":  "JS challenge",
-                    "version":  "legacy",
-                    "subtype":  "customs-two-stage"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "99f981a8ad4df8e9968366e1da297898cbb75d2f96552aa572d2756c83622ccb"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "2142add7f0aff67cc8ff66aae7bf1223f88506332ebc50372dae23ab9bf4c374"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v1",
+  "caseId": "iv8-customs-ruishu",
+  "revision": 1,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:ruishu",
+      "flow:two-stage-cookie",
+      "transport:xhr-rewrite",
+      "site:customs"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "vendor:ruishu",
+    "flow:two-stage-cookie",
+    "transport:xhr-rewrite",
+    "site:customs"
+  ],
+  "sourceProvider": "iv8",
+  "product": {
+    "vendor": "Ruishu",
+    "product": "JS challenge",
+    "version": "legacy",
+    "subtype": "customs-two-stage"
+  },
+  "providerChain": [
+    "iv8",
+    "python-collector"
+  ],
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "99f981a8ad4df8e9968366e1da297898cbb75d2f96552aa572d2756c83622ccb"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "bf3198801877cfe2296f814bf1b8701374cac5292b7ab8848aac435984767383"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  }
 }

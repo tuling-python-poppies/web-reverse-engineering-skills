@@ -94,70 +94,76 @@ headers = {
 
 page_url = environment['location']['href']
 
-with _iv8().JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
-    # 1. 首次请求 → 瑞数种 cookie
-    resp1 = requests.get(page_url, headers=headers, timeout=30)
-    print(f"首次请求状态码: {resp1.status_code}")
-    save_text("chinatax_first_page.html", resp1.text)
 
-    js_match = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', resp1.text)
-    js_url = urllib.parse.urljoin(page_url, js_match.group(1))
-    js_code = requests.get(js_url, headers=headers, cookies=resp1.cookies.get_dict(), timeout=30).text
-    save_text("chinatax_first_rs_source_code.js", js_code)
+def main():
+    with _iv8().JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
+        # 1. 首次请求 → 瑞数种 cookie
+        resp1 = requests.get(page_url, headers=headers, timeout=30)
+        print(f"首次请求状态码: {resp1.status_code}")
+        save_text("chinatax_first_page.html", resp1.text)
 
-    ctx.expose({
-        "baseURL": page_url, "html": resp1.text,
-        "headers": [[k, v] for k, v in resp1.raw.headers.items()],
-        "resources": {js_url: js_code},
-    }, "s1")
-    ctx.eval("window.__iv8__.page.load(window.__iv8__.data.s1)")
-    ctx.eval("window.__iv8__.eventLoop.sleep(100)")
+        js_match = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', resp1.text)
+        js_url = urllib.parse.urljoin(page_url, js_match.group(1))
+        js_code = requests.get(js_url, headers=headers, cookies=resp1.cookies.get_dict(), timeout=30).text
+        save_text("chinatax_first_rs_source_code.js", js_code)
 
-    cookies_str = ctx.eval("window.__iv8__.netLog.entries[window.__iv8__.netLog.entries.length - 1].cookieHeader")
-    print(f"首次 cookie fields: {sorted(cookie_header_to_dict(cookies_str))}")
+        ctx.expose({
+            "baseURL": page_url, "html": resp1.text,
+            "headers": [[k, v] for k, v in resp1.raw.headers.items()],
+            "resources": {js_url: js_code},
+        }, "s1")
+        ctx.eval("window.__iv8__.page.load(window.__iv8__.data.s1)")
+        ctx.eval("window.__iv8__.eventLoop.sleep(100)")
 
-    # 2. 携带 cookie 重新请求 → 拿到带 XHR hook 的真实页面 JS
-    resp2 = requests.get(page_url, headers={**headers, "Cookie": cookies_str}, timeout=30)
-    print(f"第二次请求状态码: {resp2.status_code}")
-    save_text("chinatax_second_page.html", resp2.text)
+        cookies_str = ctx.eval("window.__iv8__.netLog.entries[window.__iv8__.netLog.entries.length - 1].cookieHeader")
+        print(f"首次 cookie fields: {sorted(cookie_header_to_dict(cookies_str))}")
 
-    js_match2 = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', resp2.text)
-    js_url2 = urllib.parse.urljoin(page_url, js_match2.group(1))
-    js_code2 = requests.get(js_url2, headers={**headers, "Cookie": cookies_str}, timeout=30).text
-    save_text("chinatax_second_rs_source_code.js", js_code2)
+        # 2. 携带 cookie 重新请求 → 拿到带 XHR hook 的真实页面 JS
+        resp2 = requests.get(page_url, headers={**headers, "Cookie": cookies_str}, timeout=30)
+        print(f"第二次请求状态码: {resp2.status_code}")
+        save_text("chinatax_second_page.html", resp2.text)
 
-    ctx.expose({
-        "baseURL": page_url, "html": resp2.text,
-        "headers": [[k, v] for k, v in resp2.raw.headers.items()],
-        "resources": {js_url2: js_code2},
-    }, "s2")
-    ctx.eval("window.__iv8__.page.load(window.__iv8__.data.s2)")
+        js_match2 = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', resp2.text)
+        js_url2 = urllib.parse.urljoin(page_url, js_match2.group(1))
+        js_code2 = requests.get(js_url2, headers={**headers, "Cookie": cookies_str}, timeout=30).text
+        save_text("chinatax_second_rs_source_code.js", js_code2)
 
-    # 3. 通过 XHR 触发瑞数 hook，捕获带后缀的真实 URL
-    body_str = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
-    ctx.expose({"url": url, "body": body_str}, "xhrInput")
-    ctx.eval("""
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', window.__iv8__.data.xhrInput.url);
-        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.send(window.__iv8__.data.xhrInput.body);
-    """)
+        ctx.expose({
+            "baseURL": page_url, "html": resp2.text,
+            "headers": [[k, v] for k, v in resp2.raw.headers.items()],
+            "resources": {js_url2: js_code2},
+        }, "s2")
+        ctx.eval("window.__iv8__.page.load(window.__iv8__.data.s2)")
 
-    entry = ctx.eval("window.__iv8__.netLog.entries[window.__iv8__.netLog.entries.length - 1]", to_py=True)
+        # 3. 通过 XHR 触发瑞数 hook，捕获带后缀的真实 URL
+        body_str = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
+        ctx.expose({"url": url, "body": body_str}, "xhrInput")
+        ctx.eval("""
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', window.__iv8__.data.xhrInput.url);
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.send(window.__iv8__.data.xhrInput.body);
+        """)
 
-    if not entry:
-        print("未找到请求")
-        exit(1)
+        entry = ctx.eval("window.__iv8__.netLog.entries[window.__iv8__.netLog.entries.length - 1]", to_py=True)
 
-    print(f"API URL: {entry['url']}")
-    save_text("chinatax_xhr_entry.json", json.dumps(entry, ensure_ascii=False, indent=2))
+        if not entry:
+            print("未找到请求")
+            exit(1)
 
-    # 4. 用签名后的 URL 和 cookie 发起真实请求
-    final_cookie = entry.get('cookieHeader') or cookies_str
-    api_url = f"{environment['location']['origin']}{entry['url']}" if entry['url'].startswith('/') else entry['url']
+        print(f"API URL: {entry['url']}")
+        save_text("chinatax_xhr_entry.json", json.dumps(entry, ensure_ascii=False, indent=2))
 
-    response = requests.post(api_url, data=body_str, headers={**headers, "Cookie": final_cookie}, cookies=cookie_header_to_dict(final_cookie), timeout=30)
+        # 4. 用签名后的 URL 和 cookie 发起真实请求
+        final_cookie = entry.get('cookieHeader') or cookies_str
+        api_url = f"{environment['location']['origin']}{entry['url']}" if entry['url'].startswith('/') else entry['url']
 
-    print(f"状态码: {response.status_code}")
-    print(f"响应字节数: {len(response.content)}")
+        response = requests.post(api_url, data=body_str, headers={**headers, "Cookie": final_cookie}, cookies=cookie_header_to_dict(final_cookie), timeout=30)
+
+        print(f"状态码: {response.status_code}")
+        print(f"响应字节数: {len(response.content)}")
+
+
+if __name__ == "__main__":
+    main()

@@ -89,55 +89,60 @@ data = {
 }
 
 
-response = requests.post(url, headers=headers, data=data, timeout=30)
+def main():
+    response = requests.post(url, headers=headers, data=data, timeout=30)
 
 
-if response.status_code == 202:
-    cookies = response.cookies.get_dict()
-    html = response.text
-    save_text("ouyeel_challenge.html", html)
+    if response.status_code == 202:
+        cookies = response.cookies.get_dict()
+        html = response.text
+        save_text("ouyeel_challenge.html", html)
 
-    # 提取所有内联脚本
-    inline_scripts = re.findall(r"<script[^>]*r='m'[^>]*>([^<]+)</script>", html)
+        # 提取所有内联脚本
+        inline_scripts = re.findall(r"<script[^>]*r='m'[^>]*>([^<]+)</script>", html)
 
-    # 获取外部 JS 内容
-    js_match = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', html)
-    js_path = js_match.group(1)
-    js_response = requests.get(environment['location']['origin'] + js_path, headers=headers, cookies=cookies, timeout=30)
-    save_text("ouyeel_rs_source_code.js", js_response.text)
+        # 获取外部 JS 内容
+        js_match = re.search(r'src="([^"]+\.js)"[^>]*r=\'m\'', html)
+        js_path = js_match.group(1)
+        js_response = requests.get(environment['location']['origin'] + js_path, headers=headers, cookies=cookies, timeout=30)
+        save_text("ouyeel_rs_source_code.js", js_response.text)
 
-    start_time = time.time()
-    with _iv8().JSContext(environment=environment) as ctx:
-        ctx.eval("document.documentElement.innerHTML = " + json.dumps(html))  # 简化，未走流式加载DOM
+        start_time = time.time()
+        with _iv8().JSContext(environment=environment) as ctx:
+            ctx.eval("document.documentElement.innerHTML = " + json.dumps(html))  # 简化，未走流式加载DOM
 
-        # 1. 执行第一段js
-        ctx.eval(inline_scripts[1])
+            # 1. 执行第一段js
+            ctx.eval(inline_scripts[1])
 
-        # 2. 执行外部 JS
-        ctx.eval(js_response.text, name=environment['location']['origin']+ js_path)
+            # 2. 执行外部 JS
+            ctx.eval(js_response.text, name=environment['location']['origin']+ js_path)
 
-        # 3. 执行最后一个脚本（动态函数名：_$gO() 等）
-        ctx.eval(inline_scripts[-1])
-        ctx.eval("window.dispatchEvent(new Event('load'))")
-        print(f"第一阶段耗时：{time.time() - start_time}")
+            # 3. 执行最后一个脚本（动态函数名：_$gO() 等）
+            ctx.eval(inline_scripts[-1])
+            ctx.eval("window.dispatchEvent(new Event('load'))")
+            print(f"第一阶段耗时：{time.time() - start_time}")
 
-        # 后缀
-        signed_xhr_entry = ctx.eval(f"""
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://www.ouyeel.com/search-ng/commoditySearch/queryCommodityResult');
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                xhr.send({json.dumps(urllib.parse.urlencode(data))});
-                window.__iv8__.netLog.entries[0];
-            """, to_py=True)
-        save_text("ouyeel_xhr_entry.json", json.dumps(signed_xhr_entry, ensure_ascii=False, indent=2))
+            # 后缀
+            signed_xhr_entry = ctx.eval(f"""
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'https://www.ouyeel.com/search-ng/commoditySearch/queryCommodityResult');
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.send({json.dumps(urllib.parse.urlencode(data))});
+                    window.__iv8__.netLog.entries[0];
+                """, to_py=True)
+            save_text("ouyeel_xhr_entry.json", json.dumps(signed_xhr_entry, ensure_ascii=False, indent=2))
 
-        document_cookie_str = ctx.eval('document.cookie')
+            document_cookie_str = ctx.eval('document.cookie')
 
-    print(f"总耗时：{time.time() - start_time}")
+        print(f"总耗时：{time.time() - start_time}")
 
 
-    cookies.update(cookie_header_to_dict(document_cookie_str))
+        cookies.update(cookie_header_to_dict(document_cookie_str))
 
-    response = requests.post(signed_xhr_entry["url"], headers=headers, data=data, cookies=cookies, timeout=30)
+        response = requests.post(signed_xhr_entry["url"], headers=headers, data=data, cookies=cookies, timeout=30)
 
-    print(f"status={response.status_code} bytes={len(response.content)} content_type={response.headers.get('content-type', '')}")
+        print(f"status={response.status_code} bytes={len(response.content)} content_type={response.headers.get('content-type', '')}")
+
+
+if __name__ == "__main__":
+    main()

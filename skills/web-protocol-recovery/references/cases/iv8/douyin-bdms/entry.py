@@ -73,84 +73,91 @@ headers = {
     "referer": "https://www.douyin.com/",
     "user-agent": environment["navigator"]["userAgent"],
 }
-live_state = json.loads(os.environ.get("WPR_LIVE_STATE_JSON", "{}"))
-cookies = live_state.get("cookies", {})
-if not cookies.get("ttwid"):
-    raise RuntimeError("missing live ttwid; run pull_live_state.py and pass its JSON through WPR_LIVE_STATE_JSON")
-
-url = "https://www-hj.douyin.com/aweme/v1/web/aweme/detail/"
-params = {
-    "device_platform": "webapp",
-    "aid": "6383",
-    "channel": "channel_pc_web",
-    "aweme_id": "7596496938191654184",
-    "request_source": "600",
-    "origin_type": "video_page",
-    "update_version_code": "170400",
-    "pc_client_type": "1",
-    "pc_libra_divert": "Windows",
-    "support_h265": "1",
-    "support_dash": "1",
-}
 
 
+def main():
+    live_state = json.loads(os.environ.get("WPR_LIVE_STATE_JSON", "{}"))
+    cookies = live_state.get("cookies", {})
+    if not cookies.get("ttwid"):
+        raise RuntimeError("missing live ttwid; run pull_live_state.py and pass its JSON through WPR_LIVE_STATE_JSON")
 
-
-with _iv8().JSContext(environment=environment) as ctx:
-    ctx.eval("""
-      window.MessageChannel = __iv8__.wrapNative(function() {
-        const port1 = { onmessage: null };
-        const port2 = { onmessage: null };
-        port1.postMessage = function(data) {
-          if (port2.onmessage) setTimeout(() => port2.onmessage({data}), 0);
-        };
-        port2.postMessage = function(data) {
-          if (port1.onmessage) setTimeout(() => port1.onmessage({data}), 0);
-        };
-        return { port1, port2 };
-      }, 'MessageChannel');
-    """)
-    ctx.eval(js_code)
-    ctx.eval("""
-        window.bdms.init({
-            "aid": 6383,
-            "pageId": 6241,
-            "paths": [
-                "^/webcast/",
-                "^/aweme/v1/",
-                "^/aweme/v2/",
-                "/douplus/",
-                "/v1/message/send",
-                "^/live/",
-                "^/captcha/",
-                "^/ecom/",
-                "^/luna/pc"
-            ],
-            "boe": false,
-            "ddrt": 8.5,
-            "ic": 8.5
-        });;;
-    """)
-    request_list = ctx.eval(f"""
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', "{url}?{urlencode(params, safe='*')}", true);
-        xhr.setRequestHeader("Content-Type", 'application/json, text/plain, */*');
-        xhr.send(null);
-        window.__iv8__.netLog.entries;
-    """, to_py=True)
-
-if not isinstance(request_list, list) or not request_list or not isinstance(request_list[0], dict):
-    raise RuntimeError("iv8 netLog did not capture a signed request")
-
-ensure_cache_dir()
-(CACHE_DIR / "douyin_bdms_netlog_entries.json").write_text(
-    json.dumps(request_list, ensure_ascii=False, indent=2),
-    encoding="utf-8",
-)
+    url = "https://www-hj.douyin.com/aweme/v1/web/aweme/detail/"
+    params = {
+        "device_platform": "webapp",
+        "aid": "6383",
+        "channel": "channel_pc_web",
+        "aweme_id": "7596496938191654184",
+        "request_source": "600",
+        "origin_type": "video_page",
+        "update_version_code": "170400",
+        "pc_client_type": "1",
+        "pc_libra_divert": "Windows",
+        "support_h265": "1",
+        "support_dash": "1",
+    }
 
 
 
-response = requests.get(request_list[0]["url"], headers=headers, cookies=cookies, timeout=30)
+
+    with _iv8().JSContext(environment=environment) as ctx:
+        ctx.eval("""
+          window.MessageChannel = __iv8__.wrapNative(function() {
+            const port1 = { onmessage: null };
+            const port2 = { onmessage: null };
+            port1.postMessage = function(data) {
+              if (port2.onmessage) setTimeout(() => port2.onmessage({data}), 0);
+            };
+            port2.postMessage = function(data) {
+              if (port1.onmessage) setTimeout(() => port1.onmessage({data}), 0);
+            };
+            return { port1, port2 };
+          }, 'MessageChannel');
+        """)
+        ctx.eval(js_code)
+        ctx.eval("""
+            window.bdms.init({
+                "aid": 6383,
+                "pageId": 6241,
+                "paths": [
+                    "^/webcast/",
+                    "^/aweme/v1/",
+                    "^/aweme/v2/",
+                    "/douplus/",
+                    "/v1/message/send",
+                    "^/live/",
+                    "^/captcha/",
+                    "^/ecom/",
+                    "^/luna/pc"
+                ],
+                "boe": false,
+                "ddrt": 8.5,
+                "ic": 8.5
+            });;;
+        """)
+        request_list = ctx.eval(f"""
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', "{url}?{urlencode(params, safe='*')}", true);
+            xhr.setRequestHeader("Content-Type", 'application/json, text/plain, */*');
+            xhr.send(null);
+            window.__iv8__.netLog.entries;
+        """, to_py=True)
+
+    if not isinstance(request_list, list) or not request_list or not isinstance(request_list[0], dict):
+        raise RuntimeError("iv8 netLog did not capture a signed request")
+
+    ensure_cache_dir()
+    (CACHE_DIR / "douyin_bdms_netlog_entries.json").write_text(
+        json.dumps(request_list, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
-print(f"status={response.status_code} bytes={len(response.content)} content_type={response.headers.get('content-type', '')}")
+
+    response = requests.get(request_list[0]["url"], headers=headers, cookies=cookies, timeout=30)
+
+
+    print(f"status={response.status_code} bytes={len(response.content)} content_type={response.headers.get('content-type', '')}")
+
+
+if __name__ == "__main__":
+    main()

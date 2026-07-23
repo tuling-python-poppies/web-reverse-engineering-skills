@@ -1,89 +1,77 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-chinatax-ruishu",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "challenge",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "vendor:ruishu",
-                                  "flow:two-stage-cookie",
-                                  "transport:xhr-rewrite",
-                                  "site:chinatax"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "vendor:ruishu",
-                             "flow:two-stage-cookie",
-                             "transport:xhr-rewrite",
-                             "site:chinatax"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "Ruishu",
-                    "product":  "JS challenge",
-                    "version":  "legacy",
-                    "subtype":  "chinatax-two-stage"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "2f31ff008cdf07eab0e9a769ef38e06458430dcf516c4e077d809c3c17da1a43"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "b66dadfea6abba13d814f836c9dedcfffded45a6f317a17d18b543c4318c812d"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v1",
+  "caseId": "iv8-chinatax-ruishu",
+  "revision": 1,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:ruishu",
+      "flow:two-stage-cookie",
+      "transport:xhr-rewrite",
+      "site:chinatax"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "vendor:ruishu",
+    "flow:two-stage-cookie",
+    "transport:xhr-rewrite",
+    "site:chinatax"
+  ],
+  "sourceProvider": "iv8",
+  "product": {
+    "vendor": "Ruishu",
+    "product": "JS challenge",
+    "version": "legacy",
+    "subtype": "chinatax-two-stage"
+  },
+  "providerChain": [
+    "iv8",
+    "python-collector"
+  ],
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "2f31ff008cdf07eab0e9a769ef38e06458430dcf516c4e077d809c3c17da1a43"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "9a9a88b600ef983abf28e8638fdbdb95b9e19c541d258498393f00b7380a2639"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  }
 }

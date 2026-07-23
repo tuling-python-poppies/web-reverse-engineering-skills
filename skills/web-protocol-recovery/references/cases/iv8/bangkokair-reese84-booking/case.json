@@ -106,7 +106,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "dd9e7038a198d5b6cc37cb48f0871c28b4503c4da5a09ed7d2448146c9b3a957"
+            "sha256": "d528f639e7d0cf05e61007f63c97d4747bf1d795a296b054329f51e8fd2f6bd1"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -141,7 +141,9 @@
             "unitTests": "4/4 case-local offline tests passed 2026-07-22",
             "liveChain": "approved session with fresh reese84: OAuth 200 -> air-bounds 200; BKK-CNX sample produced priced bounds including PG215 08:00-09:20 PGPROMO 2630 THB",
             "caseLocalTests": "python -m unittest discover -s tests -v",
-            "successLevels": "L1 business replay verified; L2 challenge generate not default-claimed"
+            "successLevels": "L1 business replay verified; L2 challenge generate not default-claimed",
+            "l2Progress": "discover+bridge+gpc+Protection API ok; solution/token still blocked (exportToken timeout; only gpc posts)",
+            "iv8HostQuirk": "!!__iv8__ is false; capture page.load/eventLoop.*/data.pyHttp functions only"
         }
     }
 }

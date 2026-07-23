@@ -1,7 +1,7 @@
 {
     "schemaVersion": "web-protocol-recovery-case/v1",
     "caseId": "iv8-twayair-akamai-availability",
-    "revision": 1,
+    "revision": 2,
     "status": "verified",
     "family": "challenge",
     "runtime": "iv8",
@@ -80,9 +80,16 @@
     "dependencies": {
         "python": ">=3.11",
         "iv8": "installed runtime",
-        "curl_cffi": "installed",
+        "curl_cffi": "installed; TLS profile must exist on the installed build (0.13.0 max chrome136)",
         "beautifulsoup4": "installed",
         "lxml": "installed"
+    },
+    "deliveryNotes": {
+        "curlTlsProfile": "Use highest supported curl_cffi impersonate on the current env (chrome136 on 0.13.0). Do not hardcode chrome146 unless BrowserType lists it.",
+        "httpUaMajor": "May mirror live Chrome Client Hints (e.g. 150) independently of TLS profile major.",
+        "flightDateDefault": "date.today() + 7 days on host clock; same-day often empty inventory",
+        "flightDateOverrideEnv": "AKAMAI_FLIGHT_DATE=YYYY-MM-DD",
+        "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL"
     },
     "preRead": [
         {
@@ -120,7 +127,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "febc5b387bb639cff991e098ff47f96e2f8139c9f75497ae8fc53aab71ed7721"
+            "sha256": "9db1d2f8057a0dfa837c4b486fc0d9e9ddaf28f72cdfde2a1984e7a7e6983aac"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -144,7 +151,7 @@
     "verification": {
         "executed": true,
         "passed": true,
-        "executedAt": "2026-07-21",
+        "executedAt": "2026-07-23",
         "testCommand": "python -m unittest discover -s tests -v",
         "testArtifact": {
             "path": "tests/test_vectors.py",
@@ -157,8 +164,12 @@
         "proof": {
             "offlineBridge": "post_count=1 signal_count=116 worker_message_count=1 runtime_error_count=0 via case-local python entry.py",
             "unitTests": "3/3 case-local: parser + vectors shape + offline probe",
-            "liveChain": "source-project shape only: landing 200 -> collector 200 -> sensor 200 -> NetFunnel OK -> main 200 -> choose 200 -> availability 200 (~314KB), flights TW301/TW303/TW305/TW307",
-            "caseLocalTests": "3/3 passed 2026-07-21"
+            "liveChain": "source-project 2026-07-21: full chain availability 200 + flights TW301/303/305/307; re-verify 2026-07-23 spider_base curl_cffi 0.13.0: chrome146 ImpersonateError fixed via chrome136; same-day empty itinerary diagnosed as inventory",
+            "caseLocalTests": "3/3 passed 2026-07-21",
+            "opsFixes20260723": [
+                "CURL_PROFILE must match installed curl_cffi (chrome136 on 0.13.0)",
+                "FLIGHT_DATE default host today+7; override AKAMAI_FLIGHT_DATE"
+            ]
         }
     }
 }

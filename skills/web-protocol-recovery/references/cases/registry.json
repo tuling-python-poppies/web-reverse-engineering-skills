@@ -487,7 +487,7 @@
             },
             "manifest": {
                 "path": "iv8/twayair-akamai-availability/case.json",
-                "sha256": "3589ccf6bd5719418844d7313e08edf2396997ade16669a6a5231b6a98ae2224"
+                "sha256": "038bc07fca957d1dcef109ee94897eafc69eca0605d967d27de09a4867e9b191"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

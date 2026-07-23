@@ -1,0 +1,28 @@
+{
+  "bodySha256": {
+    "page": 1,
+    "pageCount": 20,
+    "startPos": 0,
+    "expected": "ad96d069fd746f4fd2967911bb6b35b169b58cfdf115bea959deaa91d3acae65"
+  },
+  "jdHash": {
+    "seDataAbcdefg": "abcdefgLvT3b7",
+    "md5Abc": "2b03aa0aa24abb8d275bb0a0c6069eb2",
+    "sha256Abc": "448fdf22009f01af476a18c5fc4499c30aa84674afbc2cd9b6b7a19454c7b10a"
+  },
+  "jdBase64": {
+    "empty": "of7r",
+    "abc": "of7rIiVT",
+    "jsonObject": "pjbM6DIjKi5N"
+  },
+  "syntheticMaterial": {
+    "tk": "tk03synthetic-token-for-offline-vector",
+    "fp": "fpvector00000001",
+    "rd": "rd-vector-01",
+    "timestampMs": 1784794929991,
+    "envTimestampMs": 1784794929986,
+    "envRandomValues": ["extendRand1", "randomVal1", "bu14Value1"],
+    "h5stSegments": 10,
+    "signature": "02dce996c43f7f194372540ae902fb97195929e0f3b24c85bf846d70f6dae889"
+  }
+}

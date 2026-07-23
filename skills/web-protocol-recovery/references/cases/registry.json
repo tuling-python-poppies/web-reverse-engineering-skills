@@ -248,6 +248,33 @@
             }
         },
         {
+            "caseId": "pure-python-jd-h5st",
+            "family": "signer",
+            "status": "verified",
+            "runtime": "pure-python",
+            "match": {
+                "signals": [
+                    "parameter:h5st",
+                    "site:jd",
+                    "api:recommend_like_m",
+                    "request_algo:cactus.jd.com/request_algo",
+                    "appId:2088b",
+                    "algorithm:jd-seData-python"
+                ],
+                "minimumIndependentSignals": 2,
+                "negativeSignals": [
+                    "runtime:ParamsSignMain-required",
+                    "vendor:imperva",
+                    "vendor:akamai",
+                    "vendor:ruishu"
+                ]
+            },
+            "manifest": {
+                "path": "pure-python/jd-h5st/case.json",
+                "sha256": "fc8c51c171489b61af211fa86a666dc86687da4bf5ccb44bfe916d8756bc4408"
+            }
+        },
+        {
             "caseId": "iv8-nmpa-md5-cookie",
             "family": "signer",
             "status": "verified",

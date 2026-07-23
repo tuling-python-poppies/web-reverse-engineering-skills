@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "web-protocol-recovery-case/v1",
+  "caseId": "pure-python-jd-h5st",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "pure-python",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "parameter:h5st",
+      "site:jd",
+      "api:recommend_like_m",
+      "request_algo:cactus.jd.com/request_algo",
+      "appId:2088b",
+      "algorithm:jd-seData-python"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": [
+      "runtime:ParamsSignMain-required",
+      "vendor:imperva",
+      "vendor:akamai",
+      "vendor:ruishu"
+    ]
+  },
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "m.jd.com",
+      "port": 443,
+      "routePrefix": "/"
+    },
+    {
+      "scheme": "https",
+      "host": "api.m.jd.com",
+      "port": 443,
+      "routePrefix": "/api"
+    },
+    {
+      "scheme": "https",
+      "host": "cactus.jd.com",
+      "port": 443,
+      "routePrefix": "/request_algo"
+    }
+  ],
+  "protocolPatterns": [
+    "parameter:h5st",
+    "body:sha256-hex",
+    "api:recommend_like_m",
+    "request_algo:tk-fp-rd",
+    "algorithm:jd-seData",
+    "algorithm:custom-base64-env",
+    "site:jd"
+  ],
+  "sourceProvider": "python-collector",
+  "product": {
+    "vendor": "JD",
+    "product": "h5st",
+    "version": "5.3",
+    "subtype": "request_algo-2088b-pure-python"
+  },
+  "providerChain": [
+    "chromium-recon",
+    "iv8-evidence",
+    "python-collector"
+  ],
+  "dependencies": {
+    "python": ">=3.9",
+    "curl_cffi": "live replay only"
+  },
+  "liveState": {
+    "mode": "none-required-for-tested-endpoint",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "6b4336c2b855f53c2c332e4a2aaac711a7ad6c2b875aba29a2c2e264ef02b028"
+    },
+    "assets": [
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "06aaa3c973cfefcf22a979357de935862128deca7734d447d1cdac4fbd254585"
+      },
+      {
+        "path": "fixtures/response.sample.json",
+        "sha256": "bb3ce9d67ad4ffa3b8ac9d0ca1c2585a3c825047a9a4012b66094621d14be04c"
+      }
+    ],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "d27c15d05020fbcd59594d1e2ffd85560a2aa28373565a3882a60847f449cfba"
+    }
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-07-23",
+    "testCommand": "python -m unittest discover -s references/cases/pure-python/jd-h5st/tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "bcd3cf2deae764e7a7c7ebb786d907e438c97301df46101796366410a0da3606"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/vectors.json",
+      "sha256": "06aaa3c973cfefcf22a979357de935862128deca7734d447d1cdac4fbd254585"
+    },
+    "proof": {
+      "offlineVectors": "body sha256, JD _seData, JD md5/sha256 wrapper, custom env Base64, synthetic h5st shape, product parser sample",
+      "unitTests": "5/5 case-local offline tests passed 2026-07-23",
+      "liveChain": "pure Python request_algo material + pure Python h5st then recommend_like_m HTTP 200 with data.feeds.content product rows (20 items)",
+      "caseLocalTests": "python -m unittest discover -s references/cases/pure-python/jd-h5st/tests -v"
+    }
+  }
+}

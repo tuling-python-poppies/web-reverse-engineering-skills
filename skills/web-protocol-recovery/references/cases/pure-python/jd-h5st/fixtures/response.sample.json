@@ -1,0 +1,25 @@
+{
+  "data": {
+    "feeds": {
+      "content": [
+        {
+          "id": "10000000000001",
+          "name": "Sample Product",
+          "price": "99.00",
+          "jdPrice": "99.00",
+          "oriprice": "99.00",
+          "link": "https://item.m.jd.com/product/10000000000001.html",
+          "imgprefix": "//img14.360buyimg.com/n1/",
+          "imgbase": "sample.jpg",
+          "ext": {
+            "cate1": 1,
+            "cate2": 2,
+            "cate3": 3,
+            "shopId": 10001,
+            "brandId": 20002
+          }
+        }
+      ]
+    }
+  }
+}

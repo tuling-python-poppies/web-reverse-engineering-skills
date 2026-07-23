@@ -26,4 +26,4 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-23T18:37	be34891	darwin-skill	-	-	keep	ledger	pin case-gate ledger commit refs after wrap	full_test
 2026-07-23T18:51	4801693	web-protocol-recovery	-	-	keep	case-gates	harden AST scan for requests aliases, from-import calls, curl_cffi.requests, unguarded side-effect function calls; add scripts/test_preflight.py; strict preflight PASS	full_test
 2026-07-23T18:53	1380c70	darwin-skill	-	-	keep	ledger	record preflight hardening (partial reorder; later corrected for git causal order)	full_test
-2026-07-23T19:20	workspace	darwin-skill	-	-	keep	ledger	reorder case-gates ledger by git causal order; split composite commit cell; single trailing newline EOF; preflight runs test_preflight.py	full_test
+2026-07-23T19:20	d9c5842	darwin-skill	-	-	keep	ledger	reorder case-gates ledger by git causal order; split composite commit cell; single trailing newline EOF; preflight runs test_preflight.py	full_test

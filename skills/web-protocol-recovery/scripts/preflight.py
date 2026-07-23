@@ -5,11 +5,12 @@ Runs offline checks that should pass before committing skill edits:
 
 1. case hash/registry integrity (verify_case_hashes.py)
 2. all case unit tests discovered under references/cases/*/*/tests
-3. discipline scans on case entry.py files:
+3. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
+4. discipline scans on case entry.py files:
    - bare top-level `import iv8`
    - import-time mkdir/network/request binding
-   - module-level live side effects (AST): with-blocks, requests.*,
-     _iv8()/JSContext, mkdir, raise RuntimeError for missing live state
+   - module-level live side effects (AST): with-blocks, requests.* aliases,
+     curl_cffi.requests, _iv8()/JSContext, mkdir, unguarded side-effect helpers
 
 Exit 0 when no hard failures. Exit 1 on hash/test failures.
 Warnings alone do not fail unless --strict.
@@ -105,6 +106,14 @@ def check_case_tests(rel_case: str) -> tuple[bool, str]:
         case_dir,
     )
     return code == 0, f"{rel_case}\n{out.strip()}"
+
+
+def check_preflight_unit_tests() -> tuple[bool, str]:
+    test_path = SKILL_ROOT / "scripts" / "test_preflight.py"
+    if not test_path.is_file():
+        return True, "SKIP scripts/test_preflight.py missing"
+    code, out = run([sys.executable, str(test_path), "-v"], SKILL_ROOT)
+    return code == 0, out.strip()
 
 
 def case_rel_from_entry(path: Path) -> str:
@@ -424,6 +433,12 @@ def main(argv: list[str] | None = None) -> int:
             print("---")
             if not ok:
                 failures.append(f"tests failed: {rel}")
+
+        print("\n== preflight unit tests ==")
+        ok, out = check_preflight_unit_tests()
+        print(out)
+        if not ok:
+            failures.append("scripts/test_preflight.py failed")
 
     print("\n== entry discipline scan ==")
     entry_findings = scan_entries()

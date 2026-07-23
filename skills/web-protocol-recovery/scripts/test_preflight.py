@@ -1,6 +1,9 @@
 import importlib.util
+import io
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -59,6 +62,35 @@ class EntryDisciplineScanTests(unittest.TestCase):
             'from curl_cffi import requests as crequests\nresponse = crequests.get("https://example.test")\n',
             "module-level assign with side-effect call",
         )
+
+
+class PreflightSelfTestGateTests(unittest.TestCase):
+    def test_missing_self_test_file_fails_closed(self) -> None:
+        missing = preflight.SKILL_ROOT / "scripts" / "test_preflight.py"
+        with mock.patch.object(Path, "is_file", return_value=False):
+            ok, out = preflight.check_preflight_unit_tests()
+        self.assertFalse(ok)
+        self.assertIn("MISSING", out)
+        self.assertTrue(missing.name.endswith("test_preflight.py"))
+
+    def test_skip_tests_still_runs_self_tests(self) -> None:
+        with (
+            mock.patch.object(preflight, "check_hashes", return_value=(True, "hash ok")),
+            mock.patch.object(preflight, "scan_entries", return_value=[]),
+            mock.patch.object(
+                preflight,
+                "check_preflight_unit_tests",
+                return_value=(True, "self tests ok"),
+            ) as self_tests,
+            mock.patch.object(preflight, "discover_test_cases") as discover,
+            mock.patch.object(preflight, "check_case_tests") as case_tests,
+            redirect_stdout(io.StringIO()),
+        ):
+            code = preflight.main(["--skip-tests"])
+        self.assertEqual(0, code)
+        self_tests.assert_called_once()
+        discover.assert_not_called()
+        case_tests.assert_not_called()
 
 
 if __name__ == "__main__":

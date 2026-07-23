@@ -12,6 +12,9 @@ Runs offline checks that should pass before committing skill edits:
    - module-level live side effects (AST): with-blocks, requests.* aliases,
      curl_cffi.requests, _iv8()/JSContext, mkdir, unguarded side-effect helpers
 
+`--skip-tests` skips only discovered case unit tests. Step 3 always runs, and a
+missing scripts/test_preflight.py is a hard failure (fail closed).
+
 Exit 0 when no hard failures. Exit 1 on hash/test failures.
 Warnings alone do not fail unless --strict.
 With --strict, both WARN and LEGACY_WARN fail the gate.

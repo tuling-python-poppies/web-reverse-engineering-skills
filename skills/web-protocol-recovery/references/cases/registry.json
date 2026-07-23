@@ -19,7 +19,9 @@
             "manifest": {
                 "path": "python-node/jsvmp-dual-sign-cacheopts/case.json",
                 "sha256": "adda2e3666ed3fec03d1b7bd709d10d2708ca9e1c6fae0f0b7de47205e0d3e1d"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "camoufox-universal-vmp-instrumentation",
@@ -38,7 +40,9 @@
             "manifest": {
                 "path": "python-node/universal-vmp-instrumentation/case.json",
                 "sha256": "e6562166664647f37f7a61209301a39a1bd921ebfe2aa7f20f4f276ce9349bb4"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "camoufox-jsvmp-xhr-interceptor-env-emulation",
@@ -59,7 +63,9 @@
             "manifest": {
                 "path": "python-node/jsvmp-xhr-interceptor-env-emulation/case.json",
                 "sha256": "0e97535843c69b28c208a6754defde277ddf9e544d2c9422a5b5fc26df717a3a"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "camoufox-jsvmp-ruishu6-cookie-412-sdenv",
@@ -80,7 +86,9 @@
             "manifest": {
                 "path": "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
                 "sha256": "4722e0dbeeb5a5a6c7fc7958263006eba6e42128c2fdbfc21fda536f20648294"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-chinatax-ruishu",
@@ -100,7 +108,9 @@
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
                 "sha256": "fc1ad740cae5bda0b34b34397687a6d5a7f30d35cfbcfff7644de10d56fe3ca9"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-chng-ruishu-announcement",
@@ -120,7 +130,9 @@
             "manifest": {
                 "path": "iv8/chng-ruishu-announcement/case.json",
                 "sha256": "5bcc7369151a91a7b2d87f33ac0681877f013e978d5bf005cb88a69caa21ffbe"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-cqvip-journal-search",
@@ -140,7 +152,9 @@
             "manifest": {
                 "path": "iv8/cqvip-journal-search/case.json",
                 "sha256": "ddb38acb5e3a361188f4d2285172baaa9caf72b2b51393cc09cc5b8c8a0e54e2"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-customs-ruishu",
@@ -160,7 +174,9 @@
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
                 "sha256": "570d78329a799fb78384227316129febce65e47a48e0ccf1f05710e72a98a029"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-douyin-bdms",
@@ -180,7 +196,9 @@
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
                 "sha256": "d1afeed34215f9b0f3209f475ba3b411ea8979b34f3d742778a1247518b8ac43"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-geetest-v4-slider",
@@ -200,7 +218,9 @@
             "manifest": {
                 "path": "iv8/geetest-v4-slider/case.json",
                 "sha256": "16dca589337143680c34e1e0575d6d268a7062041c8872bea1898f953eb8f1d2"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-geetest-v4-word-click",
@@ -220,7 +240,9 @@
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
                 "sha256": "6dae82a47610e1e2dc1e0d2738c8cf839dd16c089a2818ff3d7265d46556b924"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-jd-h5st",
@@ -239,13 +261,17 @@
                 "negativeSignals": [
                     "vendor:imperva",
                     "vendor:akamai",
-                    "vendor:ruishu"
+                    "vendor:ruishu",
+                    "algorithm:jd-seData-python",
+                    "runtime:pure-python-h5st"
                 ]
             },
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "dcd63651c3b2227fc9873ccd4d4797915f0e064794621d9cd075ae3976a7617f"
-            }
+                "sha256": "5d9f69983cd811311537366da4a970c904ac9070fe6277517ca256e2ba531f63"
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
         },
         {
             "caseId": "pure-python-jd-h5st",
@@ -266,13 +292,18 @@
                     "runtime:ParamsSignMain-required",
                     "vendor:imperva",
                     "vendor:akamai",
-                    "vendor:ruishu"
+                    "vendor:ruishu",
+                    "runtime:ParamsSignMain",
+                    "runtime:iv8-h5st",
+                    "script:js_security_v3_main"
                 ]
             },
             "manifest": {
                 "path": "pure-python/jd-h5st/case.json",
-                "sha256": "4f9a2e578f3cda13b8125f2863b769625f1f89789869fe2ac7cae6e99ee5c5c7"
-            }
+                "sha256": "380ae8f00ebb8d9b0e113d428c94b3ba1860111148579e2ef6637af6528c40ca"
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
         },
         {
             "caseId": "iv8-nmpa-md5-cookie",
@@ -292,7 +323,9 @@
             "manifest": {
                 "path": "iv8/nmpa-md5-cookie/case.json",
                 "sha256": "f1537803c7161466597391dfd357d777c0e885ae9eb03f10483c744f96abdd4a"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-ouyeel-202-cookie-url",
@@ -312,7 +345,9 @@
             "manifest": {
                 "path": "iv8/ouyeel-202-cookie-url/case.json",
                 "sha256": "bcdc970bbefe6f81f64ab48e7674858321a40de64215b793557ad33bb1bf7f43"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-pdd-anti-content",
@@ -332,7 +367,9 @@
             "manifest": {
                 "path": "iv8/pdd-anti-content/case.json",
                 "sha256": "313e263b8f73fbeaa3bc943be9e69624193c840fd586dc99edd41716e394c86d"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-tencent-tdc-slider",
@@ -352,7 +389,9 @@
             "manifest": {
                 "path": "iv8/tencent-tdc-slider/case.json",
                 "sha256": "65b90320a2e5abb3b31f5525a69ea0366a8e6003dfaf6fee589aeac701ffa8bb"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-xhs-homefeed",
@@ -373,7 +412,9 @@
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
                 "sha256": "718ecd455983a378ede9c828368976d1e482bae0edebcb8458d41abacc871fd6"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-zhipin-stoken",
@@ -392,7 +433,9 @@
             "manifest": {
                 "path": "iv8/zhipin-stoken/case.json",
                 "sha256": "564b713cb48953de18dc2b903452b48acae5d0aa633f6f89c92e1c6c87dc7533"
-            }
+            },
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-bangkokair-reese84-booking",
@@ -418,7 +461,9 @@
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
                 "sha256": "1fb6e7bd13c5eb70cb5a11e44ad2eeb685eda963b8a8d55ca8db4e20c7eca362"
-            }
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
         },
         {
             "caseId": "iv8-twayair-akamai-availability",
@@ -443,7 +488,9 @@
             "manifest": {
                 "path": "iv8/twayair-akamai-availability/case.json",
                 "sha256": "3589ccf6bd5719418844d7313e08edf2396997ade16669a6a5231b6a98ae2224"
-            }
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
         }
     ]
 }

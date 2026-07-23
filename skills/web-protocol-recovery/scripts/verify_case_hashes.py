@@ -6,8 +6,10 @@ Cascade after any hash-bound edit:
     -> case.json artifacts / preRead sha256
     -> registry.json manifest sha256 for that case.json
 
-Exit 0 when every declared path exists, stays in scope, and SHA-256 matches.
-Exit 1 on mismatch, missing path, path escape, orphan case, or undeclared case file.
+Exit 0 when every declared path exists, stays in scope, SHA-256 matches,
+and verificationClass contracts hold.
+Exit 1 on mismatch, missing path, path escape, orphan case, undeclared case
+file, or verificationClass contract failure.
 """
 
 from __future__ import annotations
@@ -25,6 +27,12 @@ VERIFICATION_ARTIFACT_KEYS = ("testArtifact", "evidenceArtifact")
 IGNORED_CASE_DIR_NAMES = {".pytest_cache", "__pycache__"}
 IGNORED_CASE_FILE_NAMES = {".DS_Store", "Thumbs.db"}
 CASE_RUNTIME_DIR_NAMES = {"iv8", "pure-python", "python-node"}
+KNOWN_VERIFICATION_CLASSES = {
+    "freshly-verified",
+    "historical-user-attested",
+}
+FRESH_VERIFICATION_CLASS = "freshly-verified"
+HISTORICAL_VERIFICATION_CLASS = "historical-user-attested"
 
 
 def sha256_file(path: Path) -> str:
@@ -158,12 +166,76 @@ def find_case_dirs_without_manifest(cases_root: Path) -> list[str]:
     return missing
 
 
+def is_true(value: Any) -> bool:
+    return value is True or value == "true" or value == 1
+
+
+def check_verification_contract(
+    *,
+    rel: str,
+    data: dict[str, Any],
+    mismatches: list[str],
+    ok: list[str],
+) -> None:
+    verification_class = data.get("verificationClass")
+    if not isinstance(verification_class, str) or not verification_class:
+        mismatches.append(f"{rel}: missing verificationClass")
+        return
+    if verification_class not in KNOWN_VERIFICATION_CLASSES:
+        mismatches.append(
+            f"{rel}: unknown verificationClass {verification_class!r}; "
+            f"expected one of {sorted(KNOWN_VERIFICATION_CLASSES)}"
+        )
+        return
+
+    verification = data.get("verification") or {}
+    if not isinstance(verification, dict):
+        mismatches.append(f"{rel}: verification must be an object")
+        return
+
+    if verification_class == FRESH_VERIFICATION_CLASS:
+        for key in VERIFICATION_ARTIFACT_KEYS:
+            item = verification.get(key)
+            if not isinstance(item, dict):
+                mismatches.append(
+                    f"{rel}: freshly-verified requires verification.{key} object"
+                )
+                continue
+            if not item.get("path") or not item.get("sha256"):
+                mismatches.append(
+                    f"{rel}: freshly-verified verification.{key} needs path and sha256"
+                )
+        if not is_true(verification.get("executed")):
+            mismatches.append(f"{rel}: freshly-verified requires verification.executed=true")
+        if not is_true(verification.get("passed")):
+            mismatches.append(f"{rel}: freshly-verified requires verification.passed=true")
+        evidence = verification.get("evidenceArtifact")
+        if isinstance(evidence, dict):
+            evidence_path = evidence.get("path")
+            if isinstance(evidence_path, str) and not evidence_path.endswith(".json"):
+                mismatches.append(
+                    f"{rel}: freshly-verified evidenceArtifact.path must be JSON: {evidence_path}"
+                )
+        ok.append(f"{rel}: verificationClass freshly-verified contract")
+        return
+
+    if verification_class == HISTORICAL_VERIFICATION_CLASS:
+        if not is_true(data.get("requiresFreshVerification")):
+            mismatches.append(
+                f"{rel}: historical-user-attested requires requiresFreshVerification=true"
+            )
+            return
+        ok.append(f"{rel}: verificationClass historical-user-attested contract")
+
+
 def verify_case(skill_root: Path, case_json: Path, mismatches: list[str], ok: list[str]) -> None:
     rel = case_json.relative_to(skill_root).as_posix()
     data = load_json(case_json)
     case_dir = case_json.parent
     artifacts = data.get("artifacts") or {}
     declared_case_files = {"case.json"}
+
+    check_verification_contract(rel=rel, data=data, mismatches=mismatches, ok=ok)
 
     for key in ARTIFACT_KEYS:
         item = artifacts.get(key)
@@ -285,6 +357,36 @@ def verify_registry(
             mismatches=mismatches,
             ok=ok,
         )
+
+        case_data = load_json(path)
+        case_vc = case_data.get("verificationClass")
+        reg_vc = entry.get("verificationClass")
+        if not isinstance(reg_vc, str) or not reg_vc:
+            mismatches.append(f"registry {case_id}: missing verificationClass")
+        elif case_vc != reg_vc:
+            mismatches.append(
+                f"registry {case_id}: verificationClass {reg_vc!r} "
+                f"!= case.json {case_vc!r}"
+            )
+        else:
+            ok.append(f"registry {case_id}: verificationClass")
+
+        selectable_as = entry.get("selectableAs")
+        if selectable_as not in {"template", "proof"}:
+            mismatches.append(
+                f"registry {case_id}: selectableAs must be 'template' or 'proof', "
+                f"got {selectable_as!r}"
+            )
+        elif reg_vc == HISTORICAL_VERIFICATION_CLASS and selectable_as != "template":
+            mismatches.append(
+                f"registry {case_id}: historical-user-attested must use selectableAs=template"
+            )
+        elif reg_vc == FRESH_VERIFICATION_CLASS and selectable_as != "proof":
+            mismatches.append(
+                f"registry {case_id}: freshly-verified must use selectableAs=proof"
+            )
+        else:
+            ok.append(f"registry {case_id}: selectableAs")
 
     disk_case_paths = {path.relative_to(cases_root).as_posix() for path in case_files}
     for path in sorted(registry_case_paths - disk_case_paths):

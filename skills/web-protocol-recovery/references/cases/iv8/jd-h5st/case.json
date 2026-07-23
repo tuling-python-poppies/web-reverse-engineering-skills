@@ -21,7 +21,9 @@
     "negativeSignals": [
       "vendor:imperva",
       "vendor:akamai",
-      "vendor:ruishu"
+      "vendor:ruishu",
+      "algorithm:jd-seData-python",
+      "runtime:pure-python-h5st"
     ]
   },
   "exactScopes": [

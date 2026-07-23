@@ -11,11 +11,15 @@ Runs offline checks that should pass before committing skill edits:
 
 Exit 0 when no hard failures. Exit 1 on hash/test failures.
 Warnings alone do not fail unless --strict.
+With --strict, both WARN and LEGACY_WARN fail the gate.
+Legacy classification comes from case.json verificationClass=historical-user-attested,
+not a hardcoded path list.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -25,21 +29,7 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
 
-LEGACY_DISCIPLINE_WARNING_CASES = {
-    "iv8/chinatax-ruishu",
-    "iv8/chng-ruishu-announcement",
-    "iv8/cqvip-journal-search",
-    "iv8/customs-ruishu",
-    "iv8/douyin-bdms",
-    "iv8/geetest-v4-slider",
-    "iv8/geetest-v4-word-click",
-    "iv8/nmpa-md5-cookie",
-    "iv8/ouyeel-202-cookie-url",
-    "iv8/pdd-anti-content",
-    "iv8/tencent-tdc-slider",
-    "iv8/xhs-homefeed",
-    "iv8/zhipin-stoken",
-}
+HISTORICAL_VERIFICATION_CLASS = "historical-user-attested"
 
 BARE_IV8_IMPORT = re.compile(r"(?m)^\s*import\s+iv8\b|^\s*from\s+iv8\s+import\b")
 IMPORT_TIME_MKDIR = re.compile(
@@ -91,6 +81,26 @@ def check_case_tests(rel_case: str) -> tuple[bool, str]:
     return code == 0, f"{rel_case}\n{out.strip()}"
 
 
+def case_rel_from_entry(path: Path) -> str:
+    return path.parent.relative_to(CASES_ROOT).as_posix()
+
+
+def load_verification_class(case_rel: str) -> str | None:
+    case_json = CASES_ROOT / case_rel / "case.json"
+    if not case_json.is_file():
+        return None
+    try:
+        data = json.loads(case_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    value = data.get("verificationClass")
+    return value if isinstance(value, str) else None
+
+
+def is_historical_case(case_rel: str) -> bool:
+    return load_verification_class(case_rel) == HISTORICAL_VERIFICATION_CLASS
+
+
 def scan_entry(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8", errors="replace")
     warnings: list[str] = []
@@ -119,18 +129,14 @@ def scan_entry(path: Path) -> list[str]:
     return warnings
 
 
-def scan_entries() -> list[str]:
-    warnings: list[str] = []
+def scan_entries() -> list[tuple[str, str]]:
+    """Return list of (case_rel, warning_message)."""
+    results: list[tuple[str, str]] = []
     for entry in CASES_ROOT.glob("*/*/entry.py"):
-        warnings.extend(scan_entry(entry))
-    return warnings
-
-
-def is_legacy_discipline_warning(warning: str) -> bool:
-    return any(
-        f"references/cases/{case}/entry.py" in warning
-        for case in LEGACY_DISCIPLINE_WARNING_CASES
-    )
+        case_rel = case_rel_from_entry(entry)
+        for warning in scan_entry(entry):
+            results.append((case_rel, warning))
+    return results
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -138,7 +144,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="treat entry discipline warnings as failures",
+        help="treat WARN and LEGACY_WARN entry discipline findings as failures",
     )
     parser.add_argument(
         "--skip-tests",
@@ -170,12 +176,12 @@ def main(argv: list[str] | None = None) -> int:
                 failures.append(f"tests failed: {rel}")
 
     print("\n== entry discipline scan ==")
-    entry_warnings = scan_entries()
-    if not entry_warnings:
+    entry_findings = scan_entries()
+    if not entry_findings:
         print("no discipline warnings")
     else:
-        for w in entry_warnings:
-            if is_legacy_discipline_warning(w):
+        for case_rel, w in entry_findings:
+            if is_historical_case(case_rel):
                 print(f"LEGACY_WARN {w}")
                 legacy_warnings.append(w)
             else:
@@ -191,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
         for f in failures:
             print(f"FAIL {f}")
         return 1
-    if args.strict and warnings:
+    if args.strict and (warnings or legacy_warnings):
         print("FAIL strict mode with warnings")
         return 1
     print("PASS")

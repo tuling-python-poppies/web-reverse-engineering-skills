@@ -111,7 +111,7 @@ def check_case_tests(rel_case: str) -> tuple[bool, str]:
 def check_preflight_unit_tests() -> tuple[bool, str]:
     test_path = SKILL_ROOT / "scripts" / "test_preflight.py"
     if not test_path.is_file():
-        return True, "SKIP scripts/test_preflight.py missing"
+        return False, "MISSING scripts/test_preflight.py"
     code, out = run([sys.executable, str(test_path), "-v"], SKILL_ROOT)
     return code == 0, out.strip()
 
@@ -408,7 +408,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--skip-tests",
         action="store_true",
-        help="skip case unit tests",
+        help="skip discovered case unit tests; preflight's own unit tests still run",
     )
     args = parser.parse_args(argv)
 
@@ -434,11 +434,11 @@ def main(argv: list[str] | None = None) -> int:
             if not ok:
                 failures.append(f"tests failed: {rel}")
 
-        print("\n== preflight unit tests ==")
-        ok, out = check_preflight_unit_tests()
-        print(out)
-        if not ok:
-            failures.append("scripts/test_preflight.py failed")
+    print("\n== preflight unit tests ==")
+    ok, out = check_preflight_unit_tests()
+    print(out)
+    if not ok:
+        failures.append("scripts/test_preflight.py failed")
 
     print("\n== entry discipline scan ==")
     entry_findings = scan_entries()

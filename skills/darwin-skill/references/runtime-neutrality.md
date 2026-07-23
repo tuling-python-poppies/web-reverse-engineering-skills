@@ -52,9 +52,21 @@
 
 ## 审查时机
 
-- **Phase 1 基线评估时**：每个 skill 跑一次红灯扫描，命中项以 `runtime_warn=N` 形式写入 results.tsv 的 `note` 列（不新增列、保持向后兼容）
-- **Phase 2 优化循环时**：红灯命中数 ≥ 1 的 skill，强制把第一轮优化方向定为 P0「runtime drift 修复」（详见 SKILL.md 优化策略库的 P0 章节），优先于其他维度
+- **Phase 1 基线评估时**：每个 skill 跑一次**红灯候选扫描**（输出非空 ≠ 红灯）。逐条过滤后把真实命中数写成 `runtime_warn=N` 记入 results.tsv 的 `note` 列（不新增列、保持向后兼容）。`runtime_warn=0` 才算通过 gate。
+- **Phase 2 优化循环时**：过滤后 `runtime_warn ≥ 1` 的 skill，强制把第一轮优化方向定为 P0「runtime drift 修复」（详见 SKILL.md 优化策略库的 P0 章节），优先于其他维度
 - **Phase 3 汇总报告时**：单独一栏「runtime 中立度」展示修复进度（命中数从 X → 0）
+
+### 候选 → 红灯过滤规则（与 SKILL.md 一致）
+
+以下命中**不计入** `runtime_warn`：
+
+1. frontmatter 触发词
+2. 本文档/SKILL 中的红灯·绿灯示例行
+3. 扫描命令字符串本身
+4. 明确标注的 runtime-specific 章节
+5. commit / changelog / 内部脚本
+
+过滤后仍剩用户安装/使用说明钉死单一 runtime、单一 badge、或单一私有路径的命中，才判定 gate 失败。
 
 ---
 
@@ -65,4 +77,4 @@
 grep -nE "(在 Claude Code|Claude Code skill|Claude Code 用户|Cursor only|Codex 中|^\[!\[Claude Code|~/\.claude/skills/[a-z]|/plugin install\b)" SKILL.md README*.md 2>/dev/null
 ```
 
-逐条过滤：frontmatter 触发词、红灯/绿灯示例、扫描命令本身、明确标注的 runtime-specific 章节、commit/changelog 不计入红灯。过滤后仍有用户安装/使用说明钉死单一 runtime 的命中，才判定该 skill 未通过 gate，必须在优化循环里修复。
+输出非空 = 候选命中。按上一节过滤后 `runtime_warn > 0` 才强制 P0 修复。

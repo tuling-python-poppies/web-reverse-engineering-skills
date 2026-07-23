@@ -246,7 +246,10 @@ for each skill:
 3. 从头重写SKILL.md（不是微调，是重新组织结构和表达方式）
 4. 重新评估
 5. if 重写版 > stash版: 采用重写版
-   else: git stash pop 恢复
+   else:
+     - 先 `git status --short` 确认工作树只有本轮目标路径
+     - 仅当 pathspec 干净时 `git stash pop --index`（或 `git checkout stash@{0} -- <target-skill>/SKILL.md` 后 `git stash drop`）
+     - 若 stash pop 冲突或工作树另有用户改动：停下展示冲突路径，禁止无条件覆盖
 ```
 
 这解决了 hill-climbing 的局部最优问题——有时候需要「先拆后建」才能突破瓶颈。

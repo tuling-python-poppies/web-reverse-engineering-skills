@@ -1,7 +1,7 @@
 {
     "schemaVersion": "web-protocol-recovery-case/v1",
     "caseId": "iv8-bangkokair-reese84-booking",
-    "revision": 2,
+    "revision": 3,
     "status": "verified",
     "family": "challenge",
     "runtime": "iv8",
@@ -75,9 +75,8 @@
     ],
     "dependencies": {
         "python": ">=3.11",
-        "curl_cffi": "installed",
-        "iv8": "optional for offline challenge solving",
-        "loguru": "optional"
+        "iv8": "installed runtime",
+        "curl_cffi": "installed"
     },
     "preRead": [
         {
@@ -106,7 +105,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "cc77288bb857a8b887b71462377d83a851f5e6d100c73bd0d1944e20f944aec2"
+            "sha256": "151a6640c1b74ef6ea52b75febcc7877f28a9f654f23c2396858fdbf6f71be41"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -116,11 +115,31 @@
             {
                 "path": "fixtures/vectors.json",
                 "sha256": "5fb378bdb969c8ee96fa858dd63d3f2f1dc9deee87a27918b9eae2ffeae40719"
+            },
+            {
+                "path": "fixtures/response.sample.json",
+                "sha256": "ea38e11f78f99795a53b09bd873be861ca469f62cecea6230f8bd6ababef363a"
+            },
+            {
+                "path": "lib/__init__.py",
+                "sha256": "9dea5a6317f71b0b34ec21a6366020dd6a6d377342250f504446e1d43630c5cc"
+            },
+            {
+                "path": "lib/http_session.py",
+                "sha256": "9ad34b6fd9f19d42f396fe450137f5843cd23b7370648b0a61565e8ebb55d238"
+            },
+            {
+                "path": "lib/challenge_discover.py",
+                "sha256": "0ae156057872903764668e8ce0e82f65364af10dd701ae39694c4584d34c2bad"
+            },
+            {
+                "path": "lib/reese_iv8.py",
+                "sha256": "96b4403b1c6698b2ab710adcc025646c30a7be0171bbdd467c53fa2eb8f0a5b5"
             }
         ],
         "entry": {
             "path": "entry.py",
-            "sha256": "4fe39bbc631d2c11941cd5e130c44d64a855f310c772453b3f3f8f9f22e716dc"
+            "sha256": "ece393d1c06dc277de520abf68b0a62d43e5c78c067bafd80edb80049d31e734"
         }
     },
     "verification": {
@@ -139,15 +158,16 @@
         "proof": {
             "offlineVectors": "case-local parser, payload shape, import-safe run, and live-state selector tests",
             "unitTests": "4/4 case-local offline tests passed 2026-07-22",
-            "liveChain": "pure iv8 L2: challenge->solution->token->OAuth->air-bounds 15 flights; L3 two cold sessions distinct tokens; bare python main.py defaults to L3 (2026-07-23)",
+            "liveChain": "pure iv8 L2/L3 implementation landed under case lib/; entry.run(live=True, mode=l2|l3) generates reese84 without browser automation",
             "caseLocalTests": "python -m unittest discover -s tests -v",
-            "successLevels": "L1 cookie replay; L2 pure iv8 generate; L3 dual cold pure iv8",
-            "l2Progress": "COMPLETE pure iv8 (iframe lifecycle + single load fire + permissions wrap)",
+            "successLevels": "L1 cookie replay; L2 pure iv8; L3 dual cold pure iv8",
+            "l2Progress": "COMPLETE pure iv8 code in case library",
             "iv8HostQuirk": "capture page.load/eventLoop/data.pyHttp functions only; hide window.__iv8__",
-            "l3Progress": "COMPLETE sessions_ok=2 distinct_tokens=true; default project entry is L3",
-            "criticalFix": "iframe createElement/appendChild load (once) + child realm fetch/XHR patch; wrap load handlers; permissions.query short-circuit to silence EnvironmentAccessor spam",
+            "l3Progress": "COMPLETE dual cold pure iv8 via entry mode=l3",
+            "criticalFix": "iframe createElement/appendChild single load fire + child realm patch; permissions.query short-circuit; host function capture quirk",
             "executedAt": "2026-07-23",
-            "nonFatalNoise": "early solution:null error posts may appear then recover; iv8 EventListener TypeError on iframe load can still be non-fatal after wrap"
+            "nonFatalNoise": "early solution:null error posts may appear then recover; iv8 EventListener TypeError on iframe load can still be non-fatal after wrap",
+            "implementation": "lib/reese_iv8.py + lib/challenge_discover.py + lib/http_session.py"
         }
     }
 }

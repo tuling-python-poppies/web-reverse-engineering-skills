@@ -115,9 +115,26 @@ Moving state (names only; values pulled live, never stored in the case library):
 5. Parse `airBoundGroups` + `dictionaries.flight` into flight / depart / arrive / total / fare_family rows.
 6. Log via shared logger; do not write secrets to disk.
 
-### L2/L3 pure iv8 delivery (project collector pattern)
+### L2/L3 pure iv8 delivery (case library + project)
 
-Default project command is bare `python main.py` → **mode=l3, engine=iv8** (two cold sessions). Optional `MODE=l2` for one session. **No browser automation harvest.**
+Case library code (import-safe offline by default):
+
+```text
+CASE_LIVE=1 CASE_MODE=l3 python entry.py   # dual cold pure iv8
+CASE_LIVE=1 CASE_MODE=l2 python entry.py   # one pure iv8 session
+CASE_LIVE=1 CASE_MODE=l1 REESE84=... python entry.py
+```
+
+Implementation files under this case:
+
+```text
+lib/http_session.py
+lib/challenge_discover.py
+lib/reese_iv8.py
+entry.py   # run(live=..., mode=l1|l2|l3)
+```
+
+Desktop project pattern: bare `python main.py` → **mode=l3, engine=iv8**. Optional `MODE=l2`. **No browser automation harvest.**
 
 1. Discover challenge script from booking interstitial HTML.
 2. iv8 run challenge (keys below) → capture `token` from solution response JSON.

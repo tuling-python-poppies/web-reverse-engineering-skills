@@ -117,20 +117,30 @@ Moving state (names only; values pulled live, never stored in the case library):
 
 - Offline: fixture shape for air-bounds sample (groups present, flight dict keys, total price fields) — PASS via case tests.
 - Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX sample date produced 13 priced bounds including PG215 08:00–09:20 PGPROMO 2630 THB; cheapest total matched parse — PASS.
-- Live **L2** (in progress, 2026-07-23 project work):
-  - **Done**: challenge script discovery; iv8 host-function capture (`page.load` / `eventLoop.*` / `data.pyHttp` — note `var host=__iv8__` loses the object); fetch/XHR bridge; hide `window.__iv8__` from GOPN; gpc POST 200; Protection API surface (`initializeProtection`, `startInternal`, `exportToken`, interrogator).
-  - **Blocked**: after gpc, no valid solution POST / token; `exportToken` times out; `scriptInterrogationCount` advances but `currentToken` stays null. Treat as environment/interrogation gap, not discover/bridge wiring.
-  - **Not claimed**: L2/L3 complete in case library until solution→token→air-bounds is green on two cold sessions.
+- Live **L2 pure iv8** (verified 2026-07-23): challenge discovery → iv8 Protection run → solution POST (~28KB) → `token` → OAuth → `/v2/search/air-bounds` with 15 priced BKK–CNX bounds. **No browser automation / cookie paste.**
+- Live **L3** (verified 2026-07-23): two independent cold sessions, both success, distinct token SHA-256.
 - Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`; no OS temp as primary storage; on-demand cache namespaces only.
 
-### iv8 host binding quirk (critical for L2)
+### iv8 implementation keys (L2)
 
 ```text
-typeof __iv8__            // may report undefined-ish behavior
-!!__iv8__                 // false
-var host = __iv8__        // loses object (host becomes useless)
-__iv8__.page.load         // works
-const load = __iv8__.page.load  // capture functions only
+1) Capture host FUNCTIONS only (never assign __iv8__ object):
+   pageLoad = __iv8__.page.load
+   drain/sleep = __iv8__.eventLoop.*
+   pyHttp = __iv8__.data.pyHttp
+
+2) Hide window.__iv8__ from Object.getOwnPropertyNames (host leak)
+
+3) Bridge fetch/XHR -> Python pyHttp; preserve gpc JSON string body;
+   strip Set-Cookie from Response headers passed into JS
+
+4) CRITICAL: interrogator creates IFRAME. Must:
+   - hook document.createElement('iframe')
+   - hook Node.appendChild / insertBefore
+   - fire load on child iframe
+   - patch child realm fetch/XHR + hide host in contentWindow
+
+5) Drive initializeProtection().startInternal() / exportToken as needed
 ```
 
 ## Diagnostics: token/cookie present but still blocked

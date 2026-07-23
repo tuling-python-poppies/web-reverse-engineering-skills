@@ -106,7 +106,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "d528f639e7d0cf05e61007f63c97d4747bf1d795a296b054329f51e8fd2f6bd1"
+            "sha256": "47eef9599d81fd7d1e2cd526cad587ab0484d8e925794b5d0b957aa494d5de16"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -126,7 +126,7 @@
     "verification": {
         "executed": true,
         "passed": true,
-        "executedAt": "2026-07-22",
+        "executedAt": "2026-07-23",
         "testCommand": "python -m unittest discover -s tests -v",
         "testArtifact": {
             "path": "tests/test_vectors.py",
@@ -139,11 +139,14 @@
         "proof": {
             "offlineVectors": "case-local parser, payload shape, import-safe run, and live-state selector tests",
             "unitTests": "4/4 case-local offline tests passed 2026-07-22",
-            "liveChain": "approved session with fresh reese84: OAuth 200 -> air-bounds 200; BKK-CNX sample produced priced bounds including PG215 08:00-09:20 PGPROMO 2630 THB",
+            "liveChain": "pure iv8 L2: challenge->solution->token->OAuth->air-bounds 15 flights; L3 two cold sessions distinct tokens (2026-07-23)",
             "caseLocalTests": "python -m unittest discover -s tests -v",
             "successLevels": "L1 business replay verified; L2 challenge generate not default-claimed",
-            "l2Progress": "discover+bridge+gpc+Protection API ok; solution/token still blocked (exportToken timeout; only gpc posts)",
-            "iv8HostQuirk": "!!__iv8__ is false; capture page.load/eventLoop.*/data.pyHttp functions only"
+            "l2Progress": "COMPLETE pure iv8 (iframe lifecycle critical)",
+            "iv8HostQuirk": "capture page.load/eventLoop/data.pyHttp functions only; hide window.__iv8__",
+            "l3Progress": "COMPLETE sessions_ok=2 distinct_tokens=true",
+            "criticalFix": "iframe createElement/appendChild load + child realm fetch/XHR patch",
+            "executedAt": "2026-07-23"
         }
     }
 }

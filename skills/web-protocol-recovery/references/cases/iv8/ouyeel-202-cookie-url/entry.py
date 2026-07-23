@@ -21,14 +21,21 @@ from pathlib import Path
 import requests
 import urllib.parse
 
-import iv8
-
-
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def save_text(name, text):
+    ensure_cache_dir()
     path = CACHE_DIR / name
     path.write_text(text, encoding="utf-8", errors="ignore")
     return path
@@ -100,7 +107,7 @@ if response.status_code == 202:
     save_text("ouyeel_rs_source_code.js", js_response.text)
 
     start_time = time.time()
-    with iv8.JSContext(environment=environment) as ctx:
+    with _iv8().JSContext(environment=environment) as ctx:
         ctx.eval("document.documentElement.innerHTML = " + json.dumps(html))  # 简化，未走流式加载DOM
 
         # 1. 执行第一段js

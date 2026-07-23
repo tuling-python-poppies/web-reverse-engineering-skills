@@ -7,7 +7,6 @@ import time
 from pathlib import Path
 import io
 
-import iv8
 import requests
 
 _HAS_DDDDOCR = importlib.util.find_spec("ddddocr") is not None and importlib.util.find_spec("PIL") is not None
@@ -32,7 +31,15 @@ AID = "197787253"
 WORK_DIR = Path.cwd()
 CACHE_DIR = WORK_DIR / "js_reverse_cache"
 SAVE_RAW_CACHE = os.environ.get("IV8_ALLOW_CACHE_WRITE") == "1"
-if SAVE_RAW_CACHE:
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
     CACHE_DIR.mkdir(exist_ok=True)
 
 proxies = {}
@@ -41,6 +48,7 @@ REQUEST_TIMEOUT = (10, 30)
 
 def cache_json(name, value):
     if SAVE_RAW_CACHE:
+        ensure_cache_dir()
         (CACHE_DIR / name).write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
 
 headers = {
@@ -204,6 +212,7 @@ logger.info("拼图块: sprite_pos={}, size={}, init_pos_y={}", sprite_pos, size
 bg_data = requests.get(BASE_URL + bg_url, headers=headers, proxies=proxies, timeout=REQUEST_TIMEOUT).content
 sprite_data = requests.get(BASE_URL + sprite_url, headers=headers, proxies=proxies, timeout=REQUEST_TIMEOUT).content
 if SAVE_RAW_CACHE:
+    ensure_cache_dir()
     (CACHE_DIR / "tdc_bg_image.bin").write_bytes(bg_data)
     (CACHE_DIR / "tdc_sprite_image.bin").write_bytes(sprite_data)
 
@@ -312,9 +321,10 @@ const eksRaw = window.TDC.getInfo();
 
 tdc_js = requests.get(BASE_URL + tdc_path, headers=headers, proxies=proxies, timeout=REQUEST_TIMEOUT).text
 if SAVE_RAW_CACHE:
+    ensure_cache_dir()
     (CACHE_DIR / "tdc_runtime.js").write_text(tdc_js, encoding="utf-8", errors="ignore")
 
-with iv8.JSContext(environment=environment) as ctx:
+with _iv8().JSContext(environment=environment) as ctx:
     ctx.expose(traj, "traj")
 
     ctx.eval(tdc_js)
@@ -326,6 +336,7 @@ with iv8.JSContext(environment=environment) as ctx:
     collect = tdc_result["collect"]
     eks = tdc_result["eks"]
     if SAVE_RAW_CACHE:
+        ensure_cache_dir()
         (CACHE_DIR / "tdc_collect.txt").write_text(collect, encoding="utf-8", errors="ignore")
         (CACHE_DIR / "tdc_eks.txt").write_text(str(eks), encoding="utf-8", errors="ignore")
     logger.info("collect 长度: {}", len(collect))

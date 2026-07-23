@@ -12,7 +12,6 @@ import time
 import urllib.parse
 from pathlib import Path
 
-import iv8
 import requests
 
 
@@ -27,11 +26,16 @@ API_PATH = "/api/sns/web/v1/homefeed"
 PLATFORM = "Windows"
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
 ASSET_DIR = Path(__file__).resolve().parent / "assets"
 SEED_FILE = Path(__file__).resolve().parent / "fixtures" / "runtime_seed.sample.json"
 SIGN_V2_INIT_FILE = ASSET_DIR / "signV2Init_function.json"
 HEADER_SIGN_FILE = ASSET_DIR / "xhs_header_sign.js"
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
 
 # Fill these only when the target endpoint requires an authenticated session.
 LOGIN_COOKIES = {
@@ -212,7 +216,7 @@ var __makeTemplateObject = function(e, a) {{ return Object.defineProperty ? Obje
 
 
 def create_context():
-    ctx = iv8.JSContext(environment=build_environment(), config={"timezone": "Asia/Shanghai"})
+    ctx = _iv8().JSContext(environment=build_environment(), config={"timezone": "Asia/Shanghai"})
     try:
         ctx.eval(build_iv8_bootstrap(), name="xhs_bootstrap.js")
         ctx.eval(load_json(SIGN_V2_INIT_FILE)["src"], name=str(SIGN_V2_INIT_FILE))

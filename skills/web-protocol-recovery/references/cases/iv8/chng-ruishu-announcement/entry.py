@@ -11,7 +11,6 @@ import time
 import urllib.parse
 from pathlib import Path
 
-import iv8
 import requests
 
 try:
@@ -43,10 +42,20 @@ PAGE_URL = f"https://ec.chng.com.cn/channel/home/?SlJfApAfmEBp={int(time.time() 
 API_URL = "https://ec.chng.com.cn/scm-uiaoauth-web/s/business/uiaouth/queryAnnouncementByTitle"
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def save_text(name, text):
+    ensure_cache_dir()
     path = CACHE_DIR / name
     path.write_text(text, encoding="utf-8", errors="ignore")
     return path
@@ -241,7 +250,7 @@ def print_response(start, response):
 def main():
     session = requests.Session()
     stage2 = {}
-    with iv8.JSContext(environment=build_environment(PAGE_URL), config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=build_environment(PAGE_URL), config={"timezone": "Asia/Shanghai"}) as ctx:
         response1, js_url1, js_code1 = fetch_rs_stage(session, PAGE_URL, 1)
         stage1 = load_rs_page(ctx, "stage1", PAGE_URL, response1.text, js_url1, js_code1, response1)
         save_text("chng_stage1_iv8_result.json", json.dumps(stage1, ensure_ascii=False, indent=2))

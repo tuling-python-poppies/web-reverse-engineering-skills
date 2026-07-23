@@ -18,15 +18,24 @@ import re
 import urllib.parse
 from pathlib import Path
 
-import iv8
 import requests
 
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def save_text(name, text):
+    ensure_cache_dir()
     path = CACHE_DIR / name
     path.write_text(text, encoding="utf-8", errors="ignore")
     return path
@@ -85,7 +94,7 @@ headers = {
 
 page_url = environment['location']['href']
 
-with iv8.JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
+with _iv8().JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
     # 1. 首次请求
     resp1 = requests.get(page_url, headers=headers, timeout=30)
     print(f"首次请求状态码: {resp1.status_code}")

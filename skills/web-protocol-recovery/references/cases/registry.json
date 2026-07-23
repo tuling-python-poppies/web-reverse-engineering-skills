@@ -107,7 +107,7 @@
             },
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
-                "sha256": "fc1ad740cae5bda0b34b34397687a6d5a7f30d35cfbcfff7644de10d56fe3ca9"
+                "sha256": "75b67201168459cf772f93df93406c95e6f581bac90808bf9aeb7c658ee388b6"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -129,7 +129,7 @@
             },
             "manifest": {
                 "path": "iv8/chng-ruishu-announcement/case.json",
-                "sha256": "5bcc7369151a91a7b2d87f33ac0681877f013e978d5bf005cb88a69caa21ffbe"
+                "sha256": "e1ab1e3accd0b88c747b870f1d30663d8369887eb8534e5495cb4e3e8c0c3e92"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -151,7 +151,7 @@
             },
             "manifest": {
                 "path": "iv8/cqvip-journal-search/case.json",
-                "sha256": "ddb38acb5e3a361188f4d2285172baaa9caf72b2b51393cc09cc5b8c8a0e54e2"
+                "sha256": "9fd0883e07c5ccf51e6abb07129821792d45c49e3b66569014faa16812a89996"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -173,7 +173,7 @@
             },
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
-                "sha256": "570d78329a799fb78384227316129febce65e47a48e0ccf1f05710e72a98a029"
+                "sha256": "c93a81ef469809dab4a80c995a242b12cca72f8118fb3dd848764cb6e5b96781"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -195,7 +195,7 @@
             },
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
-                "sha256": "d1afeed34215f9b0f3209f475ba3b411ea8979b34f3d742778a1247518b8ac43"
+                "sha256": "bac9919e19f180435eaa6795512d983dea3b4ad79585ef9ea57c426737729b5f"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -217,7 +217,7 @@
             },
             "manifest": {
                 "path": "iv8/geetest-v4-slider/case.json",
-                "sha256": "16dca589337143680c34e1e0575d6d268a7062041c8872bea1898f953eb8f1d2"
+                "sha256": "06e5947ab8a7c6e4874a734e37615a7ece3ffffc4cd5f8536ffd96d8065e448c"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -239,7 +239,7 @@
             },
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "6dae82a47610e1e2dc1e0d2738c8cf839dd16c089a2818ff3d7265d46556b924"
+                "sha256": "877989176ad290f9de657e0f3eef0066992f94d0220ce91612d66455a6f4c1a7"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -322,7 +322,7 @@
             },
             "manifest": {
                 "path": "iv8/nmpa-md5-cookie/case.json",
-                "sha256": "f1537803c7161466597391dfd357d777c0e885ae9eb03f10483c744f96abdd4a"
+                "sha256": "1dd7a98b613a962abdfdde69e1373800256a0a66cbe2eb543ff6d93a81740b18"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -344,7 +344,7 @@
             },
             "manifest": {
                 "path": "iv8/ouyeel-202-cookie-url/case.json",
-                "sha256": "bcdc970bbefe6f81f64ab48e7674858321a40de64215b793557ad33bb1bf7f43"
+                "sha256": "fc2d600532ea42e2c300f3afd15a7fe58c4d7aae1745b66bd214927e006e4d88"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -366,7 +366,7 @@
             },
             "manifest": {
                 "path": "iv8/pdd-anti-content/case.json",
-                "sha256": "313e263b8f73fbeaa3bc943be9e69624193c840fd586dc99edd41716e394c86d"
+                "sha256": "2c81d51479cf6b392141a2d789583871058530a764c925d415a83ab82ff60a9a"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -388,7 +388,7 @@
             },
             "manifest": {
                 "path": "iv8/tencent-tdc-slider/case.json",
-                "sha256": "65b90320a2e5abb3b31f5525a69ea0366a8e6003dfaf6fee589aeac701ffa8bb"
+                "sha256": "caea4082d05988cda65cb716dbcb85d752a48069fcccd74e42ebcec047510215"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -411,7 +411,7 @@
             },
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
-                "sha256": "718ecd455983a378ede9c828368976d1e482bae0edebcb8458d41abacc871fd6"
+                "sha256": "46a923f24214d0f631d1b18517ceb171cd3eb1cf974e3c5312293fafed420977"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -432,7 +432,7 @@
             },
             "manifest": {
                 "path": "iv8/zhipin-stoken/case.json",
-                "sha256": "564b713cb48953de18dc2b903452b48acae5d0aa633f6f89c92e1c6c87dc7533"
+                "sha256": "021397412529082cdfbe45c1a907263dad23a52930cd2a85faa0ae65f9c480fb"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

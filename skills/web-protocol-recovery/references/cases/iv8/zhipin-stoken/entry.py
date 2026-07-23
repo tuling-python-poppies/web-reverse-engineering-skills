@@ -20,8 +20,6 @@ from pathlib import Path
 
 import requests
 
-import iv8
-
 
 START_PAGE = 1
 PAGE_COUNT = 1
@@ -38,10 +36,20 @@ COOKIES = {
 COOKIE_HEADER_ENV = "ZHIPIN_COOKIE"
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def save_text(name, text):
+    ensure_cache_dir()
     path = CACHE_DIR / name
     path.write_text(text, encoding="utf-8", errors="ignore")
     return path
@@ -171,7 +179,7 @@ def compute_stoken(session, headers, challenge_payload):
     }
 
     # iv8 执行 Boss 安全 JS，生成本次挑战对应的 __zp_stoken__。
-    with iv8.JSContext(environment=build_security_environment(security_url), config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=build_security_environment(security_url), config={"timezone": "Asia/Shanghai"}) as ctx:
         ctx.expose(snapshot, "snapshot")
         ctx.eval("window.__iv8__.page.load(window.__iv8__.data.snapshot)")
         ctx.eval("window.__iv8__.eventLoop.sleep(100)")

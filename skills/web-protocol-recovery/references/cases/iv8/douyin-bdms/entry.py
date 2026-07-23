@@ -19,12 +19,18 @@ import requests
 from pathlib import Path
 from urllib.parse import urlencode
 
-import iv8
-
-
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
 ASSET_DIR = Path(__file__).resolve().parent / "assets"
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def read_case_asset(filename):
@@ -90,7 +96,7 @@ params = {
 
 
 
-with iv8.JSContext(environment=environment) as ctx:
+with _iv8().JSContext(environment=environment) as ctx:
     ctx.eval("""
       window.MessageChannel = __iv8__.wrapNative(function() {
         const port1 = { onmessage: null };
@@ -136,6 +142,7 @@ with iv8.JSContext(environment=environment) as ctx:
 if not isinstance(request_list, list) or not request_list or not isinstance(request_list[0], dict):
     raise RuntimeError("iv8 netLog did not capture a signed request")
 
+ensure_cache_dir()
 (CACHE_DIR / "douyin_bdms_netlog_entries.json").write_text(
     json.dumps(request_list, ensure_ascii=False, indent=2),
     encoding="utf-8",

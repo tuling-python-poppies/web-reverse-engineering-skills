@@ -12,7 +12,6 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-import iv8
 import requests
 
 try:
@@ -42,10 +41,20 @@ PAGE_URL = "https://qikan.cqvip.com/Qikan/Search/Index?from=index"
 API_URL = "https://qikan.cqvip.com/Search/SearchList"
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def save_text(name, text):
+    ensure_cache_dir()
     path = CACHE_DIR / name
     path.write_text(text, encoding="utf-8", errors="ignore")
     return path
@@ -131,7 +140,7 @@ def refresh_ruishu_cookie(session, page_tag):
         "resources": {js_url: js_code},
     }
     # 保护页脚本会写入 6HZbKHDjIEcgT，SearchList 必须携带同一组 S/T Cookie。
-    with iv8.JSContext(environment=build_environment(PAGE_URL), config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=build_environment(PAGE_URL), config={"timezone": "Asia/Shanghai"}) as ctx:
         ctx.expose(snapshot, "snapshot")
         ctx.eval("window.__iv8__.page.load(window.__iv8__.data.snapshot)")
         ctx.eval("window.__iv8__.eventLoop.sleep(500)")

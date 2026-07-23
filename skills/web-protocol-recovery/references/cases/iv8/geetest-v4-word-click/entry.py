@@ -13,7 +13,6 @@ from urllib.parse import parse_qs, urljoin, urlparse
 
 import cv2
 import ddddocr
-import iv8
 import numpy as np
 from curl_cffi import requests
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -35,9 +34,18 @@ MIN_VERIFY_DELAY = 1.5
 REQUEST_LIMIT = 20
 WORK_DIR = Path.cwd()
 CACHE_DIR = WORK_DIR / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
 REQUESTS_USED = 0
 FONT_PATH = Path(os.environ.get("GEETEST_CJK_FONT", r"C:\Windows\Fonts\msyh.ttc"))
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 BOOTSTRAP = r"""
@@ -132,6 +140,7 @@ def get(session, url, **kwargs):
 
 def cache_script(session, url, name):
     source = get(session, url).text
+    ensure_cache_dir()
     (CACHE_DIR / name).write_text(source, encoding="utf-8")
     return source
 
@@ -314,7 +323,7 @@ def environment():
 
 
 def build_verify_url(data, answer, scripts):
-    with iv8.JSContext(environment=environment(), config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=environment(), config={"timezone": "Asia/Shanghai"}) as ctx:
         for name, value in {
             "captchaId": CAPTCHA_ID, "protocolType": CAPTCHA_PROTOCOL_TYPE,
             "loadData": data, "answer": answer,
@@ -356,6 +365,7 @@ def main():
 
     background = get(session, urljoin(static, data["imgs"])).content
     prompts = [get(session, urljoin(static, path)).content for path in data["ques"]]
+    ensure_cache_dir()
     (CACHE_DIR / "latest_bg.jpg").write_bytes(background)
     for index, prompt in enumerate(prompts, 1):
         (CACHE_DIR / f"latest_q{index}.png").write_bytes(prompt)

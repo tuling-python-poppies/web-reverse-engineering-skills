@@ -17,17 +17,26 @@ import re
 import time
 from pathlib import Path
 
-import iv8
 import requests
 import urllib.parse
 import hashlib
 
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 def save_text(name, text):
+    ensure_cache_dir()
     path = CACHE_DIR / name
     path.write_text(text, encoding="utf-8", errors="ignore")
     return path
@@ -103,7 +112,7 @@ if response.status_code != 200:
     save_text("nmpa_rs_source_code.js", js_response.text)
 
     start_time = time.time()
-    with iv8.JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=environment, config={"timezone": "Asia/Shanghai"}) as ctx:
         snapshot = {
             "baseURL": environment['location']['href'],
             "html": response.text,

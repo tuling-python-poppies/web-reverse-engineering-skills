@@ -11,7 +11,6 @@ from urllib.parse import parse_qs, urljoin, urlparse
 
 import cv2
 import ddddocr
-import iv8
 from curl_cffi import requests
 from PIL import Image
 
@@ -31,7 +30,16 @@ TIMEOUT = (10, 30)
 MIN_VERIFY_DELAY = 1.5
 WORK_DIR = Path.cwd()
 CACHE_DIR = WORK_DIR / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 
 BOOTSTRAP = r"""
@@ -144,6 +152,7 @@ def match_slide_center(piece, background):
 
 def cache_script(session, url, name):
     source = get(session, url).text
+    ensure_cache_dir()
     (CACHE_DIR / name).write_text(source, encoding="utf-8")
     return source
 
@@ -182,7 +191,7 @@ def environment():
 
 
 def build_verify_url(data, answer, scripts):
-    with iv8.JSContext(environment=environment(), config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=environment(), config={"timezone": "Asia/Shanghai"}) as ctx:
         for name, value in {
             "captchaId": CAPTCHA_ID, "loadData": data, "answer": answer,
             "gcaptcha": patch_gcaptcha(scripts["gcaptcha"]),

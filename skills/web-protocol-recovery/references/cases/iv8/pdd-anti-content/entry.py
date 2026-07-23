@@ -10,7 +10,6 @@ import re
 import urllib.parse
 from pathlib import Path
 
-import iv8
 import requests
 
 
@@ -24,7 +23,16 @@ STM_URL = "https://apiv2.pinduoduo.com/api/server/_stm"
 API_URL = "https://apiv2.pinduoduo.com/api/gindex/tf/query_tf_goods_info"
 
 CACHE_DIR = Path.cwd() / "js_reverse_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _iv8():
+    import iv8  # type: ignore
+
+    return iv8
+
+
+def ensure_cache_dir():
+    CACHE_DIR.mkdir(exist_ok=True)
 
 BASE_HEADERS = {
     "accept": "application/json, text/javascript",
@@ -98,6 +106,7 @@ def script_cache_name(url):
 
 def load_current_webpack_assets(session):
     html = fetch_text(session, PAGE_URL)
+    ensure_cache_dir()
     (CACHE_DIR / "pdd_page.html").write_text(html, encoding="utf-8", errors="ignore")
     src_list = re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', html)
     script_urls = [urllib.parse.urljoin(PAGE_URL, src) for src in src_list]
@@ -126,7 +135,7 @@ def get_server_time(session):
 
 
 def generate_anti_content(assets, server_time):
-    with iv8.JSContext(environment=build_environment(), config={"timezone": "Asia/Shanghai"}) as ctx:
+    with _iv8().JSContext(environment=build_environment(), config={"timezone": "Asia/Shanghai"}) as ctx:
         ctx.eval("""
             window.window = window;
             window.self = window;

@@ -26,6 +26,7 @@ import json
 import re
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 
@@ -47,6 +48,7 @@ IMPORT_TIME_NETWORK = re.compile(
 # Path(...), json.loads must not warn.
 SIDE_EFFECT_CALL_PREFIXES = (
     ("requests",),
+    ("curl_cffi", "requests"),
     ("httpx",),
     ("aiohttp",),
     ("urllib", "request"),
@@ -136,11 +138,56 @@ def _attr_chain(node: ast.AST) -> list[str]:
     return list(reversed(parts))
 
 
-def is_side_effect_call(node: ast.Call) -> bool:
-    func = node.func
+def _iter_scope_nodes(nodes: Sequence[ast.AST]) -> list[ast.AST]:
+    scoped: list[ast.AST] = []
+    stack: list[ast.AST] = list(reversed(nodes))
+    while stack:
+        node = stack.pop()
+        scoped.append(node)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            continue
+        stack.extend(reversed(list(ast.iter_child_nodes(node))))
+    return scoped
+
+
+def collect_import_aliases(
+    nodes: Sequence[ast.AST],
+    base: dict[str, tuple[str, ...]] | None = None,
+) -> dict[str, tuple[str, ...]]:
+    aliases = dict(base or {})
+    for node in _iter_scope_nodes(nodes):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                parts = tuple(alias.name.split("."))
+                local = alias.asname or parts[0]
+                aliases[local] = parts if alias.asname else (parts[0],)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            module_parts = tuple(node.module.split("."))
+            for alias in node.names:
+                if alias.name == "*":
+                    continue
+                aliases[alias.asname or alias.name] = module_parts + (alias.name,)
+    return aliases
+
+
+def _expanded_call_chain(
+    func: ast.AST,
+    aliases: dict[str, tuple[str, ...]],
+) -> list[str]:
     if isinstance(func, ast.Name):
-        return func.id in SIDE_EFFECT_FUNCS
-    chain = _attr_chain(func)
+        chain = [func.id]
+    else:
+        chain = _attr_chain(func)
+    if chain and chain[0] in aliases:
+        return [*aliases[chain[0]], *chain[1:]]
+    return chain
+
+
+def is_side_effect_call(node: ast.Call, aliases: dict[str, tuple[str, ...]] | None = None) -> bool:
+    func = node.func
+    if isinstance(func, ast.Name) and func.id in SIDE_EFFECT_FUNCS:
+        return True
+    chain = _expanded_call_chain(func, aliases or {})
     if not chain:
         return False
     if any(tuple(chain[: len(prefix)]) == prefix for prefix in SIDE_EFFECT_CALL_PREFIXES):
@@ -150,6 +197,10 @@ def is_side_effect_call(node: ast.Call) -> bool:
     if "JSContext" in chain:
         return True
     return False
+
+
+def _local_call_name(node: ast.Call) -> str | None:
+    return node.func.id if isinstance(node.func, ast.Name) else None
 
 
 def is_main_guard(node: ast.If) -> bool:
@@ -176,13 +227,51 @@ def is_main_guard(node: ast.If) -> bool:
     return False
 
 
-def contains_side_effect_call(node: ast.AST) -> bool:
-    for child in ast.walk(node):
-        if isinstance(child, ast.Call) and is_side_effect_call(child):
+def contains_side_effect_call(
+    node: ast.AST,
+    aliases: dict[str, tuple[str, ...]] | None = None,
+    local_effect_functions: dict[str, bool] | None = None,
+    *,
+    include_raise: bool = True,
+) -> bool:
+    scoped_nodes = node.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else [node]
+    for child in _iter_scope_nodes(scoped_nodes):
+        if isinstance(child, ast.Call) and is_side_effect_call(child, aliases):
             return True
-        if isinstance(child, ast.Raise):
+        call_name = _local_call_name(child) if isinstance(child, ast.Call) else None
+        if call_name and (local_effect_functions or {}).get(call_name):
+            return True
+        if include_raise and isinstance(child, ast.Raise):
             return True
     return False
+
+
+def local_effect_functions(
+    tree: ast.Module,
+    module_aliases: dict[str, tuple[str, ...]],
+) -> dict[str, bool]:
+    functions = {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    effects = {name: False for name in functions}
+    changed = True
+    while changed:
+        changed = False
+        for name, func in functions.items():
+            if effects[name]:
+                continue
+            aliases = collect_import_aliases(func.body, module_aliases)
+            if contains_side_effect_call(
+                func,
+                aliases,
+                effects,
+                include_raise=False,
+            ):
+                effects[name] = True
+                changed = True
+    return effects
 
 
 def scan_entry_head(path: Path, text: str) -> list[str]:
@@ -214,6 +303,8 @@ def scan_entry_ast(path: Path, text: str) -> list[str]:
     except SyntaxError as exc:
         return [f"syntax error in entry: {rel}: {exc}"]
 
+    module_aliases = collect_import_aliases(tree.body)
+    effect_functions = local_effect_functions(tree, module_aliases)
     warnings: list[str] = []
     for node in tree.body:
         if isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -235,24 +326,38 @@ def scan_entry_ast(path: Path, text: str) -> list[str]:
             warnings.append(f"module-level with-block (import executes body): {rel}:{node.lineno}")
             continue
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
-            if is_side_effect_call(node.value):
+            if is_side_effect_call(node.value, module_aliases):
                 warnings.append(
                     f"module-level call side effect: {rel}:{node.lineno}"
                 )
+            else:
+                call_name = _local_call_name(node.value)
+                if call_name and effect_functions.get(call_name):
+                    warnings.append(
+                        f"module-level call into side-effect function: {rel}:{node.lineno}"
+                    )
             continue
         if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
-            for child in ast.walk(node):
-                if isinstance(child, ast.Call) and is_side_effect_call(child):
-                    warnings.append(
-                        f"module-level assign with side-effect call: {rel}:{node.lineno}"
-                    )
-                    break
+            if contains_side_effect_call(
+                node,
+                module_aliases,
+                effect_functions,
+                include_raise=False,
+            ):
+                warnings.append(
+                    f"module-level assign with side-effect call: {rel}:{node.lineno}"
+                )
             continue
         if isinstance(node, ast.Raise):
             warnings.append(f"module-level raise (import aborts): {rel}:{node.lineno}")
             continue
         if isinstance(node, (ast.For, ast.While, ast.Try, ast.If)):
-            if contains_side_effect_call(node):
+            if contains_side_effect_call(
+                node,
+                module_aliases,
+                effect_functions,
+                include_raise=True,
+            ):
                 warnings.append(
                     f"module-level control-flow side effect: {rel}:{node.lineno}"
                 )

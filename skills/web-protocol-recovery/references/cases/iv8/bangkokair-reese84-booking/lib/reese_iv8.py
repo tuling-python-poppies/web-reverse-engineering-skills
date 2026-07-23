@@ -1038,6 +1038,16 @@ def generate_reese84(
     if cache_dir is not None:
         cache_dir.mkdir(parents=True, exist_ok=True)
         ch_sha = hashlib.sha256(challenge_js.encode("utf-8", errors="ignore")).hexdigest()
+        safe_exchanges = [
+            {
+                "method": e.get("method"),
+                "url": e.get("url"),
+                "status": e.get("status"),
+                "req_len": e.get("req_len"),
+                "resp_len": e.get("resp_len"),
+            }
+            for e in token_state["exchanges"][-15:]
+        ]
         meta = {
             "challenge_url": challenge_url,
             "challenge_sha256": ch_sha,
@@ -1046,7 +1056,7 @@ def generate_reese84(
             "renewInSec": token_state.get("renewInSec"),
             "cookieDomain": token_state.get("cookieDomain"),
             "exchange_count": len(token_state["exchanges"]),
-            "exchanges": token_state["exchanges"][-15:],
+            "exchanges": safe_exchanges,
             "errors": token_state["errors"][-20:],
         }
         (cache_dir / "last_l2_meta.json").write_text(

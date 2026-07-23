@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "web-protocol-recovery-live-proof-summary/v1",
+  "caseId": "pure-python-jd-h5st",
+  "executedAt": "2026-07-23",
+  "evidenceClass": "redacted-live-summary",
+  "secretPolicy": "no live tk, fp, cookies, eid token, Authorization header, browser state, HAR, or private response body",
+  "runtime": "pure-python",
+  "passed": true,
+  "predicate": "request_algo material + pure Python h5st -> recommend_like_m HTTP 200 -> parsed product rows",
+  "businessRowsObserved": 20,
+  "responseBytesApprox": 76000,
+  "repositoryLocalTests": "offline algorithm vectors, synthetic h5st shape, product parser, and this redacted proof summary",
+  "currentTargetReuse": "requires fresh live request_algo material; no server-returned tk/fp/rd values are persisted"
+}

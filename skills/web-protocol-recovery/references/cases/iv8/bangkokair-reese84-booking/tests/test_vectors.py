@@ -66,6 +66,19 @@ class VectorTests(unittest.TestCase):
         self.assertIn("reese84", selected)
         self.assertIn("visid_incap_1", selected)
 
+    def test_redacted_live_proof_summary(self):
+        proof = json.loads(
+            (CASE_DIR / "fixtures" / "live-proof.summary.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(proof["caseId"], "iv8-bangkokair-reese84-booking")
+        self.assertEqual(proof["evidenceClass"], "redacted-live-summary")
+        levels = {row["level"]: row for row in proof["levels"]}
+        self.assertTrue(levels["L2"]["passed"])
+        self.assertTrue(levels["L3"]["passed"])
+        self.assertEqual(levels["L3"]["sessions"], 2)
+        self.assertTrue(levels["L3"]["distinctTokenHashesObserved"])
+        self.assertIn("no raw reese84", proof["secretPolicy"])
+
 
 if __name__ == "__main__":
     unittest.main()

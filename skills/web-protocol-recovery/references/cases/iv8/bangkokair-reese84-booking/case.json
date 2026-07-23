@@ -105,7 +105,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "151a6640c1b74ef6ea52b75febcc7877f28a9f654f23c2396858fdbf6f71be41"
+            "sha256": "0fbd18b540b7d50415861542edfb4de94d758270276db5fea650937411c55ce1"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -121,6 +121,10 @@
                 "sha256": "ea38e11f78f99795a53b09bd873be861ca469f62cecea6230f8bd6ababef363a"
             },
             {
+                "path": "fixtures/live-proof.summary.json",
+                "sha256": "6f7a845dbf7b1c6207b4f7fece9dbdb3830307433a72bac090e00d32792239e2"
+            },
+            {
                 "path": "lib/__init__.py",
                 "sha256": "9dea5a6317f71b0b34ec21a6366020dd6a6d377342250f504446e1d43630c5cc"
             },
@@ -134,7 +138,7 @@
             },
             {
                 "path": "lib/reese_iv8.py",
-                "sha256": "96b4403b1c6698b2ab710adcc025646c30a7be0171bbdd467c53fa2eb8f0a5b5"
+                "sha256": "1b56ce6304fcd5b616209505c48a3be33d83da3bc4f722c7fcab0f3b88f6a0af"
             }
         ],
         "entry": {
@@ -149,15 +153,15 @@
         "testCommand": "python -m unittest discover -s tests -v",
         "testArtifact": {
             "path": "tests/test_vectors.py",
-            "sha256": "458f9fad3168d9e929c527b9059ee2d6e2da2ee82815112c91bfc9070b79c535"
+            "sha256": "6d059bc23a2c8fa0284082e6a014aabb162a4693c6f0ddd28ecf971e749bc42f"
         },
         "evidenceArtifact": {
-            "path": "fixtures/response.sample.json",
-            "sha256": "ea38e11f78f99795a53b09bd873be861ca469f62cecea6230f8bd6ababef363a"
+            "path": "fixtures/live-proof.summary.json",
+            "sha256": "6f7a845dbf7b1c6207b4f7fece9dbdb3830307433a72bac090e00d32792239e2"
         },
         "proof": {
-            "offlineVectors": "case-local parser, payload shape, import-safe run, and live-state selector tests",
-            "unitTests": "4/4 case-local offline tests passed 2026-07-22",
+            "offlineVectors": "case-local parser, payload shape, import-safe run, live-state selector, and redacted live-proof summary tests",
+            "unitTests": "5/5 case-local offline tests passed 2026-07-23",
             "liveChain": "pure iv8 L2/L3 implementation landed under case lib/; entry.run(live=True, mode=l2|l3) generates reese84 without browser automation",
             "caseLocalTests": "python -m unittest discover -s tests -v",
             "successLevels": "L1 cookie replay; L2 pure iv8; L3 dual cold pure iv8",

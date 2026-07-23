@@ -76,7 +76,7 @@ JD environment encoder:
 Offline tests:
 
 ```text
-python -m unittest discover -s references/cases/pure-python/jd-h5st/tests -v
+python -m unittest discover -s tests -v
 ```
 
 Vectors cover:
@@ -94,6 +94,8 @@ Live proof from project implementation on 2026-07-23:
 python -B main.py --use-cache
 HTTP 200, productCount=20, responseBytes ~= 76KB
 ```
+
+Redacted live proof summary: `fixtures/live-proof.summary.json` (no live `tk`, `fp`, cookies, eid token, HAR, or private response body).
 
 ## Dependencies
 

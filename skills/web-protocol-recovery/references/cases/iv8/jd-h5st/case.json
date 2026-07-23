@@ -17,7 +17,7 @@
       "script:js_security_v3_main",
       "api:api.m.jd.com"
     ],
-    "minimumIndependentSignals": 2,
+    "minimumIndependentSignals": 3,
     "negativeSignals": [
       "vendor:imperva",
       "vendor:akamai",
@@ -144,7 +144,7 @@
     },
     "proof": {
       "offlineVectors": "body sha256 vector, product parser sample, import-safe offline run",
-      "unitTests": "4/4 case-local offline tests passed 2026-07-22",
+      "unitTests": "5/5 case-local offline tests passed 2026-07-22",
       "liveChain": "chromium-recon on m.jd.com + live js_security_v3_main.js: iv8 h5st then recommend_like_m HTTP 200 with data.feeds.content product rows (~20 items, id/name/price)",
       "invalidationNote": "historical frozen assets alone can emit h5st but often get recommend_like_m 403; prefer live bundle download each run",
       "caseLocalTests": "python -m unittest discover -s tests -v"

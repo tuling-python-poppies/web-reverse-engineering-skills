@@ -14,7 +14,7 @@ Reproduce Bangkok Airways public flight availability queries without a browser: 
 | **L2 challenge generate** | iv8 runs randomized challenge JS (page.load + pyHttp bridge) and obtains a **new** `reese84` without pasting browser cookie values into code | Higher cost; UA/Client-Hints/Canvas coherence required |
 | **L3 two-session** | L2 (or L1 refresh) succeeds on two independent cold sessions | Required before claiming stable collector |
 
-Default claimed success for this case library is **L1 + offline vectors**. L2/L3 are documented advancement, not automatic on import.
+Claimed case-library success is **L1 + L2 + L3 with offline vectors and a redacted live-proof summary**. Repository-local tests remain offline; every current-target reuse still needs fresh authorization and rerun.
 
 Success predicate (minimum for verificationClass freshly-verified L1): OAuth 200 + air-bounds 200 with flight number, depart/arrive datetime, total price, fare family.
 
@@ -146,6 +146,7 @@ Desktop project pattern: bare `python main.py` → **mode=l3, engine=iv8**. Opti
 - Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX priced bounds — PASS (2026-07-22).
 - Live **L2 pure iv8** (2026-07-23): challenge → solution POST (~28–35KB) → token → OAuth → air-bounds **15** flights BKK–CNX (cheapest PG215 PGPROMO 2630 THB). **No browser automation / cookie paste.**
 - Live **L3 pure iv8** (2026-07-23): two independent cold sessions, both success, distinct token SHA-256; bare `python main.py` default path.
+- Redacted live proof summary: `fixtures/live-proof.summary.json` (no raw cookie, OAuth token, client secret, HAR, or private response body).
 - Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`; no OS temp as primary storage; on-demand cache namespaces only.
 
 ### iv8 implementation keys (L2) — critical
@@ -188,6 +189,7 @@ Desktop project pattern: bare `python main.py` → **mode=l3, engine=iv8**. Opti
 - Occasional early solution POST with `solution:null` + stable error blob; retry continues and later solution succeeds.
 - iv8 EventListener verbose log `TypeError: A(...) is not a function` on iframe load if handler wraps miss native path — token/search can still succeed.
 - Prefer fixing load fire once + handler wrap over swallowing all iv8 stderr.
+- If `generate_reese84(..., cache_dir=...)` is used, write only under approved `projectRoot/js_reverse_cache/private/**`; the helper redacts exchange prefixes from the saved metadata.
 
 ## Diagnostics: token/cookie present but still blocked
 

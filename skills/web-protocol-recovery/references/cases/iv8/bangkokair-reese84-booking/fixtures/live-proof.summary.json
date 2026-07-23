@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "web-protocol-recovery-live-proof-summary/v1",
+  "caseId": "iv8-bangkokair-reese84-booking",
+  "executedAt": "2026-07-23",
+  "evidenceClass": "redacted-live-summary",
+  "secretPolicy": "no raw reese84, OAuth token, client secret, browser state, HAR, or private response body",
+  "levels": [
+    {
+      "level": "L1",
+      "passed": true,
+      "predicate": "fresh reese84 cookie replay -> OAuth 200 -> air-bounds 200 -> parseable priced flights",
+      "businessRowsAtLeast": 1
+    },
+    {
+      "level": "L2",
+      "passed": true,
+      "predicate": "pure iv8 challenge execution generated new reese84 without browser automation or pasted cookie",
+      "businessRowsObserved": 15,
+      "route": "challenge -> solution POST -> token install -> OAuth -> air-bounds"
+    },
+    {
+      "level": "L3",
+      "passed": true,
+      "predicate": "two independent cold pure-iv8 sessions succeeded",
+      "sessions": 2,
+      "distinctTokenHashesObserved": true
+    }
+  ],
+  "repositoryLocalTests": "offline parser, payload shape, import-safe run, live-state selector, and this redacted proof summary",
+  "currentTargetReuse": "requires fresh authorization and rerun; this summary is not a reusable cookie or live state export"
+}

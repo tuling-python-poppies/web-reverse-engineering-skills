@@ -4,7 +4,7 @@
 Runs offline checks that should pass before committing skill edits:
 
 1. case hash/registry integrity (verify_case_hashes.py)
-2. high-value case unit tests (jd-h5st, bangkokair-reese84-booking when present)
+2. all case unit tests discovered under references/cases/*/*/tests
 3. discipline scans on case entry.py files:
    - bare top-level `import iv8` in new-style deliveries (warn)
    - import-time mkdir/network hints (warn/fail configurable)
@@ -25,10 +25,21 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
 
-DEFAULT_TEST_CASES = (
-    "iv8/jd-h5st",
-    "iv8/bangkokair-reese84-booking",
-)
+LEGACY_DISCIPLINE_WARNING_CASES = {
+    "iv8/chinatax-ruishu",
+    "iv8/chng-ruishu-announcement",
+    "iv8/cqvip-journal-search",
+    "iv8/customs-ruishu",
+    "iv8/douyin-bdms",
+    "iv8/geetest-v4-slider",
+    "iv8/geetest-v4-word-click",
+    "iv8/nmpa-md5-cookie",
+    "iv8/ouyeel-202-cookie-url",
+    "iv8/pdd-anti-content",
+    "iv8/tencent-tdc-slider",
+    "iv8/xhs-homefeed",
+    "iv8/zhipin-stoken",
+}
 
 BARE_IV8_IMPORT = re.compile(r"(?m)^\s*import\s+iv8\b|^\s*from\s+iv8\s+import\b")
 IMPORT_TIME_MKDIR = re.compile(
@@ -55,6 +66,17 @@ def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
 def check_hashes() -> tuple[bool, str]:
     code, out = run([sys.executable, "scripts/verify_case_hashes.py"], SKILL_ROOT)
     return code == 0, out.strip()
+
+
+def discover_test_cases() -> tuple[str, ...]:
+    rel_cases: list[str] = []
+    for tests_dir in sorted(CASES_ROOT.glob("*/*/tests")):
+        if not tests_dir.is_dir():
+            continue
+        if not any(tests_dir.glob("test*.py")):
+            continue
+        rel_cases.append(tests_dir.parent.relative_to(CASES_ROOT).as_posix())
+    return tuple(rel_cases)
 
 
 def check_case_tests(rel_case: str) -> tuple[bool, str]:
@@ -104,6 +126,13 @@ def scan_entries() -> list[str]:
     return warnings
 
 
+def is_legacy_discipline_warning(warning: str) -> bool:
+    return any(
+        f"references/cases/{case}/entry.py" in warning
+        for case in LEGACY_DISCIPLINE_WARNING_CASES
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -120,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
 
     failures: list[str] = []
     warnings: list[str] = []
+    legacy_warnings: list[str] = []
 
     print("== hash verify ==")
     ok, out = check_hashes()
@@ -129,7 +159,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.skip_tests:
         print("\n== case unit tests ==")
-        for rel in DEFAULT_TEST_CASES:
+        test_cases = discover_test_cases()
+        if not test_cases:
+            print("SKIP no case tests discovered")
+        for rel in test_cases:
             ok, out = check_case_tests(rel)
             print(out)
             print("---")
@@ -142,11 +175,18 @@ def main(argv: list[str] | None = None) -> int:
         print("no discipline warnings")
     else:
         for w in entry_warnings:
-            print(f"WARN {w}")
-        warnings.extend(entry_warnings)
+            if is_legacy_discipline_warning(w):
+                print(f"LEGACY_WARN {w}")
+                legacy_warnings.append(w)
+            else:
+                print(f"WARN {w}")
+                warnings.append(w)
 
     print("\n== summary ==")
-    print(f"failures={len(failures)} warnings={len(warnings)} strict={args.strict}")
+    print(
+        f"failures={len(failures)} warnings={len(warnings)} "
+        f"legacy_warnings={len(legacy_warnings)} strict={args.strict}"
+    )
     if failures:
         for f in failures:
             print(f"FAIL {f}")

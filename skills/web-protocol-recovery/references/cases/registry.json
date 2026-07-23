@@ -235,7 +235,7 @@
                     "script:js_security_v3_main",
                     "api:api.m.jd.com"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": [
                     "vendor:imperva",
                     "vendor:akamai",
@@ -244,7 +244,7 @@
             },
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "20a57a5cefce48069e8c70a757979eaeaab7394bc1fe9d5b24364ece533434be"
+                "sha256": "dcd63651c3b2227fc9873ccd4d4797915f0e064794621d9cd075ae3976a7617f"
             }
         },
         {
@@ -261,7 +261,7 @@
                     "appId:2088b",
                     "algorithm:jd-seData-python"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": [
                     "runtime:ParamsSignMain-required",
                     "vendor:imperva",
@@ -271,7 +271,7 @@
             },
             "manifest": {
                 "path": "pure-python/jd-h5st/case.json",
-                "sha256": "fc8c51c171489b61af211fa86a666dc86687da4bf5ccb44bfe916d8756bc4408"
+                "sha256": "4f9a2e578f3cda13b8125f2863b769625f1f89789869fe2ac7cae6e99ee5c5c7"
             }
         },
         {
@@ -417,7 +417,7 @@
             },
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "587f6fa58595b8661574260caac3924bd49b732576b44179aa913b46f42d15b6"
+                "sha256": "1fb6e7bd13c5eb70cb5a11e44ad2eeb685eda963b8a8d55ca8db4e20c7eca362"
             }
         },
         {

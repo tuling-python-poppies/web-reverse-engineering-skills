@@ -63,6 +63,16 @@ class PurePythonJdH5stTests(unittest.TestCase):
         self.assertEqual(products[0]["price"], "99.00")
         self.assertEqual(products[0]["shopId"], 10001)
 
+    def test_redacted_live_proof_summary(self) -> None:
+        proof = json.loads(
+            (CASE_ROOT / "fixtures" / "live-proof.summary.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(proof["caseId"], "pure-python-jd-h5st")
+        self.assertEqual(proof["runtime"], "pure-python")
+        self.assertTrue(proof["passed"])
+        self.assertGreaterEqual(proof["businessRowsObserved"], 1)
+        self.assertIn("no live tk", proof["secretPolicy"])
+
 
 if __name__ == "__main__":
     unittest.main()

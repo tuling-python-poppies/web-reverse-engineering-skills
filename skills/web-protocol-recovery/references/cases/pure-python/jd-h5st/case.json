@@ -18,7 +18,7 @@
       "appId:2088b",
       "algorithm:jd-seData-python"
     ],
-    "minimumIndependentSignals": 2,
+    "minimumIndependentSignals": 3,
     "negativeSignals": [
       "runtime:ParamsSignMain-required",
       "vendor:imperva",
@@ -81,7 +81,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "6b4336c2b855f53c2c332e4a2aaac711a7ad6c2b875aba29a2c2e264ef02b028"
+      "sha256": "fa92af5b2a810afb4e825a0e8f2ea6b5547ffe68746c115f0d84c60c20d9f73d"
     },
     "assets": [
       {
@@ -91,6 +91,10 @@
       {
         "path": "fixtures/response.sample.json",
         "sha256": "bb3ce9d67ad4ffa3b8ac9d0ca1c2585a3c825047a9a4012b66094621d14be04c"
+      },
+      {
+        "path": "fixtures/live-proof.summary.json",
+        "sha256": "a4a287f40b2a8f0e867bf3937d1057097952f84c58d19bfe07419db097f90440"
       }
     ],
     "entry": {
@@ -102,20 +106,20 @@
     "executed": true,
     "passed": true,
     "executedAt": "2026-07-23",
-    "testCommand": "python -m unittest discover -s references/cases/pure-python/jd-h5st/tests -v",
+    "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "bcd3cf2deae764e7a7c7ebb786d907e438c97301df46101796366410a0da3606"
+      "sha256": "5378b80e33781faa4d95187722e3716c356cc5d7f6f1ed9c00ff50890b96d83d"
     },
     "evidenceArtifact": {
-      "path": "fixtures/vectors.json",
-      "sha256": "06aaa3c973cfefcf22a979357de935862128deca7734d447d1cdac4fbd254585"
+      "path": "fixtures/live-proof.summary.json",
+      "sha256": "a4a287f40b2a8f0e867bf3937d1057097952f84c58d19bfe07419db097f90440"
     },
     "proof": {
-      "offlineVectors": "body sha256, JD _seData, JD md5/sha256 wrapper, custom env Base64, synthetic h5st shape, product parser sample",
-      "unitTests": "5/5 case-local offline tests passed 2026-07-23",
+      "offlineVectors": "body sha256, JD _seData, JD md5/sha256 wrapper, custom env Base64, synthetic h5st shape, product parser sample, redacted live-proof summary",
+      "unitTests": "6/6 case-local offline tests passed 2026-07-23",
       "liveChain": "pure Python request_algo material + pure Python h5st then recommend_like_m HTTP 200 with data.feeds.content product rows (20 items)",
-      "caseLocalTests": "python -m unittest discover -s references/cases/pure-python/jd-h5st/tests -v"
+      "caseLocalTests": "python -m unittest discover -s tests -v"
     }
   }
 }

@@ -1,6 +1,6 @@
 # Web Protocol Recovery Case Registry
 
-`registry.json` is the only selector. Read it first, select one `status=verified` entry, verify its manifest hash, then load the declared `case.json`. The manifest is the complete source of metadata and hash-binds every file in that case directory.
+`registry.json` is the only selector. Read it first, select one `status=verified` entry, verify its manifest hash, then load the declared `case.json`. If multiple verified entries match the same exact scope or minimum signal set, stop and require a discriminator (runtime, algorithm, product subtype, or negative signal) instead of choosing by registry order. The manifest is the complete source of metadata and hash-binds every file in that case directory.
 
 Cases are grouped by delivery runtime:
 

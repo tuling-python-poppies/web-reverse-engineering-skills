@@ -1,7 +1,7 @@
 {
     "schemaVersion": "web-protocol-recovery-case/v1",
     "caseId": "iv8-bangkokair-reese84-booking",
-    "revision": 1,
+    "revision": 2,
     "status": "verified",
     "family": "challenge",
     "runtime": "iv8",
@@ -106,7 +106,7 @@
     "artifacts": {
         "process": {
             "path": "PROCESS.md",
-            "sha256": "47eef9599d81fd7d1e2cd526cad587ab0484d8e925794b5d0b957aa494d5de16"
+            "sha256": "cc77288bb857a8b887b71462377d83a851f5e6d100c73bd0d1944e20f944aec2"
         },
         "pullLiveState": {
             "path": "pull_live_state.py",
@@ -139,14 +139,15 @@
         "proof": {
             "offlineVectors": "case-local parser, payload shape, import-safe run, and live-state selector tests",
             "unitTests": "4/4 case-local offline tests passed 2026-07-22",
-            "liveChain": "pure iv8 L2: challenge->solution->token->OAuth->air-bounds 15 flights; L3 two cold sessions distinct tokens (2026-07-23)",
+            "liveChain": "pure iv8 L2: challenge->solution->token->OAuth->air-bounds 15 flights; L3 two cold sessions distinct tokens; bare python main.py defaults to L3 (2026-07-23)",
             "caseLocalTests": "python -m unittest discover -s tests -v",
-            "successLevels": "L1 business replay verified; L2 challenge generate not default-claimed",
-            "l2Progress": "COMPLETE pure iv8 (iframe lifecycle critical)",
+            "successLevels": "L1 cookie replay; L2 pure iv8 generate; L3 dual cold pure iv8",
+            "l2Progress": "COMPLETE pure iv8 (iframe lifecycle + single load fire + permissions wrap)",
             "iv8HostQuirk": "capture page.load/eventLoop/data.pyHttp functions only; hide window.__iv8__",
-            "l3Progress": "COMPLETE sessions_ok=2 distinct_tokens=true",
-            "criticalFix": "iframe createElement/appendChild load + child realm fetch/XHR patch",
-            "executedAt": "2026-07-23"
+            "l3Progress": "COMPLETE sessions_ok=2 distinct_tokens=true; default project entry is L3",
+            "criticalFix": "iframe createElement/appendChild load (once) + child realm fetch/XHR patch; wrap load handlers; permissions.query short-circuit to silence EnvironmentAccessor spam",
+            "executedAt": "2026-07-23",
+            "nonFatalNoise": "early solution:null error posts may appear then recover; iv8 EventListener TypeError on iframe load can still be non-fatal after wrap"
         }
     }
 }

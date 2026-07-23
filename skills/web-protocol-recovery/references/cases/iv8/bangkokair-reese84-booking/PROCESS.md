@@ -104,7 +104,9 @@ Moving state (names only; values pulled live, never stored in the case library):
 2. `iv8` (when generating reese84 offline) — run randomized challenge JS with page.load + pyHttp bridge; Python owns real HTTP for gpc/solution.
 3. `python-collector` — OAuth + air-bounds + parse; progress via `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
 
-## Minimal Implementation (what entry.py demonstrates)
+## Minimal Implementation
+
+### L1 (what case `entry.py` demonstrates offline/live)
 
 1. Load live state (reese84) from approved browser export selector (`pull_live_state.py`) — memory only.
 2. Python `curl_cffi` session with Chrome-matching impersonate + Client-Hints.
@@ -113,35 +115,62 @@ Moving state (names only; values pulled live, never stored in the case library):
 5. Parse `airBoundGroups` + `dictionaries.flight` into flight / depart / arrive / total / fare_family rows.
 6. Log via shared logger; do not write secrets to disk.
 
-## Fixed-Vector / Live Proof (executed 2026-07-22)
+### L2/L3 pure iv8 delivery (project collector pattern)
 
-- Offline: fixture shape for air-bounds sample (groups present, flight dict keys, total price fields) — PASS via case tests.
-- Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX sample date produced 13 priced bounds including PG215 08:00–09:20 PGPROMO 2630 THB; cheapest total matched parse — PASS.
-- Live **L2 pure iv8** (verified 2026-07-23): challenge discovery → iv8 Protection run → solution POST (~28KB) → `token` → OAuth → `/v2/search/air-bounds` with 15 priced BKK–CNX bounds. **No browser automation / cookie paste.**
-- Live **L3** (verified 2026-07-23): two independent cold sessions, both success, distinct token SHA-256.
+Default project command is bare `python main.py` → **mode=l3, engine=iv8** (two cold sessions). Optional `MODE=l2` for one session. **No browser automation harvest.**
+
+1. Discover challenge script from booking interstitial HTML.
+2. iv8 run challenge (keys below) → capture `token` from solution response JSON.
+3. Install `reese84` on the **same** Python session → OAuth → air-bounds → parse.
+
+## Fixed-Vector / Live Proof
+
+- Offline: fixture shape for air-bounds sample (groups present, flight dict keys, total price fields) — PASS via case tests (2026-07-22).
+- Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX priced bounds — PASS (2026-07-22).
+- Live **L2 pure iv8** (2026-07-23): challenge → solution POST (~28–35KB) → token → OAuth → air-bounds **15** flights BKK–CNX (cheapest PG215 PGPROMO 2630 THB). **No browser automation / cookie paste.**
+- Live **L3 pure iv8** (2026-07-23): two independent cold sessions, both success, distinct token SHA-256; bare `python main.py` default path.
 - Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`; no OS temp as primary storage; on-demand cache namespaces only.
 
-### iv8 implementation keys (L2)
+### iv8 implementation keys (L2) — critical
 
 ```text
 1) Capture host FUNCTIONS only (never assign __iv8__ object):
+   !!__iv8__ is false; var host=__iv8__ loses the object.
    pageLoad = __iv8__.page.load
    drain/sleep = __iv8__.eventLoop.*
    pyHttp = __iv8__.data.pyHttp
+   snapshot = __iv8__.data.snapshot  (capture before hide)
 
 2) Hide window.__iv8__ from Object.getOwnPropertyNames (host leak)
 
-3) Bridge fetch/XHR -> Python pyHttp; preserve gpc JSON string body;
-   strip Set-Cookie from Response headers passed into JS
+3) Bridge fetch/XHR -> Python pyHttp:
+   - preserve gpc JSON-string body exactly
+   - strip Set-Cookie / content-encoding from headers passed into JS Response
+   - force content-type application/json for gpc/solution JSON
 
 4) CRITICAL: interrogator creates IFRAME. Must:
    - hook document.createElement('iframe')
    - hook Node.appendChild / insertBefore
-   - fire load on child iframe
-   - patch child realm fetch/XHR + hide host in contentWindow
+   - fire load on child iframe AT MOST ONCE (no dual onload()+dispatchEvent)
+   - prefer single EventTarget 'load' dispatch; skip manual fire if native load already ran
+   - patch child realm: fetch/XHR share + hide host + permissions.query wrapper
+   - wrap load handlers (addEventListener / onload) so challenge TypeError does not
+     surface as fatal JS failure (iv8 may still log non-fatal EventListener noise)
 
-5) Drive initializeProtection().startInternal() / exportToken as needed
+5) Replace navigator.permissions.query (main + iframe) so fingerprint probes never
+   call unknown permission names into iv8 EnvironmentAccessor (avoids ERROR spam for
+   speaker-selection / usb / hid / serial / display-capture / ...)
+
+6) Fill JSContext config.permissions for all keys from JSContext.get_defaults()
+
+7) Drive initializeProtection().startInternal() / exportToken as needed
 ```
+
+### Non-fatal noise (do not treat as business failure)
+
+- Occasional early solution POST with `solution:null` + stable error blob; retry continues and later solution succeeds.
+- iv8 EventListener verbose log `TypeError: A(...) is not a function` on iframe load if handler wraps miss native path — token/search can still succeed.
+- Prefer fixing load fire once + handler wrap over swallowing all iv8 stderr.
 
 ## Diagnostics: token/cookie present but still blocked
 
@@ -156,8 +185,8 @@ When OAuth works but air-bounds returns challenge HTML / 403 with `SWJIYLWA`:
 ## Dependencies
 
 - python >= 3.11
-- `curl_cffi` (TLS profile chrome-family matching UA)
-- optional `iv8` when solving Reese challenge offline
+- `curl_cffi` (TLS profile chrome-family matching UA; e.g. chrome136 with Chrome 146 UA/CH)
+- `iv8` runtime for L2/L3 pure challenge solve
 - optional `loguru` (logger helper falls back to print)
 
 ## Invalidation Signals

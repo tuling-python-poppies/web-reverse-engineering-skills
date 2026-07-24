@@ -30,15 +30,21 @@ references/providers/
     ast/PROVIDER.md
     env-patch/PROVIDER.md
     iv8/PROVIDER.md
+    douyin-abogus-native/PROVIDER.md
+    akamai/PROVIDER.md
+    akamai/references/*.md
+    akamai/scripts/*
     verifier/PROVIDER.md
+    verifier/references/*.md
+    verifier/scripts/*
     python-collector/PROVIDER.md
 ```
 
-Internal skills are Providers under this tree (not peer top-level skills). Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
+Internal skills are Providers under this tree (not peer top-level skills). `douyin-abogus-native` is the narrow bridge for already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance, backed by the installed local OpenCode skill `dy-ab-pure` when present. `verifier` contains the migrated `captcha-reverse` workflows and scripts, so captcha protocol tasks route through web-protocol-recovery instead of a separate public captcha entry. `akamai` contains the migrated Akamai Bot Manager workflow, cookie state machine, transport rules, iv8 collector route, and T'way field case. Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
 
 ## Cases
 
-The root registry indexes 19 hash-bound `web-protocol-recovery-case/v1` manifests grouped by runtime: 15 `iv8`, zero current `pure-python`, and four `python-node` evidence cases. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
+The root registry indexes 21 hash-bound `web-protocol-recovery-case/v1` manifests grouped by runtime: 16 `iv8`, one `pure-python`, and four `python-node` evidence cases. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
 
 ## Runtime Helpers
 

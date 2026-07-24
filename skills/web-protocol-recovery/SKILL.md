@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、env-patch、iv8、verifier 或 Python collector Provider。单点 hook/入口定位/已知 AST 或补环境也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
+  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、env-patch、iv8、verifier/captcha-reverse、akamai、douyin-abogus-native 或 Python collector Provider。单点 hook/入口定位/已知 AST、补环境、完整验证码协议复现、Akamai sensor/cookie 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -62,9 +62,12 @@ First-turn routing rules:
 1. Supplied artifacts or an exact registry case beat fresh recon: start with `route: evidence-reuse`; a URL alone never authorizes a browser launch.
 2. Explicit offline/local/vector wording beats heavier routing: use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider.
 3. Platform/runtime words choose only the route, not the deliverable depth: miniapp means `route: wechat-miniapp`; Camoufox means `route: camoufox`; neither upgrades to `collector` by itself.
-4. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
-5. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
-6. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
+4. Strong captcha protocol signals choose `route: verifier`: captcha request samples, images, `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, Geetest GT3/GT4, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter. Generic `403` plus the word captcha is still evidence first, not automatic solving.
+5. Strong Akamai signals choose `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is still evidence first, not Akamai proof.
+6. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
+7. Existing Douyin Web BDMS pure-Python maintenance wording chooses only `route: douyin-abogus-native` when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on the normal recon/implementation routes.
+8. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
+9. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
 
 Read-Only Evidence Fast Path:
 
@@ -123,10 +126,12 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Whole-file/source structure recovery | `ast` | `references/providers/implementation/ast/PROVIDER.md` |
 | Known JS entry in Node/vm/jsdom | `env-patch` | `references/providers/implementation/env-patch/PROVIDER.md` |
 | Browser-like local runtime / XHR netLog / registry runtime case | `iv8` | `references/providers/implementation/iv8/PROVIDER.md`; stable Python import uses `utils/iv8_silent.import_iv8_silent()` |
-| OCR / slider / click / coordinates | `verifier` | `references/providers/implementation/verifier/PROVIDER.md` |
+| Existing Douyin Web BDMS 1.0.1.19 pure-Python `a_bogus` maintenance or request adapter | `douyin-abogus-native` | `references/providers/implementation/douyin-abogus-native/PROVIDER.md`; backed by local OpenCode skill `dy-ab-pure` |
+| Akamai Bot Manager sensor/cookie state machine and business replay | `akamai` | `references/providers/implementation/akamai/PROVIDER.md`; migrated Akamai workflow |
+| Captcha protocol / verifier / slider / point-click / WAF captcha gateway | `verifier` | `references/providers/implementation/verifier/PROVIDER.md`; migrated captcha-reverse workflows live under that Provider |
 | Stable browser-free Python delivery | `python-collector` | `references/providers/implementation/python-collector/PROVIDER.md` |
 
-Chains are sequential (typical: recon -> AST -> env/iv8 -> collector). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime. Runtime helper details, including iv8 import hygiene, live in the selected Provider docs.
+Chains are sequential (typical: recon -> AST -> env/iv8 -> collector; verifier -> iv8/env-patch -> python-collector for captcha proof builders; akamai -> iv8 -> python-collector for host-bound collectors; or evidence-reuse -> douyin-abogus-native -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime; `verifier` = migrated captcha-reverse protocol branch and success criteria; `akamai` = Akamai Bot Manager collector/cookie/transport state machine; `douyin-abogus-native` = narrow local OpenCode bridge for already-proved Douyin BDMS pure-Python work, not from-zero algorithm recovery. Runtime helper details, including iv8 import hygiene, live in the selected Provider docs.
 
 ## Phase 5: Verification
 

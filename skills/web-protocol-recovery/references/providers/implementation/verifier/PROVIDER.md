@@ -1,66 +1,90 @@
-# Verifier Provider
+# Verifier / Captcha Provider
 
 ## Select When
 
-- Target is verifier-gated: a distinct proof round authorizes the business request.
-- One coherent verifier round is frozen (assets, tokens, coordinate space, success predicate).
-- Work order allows the `verifier` action class; live verify additionally needs `liveReplayAllowed`.
+- The target is verifier-gated: a distinct captcha, proof, or one-shot verification round authorizes the business request.
+- The user provides captcha request samples, images, `/get` / `/load` / `/convert` / `/verify` / `/check` links, or fields such as `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, or `cyfreso`.
+- The work is to reproduce the captcha protocol locally: slider, point-click, ordered text click, icon click, WAF captcha gateway, TDC telemetry, device sidecar, behavior track, proof body, or the final verify/check request.
 
 ## Do Not Select When
 
-- The gate is still unclassified or no coherent verifier round has been frozen; classify and capture one round first.
-- Mixing tokens/images/proof fields across adjacent rounds.
-- Live verify without work-order permission for live replay and verifier action class.
-- User only wants evidence of “there is a captcha” (return blocker; do not solve).
+- The user only wants generic OCR, image classification, or a slider gap without verify/check protocol replay.
+- The target is a generic WAF/cookie challenge with no captcha endpoints, images, or verifier response.
+- The task is only browser hook code, generic signer entry location, ordinary Aliyun RPC signing, or non-captcha Douyin `a_bogus`.
+- Live verify is requested without work-order permission for both live replay and verifier action class.
 
-Use this provider after web-protocol-recovery classifies the target as verifier-gated and freezes one coherent verifier round. It implements perception and proof-input preparation; web-protocol-recovery retains protocol ownership and iv8 may implement the official browser runtime proof builder.
+This Provider is the migrated `captcha-reverse` skill inside web-protocol-recovery. web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, and final delivery status. This Provider owns captcha family selection, same-round verifier state, perception/proof construction, platform-specific captcha workflows, and verifier success criteria.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned verifier assets/fixtures under `web-protocol-recovery-simple/v1`, then returns candidate proof inputs, confidence, and semantic verifier evidence.
+## Family Router
 
-## Inputs
+Read only the selected family reference after the work order names one matching signal. Do not preload the whole tree.
 
-Required: provider/product/version/subtype, get/load and verify request shapes, one-round state, asset dimensions, coordinate spaces, proof-builder evidence, authorization, and an objective success predicate.
-
-Family-specific round binding, perception, coordinate normalization, and proof-input procedures: `references/replay-playbook.md` (read only when this work order names it).
-
-## Workflow
-
-1. Freeze one round: challenge id/token, image/asset bytes or paths, coordinate space, and success predicate. Discard any field from a previous round.
-2. Perceive locally: prefer `ddddocr` for OCR, detection, slider matching, and comparison; use Pillow/OpenCV for bounded preprocessing, contour, template, and difference fallbacks.
-3. Normalize library-version result shapes before applying target formulas. Missing confidence, coordinates, or unsupported field types fail closed and require independent corroboration.
-4. Build proof inputs only; do not own the final business HTTP unless the work order explicitly assigns a python-collector handoff of those fields.
-5. Live verify only when both live replay and the `verifier` action class are approved. Stop before live verify when confidence is zero, tied, or below the case threshold.
-
-OCR, boxes, and offsets are candidates only. Success requires the verifier's semantic response and, when relevant, the linked business request.
-
-## Artifacts
-
-| Kind | Path |
+| Signals | Reference |
 |---|---|
-| Transient challenge images | `js_reverse_cache/source/` |
-| Sanitized deterministic fixtures | `js_reverse_cache/samples/` or stable `tests/` |
-| Proof-input samples (redacted) | work-order allowed paths only |
+| Tencent EdgeOne / TCaptcha / `cap_union_prehandle` / dynamic `tdc.js` / `TDC.getData(true)` / `cap_union_new_verify` / `errorCode=12` | `references/tencent-edgeone-tdc-workflow.md` |
+| CSDN text point-click / `embedded_captcha` / `click_v2` / `cdn_cgi_bs_captcha` | `references/csdn-point-click-workflow.md` |
+| Ctrip `captcha/v4` / `risk_inspect` / `verify_jigsaw` / `verify_icon` | `references/ctrip-captcha-v4-workflow.md` |
+| Baidu Passport spin/rotate V2 / `passport.baidu.com/cap/init` / `/cap/style` / `/cap/img` / `/cap/log` / `spin-0` / `backstr` / `ext.p` / `en_conf` / `cv=submit` | `references/baidu-passport-spin-v2-workflow.md` |
+| ByteDance VerifyCenter / `/captcha/get` / `/captcha/verify` / `captchaBody` / `cyfreso` / BDMS+mssdk slider | `references/bytedance-verifycenter-workflow.md` |
+| Aliyun Captcha V2 / `InitCaptchaV2` / `VerifyCaptchaV2` / `DeviceConfig` / `Log2` / `Log3` / `T001` / FeiLin daily update | `references/aliyun-captcha-v2-workflow.md` |
+| Aliyun Captcha V3 / `InitCaptchaV3` / `VerifyCaptchaV3` / `PUZZLE` / `pe.xxx` / `run_v3_fast` / FeiLin daily update | `references/aliyun-captcha-v3-workflow.md` |
+| Geetest GT3 / `register-slide` / `gettype.php` / `fullpage.9.x` / `slide.7.x` / `ajax.php` | `references/geetest-gt3-workflow.md` |
+| Geetest GT4 / `/load` / `lot_number` / `pow_detail` / `payload` / `w` / `/verify` | `references/geetest-gt4-workflow.md` |
+| Generic slider family selection: Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, GT3/GT4 | `references/slide-captcha-overview.md` |
+| Netease Yidun / `NECaptcha` / `api/v3/get` / `api/v3/check` / `cb` / `data` | `references/yidun-workflow.md` |
+| Shumei / `captcha1.fengkongcloud.cn` / `register` / `fverify` / `rid` / DES params | `references/shumei-workflow.md` |
+| Yunpian / `captcha.yunpian.com` / `captcha/get` / `captcha/verify` / `i` / `k` / `cb` | `references/yunpian-workflow.md` |
+| 360 Tianyu / `captcha.jiagu.360.cn` / `auth` / `check` / `report` / `rsa_1.js` | `references/tianyu360-workflow.md` |
+| Unknown captcha or one-shot verifier with no platform match | `references/replay-playbook.md` first, then return a blocker for new focused reference if still unclassified |
 
-Promote only sanitized deterministic fixtures. Never store raw account secrets in the skill or case library.
+## Core Rules
+
+1. Freeze one coherent verifier round: setup response, images/assets, cookies, callback/random keys, verifier token, proof-builder state, final verify/check request, and final response.
+2. Never mix tokens, images, callbacks, proof fields, telemetry, sidecar logs, or dynamic scripts across neighboring rounds.
+3. The final proof is the verifier server response, not OCR confidence, slider distance, non-empty `w`, HTTP `200`, or a decoded payload.
+4. Point-click tasks separate prompt recognition, coordinate localization, coordinate mapping, and encrypted proof packaging.
+5. Slider tasks separate original/restored image distance, displayed coordinate, submitted coordinate, behavior track, declared duration, and real wall-clock wait.
+6. Sidecar/device models such as Aliyun FeiLin/TDC require full same-session profile, sparse token/counter, timestamps, and telemetry. A valid checksum on one packet does not prove cross-packet state consistency.
+7. Browser automation is evidence only unless the user explicitly asked for UI automation. Final delivery is protocol replay plus local helpers; Python owns live HTTP egress.
+8. When platform workflow requires iv8 or JS runtime, route the execution backend through web-protocol-recovery's internal `iv8` or `env-patch` Provider. Do not call the old top-level `iv8-web-reverse` wording from migrated references as a separate public owner.
+9. If the user only wants the verification layer, stop at captcha success and do not add business replay to the entry point or success condition.
+10. Dynamic evidence, images, decoded payloads, forms, and responses must stay under assigned `js_reverse_cache/**`; do not write into this Provider directory.
+
+## Optional Scripts
+
+Provider-local scripts copied from the migrated captcha skill are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution.
+
+| Script | Use |
+|---|---|
+| `scripts/gt4_bundle_helper.js` | GT4 current bundle metadata, PoW, GCT, and `w` helper |
+| `scripts/gt4_replay.py` | GT4 same-round Python + Node helper replay template |
+| `scripts/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` template |
+| `scripts/aliyun_v2_profile_diff.py` | Aliyun V2 DeviceConfig/Log2/token/profile diff helper |
 
 ## Acceptance
 
-1. One-round binding: no mixed tokens/images/proof fields.
-2. Perception output includes confidence (or explicit fail-closed reason).
-3. Offline fixture/vector check when available.
-4. Live verify (if approved): verifier semantic success, not only HTTP `200`.
-5. Linked business request (if in scope) succeeds with regenerated proof fields.
+All applicable checks must pass:
 
-## Exit
-
-Return: product/version/subtype, proof-input shape, confidence, fixture paths/hashes, live verify state (or offline-only), and the next hub action (python-collector integration, another Provider, or stop).
+1. Family, product version, subtype, and request chain are identified; old/new vendor generations are not mixed.
+2. One-round binding is proved: all tokens, images, callbacks, dynamic scripts, sidecars, proof fields, and verify/check requests belong to the same round.
+3. Offline vectors or fixed-input regressions pass for encryption/signature/serializer/coordinate transforms when available.
+4. Perception output includes confidence or an explicit fail-closed reason; low/tied confidence cannot authorize live verify by itself.
+5. Live verify, when approved, returns platform-specific semantic success, such as Tencent `errorCode == "0"` with ticket/randstr, Aliyun `VerifyCode == "T001" && VerifyResult == true`, GT4 `data.result == "success"`, or the selected reference's success marker.
+6. Linked business request succeeds only if it is in scope and explicitly required after captcha success.
+7. Python owns final live egress; any local JS/iv8/WASM helper is a narrow artifact generator and has no browser/profile runtime dependency.
 
 ## Failure Recovery
 
-| Trigger | First fix | Still fails → stop |
+| Trigger | First fix | Still fails -> stop |
 |---|---|---|
-| Round not frozen / fields mixed | Recapture one coherent round | Blocker: round binding |
-| Confidence zero/tied/low | Retry perception or independent corroboration | No live verify |
-| Library shape mismatch | Normalize result schema; pin versions | Fail closed |
-| Live verify denied | Stay offline with fixtures | Do not submit |
-| Semantic fail after live | Diff challenge markers / coordinate space / token age | Do not scale or re-submit blindly |
+| Family unclassified | Use endpoint/field/image/success-marker signals and one reference | Return blocker for a new focused reference |
+| Round fields mixed or stale | Recapture one coherent round | Blocker: same-round state |
+| OCR/CV weak or tied | Use platform-specific preprocessing/manual coordinate fallback/independent corroboration | No live verify |
+| Verify semantic fail | Diff state, coordinate space, behavior timeline, proof packaging, sidecar, and transport in that order | Do not submit repeated guesses on one challenge |
+| Sidecar/device logs omitted | Add same-session telemetry proof per selected reference | Do not blame track first |
+| Live verify denied | Stay offline with fixtures and proof inputs | No verifier submission |
+| Platform workflow needs JS/iv8 host semantics | Return an internal work-order blocker for `iv8` or `env-patch` | Do not turn browser UI automation into delivery |
+
+## Exit
+
+Return: selected captcha family/reference, one-round state summary, proof-input shape, perception confidence, offline vector status, live verify state or offline-only blocker, artifact paths/hashes, sidecar/telemetry status, budget consumed/remaining, cleanup state, and next hub action (`python-collector`, `iv8`/`env-patch`, another verifier work order, or stop).

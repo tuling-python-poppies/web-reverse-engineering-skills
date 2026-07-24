@@ -25,7 +25,8 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 | Identified source region needs structural restoration | `references/providers/implementation/ast/PROVIDER.md` | Network ownership or final delivery |
 | Concrete environment-read mismatch is proved | `references/providers/implementation/env-patch/PROVIDER.md` | Guessing broad browser surfaces |
 | Narrow artifact needs host-visible JS semantics | `references/embedded-browser-runtime-playbook.md`, then `references/providers/implementation/iv8/PROVIDER.md` (API gate: `iv8/references/api-inventory.md`) | Full rendering/interaction as delivery |
-| Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` | Treating it as an ordinary signer |
+| Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` (migrated captcha-reverse family router) | Treating it as an ordinary signer or generic OCR |
+| Akamai Bot Manager sensor/cookie state machine owns the gate | `references/providers/implementation/akamai/PROVIDER.md` | Guessing from generic 403, one cookie name, or treating sensor 200 as success |
 | Protocol is proved and browser-free Python delivery remains | `references/providers/implementation/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
 
 ## Browser Lifecycle Invariant
@@ -83,7 +84,8 @@ Move from reconnaissance to one implementation Provider only after naming the bo
 - structural bundle blocker -> AST
 - missing environment read/identity/reflection surface -> env-patch
 - browser-visible host semantics needed for one local artifact -> iv8
-- verification round -> verifier
+- captcha / verification round -> verifier
+- Akamai sensor/cookie state machine -> akamai
 - proved protocol ready for delivery -> python-collector
 
 If the selected Provider returns a new blocker, add one Provider/reference. Do not fan out across sibling implementations.
@@ -100,7 +102,8 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | Live inspection unstable; debugger traps / self-rewriting sources | `offline-inline-deob-playbook.md` |
 | Challenge harvest / server-JS cookie / side asset / full envelope | `challenge-state-envelope-playbook.md` (one file only) |
 | Public passive key/config/nonce and encrypted wrapper | `public-bootstrap-envelope-playbook.md` |
-| Captcha / one-shot verifier gates business request | `providers/implementation/verifier/references/replay-playbook.md` |
+| Captcha / one-shot verifier gates business request | `providers/implementation/verifier/PROVIDER.md`, then one selected captcha family reference |
+| Akamai `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gates business request | `providers/implementation/akamai/PROVIDER.md` |
 | Output depends on navigator/DOM/reflection/native surfaces | `environment-patch-playbook.md` |
 | Encoded/compressed/font/binary response | `response-decode-playbook.md` |
 | Replay exists but `403`/`412`/`429`, business error, stale state, or pacing remains | `troubleshooting-playbook.md` |

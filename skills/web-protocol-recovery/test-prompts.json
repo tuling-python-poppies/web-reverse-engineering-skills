@@ -63,5 +63,60 @@
     "id": 13,
     "prompt": "用户明确要求 Camoufox 做 SpiderMonkey 引擎级属性追踪，普通 Chrome 证据已不可信",
     "expected": "route:camoufox; close js-reverse first; evidence ladder; not generic 403; no final browser collector"
+  },
+  {
+    "id": 14,
+    "prompt": "项目里已有完整 pure_abogus.py 和 BDMS 1.0.1.19 固定 trace，帮我维护抖音 aweme/v1/web/list 的 a_bogus 纯 Python requests 脚本",
+    "expected": "route:douyin-abogus-native; require existing complete pure_abogus.py and fixed trace; pure Python only; no from-zero recovery or browser/iv8 dependency; fixed-vector parity before live replay"
+  },
+  {
+    "id": 15,
+    "prompt": "阿里云 Captcha V2 的 InitCaptchaV2 已经拿到 DeviceConfig，帮我纯 Python 生成 Log2、Log3、deviceToken 并让 VerifyCaptchaV2 返回 T001",
+    "expected": "route:verifier; read verifier Provider then aliyun-captcha-v2 workflow; same-round Init/Log2/Log3/Verify; T001+VerifyResult true is success; no generic Aliyun RPC route"
+  },
+  {
+    "id": 16,
+    "prompt": "EdgeOne mCaptcha 的 cap_union_prehandle 返回 click_verify、pow_cfg 和动态 tdc_path；我想用 Python+iv8 同轮生成 collect/eks 并让 cap_union_new_verify 从 errorCode=12 变成 0",
+    "expected": "route:verifier; Tencent TDC captcha workflow; internal iv8 work order only as execution backend; captcha state machine and success criteria stay verifier-owned"
+  },
+  {
+    "id": 17,
+    "prompt": "抖店邮箱登录弹出 VerifyCenter 滑块，链路是 mssdk token、captcha/get、双图、captchaBody、BDMS a_bogus、captcha/verify，帮我做成不依赖浏览器的 Python+iv8 回放",
+    "expected": "route:verifier; ByteDance VerifyCenter workflow; do not confuse with generic Douyin a_bogus; fresh decision/get/verify same-round and final browser-free replay"
+  },
+  {
+    "id": 18,
+    "prompt": "我只是想用 ddddocr 找滑块缺口，不需要请求 verify，也不需要验证码协议",
+    "expected": "non-protocol or ordinary image recognition boundary; do not route to verifier captcha protocol; no four-line protocol header unless another protocol signal exists"
+  },
+  {
+    "id": 19,
+    "prompt": "页面只有 acw_sc__v2 WAF cookie 挑战，没有滑块、InitCaptchaV2 或验证码 verify，帮我还原 cookie",
+    "expected": "not verifier; route challenge/cookie evidence path; ordinary WAF cookie challenge is not migrated captcha-reverse"
+  },
+  {
+    "id": 20,
+    "prompt": "这个站点首跳有 _abck、bm_sz，页面会 POST sensor_data，两轮后业务 API 才能访问，帮我做浏览器外 Python 请求",
+    "expected": "route:akamai; require Akamai marker plus network/cookie-transition evidence; capture every sensor POST and cookie transition; final Python owns live egress"
+  },
+  {
+    "id": 21,
+    "prompt": "页面有 /akam/13/pixel_xxx 和随机 collector，sensor POST 后更新 _abck，请恢复业务 GET",
+    "expected": "route:akamai; separate collector and Pixel; do not hardcode random collector URL; verify business response not sensor 200"
+  },
+  {
+    "id": 22,
+    "prompt": "twayair 有 bm_s、ak_bmsc 和随机 collector，sensor 200 但 chooseItinerary Access Denied，要浏览器外 Python 协议",
+    "expected": "route:akamai; prefer twayair case if registry signals match; check multi-stage sensor, Pixel, transport/egress, and business form context"
+  },
+  {
+    "id": 23,
+    "prompt": "这个接口返回 403，不知道是什么风控，先帮我判断",
+    "expected": "shape:evidence; do not route akamai from generic 403 alone; collect family evidence first"
+  },
+  {
+    "id": 24,
+    "prompt": "只有一个名为 _abck 的 cookie，没有抓包和脚本信息，帮我直接写生成器",
+    "expected": "do not route akamai from cookie name alone; nextAsk for network/script/cookie-transition corroboration; no generator"
   }
 ]

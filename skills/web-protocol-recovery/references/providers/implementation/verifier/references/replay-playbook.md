@@ -1,5 +1,7 @@
 # Verifier Replay Playbook
 
+Platform-specific captcha workflows now live next to this file and are selected by `../PROVIDER.md`. Use this file only for unknown captcha families or generic round binding, visual solver, coordinate normalization, and artifact discipline. When a migrated workflow matches the platform, that workflow is authoritative for request order, fields, dynamic helpers, and success markers.
+
 Use this Provider reference when:
 
 - data requests are gated behind captcha, one-shot verification, or click-order challenges

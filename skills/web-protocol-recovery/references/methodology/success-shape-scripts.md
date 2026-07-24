@@ -31,7 +31,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 1. Begin with `shape: local-proof` and `route: evidence-reuse` for a self-contained deterministic proof, or the selected implementation Provider when one is needed. Never put `decode-gated` or another gate family in `route`.
 2. Confirm fixed vectors, source path, or decoded sample inputs.
-3. Read one implementation provider only when needed: `browser-hooks`, `ast`, `env-patch`, `iv8`, or `verifier`. A self-contained deterministic decode may remain inline.
+3. Read one implementation provider only when needed: `browser-hooks`, `ast`, `env-patch`, `iv8`, `verifier`, `akamai`, `douyin-abogus-native`, or `python-collector`. For captcha, read `verifier/PROVIDER.md` first, then at most one selected family reference. For Akamai, read `akamai/PROVIDER.md` first, then at most one selected Akamai reference. A self-contained deterministic decode may remain inline.
 4. Enumerate every supplied fixed vector. Pure data transforms may run offline. Executing target-supplied JS/WASM/HTML still requires `executionPolicy.targetCodeExecution=approved-reviewed-hash`, matching SHA-256 approval, and a capability-denied sandbox even when live egress is denied.
 5. Execute approved vectors for a proof request; for a planning-only request, list them under `acceptanceTest` and report `result: not run (planning only)` rather than claiming parity.
 6. Include labeled `acceptanceTest` and `result` fields even when the proof is inline and produces no saved artifact; include path and SHA-256 only when it does.

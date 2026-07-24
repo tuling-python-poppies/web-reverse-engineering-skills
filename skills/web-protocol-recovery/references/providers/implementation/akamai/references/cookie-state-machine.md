@@ -1,0 +1,53 @@
+# Cookie State Machine
+
+## Typical roles
+
+| Cookie | Typical role | Provenance rule |
+|---|---|---|
+| `_abck` | Classic main Bot Manager state | Seeded by server, advanced by collector responses, sometimes updated by route responses |
+| `bm_sz` | Classic sensor/challenge seed and key material | Server-issued; preserve exact value and trailing fields |
+| `ak_bmsc` | Akamai Pixel/session state | Often HttpOnly and updated by Pixel or early document responses |
+| `bm_s` | Modern main sensor/session state on some sites | Server-issued and rotated by collector POSTs; treat like the primary trust cookie when `_abck` is absent |
+| `bm_sv` | Short-lived validation/session value | Server-issued on auxiliary or business responses |
+| `bm_so` / `bm_ss` / `bm_mi` | Auxiliary sensor/session markers | Capture transitions; do not invent values |
+| `bm_lso` | Often JS-visible companion to sensor state | May be written from `document.cookie`; do not treat as HttpOnly server authority |
+
+Names indicate likely roles, not proof. Always capture the writer. Some modern targets never expose `_abck`/`bm_sz` and still are Akamai via random-path collectors + `bm_*` rotation.
+
+## Minimum transition table
+
+Record one row per network boundary:
+
+```text
+step | request URL | outbound cookie lengths/hashes | response status | Set-Cookie names | next state
+```
+
+Do not store only final values. The transition order is the protocol.
+
+## Common sequence
+
+1. Document response seeds `_abck`, `bm_sz`, and possibly `ak_bmsc`.
+2. Collector script is downloaded in the same session.
+3. Sensor POST 1 receives a new `_abck`.
+4. Sensor POST 2 must send exactly that new `_abck` and receives another update.
+5. Pixel POST may update `ak_bmsc` without changing `_abck`.
+6. Route document may expand or replace `_abck`.
+7. Route-local sensor POSTs may advance it again.
+8. Business API uses the final same-session jar plus route-local server context.
+
+## Rules
+
+- Do not seed the Python session from reconnaissance-browser cookies.
+- Do not expose HttpOnly cookies to local JavaScript unless live evidence proves page visibility.
+- Mirror response-visible `_abck` and `bm_sz` into the local runtime before the emulated XHR callback executes.
+- Preserve domain, path, Secure, and duplicate-name behavior when the wire header differs from a simple dict.
+- Validate state with business replay, not `_abck` length or a substring heuristic.
+
+## Failure signatures
+
+- Collector 201 but route reset: transport mismatch, low-confidence sensor, route-local state, or exit reputation.
+- Sensor POST 2 uses the seed cookie: response cookie was not mirrored before callback.
+- Pixel succeeds but `_abck` stays seed-shaped: Pixel and main collector were confused.
+- Business refresh 403 with valid sensor chain: missing route context, application-session initialization, Referer, or XHR header.
+- Homepage/main/sensor 200 but business document POST Access Denied: incomplete multi-stage sensor settle or low-confidence `bm_s` trust, not necessarily missing CSRF.
+- Local run reuses foreign canvas/WebGL cache: sensor may still 200 while business gate rejects; recapture host fingerprints.

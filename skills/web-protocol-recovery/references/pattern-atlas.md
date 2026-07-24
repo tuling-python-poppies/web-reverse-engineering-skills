@@ -14,6 +14,7 @@ Use this file only when a recurring symptom is already visible and you need the 
 | Runtime getter, serializer, packer, or XHR/fetch egress already has the artifact | harvest that nearest stable boundary | `challenge-state-envelope-playbook.md` |
 | Passive public key/config/nonce precedes a wrapped anonymous request | prove exact envelope build order | `public-bootstrap-envelope-playbook.md` |
 | Entry HTML, cookie, URL/body/response fields share packet markers | separate state chain, framing, and inner crypto | `challenge-state-envelope-playbook.md` |
+| `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gate business replay | prove Akamai family, cookie transition, multi-stage sensor, Pixel, transport, and egress separately | `providers/implementation/akamai/PROVIDER.md` |
 | Cookie blocks replay but writer/refresh path is unknown | attribute `Set-Cookie`, JS writes, and wire consumption | `cookie-provenance-playbook.md` |
 | Session exists but business route rejects, redirects, or changes tenant/shop/org | separate identity, admission, and active context | `session-contract-playbook.md` |
 | Anonymous flow fails only after logged-in state is added | rebuild one clean anonymous session chain | `session-contract-playbook.md` |
@@ -22,8 +23,8 @@ Use this file only when a recurring symptom is already visible and you need the 
 | TLS/ALPN/UA/HTTP-version failure occurs before meaningful application data | map a narrow admission matrix | `transport-pre-gate-playbook.md` |
 | Normal HTTP status carries gibberish, compressed bytes, glyphs, or encoded strings | freeze raw payload and trace its first consumer | `response-decode-playbook.md` |
 | GraphQL operation, WebSocket frames, protobuf/msgpack, or binary envelope owns the contract | separate transport envelope from business fields | `structured-transport-playbook.md` |
-| One-shot captcha/verifier token gates the business request | preserve one coherent round and split protocol/compute/perception/behavior | `providers/implementation/verifier/references/replay-playbook.md` |
-| Restored pixels look correct but submitted coordinates fail | map restored, displayed, and submitted coordinate spaces | `providers/implementation/verifier/references/replay-playbook.md` |
+| One-shot captcha/verifier token gates the business request | select captcha family, preserve one coherent round, and split protocol/compute/perception/behavior | `providers/implementation/verifier/PROVIDER.md` |
+| Restored pixels look correct but submitted coordinates fail | select captcha family first, then map restored, displayed, and submitted coordinate spaces | `providers/implementation/verifier/PROVIDER.md` |
 | Early pages work but later pages switch route family | capture cutoff and use raw pager targets | `pagination-route-pivot-playbook.md` |
 | Only one page/request needs different headers, cookie refresh, or ordering | encode the exception narrowly | `page-specific-exception-playbook.md` |
 | Parsed DOM attributes corrupt replay-critical query bytes | compare raw source, parsed value, and wire | `offline-inline-deob-playbook.md` |

@@ -35,3 +35,5 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-23T19:20	d360ba0	darwin-skill	-	-	keep	ledger	fill missing case-gates ledger rows (3586592, c9ab510); single trailing newline EOF	full_test
 2026-07-23T19:26	23eb647	darwin-skill	-	-	keep	ledger	record f54ee86 case-gate coverage (always-run self-test docs + 8/8 coverage)	full_test
 2026-07-23T19:30	17b6a50	darwin-skill	-	-	keep	ledger	complete case-gates trail: add d360ba0+23eb647; recorded by follow-up 76cc825 ledger pin	full_test
+2026-07-24T20:20	3d108f9	web-protocol-recovery	-	89.4	baseline	dim1-9	post provider-routing expand+namespace sync; runtime_warn=0; dry_run first-turn 24/24 pass; preflight full_test green; shortfalls dim6 ad-hoc cache paths + dim7 verifier bulk; vs prior peak 91.7 (full_test)	dry_run
+2026-07-24T20:35	3d108f9	web-protocol-recovery	89.4	90.8	keep	dim8	independent full_test critical routing prompts 1/2/7/9/14/15/18/19/20/21/23/24 pass 12/12; no skill edits; dim6/dim7 residuals non-blocking	full_test

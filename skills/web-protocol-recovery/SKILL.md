@@ -192,7 +192,7 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not write task evidence under `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, or any non-project path when `projectRoot` is known.
 - Do not treat OS temp as primary storage; if a tool forces an absolute path outside the project, copy the artifact into `js_reverse_cache/**` immediately and stop depending on the external copy.
 - Do not deliver iv8/collector scripts with only bare `print` for progress when `utils/logger.py` is the project standard.
-- Do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|samples|private` trees "for completeness".
+- Do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|akamai|samples|private` trees "for completeness".
 - Do not treat non-empty sign/token, one HTTP 200, or an expired cookie/session export as semantic success.
 - Do not mix case-library edits and darwin `results.tsv` score rows in the same commit when avoidable.
 

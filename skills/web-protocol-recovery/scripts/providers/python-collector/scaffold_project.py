@@ -23,7 +23,7 @@ absolute_no_resolve = PATH_SAFETY.absolute_no_resolve
 is_reparse_point = PATH_SAFETY.is_reparse_point
 
 
-CACHE_NAMESPACES = ("recon", "source", "ast", "env", "iv8", "samples", "private")
+CACHE_NAMESPACES = ("recon", "source", "ast", "env", "iv8", "akamai", "samples", "private")
 REQUIRED_GITIGNORE_RULES = {
     "config.local.json",
     "js_reverse_cache/**",
@@ -222,7 +222,7 @@ def build(root: Path, args: argparse.Namespace) -> list[str]:
     if args.cache:
         directories.append("js_reverse_cache")
         # Only create namespaces explicitly requested via --cache-namespace.
-        # Never pre-create recon/source/ast/env/iv8/samples/private by default.
+        # Never pre-create recon/source/ast/env/iv8/akamai/samples/private by default.
         for ns in args.cache_namespace:
             directories.append(f"js_reverse_cache/{ns}")
     if args.utils or args.iv8_silent or want_logger:

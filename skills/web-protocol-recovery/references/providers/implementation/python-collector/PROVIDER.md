@@ -25,7 +25,7 @@ First write may use the skill-root scaffold (absolute `projectRoot` required, ne
 
 ```text
 python <skill-root>/scripts/providers/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm \
-  [--entry] [--utils] [--iv8-silent] [--logger] [--tests] [--cache] [--cache-namespace recon|source|ast|env|iv8|samples|private] \
+  [--entry] [--utils] [--iv8-silent] [--logger] [--tests] [--cache] [--cache-namespace recon|source|ast|env|iv8|akamai|samples|private] \
   [--output] [--requirements] [--readme] [--gitignore]
 ```
 

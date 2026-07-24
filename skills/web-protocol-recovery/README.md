@@ -40,7 +40,7 @@ references/providers/
     python-collector/PROVIDER.md
 ```
 
-Internal skills are Providers under this tree (not peer top-level skills). `douyin-abogus-native` is the narrow bridge for already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance, backed by the installed local OpenCode skill `dy-ab-pure` when present. `verifier` contains the migrated `captcha-reverse` workflows and scripts, so captcha protocol tasks route through web-protocol-recovery instead of a separate public captcha entry. `akamai` contains the migrated Akamai Bot Manager workflow, cookie state machine, transport rules, iv8 collector route, and T'way field case. Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
+Internal skills are Providers under this tree (not peer top-level skills). `douyin-abogus-native` owns already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and request adaptation. `verifier` owns captcha protocol workflows and proof criteria. `akamai` owns Akamai Bot Manager workflow, cookie state machine, transport rules, iv8 collector route, and T'way field case. Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
 
 ## Cases
 

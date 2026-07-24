@@ -25,7 +25,7 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 | Identified source region needs structural restoration | `references/providers/implementation/ast/PROVIDER.md` | Network ownership or final delivery |
 | Concrete environment-read mismatch is proved | `references/providers/implementation/env-patch/PROVIDER.md` | Guessing broad browser surfaces |
 | Narrow artifact needs host-visible JS semantics | `references/embedded-browser-runtime-playbook.md`, then `references/providers/implementation/iv8/PROVIDER.md` (API gate: `iv8/references/api-inventory.md`) | Full rendering/interaction as delivery |
-| Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` (migrated captcha-reverse family router) | Treating it as an ordinary signer or generic OCR |
+| Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` | Treating it as an ordinary signer or generic OCR |
 | Akamai Bot Manager sensor/cookie state machine owns the gate | `references/providers/implementation/akamai/PROVIDER.md` | Guessing from generic 403, one cookie name, or treating sensor 200 as success |
 | Protocol is proved and browser-free Python delivery remains | `references/providers/implementation/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
 

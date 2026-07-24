@@ -13,7 +13,7 @@
 - The task is maintaining a legacy Akamai 1.7/1.75 generator without current live replay proof.
 - Live business replay is requested without exact authorization, scope, and request budget.
 
-This Provider is the migrated `akamai-protocol-reverse` workflow inside web-protocol-recovery. web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, case selection, and final delivery status. This Provider owns Akamai family proof, cookie transition modeling, collector/Pixel separation, transport coherence, host-local fingerprint policy, local collector execution constraints, and Akamai-specific report shape.
+web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, case selection, and final delivery status. This Provider owns Akamai family proof, cookie transition modeling, collector/Pixel separation, transport coherence, host-local fingerprint policy, local collector execution constraints, and Akamai-specific report shape.
 
 ## References
 

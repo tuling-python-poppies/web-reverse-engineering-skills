@@ -57,7 +57,7 @@ Read focused generic references when the symptom matches. First response loads 0
 
 ## Verifiers, Pagination, And Narrow Exceptions
 
-- `references/providers/implementation/verifier/PROVIDER.md` when captcha or one-shot verification is the protocol gate. The Provider owns the migrated captcha-reverse family router; read exactly one selected family reference such as Geetest, Tencent TDC, Aliyun V2/V3, CSDN, Ctrip, ByteDance VerifyCenter, Yidun, Shumei, Yunpian, 360 Tianyu, or generic `replay-playbook.md` for unknown families.
+- `references/providers/implementation/verifier/PROVIDER.md` when captcha or one-shot verification is the protocol gate. The Provider owns the captcha family router; read exactly one selected family reference such as Geetest, Tencent TDC, Aliyun V2/V3, CSDN, Ctrip, ByteDance VerifyCenter, Yidun, Shumei, Yunpian, 360 Tianyu, or generic `replay-playbook.md` for unknown families.
 - `references/pagination-route-pivot-playbook.md` when later pages pivot route families or raw pager metadata beats parsed DOM
 - `references/page-specific-exception-playbook.md` when only one page or one request behaves differently
 - `references/troubleshooting-playbook.md` when replay logic is almost correct but still unstable

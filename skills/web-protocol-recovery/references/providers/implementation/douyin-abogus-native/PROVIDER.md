@@ -13,7 +13,7 @@
 - The only evidence is an `a_bogus` parameter name, a non-empty signer output, URL roundtrip, or one HTTP `200`.
 - The target is not Douyin Web BDMS 1.0.1.19 under `aweme/v1/web/*`.
 
-This Provider route is `douyin-abogus-native`. It is a thin internal bridge for already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance, backed by the local OpenCode skill `dy-ab-pure` when present. web-protocol-recovery still owns route choice, authorization, `projectRoot`, allowed paths, acceptance tests, live-egress budget, and final delivery status. Treat the installed sibling skill as the capability manual only after this route is selected: `../../../../../dy-ab-pure/SKILL.md` from this file.
+This Provider route is `douyin-abogus-native`. It owns already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and request adaptation. web-protocol-recovery still owns route choice, authorization, `projectRoot`, allowed paths, acceptance tests, live-egress budget, and final delivery status.
 
 ## Work Order Inputs
 

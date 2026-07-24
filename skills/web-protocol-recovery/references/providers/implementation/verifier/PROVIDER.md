@@ -13,7 +13,7 @@
 - The task is only browser hook code, generic signer entry location, ordinary Aliyun RPC signing, or non-captcha Douyin `a_bogus`.
 - Live verify is requested without work-order permission for both live replay and verifier action class.
 
-This Provider is the migrated `captcha-reverse` skill inside web-protocol-recovery. web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, and final delivery status. This Provider owns captcha family selection, same-round verifier state, perception/proof construction, platform-specific captcha workflows, and verifier success criteria.
+web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, and final delivery status. This Provider owns captcha family selection, same-round verifier state, perception/proof construction, platform-specific captcha workflows, and verifier success criteria.
 
 ## Family Router
 
@@ -46,13 +46,13 @@ Read only the selected family reference after the work order names one matching 
 5. Slider tasks separate original/restored image distance, displayed coordinate, submitted coordinate, behavior track, declared duration, and real wall-clock wait.
 6. Sidecar/device models such as Aliyun FeiLin/TDC require full same-session profile, sparse token/counter, timestamps, and telemetry. A valid checksum on one packet does not prove cross-packet state consistency.
 7. Browser automation is evidence only unless the user explicitly asked for UI automation. Final delivery is protocol replay plus local helpers; Python owns live HTTP egress.
-8. When platform workflow requires iv8 or JS runtime, route the execution backend through web-protocol-recovery's internal `iv8` or `env-patch` Provider. Do not call the old top-level `iv8-web-reverse` wording from migrated references as a separate public owner.
+8. When platform workflow requires iv8 or JS runtime, route the execution backend through web-protocol-recovery's internal `iv8` or `env-patch` Provider.
 9. If the user only wants the verification layer, stop at captcha success and do not add business replay to the entry point or success condition.
 10. Dynamic evidence, images, decoded payloads, forms, and responses must stay under assigned `js_reverse_cache/**`; do not write into this Provider directory.
 
 ## Optional Scripts
 
-Provider-local scripts copied from the migrated captcha skill are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution.
+Provider-local scripts are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution.
 
 | Script | Use |
 |---|---|

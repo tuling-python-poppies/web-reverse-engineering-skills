@@ -13,7 +13,7 @@ Before reversing any signer, confirm whether the landing page is a wrapper:
 1. record the full redirect chain
 2. compare initial page, final page, and real network request
 3. check whether the final page rewrites paths, headers, body fields, or cookies
-4. treat compatibility or migration pages as wrappers, not canonical business logic
+4. treat compatibility or wrapper pages as wrappers, not canonical business logic
 
 ### Separate layers
 

@@ -5,7 +5,7 @@ Run these prompts (or mental checks) after skill edits that touch layout, gates,
 | ID | Prompt / check | Must |
 |---|---|---|
 | D1 | First file write on a protocol task | Path under approved `projectRoot/js_reverse_cache/**` (or stable `main.py`/`utils/`) — never OS temp as primary |
-| D2 | Scaffold with `--cache` only | No pre-created empty recon/source/iv8/samples/private unless `--cache-namespace` named |
+| D2 | Scaffold with `--cache` only | No pre-created empty recon/source/ast/env/iv8/akamai/samples/private unless `--cache-namespace` named |
 | D3 | iv8 delivery skeleton | `utils/iv8_silent.py` + `utils/logger.py`; progress via logger |
 | D4 | Non-empty h5st/token but business 403 | Do not claim complete; prefer live bundle / env / cookie refresh diagnosis |
 | D5 | Expired reese84 / browser_state | Fail closed with refresh path under `js_reverse_cache/private/` |

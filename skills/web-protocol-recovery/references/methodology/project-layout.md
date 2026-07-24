@@ -36,6 +36,7 @@ Reject a selected root or output path when any existing component is a symlink, 
     ast/
     env/
     iv8/
+    akamai/
     samples/
     private/
   requirements.txt         # only when third-party dependencies exist
@@ -45,7 +46,7 @@ Reject a selected root or output path when any existing component is a symlink, 
 
 Create only paths required by the current task. A valid delivery may contain only `main.py`.
 
-**On-demand rule:** do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|samples|private`, `tests/`, or `output/` just because they appear in the layout diagram. Create a subdirectory only when the first write for that namespace is about to happen (or the user/work order explicitly requests it via scaffold `--cache-namespace` / `--tests` / `--output`). Empty placeholder trees are forbidden.
+**On-demand rule:** do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|akamai|samples|private`, `tests/`, or `output/` just because they appear in the layout diagram. Create a subdirectory only when the first write for that namespace is about to happen (or the user/work order explicitly requests it via scaffold `--cache-namespace` / `--tests` / `--output`). Empty placeholder trees are forbidden.
 
 ## Ownership
 
@@ -54,7 +55,9 @@ Create only paths required by the current task. A valid delivery may contain onl
 - AST writes intermediate products under `js_reverse_cache/ast/`; promote only a callable, verified result to `main.js` or `utils/*.js`.
 - env-patch writes probes under `js_reverse_cache/env/`; verified stable output may become `mod.js` and `main.js`.
 - iv8 writes probes and net logs under `js_reverse_cache/iv8/`; stable Python helpers belong in `utils/` or the compact `main.py`. When the delivery imports iv8, `utils/iv8_silent.py` is an allowed stable helper for silent package import only.
+- akamai writes transient collector, sensor, Pixel, cookie-transition, transport, and host-fingerprint evidence under `js_reverse_cache/akamai/`; accepted helper code promotes only through `utils/` or `main.py`.
 - verifier keeps transient images under `js_reverse_cache/source/` and fixed redacted vectors under `js_reverse_cache/samples/` or stable `tests/`.
+- douyin-abogus-native keeps fixed traces and redacted vectors under `js_reverse_cache/samples/` or stable `tests/`; accepted pure Python helpers promote only through `utils/` or `main.py`.
 - python-collector owns stable HTTP, pagination, decode, and storage helpers assigned under `main.py` and `utils/`.
 
 ## Cache First, Promote After Proof
@@ -77,7 +80,7 @@ Downloaded HTML/JS/WASM/fonts/images, network exports, screenshots, browser stat
 Before any new file/dir under a task project, answer yes to all applicable:
 
 1. **projectRoot?** Absolute approved root is recorded and the path is inside it.
-2. **Necessary namespace?** Creating `recon|source|ast|env|iv8|samples|private` only because the next write needs that folder (not "layout completeness").
+2. **Necessary namespace?** Creating `recon|source|ast|env|iv8|akamai|samples|private` only because the next write needs that folder (not "layout completeness").
 3. **Not OS temp as primary?** Not writing primary evidence under `%TEMP%` / `AppData\Local\Temp` / agent temp roots.
 4. **Logger?** iv8 or multi-step collector delivery has or will create `utils/logger.py` and uses it for progress.
 5. **No empty tree?** No empty placeholder directories will remain after this step unless a file is written into them immediately.

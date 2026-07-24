@@ -25,6 +25,15 @@ Require all of the following before writing or live replay:
 4. A fixed-vector acceptance test that compares the final `a_bogus` value byte-for-byte, not only length or character set.
 5. Live replay authorization and request budget only when the requested shape requires an actual HTTP request.
 
+If any required file or vector is missing, return `nextAsk` for only that missing item: `pure_abogus.py` path, fixed trace/vector path, BDMS version proof, target URL family, explicit signer inputs, output helper path, or live replay budget. Do not infer missing fields from a non-empty `a_bogus`.
+
+## Path And Dependency Rules
+
+1. Fixed traces, redacted vectors, and first-divergence samples belong under `js_reverse_cache/samples/` or stable `tests/` when the user approves promotion.
+2. Accepted pure Python helper code belongs under `utils/` or the compact `main.py`; do not create a provider-named project root.
+3. Dependency scan must confirm final artifacts do not import browser automation, Node, jsdom, iv8, or page runtime helpers.
+4. Allowed final dependencies are standard-library modules and explicit Python HTTP/utility packages already approved for the task project.
+
 ## Provider Rules
 
 1. Do not create a complete generator from the bundled primitive template alone.

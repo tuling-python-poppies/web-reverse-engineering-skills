@@ -92,7 +92,7 @@
   {
     "id": 19,
     "prompt": "页面只有 acw_sc__v2 WAF cookie 挑战，没有滑块、InitCaptchaV2 或验证码 verify，帮我还原 cookie",
-    "expected": "not verifier; route challenge/cookie evidence path; ordinary WAF cookie challenge is not migrated captcha-reverse"
+    "expected": "not verifier; use challenge/cookie evidence path; ordinary WAF cookie challenge is not a captcha protocol route"
   },
   {
     "id": 20,

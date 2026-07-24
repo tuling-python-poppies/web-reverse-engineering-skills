@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、env-patch、iv8、verifier/captcha-reverse、akamai、douyin-abogus-native 或 Python collector Provider。单点 hook/入口定位/已知 AST、补环境、完整验证码协议复现、Akamai sensor/cookie 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
+  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、env-patch、iv8、verifier、akamai、douyin-abogus-native 或 Python collector Provider。单点 hook/入口定位/已知 AST、补环境、完整验证码协议复现、Akamai sensor/cookie 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -112,7 +112,7 @@ Chromium recon: after recon gates, fresh targets need a **mandatory paired pass*
 
 ## Phase 3: Gate Family
 
-Choose exactly one primary gate family: `signer-gated` · `challenge-gated` · `verifier-gated` · `decode-gated` · `session-gated` · `transport-gated`. Record other blockers as secondary gates; platform labels such as miniapp are not gate families.
+Choose exactly one primary gate family: `signer-gated` · `challenge-gated` · `verifier-gated` · `decode-gated` · `session-gated` · `transport-gated`. Record other blockers as secondary gates; platform labels such as miniapp are not gate families. `akamai` is a route, not a gate family: its primary gate is usually `challenge-gated`, with `transport-gated` or `session-gated` recorded as secondary when the evidence shows that blocker.
 
 Canonical mutation order: wire request -> interceptor -> bootstrap asset -> exposed helper -> runtime egress -> WASM export -> server challenge -> response-refreshed state -> frame encoder.
 

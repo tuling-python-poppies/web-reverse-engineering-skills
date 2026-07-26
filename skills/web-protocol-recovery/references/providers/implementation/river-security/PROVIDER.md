@@ -17,12 +17,12 @@ web-protocol-recovery owns route choice, gates, `projectRoot`, read budget, case
 
 ## Naming
 
-Use **River Security** in new prose. `RuiShu`, `Ruishu`, and `瑞数` are aliases and historical registry/case tags. Do not rename existing case IDs only for terminology cleanup.
+Use **River Security** in new prose. `RuiShu`, `Ruishu`, and `瑞数` are aliases and historical registry/case tags. Registry aliases such as `alias:ruishu` normalize historical names; they do not count as independent observed product markers. Do not rename existing case IDs only for terminology cleanup.
 
 ## First-Turn Rules
 
 1. A user guess is not evidence. `怀疑瑞数 + 412` stays `shape:evidence` and asks for HTML, response headers, `Set-Cookie`, `$_ts`, `r="m"`, and script markers.
-2. `route: river-security` requires at least two independent observed River Security markers. Supplied artifacts or an exact case ID may still use `route: evidence-reuse` for the first read.
+2. `route: river-security` requires at least two independent observed River Security markers; alias tags are never part of that marker count. Supplied artifacts or an exact case ID may still use `route: evidence-reuse` for the first read.
 3. River Security alone is not a Camoufox criterion. Fresh URL reconnaissance starts with Chromium recon. Use Camoufox only for explicit Camoufox/SpiderMonkey/engine-level wording or a recorded Chromium/Cloak observer-effect blocker.
 4. Historical cases are templates unless `selectableAs=proof`. They require fresh current-target verification before live reuse.
 

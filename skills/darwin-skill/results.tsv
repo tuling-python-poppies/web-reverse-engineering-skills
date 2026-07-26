@@ -39,3 +39,4 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-24T20:35	3d108f9	web-protocol-recovery	89.4	90.8	keep	dim8	independent full_test critical routing prompts 1/2/7/9/14/15/18/19/20/21/23/24 pass 12/12; no skill edits; dim6/dim7 residuals non-blocking	full_test
 2026-07-26T14:12	949b240	web-protocol-recovery	90.8	90.8	keep	dim8	River Security routing dry_run prompts 25-32 pass 8/8; hashes PASS; preflight PASS/strict PASS; no score claim	dry_run
 2026-07-26T17:25	74e1fe6	web-protocol-recovery	90.8	90.8	keep	dim8	Phase 0 routing table refactor; static test-prompts route/shape coverage 32/32; preflight strict PASS; no score claim	dry_run
+2026-07-26T18:31	26cd1b8	web-protocol-recovery	90.8	90.8	keep	dim6/8	provider live-template fence + case helper side-effect scan; critical routing dry_run prompts 1/2/5/6/7/9/13/15/18/19/20/23/24/25-32 pass 21/21; strict preflight PASS; no score claim	dry_run

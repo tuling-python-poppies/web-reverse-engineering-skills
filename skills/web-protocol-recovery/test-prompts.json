@@ -158,5 +158,20 @@
     "id": 32,
     "prompt": "给定 caseId camoufox-jsvmp-ruishu6-cookie-412-sdenv，想直接按旧 sdenv Node HTTP 模板跑",
     "expected": "route:evidence-reuse or river-security; historical evidence template only; no direct Node-owned live HTTP; require fresh verification and current provider chain"
+  },
+  {
+    "id": 33,
+    "prompt": "极验 GT4 文字点选 iv8 代码能生成 w，/verify 外层 status=success，但 data.result=fail，帮我修复",
+    "expected": "route:verifier; read Geetest GT4 workflow; non-empty w and outer success are not success; confirm current gcaptcha4.js version and submitter path before retry; avoid repeated guesses on one lot"
+  },
+  {
+    "id": 34,
+    "prompt": "极验 GT4 报 TypeError: window.__gtRequire(...).default.$_BEP is not a function，Chrome 正在做别的逆向任务，我允许用指纹浏览器重新侦察",
+    "expected": "route:camoufox only because user approved fingerprint browser / Chrome is occupied; scope Geetest domains; record browser lifecycle; verifier workflow must discover current registry/submitter instead of hardcoded $_BEP/$_BBFs"
+  },
+  {
+    "id": 35,
+    "prompt": "极验文字点选本地日志里有 pass_token、captcha_output、payload，最终回复可以直接贴完整 verify_response 吗",
+    "expected": "route:verifier; final delivery redacts raw one-shot verifier secrets; logs default to summary unless user explicitly requests raw debug output; success requires data.result=success and fail_count=0"
   }
 ]

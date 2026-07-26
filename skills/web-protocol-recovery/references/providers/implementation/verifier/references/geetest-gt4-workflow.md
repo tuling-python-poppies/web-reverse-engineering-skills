@@ -31,6 +31,21 @@
 6. 组装 `wPayload`，调用 bundle 的 `w` 模块，真实等待 `passtime` 后提交同轮 `/verify`。
 7. 连续创建三轮新 challenge 验证，不能在同一个失败 lot 上扫描大量坐标。
 
+## 文字点选 / iv8 UI Bundle 路径
+
+用于 `risk_type=word`、`captcha_type=word`、`imgs/ques` 文字点选，或现有 iv8 落地代码报错/语义失败的场景。`verify_has_w=true` 但 `data.result=fail` 说明当前 answer、坐标映射或 bundle 提交入口不可信，不是成功。
+
+先做当前版本证据，不要直接沿用旧入口：
+
+1. 记录同轮 `/load`、`gct_path`、`static_path/js`、提示图和背景图；缓存路径仍在 `js_reverse_cache/**`。
+2. 用浏览器或缓存脚本确认当前 `gcaptcha4.js` 版本和 URL。Chrome profile 忙时，只有在用户批准指纹浏览器替代后才用 Camoufox/Cloak；记录 engine provenance，结束后关闭浏览器。
+3. 在 raw `gcaptcha4.js` 中搜索 `userresponse`、`uploadExtraData`、`getValidate`、`$_BED`、`$_BBFB`、`$_BBFs`、`$_BEP`，先定位当前提交链路，再改 iv8 代码。
+4. 不要写死 `window.__gtRequire(17)` 或假设 `default.$_BEP(...).$_BBFs(...)` 长期存在。2026-07 `v1.9.6-1db46d` 的文字点选证据显示公开 `captchaObj` 只是 wrapper，真实实例需通过 registry `$_BED(id)` 获取，提交方法为内部实例 `$_BBFB(answer, callback, true)`；旧 `$_BEP/$_BBFs` 路径会报 TypeError 或找不到 submitter。
+5. OCR/CV 只解决 prompt 和点击坐标。若 `w` 能生成但 `result=fail`，先复查文字顺序、候选框中心、坐标归一化、answer shape 和真实提交入口，不要在同一个 lot 上批量试点。
+6. 本地日志默认只打印摘要：prompt、match method、`verify_has_w`、`status`、`data.result`、`fail_count`、`score`、`requests_used`。`pass_token`、`captcha_output`、`payload`、完整 `w` 只能在用户明确需要调试时输出，最终回复必须脱敏。
+
+文字点选验收：`status == "success"`、`data.result == "success"`、`fail_count == 0`，并记录 prompt 文本、匹配方式、请求数、当前 bundle 版本和浏览器生命周期。非空 `w`、HTTP `200`、outer `status=success` 或单次过期 cookie 都不是成功。
+
 可直接复用：
 
 - `scripts/gt4_bundle_helper.js`：读取当前 bundle，动态提取元数据、PoW、GCT 和 `w`。
@@ -276,6 +291,8 @@ w = aes_hex + rsa_hex
 14. PoW 使用 `/load` 的长 `payload` 参与明文：当前版本会生成错误的 `pow_msg`；应确认 lot number 后是两个连续分隔符 `||`。
 15. 用固定字符窗口读取 bundle 开头：混淆字符串表本身可能超过窗口，导致 `_lib/lib._abo` 明明存在却解析失败；按 lot rule 的明文位置反向定位初始化段。
 16. GCT 正则只匹配 `function x(t){var e=5381`：当前 GCT 在 `5381` 前还有控制流变量，会误报找不到；先搜索 `=5381;` 再做函数边界提取。
+17. 文字点选 iv8 代码沿用旧 `$_BEP/$_BBFs` 或固定 module id：当前 bundle 可能已经改为 wrapper + registry `$_BED(id)` + 内部 `$_BBFB`，必须以当前脚本证据定位。
+18. 浏览器侦察时 Chrome 正在执行其他逆向任务：不要抢 Chrome profile；记录工具 blocker，按用户批准使用指纹浏览器并在结束时关闭。
 
 ## 本次验证证据
 

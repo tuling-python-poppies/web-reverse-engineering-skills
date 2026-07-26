@@ -27,6 +27,7 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 | Narrow artifact needs host-visible JS semantics | `references/embedded-browser-runtime-playbook.md`, then `references/providers/implementation/iv8/PROVIDER.md` (API gate: `iv8/references/api-inventory.md`) | Full rendering/interaction as delivery |
 | Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` | Treating it as an ordinary signer or generic OCR |
 | Akamai Bot Manager sensor/cookie state machine owns the gate | `references/providers/implementation/akamai/PROVIDER.md` | Guessing from generic 403, one cookie name, or treating sensor 200 as success |
+| River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge state owns the gate | `references/providers/implementation/river-security/PROVIDER.md` | Treating vendor name, suspicion, or 412 alone as proof; jumping to Camoufox by default |
 | Protocol is proved and browser-free Python delivery remains | `references/providers/implementation/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
 
 ## Browser Lifecycle Invariant
@@ -86,6 +87,7 @@ Move from reconnaissance to one implementation Provider only after naming the bo
 - browser-visible host semantics needed for one local artifact -> iv8
 - captcha / verification round -> verifier
 - Akamai sensor/cookie state machine -> akamai
+- River Security challenge state -> river-security
 - proved protocol ready for delivery -> python-collector
 
 If the selected Provider returns a new blocker, add one Provider/reference. Do not fan out across sibling implementations.
@@ -104,6 +106,7 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | Public passive key/config/nonce and encrypted wrapper | `public-bootstrap-envelope-playbook.md` |
 | Captcha / one-shot verifier gates business request | `providers/implementation/verifier/PROVIDER.md`, then one selected captcha family reference |
 | Akamai `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gates business request | `providers/implementation/akamai/PROVIDER.md` |
+| River Security / 瑞数 `412` + `$_ts` / S-T Cookie / `r="m"` gates business request | `providers/implementation/river-security/PROVIDER.md` |
 | Output depends on navigator/DOM/reflection/native surfaces | `environment-patch-playbook.md` |
 | Encoded/compressed/font/binary response | `response-decode-playbook.md` |
 | Replay exists but `403`/`412`/`429`, business error, stale state, or pacing remains | `troubleshooting-playbook.md` |

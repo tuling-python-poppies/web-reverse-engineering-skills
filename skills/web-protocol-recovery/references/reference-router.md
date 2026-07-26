@@ -35,6 +35,7 @@ Read focused generic references when the symptom matches. First response loads 0
 ## Cookies, Bootstrap State, And Sessions
 
 - `references/providers/implementation/akamai/PROVIDER.md` when Akamai-native markers such as `_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `sensor_data`, `/akam/13/pixel_*`, or a confirmed random-path collector have independent corroboration. The Provider owns cookie transitions, sensor/Pixel separation, transport coherence, host-local fingerprint policy, and local collector execution acceptance.
+- `references/providers/implementation/river-security/PROVIDER.md` when River Security / 瑞数 markers such as `$_ts.nsd`, `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, HTTP `412` plus S/T cookies, or URL/header challenge-state mutation have independent corroboration. A vendor guess or `412` alone is not enough.
 - `references/cookie-provenance-playbook.md` when a cookie is blocking replay but the writer or refresh path is still unclear
 - `references/session-contract-playbook.md` when results or submission are account-bound
 - `references/public-bootstrap-envelope-playbook.md` when a public page needs passive keys, config, nonce, entry cookies, or an encrypted wrapper

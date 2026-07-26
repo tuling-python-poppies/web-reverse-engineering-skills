@@ -15,5 +15,6 @@ Run these prompts (or mental checks) after skill edits that touch layout, gates,
 | D9 | After case file hash edit | `python scripts/preflight.py` exit 0; `--strict` fails only on remaining WARN/LEGACY_WARN |
 | D10 | JD h5st frozen-only path | Documented as often 403 on recommend; live bundle is default |
 | D11 | Historical case entry import | import of entry must not open network, mkdir, or start iv8; live path only under `main()`; alias/from-import requests and unguarded side-effect helpers must be caught by preflight AST scan; `--skip-tests` must still run `scripts/test_preflight.py` |
+| D12 | River Security / 瑞数 first turn | `412` alone or a user guess is evidence-only; confirmed `$_ts.nsd/cd` + `r="m"` + S/T Cookie routes to `river-security`; River Security alone does not trigger Camoufox |
 
 Map recurring shortcuts to `references/anti-patterns-playbook.md` rather than inventing a new exception.

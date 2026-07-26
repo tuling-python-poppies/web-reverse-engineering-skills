@@ -1,15 +1,16 @@
-# CQVIP Journal Search Reverse Process
+# CQVIP River Security Journal Search Reverse Process
 
 Read this before using this case's `entry.py`.
 
 ## Goal
 
-Handle a CQVIP HTTP 412 challenge by generating S/T cookies in iv8, then replaying the journal search form POST.
+Handle a CQVIP River Security / 瑞数 HTTP 412 challenge by generating S/T cookies in iv8, then replaying the journal search form POST.
 
 ## Browser Findings
 
 - The first page request receives HTTP 412 and a challenge page.
 - The response sets or implies an `S` cookie and a JS-generated `T` cookie.
+- The challenge page exposes River Security markers such as `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, and a dynamic `_$...()` entry.
 - The final business API is a form POST returning an HTML fragment, not JSON.
 
 ## Reconstruction Steps

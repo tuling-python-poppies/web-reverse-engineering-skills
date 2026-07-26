@@ -141,17 +141,21 @@
             "runtime": "iv8",
             "match": {
                 "signals": [
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "challenge:http-412",
+                    "state:$_ts-nsd-cd",
+                    "script-attr:r-m",
                     "cookie:generated-t",
                     "flow:search-replay",
                     "site:cqvip"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": []
             },
             "manifest": {
                 "path": "iv8/cqvip-journal-search/case.json",
-                "sha256": "9fd0883e07c5ccf51e6abb07129821792d45c49e3b66569014faa16812a89996"
+                "sha256": "29d1c5f64f355c1ae8c40391bb501441517a6e28a08611791072110a5ed6129a"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

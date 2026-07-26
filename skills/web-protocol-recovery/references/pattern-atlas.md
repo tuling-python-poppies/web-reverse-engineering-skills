@@ -15,6 +15,7 @@ Use this file only when a recurring symptom is already visible and you need the 
 | Passive public key/config/nonce precedes a wrapped anonymous request | prove exact envelope build order | `public-bootstrap-envelope-playbook.md` |
 | Entry HTML, cookie, URL/body/response fields share packet markers | separate state chain, framing, and inner crypto | `challenge-state-envelope-playbook.md` |
 | `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gate business replay | prove Akamai family, cookie transition, multi-stage sensor, Pixel, transport, and egress separately | `providers/implementation/akamai/PROVIDER.md` |
+| River Security / 瑞数 `412` + `$_ts.nsd/cd` / `r="m"` / S-T Cookie gates replay | classify subtype, preserve one challenge round, then choose env-patch or iv8; Chromium recon first | `providers/implementation/river-security/PROVIDER.md` |
 | Cookie blocks replay but writer/refresh path is unknown | attribute `Set-Cookie`, JS writes, and wire consumption | `cookie-provenance-playbook.md` |
 | Session exists but business route rejects, redirects, or changes tenant/shop/org | separate identity, admission, and active context | `session-contract-playbook.md` |
 | Anonymous flow fails only after logged-in state is added | rebuild one clean anonymous session chain | `session-contract-playbook.md` |

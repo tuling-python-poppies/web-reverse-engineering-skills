@@ -11,27 +11,49 @@
     "secretPolicy":  "redacted-pull-live",
     "match":  {
                   "signals":  [
+                                  "vendor:river-security",
+                                  "alias:ruishu",
                                   "challenge:http-412",
+                                  "state:$_ts-nsd-cd",
+                                  "script-attr:r-m",
                                   "cookie:generated-t",
                                   "flow:search-replay",
                                   "site:cqvip"
                               ],
-                  "minimumIndependentSignals":  2,
+                  "minimumIndependentSignals":  3,
                   "negativeSignals":  [
 
                                       ]
               },
     "protocolPatterns":  [
+                             "vendor:river-security",
+                             "alias:ruishu",
                              "challenge:http-412",
+                             "state:$_ts-nsd-cd",
+                             "script-attr:r-m",
                              "cookie:generated-t",
                              "flow:search-replay",
                              "site:cqvip"
-                         ],
+                          ],
+    "exactScopes":  [
+                         {
+                             "scheme":  "https",
+                             "host":  "qikan.cqvip.com",
+                             "port":  443,
+                             "routePrefix":  "/Qikan/Search"
+                         },
+                         {
+                             "scheme":  "https",
+                             "host":  "qikan.cqvip.com",
+                             "port":  443,
+                             "routePrefix":  "/Search"
+                         }
+                     ],
     "sourceProvider":  "iv8",
     "product":  {
-                    "vendor":  "unknown",
+                    "vendor":  "River Security",
                     "product":  "JS challenge",
-                    "version":  "legacy",
+                    "version":  "unknown",
                     "subtype":  "cqvip-search"
                 },
     "providerChain":  [
@@ -69,7 +91,7 @@
     "artifacts":  {
                       "process":  {
                                       "path":  "PROCESS.md",
-                                      "sha256":  "8986b52772a7a7dad4a1474a7a05084cd45c951fc3441a900e73f63053b8b9b5"
+                                      "sha256":  "a8ac40eb77f182cb4b49d6a9609d58807042c59efa35d2371e2e750e8ede3717"
                                   },
                       "pullLiveState":  {
                                             "path":  "pull_live_state.py",

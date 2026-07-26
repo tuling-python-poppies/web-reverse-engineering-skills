@@ -64,6 +64,30 @@ Primary references:
 - `references/crypto-patterns.md`
 - `references/embedded-browser-runtime-playbook.md` when host semantics matter
 
+### `challenge-gated`
+
+Symptoms:
+
+- the first meaningful response is challenge HTML/JS such as `202` or `412`
+- server seed cookies plus client-derived cookies decide admission
+- challenge JavaScript rewrites URL suffixes, headers, body fields, or replay state before business data is visible
+- River Security markers appear: `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, or paired server `*S` + generated `*T` cookies
+
+First move:
+
+- freeze one coherent challenge chain: first response, headers, `Set-Cookie`, challenge HTML, linked scripts, generated state, and second request delta
+- do not classify from `412` or a user hypothesis alone
+- for River Security, read `references/providers/implementation/river-security/PROVIDER.md` before selecting a case or runtime
+- for generic challenge bootstrap, read `references/challenge-state-envelope-playbook.md`
+- use Chromium recon by default; River Security is not a Camoufox criterion
+
+Primary references:
+
+- `references/providers/implementation/river-security/PROVIDER.md` for confirmed River Security / 瑞数 markers
+- `references/providers/implementation/akamai/PROVIDER.md` for confirmed Akamai markers
+- `references/challenge-state-envelope-playbook.md` for unclassified executable challenge state
+- `references/cookie-provenance-playbook.md` when the writer or refresh order is unknown
+
 ### `transport-gated` (secondary tag)
 
 Symptoms:
@@ -88,7 +112,7 @@ Primary references:
 
 Symptoms:
 
-- the business request only works after a verifier, challenge, or warm-up step
+- the business request only works after a captcha/verifier, one-shot verification token, or warm-up step
 - the page starts failing once hooks or breakpoints are installed
 - there is no meaningful business signer, but a token, cookie, or coordinates appear after a separate request
 
@@ -97,7 +121,7 @@ First move:
 - capture a clean untouched baseline before invasive instrumentation
 - diff requests and verifier outputs first
 - only then add the narrowest hook that proves the boundary
-- if challenge HTML plus scripts appear to seed the cookie, URL suffix, or verifier token, route to `references/embedded-browser-runtime-playbook.md`
+- if challenge HTML plus scripts appear to seed a cookie, URL suffix, or headers, route to `challenge-gated` first
 - if a bootstrap runtime exposes a getter after init or self-issues the decisive request, route to `references/challenge-state-envelope-playbook.md`
 
 Primary references (pick one first path):

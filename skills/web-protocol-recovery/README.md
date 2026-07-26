@@ -34,13 +34,14 @@ references/providers/
     akamai/PROVIDER.md
     akamai/references/*.md
     akamai/scripts/*
+    river-security/PROVIDER.md
     verifier/PROVIDER.md
     verifier/references/*.md
     verifier/scripts/*
     python-collector/PROVIDER.md
 ```
 
-Internal skills are Providers under this tree (not peer top-level skills). `douyin-abogus-native` owns already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and request adaptation. `verifier` owns captcha protocol workflows and proof criteria. `akamai` owns Akamai Bot Manager workflow, cookie state machine, transport rules, iv8 collector route, and T'way field case. Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
+Internal skills are Providers under this tree (not peer top-level skills). `douyin-abogus-native` owns already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and request adaptation. `verifier` owns captcha protocol workflows and proof criteria. `akamai` owns Akamai Bot Manager workflow, cookie state machine, transport rules, iv8 collector route, and T'way field case. `river-security` owns River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge-state subtype selection and historical case reuse boundaries. Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
 
 ## Cases
 

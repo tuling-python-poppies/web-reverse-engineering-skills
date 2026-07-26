@@ -118,5 +118,45 @@
     "id": 24,
     "prompt": "只有一个名为 _abck 的 cookie，没有抓包和脚本信息，帮我直接写生成器",
     "expected": "do not route akamai from cookie name alone; nextAsk for network/script/cookie-transition corroboration; no generator"
+  },
+  {
+    "id": 25,
+    "prompt": "这个站是 River Security 瑞数，首次返回 412，HTML 里有 $_ts.nsd、$_ts.cd、script r=\"m\" 和 XxxS/XxxT Cookie，先判断怎么逆向",
+    "expected": "route:river-security; shape:evidence; strong River Security markers; no Camoufox by default; classify subtype and prefer registry/case evidence before implementation"
+  },
+  {
+    "id": 26,
+    "prompt": "有一个 412 页面，怀疑是瑞数，先帮我判断",
+    "expected": "shape:evidence; do not classify River Security from suspicion+412; ask for HTML/headers/Set-Cookie/$_ts/r=m/script markers"
+  },
+  {
+    "id": 27,
+    "prompt": "只有 HTTP 412，没有 $_ts、S/T Cookie 或保护脚本特征",
+    "expected": "shape:evidence; generic challenge path; not River Security, not Akamai, not Camoufox from 412 alone"
+  },
+  {
+    "id": 28,
+    "prompt": "瑞数二阶段 Cookie，XHR 会改写 URL 和 headers，站点未知，帮我恢复协议",
+    "expected": "route:river-security; classify two-stage URL/header mutation; stop case reuse if multiple cases match; iv8 only after API/work-order gate; Python final egress"
+  },
+  {
+    "id": 29,
+    "prompt": "qikan.cqvip.com 搜索页 412，有 $_ts.nsd/cd、r=m 和生成 T Cookie，帮我复用历史案例",
+    "expected": "route:river-security or evidence-reuse; select iv8-cqvip-journal-search only with cqvip+River Security markers; require fresh current-target verification"
+  },
+  {
+    "id": 30,
+    "prompt": "CHNG 公告接口，412、瑞数二阶段 Cookie，XHR 生成公告 URL 后缀",
+    "expected": "route:river-security; select chng case only with site/subtype discriminator; iv8 artifact boundary; Python final replay"
+  },
+  {
+    "id": 31,
+    "prompt": "我明确要求 Camoufox 做 River Security 的 SpiderMonkey engine-level trace",
+    "expected": "route:camoufox; explicit engine-level criterion; River Security alone is not the reason; preserve final Python egress"
+  },
+  {
+    "id": 32,
+    "prompt": "给定 caseId camoufox-jsvmp-ruishu6-cookie-412-sdenv，想直接按旧 sdenv Node HTTP 模板跑",
+    "expected": "route:evidence-reuse or river-security; historical evidence template only; no direct Node-owned live HTTP; require fresh verification and current provider chain"
   }
 ]

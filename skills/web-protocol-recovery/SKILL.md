@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、env-patch、iv8、verifier、akamai、douyin-abogus-native 或 Python collector Provider。单点 hook/入口定位/已知 AST、补环境、完整验证码协议复现、Akamai sensor/cookie 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
+  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、env-patch、iv8、verifier、akamai、river-security、douyin-abogus-native 或 Python collector Provider。单点 hook/入口定位/已知 AST、补环境、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -64,10 +64,11 @@ First-turn routing rules:
 3. Platform/runtime words choose only the route, not the deliverable depth: miniapp means `route: wechat-miniapp`; Camoufox means `route: camoufox`; neither upgrades to `collector` by itself.
 4. Strong captcha protocol signals choose `route: verifier`: captcha request samples, images, `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, Geetest GT3/GT4, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter. Generic `403` plus the word captcha is still evidence first, not automatic solving.
 5. Strong Akamai signals choose `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is still evidence first, not Akamai proof.
-6. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
-7. Existing Douyin Web BDMS pure-Python maintenance wording chooses only `route: douyin-abogus-native` when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on the normal recon/implementation routes.
-8. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
-9. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
+6. Strong River Security signals choose `route: river-security` only when observed markers corroborate the family: HTTP `412` plus `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, server `*S` + client `*T` cookies, protected XHR URL/header mutation, or a confirmed River Security protection script. A user guess such as "suspected RuiShu" or a generic `412` alone is not evidence and stays `shape:evidence` to collect HTML, headers, cookies, and script markers. River Security does not imply Camoufox; fresh URL reconnaissance starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present.
+7. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
+8. Existing Douyin Web BDMS pure-Python maintenance wording chooses only `route: douyin-abogus-native` when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on the normal recon/implementation routes.
+9. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
+10. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
 
 Read-Only Evidence Fast Path:
 
@@ -112,7 +113,7 @@ Chromium recon: after recon gates, fresh targets need a **mandatory paired pass*
 
 ## Phase 3: Gate Family
 
-Choose exactly one primary gate family: `signer-gated` · `challenge-gated` · `verifier-gated` · `decode-gated` · `session-gated` · `transport-gated`. Record other blockers as secondary gates; platform labels such as miniapp are not gate families. `akamai` is a route, not a gate family: its primary gate is usually `challenge-gated`, with `transport-gated` or `session-gated` recorded as secondary when the evidence shows that blocker.
+Choose exactly one primary gate family: `signer-gated` · `challenge-gated` · `verifier-gated` · `decode-gated` · `session-gated` · `transport-gated`. Record other blockers as secondary gates; platform labels such as miniapp are not gate families. `akamai` and `river-security` are routes, not gate families: their primary gate is usually `challenge-gated`, with `transport-gated` or `session-gated` recorded as secondary when the evidence shows that blocker.
 
 Canonical mutation order: wire request -> interceptor -> bootstrap asset -> exposed helper -> runtime egress -> WASM export -> server challenge -> response-refreshed state -> frame encoder.
 
@@ -128,10 +129,11 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Browser-like local runtime / XHR netLog / registry runtime case | `iv8` | `references/providers/implementation/iv8/PROVIDER.md`; stable Python import uses `utils/iv8_silent.import_iv8_silent()` |
 | Existing Douyin Web BDMS 1.0.1.19 pure-Python `a_bogus` maintenance or request adapter | `douyin-abogus-native` | `references/providers/implementation/douyin-abogus-native/PROVIDER.md` |
 | Akamai Bot Manager sensor/cookie state machine and business replay | `akamai` | `references/providers/implementation/akamai/PROVIDER.md` |
+| River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge state | `river-security` | `references/providers/implementation/river-security/PROVIDER.md` |
 | Captcha protocol / verifier / slider / point-click / WAF captcha gateway | `verifier` | `references/providers/implementation/verifier/PROVIDER.md` |
 | Stable browser-free Python delivery | `python-collector` | `references/providers/implementation/python-collector/PROVIDER.md` |
 
-Chains are sequential (typical: recon -> AST -> env/iv8 -> collector; verifier -> iv8/env-patch -> python-collector for captcha proof builders; akamai -> iv8 -> python-collector for host-bound collectors; or evidence-reuse -> douyin-abogus-native -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime; `verifier` = captcha protocol branch and success criteria; `akamai` = Akamai Bot Manager collector/cookie/transport state machine; `douyin-abogus-native` = already-proved Douyin BDMS pure-Python work, not from-zero algorithm recovery. Runtime helper details, including iv8 import hygiene, live in the selected Provider docs.
+Chains are sequential (typical: recon -> AST -> env/iv8 -> collector; verifier -> iv8/env-patch -> python-collector for captcha proof builders; akamai -> iv8 -> python-collector for host-bound collectors; river-security -> env-patch/iv8 -> python-collector for challenge state; or evidence-reuse -> douyin-abogus-native -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. `env-patch` = minimal Node/jsdom gaps for a known entry; `iv8` = browser-like host when that is the smallest faithful runtime; `verifier` = captcha protocol branch and success criteria; `akamai` = Akamai Bot Manager collector/cookie/transport state machine; `river-security` = River Security 412/`$_ts`/S-T Cookie subtype selection and challenge artifact boundary; `douyin-abogus-native` = already-proved Douyin BDMS pure-Python work, not from-zero algorithm recovery. Runtime helper details, including iv8 import hygiene, live in the selected Provider docs.
 
 ## Phase 5: Verification
 
@@ -146,7 +148,7 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 ## Case Reuse And Writeback
 
-Selector: only `references/cases/registry.json`; only `status=verified` entries are library-selectable. Read `verificationClass` and `selectableAs` on the registry row before load: `selectableAs=proof` (`freshly-verified`) may be current-target proof after offline vectors; `selectableAs=template` (`historical-user-attested`) is shape/process evidence only and always requires fresh current-target verification before live reuse. Match a structured exact scheme/host/port/route scope **or** ≥2 independent high-confidence signals (verifier cases need vendor/version/subtype). If more than one verified case matches the same exact scope or the same minimum signal set, do not select by registry order; stop case reuse until a discriminator such as runtime, algorithm, product subtype, or negative signal selects exactly one case. Never match on one generic param, status, `_0x`, or SDK string. All entries resolve to one hash-bound `web-protocol-recovery-case/v1` manifest. `freshly-verified` cases must carry executed test/evidence artifacts.
+Selector: only `references/cases/registry.json`; only `status=verified` entries are library-selectable. Read `verificationClass` and `selectableAs` on the registry row before load: `selectableAs=proof` (`freshly-verified`) may be current-target proof after offline vectors; `selectableAs=template` (`historical-user-attested`) is shape/process evidence only and always requires fresh current-target verification before live reuse. Match a structured exact scheme/host/port/route scope **or** ≥2 independent high-confidence signals (verifier cases need vendor/version/subtype). A user hypothesis such as "怀疑瑞数" is not an independent high-confidence signal. If more than one verified case matches the same exact scope or the same minimum signal set, do not select by registry order; stop case reuse until a discriminator such as runtime, algorithm, product subtype, or negative signal selects exactly one case. Never match on one generic param, status, `_0x`, or SDK string. All entries resolve to one hash-bound `web-protocol-recovery-case/v1` manifest. `freshly-verified` cases must carry executed test/evidence artifacts.
 
 Load one selected case as `case.json` -> `PROCESS.md` -> declared puller/fixtures/tests/entry/assets within the read budget. An iv8 implementation additionally requires the Provider's accepted `api-inventory.md` gate before code use. A `python-node` evidence case has no implementation entry until fresh verification produces one. Offline vectors first; stop reuse if current evidence disagrees. A failed case does not authorize a sibling case.
 
@@ -184,6 +186,7 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
 - Do not open Camoufox on ordinary Web without explicit Camoufox wording or recorded second-engine criteria.
+- Do not route River Security/RuiShu to Camoufox from the vendor name, `412`, or historical case provenance alone.
 - Do not open both Chromium and Camoufox recon without a Camoufox selection criterion.
 - Do not load a sibling case after one registry match failed current evidence.
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.

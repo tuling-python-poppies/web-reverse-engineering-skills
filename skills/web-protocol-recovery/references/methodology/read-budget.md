@@ -31,6 +31,15 @@ Sequential Providers start a new handoff window only after web-protocol-recovery
 6. Do not open collector/project-layout docs for pure evidence-only work with no write planned.
 7. Same symptom family: load only one canonical path per window (challenge → `challenge-state-envelope-playbook.md`; River Security → `providers/implementation/river-security/PROVIDER.md`, then at most one selected case; Akamai → `providers/implementation/akamai/PROVIDER.md`, then exactly one selected Akamai reference; env → `environment-patch-playbook.md`; verifier method → `providers/implementation/verifier/PROVIDER.md`, then exactly one selected captcha family reference; anti-debug offline → `offline-inline-deob-playbook.md`; crypto name-lie → `crypto-patterns.md`).
 
+## Path Base
+
+Backtick reference paths resolve against the file that cites them, not against a single global root:
+
+1. Hub and methodology files (`SKILL.md`, `references/*.md`, `references/methodology/*.md`) cite `references/...` from the **skill root**.
+2. Provider files (`references/providers/**/PROVIDER.md` and their local `references/*.md`) cite `references/...` from **that Provider's own directory**. Example: a "references/ + api-inventory.md" citation inside the iv8 Provider resolves to `references/providers/implementation/iv8/references/api-inventory.md`, never to a same-named file at the skill root.
+3. A cross-layer citation must spell the full skill-root-relative path instead of relying on the local base.
+4. If a cited path does not resolve on the first try, do not scan the tree. Re-resolve once against the other base, then follow the accounting block below before opening any additional path.
+
 ## Reject These Requests
 
 - "Read every playbook/case first"

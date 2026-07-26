@@ -41,6 +41,8 @@ A `freshly-verified` case binds distinct `verification.testArtifact` executable 
 
 Hash cascade is mandatory after any hash-bound edit: recompute SHA-256 of the changed target file, update the corresponding `case.json` field (`artifacts.process` / `entry` / `pullLiveState` / `assets[]` / `preRead[]` / `verification.testArtifact` / `verification.evidenceArtifact`), then recompute that `case.json` and update `registry.json` `manifest.sha256` plus keep registry `verificationClass`/`selectableAs` aligned with the case. Shared `preRead` targets require every referencing case to be updated. Before commit, run `python scripts/verify_case_hashes.py` from the skill root and require exit 0; it must also reject undeclared case files, unregistered `case.json` files, absolute or escaping declared paths, and verificationClass contract failures.
 
+Any commit that changes a hash-bound case file, a `minimumIndependentSignals` threshold, `exactScopes`, `negativeSignals`, or case-selection semantics must carry a commit body stating what changed, why, and the verification result (for example the `verify_case_hashes.py` and `preflight.py --strict` outcome). A one-line subject alone is not enough for these high-impact edits, because the threshold or hash change is otherwise invisible in the log.
+
 Historical user attestation does not replace fresh current-target acceptance and never authorizes embedded live requests, dependencies, verifier submission, account state, or raw persistence. New work must use `freshly-verified`; restored historical manifests are read-only except for credential removal, path migration, or integrity repairs explicitly approved by the user.
 
 ## PROCESS.md

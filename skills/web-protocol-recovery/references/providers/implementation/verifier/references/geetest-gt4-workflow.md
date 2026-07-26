@@ -46,6 +46,27 @@
 
 文字点选验收：`status == "success"`、`data.result == "success"`、`fail_count == 0`，并记录 prompt 文本、匹配方式、请求数、当前 bundle 版本和浏览器生命周期。非空 `w`、HTTP `200`、outer `status=success` 或单次过期 cookie 都不是成功。
 
+### Python 3.9 / PyCharm 静态检查
+
+极验落地代码若包含 PIL、NumPy、OpenCV、`ddddocr`，优先使用 Python 3.9 兼容的类型写法，避免为消除 IDE 警告引入新版语法或运行时依赖：
+
+```python
+from typing import Any, cast
+
+def image_to_array(image: Image.Image) -> np.ndarray:
+    return np.asarray(cast(Any, image), dtype=np.uint8)
+```
+
+常见修复模式：
+
+1. PIL 图像转 ndarray：用 `np.asarray(cast(Any, image), dtype=np.uint8)`，不要直接把 `Image.Image` 交给类型检查器推断。
+2. PyCharm 报 `ndarray.max/min` 未解析：可写成 `np.max(rgb, axis=2)` / `np.min(rgb, axis=2)`。
+3. PyCharm 报 `ndarray.astype` 未解析：可把 `np.where(...).astype(np.uint8)` 改成 `np.asarray(np.where(...), dtype=np.uint8)`。
+4. `Image.fromarray` 期望 `SupportsArrayInterface`：使用 `Image.fromarray(cast(Image.SupportsArrayInterface, array_value))`。
+5. 保持 Python 3.9 兼容：避免 `A | B`、`typing.Self`、依赖新版 `numpy.typing` 语法才能通过检查的写法；必要时用 `typing.Optional`、`typing.Union`、`typing.cast`。
+
+这些规则只用于落地代码静态检查。不要因为 IDE warning 而改变验证码协议字段、坐标语义、请求时序或 verifier 成功标准。
+
 可直接复用：
 
 - `scripts/gt4_bundle_helper.js`：读取当前 bundle，动态提取元数据、PoW、GCT 和 `w`。

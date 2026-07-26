@@ -6,7 +6,7 @@ Runs offline checks that should pass before committing skill edits:
 1. case hash/registry integrity (verify_case_hashes.py)
 2. all case unit tests discovered under references/cases/*/*/tests
 3. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
-4. discipline scans on case entry.py files:
+4. discipline scans on case Python files:
    - bare top-level `import iv8`
    - import-time mkdir/network/request binding
    - module-level live side effects (AST): with-blocks, requests.* aliases,
@@ -70,7 +70,12 @@ SIDE_EFFECT_CALL_PREFIXES = (
 SIDE_EFFECT_CALL_SUFFIXES = {
     "JSContext",
     "mkdir",
+    "open",
+    "read_bytes",
+    "read_text",
     "urlopen",
+    "write_bytes",
+    "write_text",
 }
 SIDE_EFFECT_FUNCS = {
     "_iv8",
@@ -221,8 +226,22 @@ def check_preflight_unit_tests() -> tuple[bool, str]:
     return code == 0, out.strip()
 
 
-def case_rel_from_entry(path: Path) -> str:
-    return path.parent.relative_to(CASES_ROOT).as_posix()
+def case_rel_from_path(path: Path) -> str:
+    rel = path.relative_to(CASES_ROOT)
+    if len(rel.parts) < 3:
+        raise ValueError(f"case file is not under runtime/case/file: {path}")
+    return f"{rel.parts[0]}/{rel.parts[1]}"
+
+
+def is_case_python_scan_path(path: Path) -> bool:
+    rel_parts = path.relative_to(CASES_ROOT).parts
+    if len(rel_parts) < 3 or path.suffix != ".py":
+        return False
+    if path.name == "pull_live_state.py":
+        return False
+    if set(rel_parts) & CASE_IGNORED_DIR_NAMES:
+        return False
+    return "tests" not in rel_parts
 
 
 def load_verification_class(case_rel: str) -> str | None:
@@ -496,9 +515,11 @@ def scan_entry(path: Path) -> list[str]:
 def scan_entries() -> list[tuple[str, str]]:
     """Return list of (case_rel, warning_message)."""
     results: list[tuple[str, str]] = []
-    for entry in CASES_ROOT.glob("*/*/entry.py"):
-        case_rel = case_rel_from_entry(entry)
-        for warning in scan_entry(entry):
+    for case_file in sorted(CASES_ROOT.glob("*/*/**/*.py")):
+        if not is_case_python_scan_path(case_file):
+            continue
+        case_rel = case_rel_from_path(case_file)
+        for warning in scan_entry(case_file):
             results.append((case_rel, warning))
     return results
 

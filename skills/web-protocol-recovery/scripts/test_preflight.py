@@ -63,6 +63,12 @@ class EntryDisciplineScanTests(unittest.TestCase):
             "module-level assign with side-effect call",
         )
 
+    def test_path_read_text_is_import_time_side_effect(self) -> None:
+        self.assert_warns(
+            'from pathlib import Path\nsource = Path("asset.js").read_text(encoding="utf-8")\n',
+            "module-level assign with side-effect call",
+        )
+
 
 class PreflightSelfTestGateTests(unittest.TestCase):
     def test_missing_self_test_file_fails_closed(self) -> None:
@@ -119,6 +125,24 @@ class CommitBodyPolicyTests(unittest.TestCase):
         self.assertTrue(preflight.diff_touches_case_selection('+    "exactScopes": ['))
         self.assertTrue(preflight.diff_touches_case_selection('+    "negativeSignals": ['))
         self.assertFalse(preflight.diff_touches_case_selection('+    "sha256": "abc"'))
+
+
+class CasePythonScanPathTests(unittest.TestCase):
+    def test_helper_python_file_is_scanned(self) -> None:
+        path = preflight.CASES_ROOT / "iv8" / "demo" / "lib" / "helper.py"
+        self.assertTrue(preflight.is_case_python_scan_path(path))
+
+    def test_case_test_python_file_is_not_scanned(self) -> None:
+        path = preflight.CASES_ROOT / "iv8" / "demo" / "tests" / "test_vectors.py"
+        self.assertFalse(preflight.is_case_python_scan_path(path))
+
+    def test_live_state_selector_is_not_entry_scanned(self) -> None:
+        path = preflight.CASES_ROOT / "iv8" / "demo" / "pull_live_state.py"
+        self.assertFalse(preflight.is_case_python_scan_path(path))
+
+    def test_nested_file_maps_to_case_root(self) -> None:
+        path = preflight.CASES_ROOT / "iv8" / "demo" / "lib" / "helper.py"
+        self.assertEqual("iv8/demo", preflight.case_rel_from_path(path))
 
 
 if __name__ == "__main__":

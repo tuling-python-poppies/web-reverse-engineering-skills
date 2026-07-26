@@ -40,10 +40,6 @@ def read_case_asset(filename):
     return path.read_text(encoding="utf-8")
 
 
-js_code = read_case_asset("bdms_1.0.1.19.js")
-
-
-
 environment = {
     "location": {
         "href": "https://www.douyin.com/video/7596496938191654184",
@@ -76,6 +72,7 @@ headers = {
 
 
 def main():
+    js_code = read_case_asset("bdms_1.0.1.19.js")
     live_state = json.loads(os.environ.get("WPR_LIVE_STATE_JSON", "{}"))
     cookies = live_state.get("cookies", {})
     if not cookies.get("ttwid"):

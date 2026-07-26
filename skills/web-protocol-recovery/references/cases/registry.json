@@ -203,7 +203,7 @@
             },
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
-                "sha256": "a4472896c591c4d7ab145161d4de993eddfce3b7d05174be8ca98c1ec3404bd3"
+                "sha256": "660d5bcb524d070d8f509459605d454cca849b561464dec8d4ae492ed4fa54af"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

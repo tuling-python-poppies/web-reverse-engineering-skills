@@ -60,6 +60,15 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "Camoufox vm-sandbox live-template guard",
     ),
     (
+        "references/providers/reconnaissance/camoufox/templates/vm-sandbox/utils/request.js",
+        (
+            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
+            "function assertApprovedTemplateRun()",
+            "assertApprovedTemplateRun();",
+        ),
+        "Camoufox vm-sandbox request-helper guard",
+    ),
+    (
         "references/providers/reconnaissance/camoufox/templates/wasm-loader/main.js",
         (
             "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
@@ -74,6 +83,7 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
             "--confirm-live-verify",
             "LIVE_VERIFY_APPROVED",
             "def require_live_verify_approval",
+            "def live_get",
             "js_reverse_cache\" / \"source\" / \"geetest_gt4",
         ),
         "GT4 replay live verifier guard",
@@ -84,6 +94,7 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
             "--confirm-live-verify",
             "LIVE_VERIFY_APPROVED",
             "def require_live_verify_approval",
+            "def live_get",
             "js_reverse_cache\" / \"source\" / \"geetest_gt4",
         ),
         "GT4 pure replay live verifier guard",

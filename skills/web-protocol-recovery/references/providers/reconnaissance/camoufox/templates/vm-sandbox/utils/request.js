@@ -5,6 +5,15 @@
 
 const axios = require('axios');
 
+function assertApprovedTemplateRun() {
+    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
+        throw new Error(
+            'Camoufox request helper is disabled by default. Copy/adapt it into an approved project, ' +
+            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe.'
+        );
+    }
+}
+
 const DEFAULT_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -40,6 +49,7 @@ class TwoPhaseClient {
      * @returns {string} JS 代码字符串
      */
     async fetchDynamicJS(url, params = {}) {
+        assertApprovedTemplateRun();
         const response = await this.client.get(url, {
             params,
             headers: { Cookie: this.getCookieString() },
@@ -52,6 +62,7 @@ class TwoPhaseClient {
      * 第二阶段：携带Cookie请求数据
      */
     async fetchData(url, params = {}) {
+        assertApprovedTemplateRun();
         const response = await this.client.get(url, {
             params,
             headers: { Cookie: this.getCookieString() },
@@ -60,6 +71,7 @@ class TwoPhaseClient {
     }
 
     async post(url, data = {}) {
+        assertApprovedTemplateRun();
         const response = await this.client.post(url, data, {
             headers: { Cookie: this.getCookieString() },
         });
@@ -78,4 +90,4 @@ class TwoPhaseClient {
     }
 }
 
-module.exports = { TwoPhaseClient, DEFAULT_HEADERS };
+module.exports = { TwoPhaseClient, DEFAULT_HEADERS, assertApprovedTemplateRun };

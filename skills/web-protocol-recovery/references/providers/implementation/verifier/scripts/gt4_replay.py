@@ -32,6 +32,11 @@ def require_live_verify_approval() -> None:
         )
 
 
+def live_get(session: requests.Session, url: str, **kwargs) -> requests.Response:
+    require_live_verify_approval()
+    return session.get(url, **kwargs)
+
+
 def callback() -> str:
     return f"geetest_{int(time.time() * 1000)}"
 
@@ -48,8 +53,7 @@ def save_json(path: Path, value: object) -> None:
 
 
 def download_image(session: requests.Session, image_url: str, path: Path) -> bytes:
-    require_live_verify_approval()
-    response = session.get(urljoin(STATIC_BASE, image_url), timeout=30)
+    response = live_get(session, urljoin(STATIC_BASE, image_url), timeout=30)
     response.raise_for_status()
     if not response.headers.get("content-type", "").startswith("image/"):
         raise ValueError(f"Expected image, got {response.headers.get('content-type')}")
@@ -124,8 +128,7 @@ def main() -> int:
         "pt": "1",
         "lang": "zho",
     }
-    require_live_verify_approval()
-    load_response = session.get(LOAD_URL, params=load_params, timeout=30)
+    load_response = live_get(session, LOAD_URL, params=load_params, timeout=30)
     load_response.raise_for_status()
     load_json = parse_jsonp(load_response.text)
     if load_json.get("status") != "success":
@@ -180,8 +183,7 @@ def main() -> int:
         "pt": data["pt"],
         "w": helper_output["w"],
     }
-    require_live_verify_approval()
-    verify_response = session.get(VERIFY_URL, params=verify_params, timeout=30)
+    verify_response = live_get(session, VERIFY_URL, params=verify_params, timeout=30)
     verify_response.raise_for_status()
     verify_json = parse_jsonp(verify_response.text)
     (cache / "verify.jsonp").write_text(verify_response.text, encoding="utf-8")

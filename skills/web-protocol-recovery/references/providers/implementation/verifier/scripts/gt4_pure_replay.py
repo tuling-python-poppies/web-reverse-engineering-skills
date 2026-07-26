@@ -36,6 +36,11 @@ def require_live_verify_approval():
         )
 
 
+def live_get(session, url, **kwargs):
+    require_live_verify_approval()
+    return session.get(url, **kwargs)
+
+
 RSA_N_HEX = (
     "c1e3934d1614465b33053e7f48ee4ec87b14b95ef88947713d25eecbff7e74c"
     "7977d02dc1d9451f79dd5d1c10c29acb6a9b4d6fb7d0a0279b6719e1772565f"
@@ -249,8 +254,7 @@ def encrypt_w(payload, pt):
 
 
 def download(session, url):
-    require_live_verify_approval()
-    response = session.get(urljoin(STATIC_BASE, url), timeout=30)
+    response = live_get(session, urljoin(STATIC_BASE, url), timeout=30)
     response.raise_for_status()
     return response
 
@@ -287,8 +291,7 @@ def main():
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
         ),
     })
-    require_live_verify_approval()
-    load_response = session.get(LOAD_URL, params={
+    load_response = live_get(session, LOAD_URL, params={
         "callback": callback(), "captcha_id": args.captcha_id,
         "client_type": "web", "risk_type": "slide", "lang": "zh",
     }, timeout=30)
@@ -350,8 +353,7 @@ def main():
     })
     replay_trace_timing(trace)
 
-    require_live_verify_approval()
-    verify_response = session.get(VERIFY_URL, params={
+    verify_response = live_get(session, VERIFY_URL, params={
         "callback": callback(), "captcha_id": args.captcha_id,
         "client_type": "web", "lot_number": data["lot_number"],
         "risk_type": data["captcha_type"], "payload": data["payload"],

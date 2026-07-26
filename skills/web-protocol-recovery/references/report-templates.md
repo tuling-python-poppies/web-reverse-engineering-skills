@@ -171,4 +171,4 @@ route: <Provider ID|evidence-reuse>
 
 ## Project layout
 
-Project layout has one owner: `references/methodology/project-layout.md`. Reports may name the selected root, layout version, stable files, and cache paths, but must not redefine the tree.
+Project layout has one owner: `references/methodology/project-layout.md`. Reports may name the selected root, layout id, stable files, and cache paths, but must not redefine the tree.

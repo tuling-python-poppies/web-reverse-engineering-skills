@@ -57,18 +57,24 @@ Do not paste the full intake form on the first reply. Use the four-line template
 
 If the user gives no success shape, default to `shape: evidence`. Choose `route` by the strongest Phase 2 signal, then ask only for gates needed before the next gated action.
 
-First-turn routing rules:
+First-turn routing rules choose only `shape` and `route`; they do not grant browser navigation, live egress, writes, account/session use, target-code execution, verifier submission, or collection scale.
 
-1. Supplied artifacts or an exact registry case beat fresh recon: start with `route: evidence-reuse`; a URL alone never authorizes a browser launch.
-2. Explicit offline/local/vector wording beats heavier routing: use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider.
-3. Platform/runtime words choose only the route, not the deliverable depth: miniapp means `route: wechat-miniapp`; Camoufox means `route: camoufox`; neither upgrades to `collector` by itself.
-4. Strong captcha protocol signals choose `route: verifier`: captcha request samples, images, `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, Geetest GT3/GT4, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter. Generic `403` plus the word captcha is still evidence first, not automatic solving.
-5. Strong Akamai signals choose `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is still evidence first, not Akamai proof.
-6. Strong River Security signals choose `route: river-security` only when at least two independent observed markers corroborate the family: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, server `*S` plus client `*T` cookies, protected XHR URL/header mutation, or a confirmed River Security protection script. Alias tags such as `alias:ruishu` normalize naming and do not count as observed markers. A user guess such as "suspected RuiShu" or a generic `412` alone never routes and stays `shape:evidence` to collect HTML, headers, cookies, and script markers. River Security does not imply Camoufox; fresh URL reconnaissance starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present.
-7. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
-8. Existing Douyin Web BDMS pure-Python maintenance wording chooses only `route: douyin-abogus-native` when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on the normal recon/implementation routes.
-9. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
-10. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
+| Signal | First-turn decision |
+|---|---|
+| Supplied artifacts or an exact registry case | Prefer `route: evidence-reuse`; a URL alone never authorizes browser launch. |
+| Explicit offline / local / fixed-vector wording | Use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider. |
+| Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
+| Known implementation boundary or explicit implementation Provider request | Use the named implementation route only when the boundary/artifact is named, such as `route: browser-hooks`, `route: ast`, `route: env-patch`, or `route: iv8`; otherwise stay evidence first. |
+| Strong captcha protocol signals | Use `route: verifier` for captcha request samples/images, `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, Geetest GT3/GT4, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter. Generic `403` plus the word captcha is evidence first, not automatic solving. |
+| Strong Akamai signals | Use `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is not Akamai proof. |
+| Strong River Security signals | Use `route: river-security` only when at least two independent observed markers corroborate the family: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, server `*S` plus client `*T` cookies, protected XHR URL/header mutation, or a confirmed River Security protection script. Alias tags such as `alias:ruishu` normalize naming and do not count as observed markers; a user guess or generic `412` alone never routes. Fresh URL reconnaissance starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. |
+| Existing Douyin Web BDMS pure-Python maintenance | Use `route: douyin-abogus-native` only when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on normal recon/implementation routes. |
+
+Fallback rules:
+
+1. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
+2. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
+3. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
 
 Read-Only Evidence Fast Path:
 

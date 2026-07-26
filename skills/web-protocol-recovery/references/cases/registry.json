@@ -74,18 +74,19 @@
             "runtime": "python-node",
             "match": {
                 "signals": [
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "version:6",
                     "challenge:http-412",
                     "state:$_ts-nsd-cd",
                     "cookie:client-T-suffix"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": []
             },
             "manifest": {
                 "path": "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
-                "sha256": "4722e0dbeeb5a5a6c7fc7958263006eba6e42128c2fdbfc21fda536f20648294"
+                "sha256": "7146aabfb687474bf0118a31c542e5f1de9c762302e8d6922bb527657475488a"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -97,17 +98,18 @@
             "runtime": "iv8",
             "match": {
                 "signals": [
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "flow:two-stage-cookie",
                     "transport:xhr-rewrite",
                     "site:chinatax"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": []
             },
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
-                "sha256": "a212d3e224da01807331e73bd27484f97c74185179deca6d895999a9e2e563bd"
+                "sha256": "278d7ee581091daf01845f2c254050a98b3201210b00f57105bb999bd0fde79f"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -119,17 +121,18 @@
             "runtime": "iv8",
             "match": {
                 "signals": [
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "flow:two-stage-cookie",
                     "transport:xhr-rewrite",
                     "site:chng"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": []
             },
             "manifest": {
                 "path": "iv8/chng-ruishu-announcement/case.json",
-                "sha256": "e1ab1e3accd0b88c747b870f1d30663d8369887eb8534e5495cb4e3e8c0c3e92"
+                "sha256": "8810a4cdd76a86d7b6adee76e73b736ba0182b3b7adb7555682f109259b695c9"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -167,17 +170,18 @@
             "runtime": "iv8",
             "match": {
                 "signals": [
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "flow:two-stage-cookie",
                     "transport:xhr-rewrite",
                     "site:customs"
                 ],
-                "minimumIndependentSignals": 2,
+                "minimumIndependentSignals": 3,
                 "negativeSignals": []
             },
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
-                "sha256": "2cceabae304dbe7741dd7b2eb8c32784f3b13f7cad1f76ce68c949f778efa841"
+                "sha256": "7f37414315e845359ad04e04332bb2d34ffacaf1b18399a1f706b38ca31b823b"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -265,14 +269,15 @@
                 "negativeSignals": [
                     "vendor:imperva",
                     "vendor:akamai",
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "algorithm:jd-seData-python",
                     "runtime:pure-python-h5st"
                 ]
             },
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "5d9f69983cd811311537366da4a970c904ac9070fe6277517ca256e2ba531f63"
+                "sha256": "8d1147e431f861c8161a0488842c665df805c50d49775ce85f2a7fc301015579"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -296,7 +301,8 @@
                     "runtime:ParamsSignMain-required",
                     "vendor:imperva",
                     "vendor:akamai",
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "runtime:ParamsSignMain",
                     "runtime:iv8-h5st",
                     "script:js_security_v3_main"
@@ -304,7 +310,7 @@
             },
             "manifest": {
                 "path": "pure-python/jd-h5st/case.json",
-                "sha256": "380ae8f00ebb8d9b0e113d428c94b3ba1860111148579e2ef6637af6528c40ca"
+                "sha256": "290a7999da47537f1fda20e9641f43d25df3941127b132ed9521fee48bd5c33b"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -458,13 +464,14 @@
                 "minimumIndependentSignals": 2,
                 "negativeSignals": [
                     "vendor:akamai",
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "sdk:webmssdk"
                 ]
             },
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "1fb6e7bd13c5eb70cb5a11e44ad2eeb685eda963b8a8d55ca8db4e20c7eca362"
+                "sha256": "0782c0a778cf9798d89c2520d1dffde1f45671db599440c2a8662ba54b2b3ba3"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -485,13 +492,14 @@
                 ],
                 "minimumIndependentSignals": 2,
                 "negativeSignals": [
-                    "vendor:ruishu",
+                    "vendor:river-security",
+                    "alias:ruishu",
                     "sdk:webmssdk"
                 ]
             },
             "manifest": {
                 "path": "iv8/twayair-akamai-availability/case.json",
-                "sha256": "96c8a1031773ff1a52cae8e48e793f73538a4151d084e586df4895f3e02eedef"
+                "sha256": "ad936c55fce431eeafe4614d28c5dde2e3d62633d8838b53afd2b45624a13669"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

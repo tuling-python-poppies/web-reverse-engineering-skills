@@ -11,17 +11,19 @@
     "secretPolicy": "redacted-pull-live",
     "match": {
         "signals": [
-            "vendor:ruishu",
+            "vendor:river-security",
+            "alias:ruishu",
             "version:6",
             "challenge:http-412",
             "state:$_ts-nsd-cd",
             "cookie:client-T-suffix"
         ],
-        "minimumIndependentSignals": 2,
+        "minimumIndependentSignals": 3,
         "negativeSignals": []
     },
     "protocolPatterns": [
-        "vendor:ruishu",
+        "vendor:river-security",
+        "alias:ruishu",
         "version:6",
         "challenge:http-412",
         "state:$_ts-nsd-cd",
@@ -29,7 +31,7 @@
     ],
     "sourceProvider": "camoufox",
     "product": {
-        "vendor": "Ruishu",
+        "vendor": "River Security",
         "product": "JS challenge",
         "version": "6",
         "subtype": "cookie-412-sdenv-jsdom"

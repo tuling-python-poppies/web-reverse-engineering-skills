@@ -21,7 +21,8 @@
     "negativeSignals": [
       "vendor:imperva",
       "vendor:akamai",
-      "vendor:ruishu",
+      "vendor:river-security",
+      "alias:ruishu",
       "algorithm:jd-seData-python",
       "runtime:pure-python-h5st"
     ]

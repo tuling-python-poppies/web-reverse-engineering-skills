@@ -11,23 +11,39 @@
   "secretPolicy": "redacted-pull-live",
   "match": {
     "signals": [
-      "vendor:ruishu",
+      "vendor:river-security",
+      "alias:ruishu",
       "flow:two-stage-cookie",
       "transport:xhr-rewrite",
       "site:chinatax"
     ],
-    "minimumIndependentSignals": 2,
+    "minimumIndependentSignals": 3,
     "negativeSignals": []
   },
   "protocolPatterns": [
-    "vendor:ruishu",
+    "vendor:river-security",
+    "alias:ruishu",
     "flow:two-stage-cookie",
     "transport:xhr-rewrite",
     "site:chinatax"
   ],
+  "exactScopes": [
+    {
+      "scheme": "http",
+      "host": "chongqing.chinatax.gov.cn",
+      "port": 8888,
+      "routePrefix": "/qxzfgs/wz/xzcf/swxzybcxcfjg"
+    },
+    {
+      "scheme": "http",
+      "host": "chongqing.chinatax.gov.cn",
+      "port": 8888,
+      "routePrefix": "/api/loadNewsInfo"
+    }
+  ],
   "sourceProvider": "iv8",
   "product": {
-    "vendor": "Ruishu",
+    "vendor": "River Security",
     "product": "JS challenge",
     "version": "legacy",
     "subtype": "chinatax-two-stage"

@@ -11,23 +11,39 @@
   "secretPolicy": "redacted-pull-live",
   "match": {
     "signals": [
-      "vendor:ruishu",
+      "vendor:river-security",
+      "alias:ruishu",
       "flow:two-stage-cookie",
       "transport:xhr-rewrite",
       "site:customs"
     ],
-    "minimumIndependentSignals": 2,
+    "minimumIndependentSignals": 3,
     "negativeSignals": []
   },
   "protocolPatterns": [
-    "vendor:ruishu",
+    "vendor:river-security",
+    "alias:ruishu",
     "flow:two-stage-cookie",
     "transport:xhr-rewrite",
     "site:customs"
   ],
+  "exactScopes": [
+    {
+      "scheme": "http",
+      "host": "credit.customs.gov.cn",
+      "port": 80,
+      "routePrefix": "/ccppwebserver/pages/ccpp/html/directory.html"
+    },
+    {
+      "scheme": "http",
+      "host": "credit.customs.gov.cn",
+      "port": 80,
+      "routePrefix": "/ccppserver/ccpp/queryList"
+    }
+  ],
   "sourceProvider": "iv8",
   "product": {
-    "vendor": "Ruishu",
+    "vendor": "River Security",
     "product": "JS challenge",
     "version": "legacy",
     "subtype": "customs-two-stage"

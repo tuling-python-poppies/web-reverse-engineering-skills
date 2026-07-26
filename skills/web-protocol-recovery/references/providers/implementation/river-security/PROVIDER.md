@@ -2,7 +2,7 @@
 
 ## Select When
 
-- Evidence contains at least two observed River Security markers: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, generated `*T` cookie paired with server `*S`, protected XHR URL/header mutation, or a River Security / RuiShu protection script.
+- Evidence contains at least two independent observed River Security markers: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, generated `*T` cookie paired with server `*S`, protected XHR URL/header mutation, or a River Security / RuiShu protection script.
 - The task is a challenge-gated Web flow where challenge JavaScript derives replay state such as cookies, URL suffixes, headers, or form admission state.
 - A registry case or current artifacts prove a River Security subtype and the next step is subtype classification, local runtime proof, or browser-free Python replay.
 
@@ -22,7 +22,7 @@ Use **River Security** in new prose. `RuiShu`, `Ruishu`, and `瑞数` are aliase
 ## First-Turn Rules
 
 1. A user guess is not evidence. `怀疑瑞数 + 412` stays `shape:evidence` and asks for HTML, response headers, `Set-Cookie`, `$_ts`, `r="m"`, and script markers.
-2. Confirmed River Security markers choose `route: river-security`; supplied artifacts or an exact case ID may still use `route: evidence-reuse` for the first read.
+2. `route: river-security` requires at least two independent observed River Security markers. Supplied artifacts or an exact case ID may still use `route: evidence-reuse` for the first read.
 3. River Security alone is not a Camoufox criterion. Fresh URL reconnaissance starts with Chromium recon. Use Camoufox only for explicit Camoufox/SpiderMonkey/engine-level wording or a recorded Chromium/Cloak observer-effect blocker.
 4. Historical cases are templates unless `selectableAs=proof`. They require fresh current-target verification before live reuse.
 
@@ -47,7 +47,7 @@ Load `references/cases/registry.json` first; select at most one case. Stop reuse
 | `iv8-chinatax-ruishu` | `site:chinatax` plus two-stage cookie and XHR suffix | Historical iv8 implementation template; fresh target verification required |
 | `iv8-chng-ruishu-announcement` | `site:chng` announcement route plus two-stage cookie and XHR suffix | Historical iv8 implementation template; fresh target verification required |
 | `iv8-customs-ruishu` | `site:customs` plus two-stage cookie, URL, and header mutation | Historical iv8 implementation template; fresh target verification required |
-| `iv8-cqvip-journal-search` | `site:cqvip`, `412`, `$_ts.nsd/cd`, `r="m"`, generated `*T`, form search replay | River Security confirmed by current evidence; historical iv8 implementation template |
+| `iv8-cqvip-journal-search` | `site:cqvip`, `412`, `$_ts.nsd/cd`, `r="m"`, generated `*T`, form search replay | Product family confirmed by current evidence; historical iv8 implementation template |
 
 ## Runtime Boundary
 

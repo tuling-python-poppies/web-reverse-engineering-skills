@@ -23,7 +23,8 @@
       "runtime:ParamsSignMain-required",
       "vendor:imperva",
       "vendor:akamai",
-      "vendor:ruishu",
+      "vendor:river-security",
+      "alias:ruishu",
       "runtime:ParamsSignMain",
       "runtime:iv8-h5st",
       "script:js_security_v3_main"

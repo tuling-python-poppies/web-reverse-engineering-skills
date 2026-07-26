@@ -11,25 +11,41 @@
     "secretPolicy":  "redacted-pull-live",
     "match":  {
                   "signals":  [
-                                  "vendor:ruishu",
+                                  "vendor:river-security",
+                                  "alias:ruishu",
                                   "flow:two-stage-cookie",
                                   "transport:xhr-rewrite",
                                   "site:chng"
                               ],
-                  "minimumIndependentSignals":  2,
+                  "minimumIndependentSignals":  3,
                   "negativeSignals":  [
 
                                       ]
               },
     "protocolPatterns":  [
-                             "vendor:ruishu",
+                             "vendor:river-security",
+                             "alias:ruishu",
                              "flow:two-stage-cookie",
                              "transport:xhr-rewrite",
                              "site:chng"
                          ],
+    "exactScopes":  [
+                         {
+                             "scheme":  "https",
+                             "host":  "ec.chng.com.cn",
+                             "port":  443,
+                             "routePrefix":  "/channel/home"
+                         },
+                         {
+                             "scheme":  "https",
+                             "host":  "ec.chng.com.cn",
+                             "port":  443,
+                             "routePrefix":  "/scm-uiaoauth-web/s/business/uiaouth/queryAnnouncementByTitle"
+                         }
+                     ],
     "sourceProvider":  "iv8",
     "product":  {
-                    "vendor":  "Ruishu",
+                    "vendor":  "River Security",
                     "product":  "JS challenge",
                     "version":  "legacy",
                     "subtype":  "chng-announcement"

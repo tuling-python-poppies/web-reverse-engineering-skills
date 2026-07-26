@@ -44,7 +44,7 @@ The canonical tree is `references/methodology/project-layout.md`. This architect
 
 1. all writes use `web-protocol-recovery-simple/v1` under one absolute `projectRoot`;
 2. only paths required by the current task are created, and a valid final delivery may contain only `main.py`;
-3. reconnaissance, AST, env-patch, iv8, akamai, river-security, verifier, douyin-abogus-native, and sample artifacts stay in their assigned `js_reverse_cache/**` or `tests/**` paths until accepted;
+3. reconnaissance, AST, env-patch, iv8, akamai, verifier, douyin-abogus-native, and sample artifacts stay in their assigned `js_reverse_cache/**` or `tests/**` paths until accepted; River Security artifacts reuse source/env/iv8/samples paths and do not own a separate cache namespace;
 4. final Python HTTP, pagination, decode, storage, and output are owned by root `main.py` and assigned `utils/**` helpers.
 
 Forbidden generated roots/directories are defined in `project-layout.md`; Providers must not restate or fork the tree.

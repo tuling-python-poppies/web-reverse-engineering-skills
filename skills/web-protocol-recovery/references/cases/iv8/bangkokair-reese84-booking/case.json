@@ -21,7 +21,8 @@
         "minimumIndependentSignals": 2,
         "negativeSignals": [
             "vendor:akamai",
-            "vendor:ruishu",
+            "vendor:river-security",
+            "alias:ruishu",
             "sdk:webmssdk"
         ]
     },

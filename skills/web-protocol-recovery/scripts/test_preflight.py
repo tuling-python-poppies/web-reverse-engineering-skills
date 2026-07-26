@@ -93,5 +93,33 @@ class PreflightSelfTestGateTests(unittest.TestCase):
         case_tests.assert_not_called()
 
 
+class CommitBodyPolicyTests(unittest.TestCase):
+    def test_subject_only_message_has_no_body(self) -> None:
+        self.assertFalse(preflight.has_commit_body("subject only\n"))
+        self.assertTrue(preflight.has_commit_body("subject\n\nwhy: changed threshold\n"))
+
+    def test_hash_bound_case_path_requires_body(self) -> None:
+        self.assertTrue(
+            preflight.is_hash_bound_case_path(
+                "skills/web-protocol-recovery/references/cases/iv8/demo/case.json",
+                "skills/web-protocol-recovery",
+            )
+        )
+
+    def test_tool_residue_case_path_is_ignored(self) -> None:
+        self.assertFalse(
+            preflight.is_hash_bound_case_path(
+                "skills/web-protocol-recovery/references/cases/iv8/demo/__pycache__/entry.pyc",
+                "skills/web-protocol-recovery",
+            )
+        )
+
+    def test_registry_selection_diff_requires_body(self) -> None:
+        self.assertTrue(preflight.diff_touches_case_selection('+    "minimumIndependentSignals": 3'))
+        self.assertTrue(preflight.diff_touches_case_selection('+    "exactScopes": ['))
+        self.assertTrue(preflight.diff_touches_case_selection('+    "negativeSignals": ['))
+        self.assertFalse(preflight.diff_touches_case_selection('+    "sha256": "abc"'))
+
+
 if __name__ == "__main__":
     unittest.main()

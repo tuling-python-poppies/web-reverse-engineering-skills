@@ -11,6 +11,7 @@ Runs offline checks that should pass before committing skill edits:
    - import-time mkdir/network/request binding
    - module-level live side effects (AST): with-blocks, requests.* aliases,
      curl_cffi.requests, _iv8()/JSContext, mkdir, unguarded side-effect helpers
+5. HEAD commit-body policy for high-impact case edits when Git metadata exists
 
 `--skip-tests` skips only discovered case unit tests. Step 3 always runs, and a
 missing scripts/test_preflight.py is a hard failure (fail closed).
@@ -38,6 +39,13 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
 
 HISTORICAL_VERIFICATION_CLASS = "historical-user-attested"
+CASE_SELECTION_REGISTRY_KEYS = (
+    "minimumIndependentSignals",
+    "exactScopes",
+    "negativeSignals",
+)
+CASE_IGNORED_DIR_NAMES = {".pytest_cache", "__pycache__"}
+CASE_IGNORED_FILE_NAMES = {".DS_Store", "Thumbs.db"}
 
 BARE_IV8_IMPORT = re.compile(r"(?m)^\s*import\s+iv8\b|^\s*from\s+iv8\s+import\b")
 IMPORT_TIME_MKDIR = re.compile(
@@ -81,6 +89,100 @@ def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
     )
     out = (proc.stdout or "") + (proc.stderr or "")
     return proc.returncode, out
+
+
+def run_git(args: list[str]) -> tuple[int, str]:
+    return run(["git", *args], SKILL_ROOT)
+
+
+def git_skill_prefix() -> str | None:
+    code, out = run_git(["rev-parse", "--show-toplevel"])
+    if code != 0:
+        return None
+    repo_root = Path(out.strip()).resolve()
+    try:
+        return SKILL_ROOT.resolve().relative_to(repo_root).as_posix()
+    except ValueError:
+        return None
+
+
+def strip_skill_prefix(repo_path: str, skill_prefix: str) -> str:
+    path = repo_path.replace("\\", "/").strip("/")
+    prefix = skill_prefix.replace("\\", "/").strip("/")
+    if prefix and path.startswith(prefix + "/"):
+        return path[len(prefix) + 1 :]
+    return path
+
+
+def is_ignored_case_residue(case_rel: str) -> bool:
+    parts = case_rel.split("/")
+    return bool(
+        set(parts) & CASE_IGNORED_DIR_NAMES
+        or (parts and parts[-1] in CASE_IGNORED_FILE_NAMES)
+    )
+
+
+def is_hash_bound_case_path(repo_path: str, skill_prefix: str) -> bool:
+    rel = strip_skill_prefix(repo_path, skill_prefix)
+    if not rel.startswith("references/cases/"):
+        return False
+    if rel == "references/cases/registry.json":
+        return False
+    return not is_ignored_case_residue(rel)
+
+
+def is_registry_path(repo_path: str, skill_prefix: str) -> bool:
+    return strip_skill_prefix(repo_path, skill_prefix) == "references/cases/registry.json"
+
+
+def diff_touches_case_selection(diff_text: str) -> bool:
+    return any(key in diff_text for key in CASE_SELECTION_REGISTRY_KEYS)
+
+
+def has_commit_body(message: str) -> bool:
+    lines = message.splitlines()
+    return any(line.strip() for line in lines[1:])
+
+
+def high_impact_commit_paths(paths: Sequence[str], skill_prefix: str) -> list[str]:
+    return [path for path in paths if is_hash_bound_case_path(path, skill_prefix)]
+
+
+def check_commit_body_policy() -> tuple[bool, str]:
+    skill_prefix = git_skill_prefix()
+    if skill_prefix is None:
+        return True, "SKIP not inside a Git worktree"
+
+    code, paths_out = run_git([
+        "diff-tree",
+        "--root",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "HEAD",
+    ])
+    if code != 0:
+        return True, "SKIP cannot inspect HEAD changed paths"
+    paths = [line.strip() for line in paths_out.splitlines() if line.strip()]
+    requiring_body = high_impact_commit_paths(paths, skill_prefix)
+
+    registry_paths = [path for path in paths if is_registry_path(path, skill_prefix)]
+    for registry_path in registry_paths:
+        code, diff_out = run_git(["show", "--format=", "--unified=0", "HEAD", "--", registry_path])
+        if code == 0 and diff_touches_case_selection(diff_out):
+            requiring_body.append(registry_path)
+
+    if not requiring_body:
+        return True, "PASS no high-impact case commit body requirement"
+
+    code, message = run_git(["show", "-s", "--format=%B", "HEAD"])
+    if code != 0:
+        return False, "FAIL cannot inspect HEAD commit message"
+    if not has_commit_body(message):
+        unique = ", ".join(dict.fromkeys(requiring_body))
+        return False, f"FAIL high-impact case commit lacks body: {unique}"
+    unique = ", ".join(dict.fromkeys(requiring_body))
+    return True, f"PASS high-impact commit body present: {unique}"
 
 
 def check_hashes() -> tuple[bool, str]:
@@ -442,6 +544,12 @@ def main(argv: list[str] | None = None) -> int:
     print(out)
     if not ok:
         failures.append("scripts/test_preflight.py failed")
+
+    print("\n== commit body policy ==")
+    ok, out = check_commit_body_policy()
+    print(out)
+    if not ok:
+        failures.append("commit body policy failed")
 
     print("\n== entry discipline scan ==")
     entry_findings = scan_entries()

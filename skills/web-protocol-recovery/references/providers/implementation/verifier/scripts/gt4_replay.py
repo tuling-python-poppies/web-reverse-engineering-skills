@@ -16,6 +16,20 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
+LIVE_VERIFY_APPROVED = False
+
+
+def approve_live_verify() -> None:
+    global LIVE_VERIFY_APPROVED
+    LIVE_VERIFY_APPROVED = True
+
+
+def require_live_verify_approval() -> None:
+    if not LIVE_VERIFY_APPROVED:
+        raise RuntimeError(
+            "live verifier request is not approved; run through main() with "
+            "--confirm-live-verify after recording liveReplay/verifier gates"
+        )
 
 
 def callback() -> str:
@@ -34,6 +48,7 @@ def save_json(path: Path, value: object) -> None:
 
 
 def download_image(session: requests.Session, image_url: str, path: Path) -> bytes:
+    require_live_verify_approval()
     response = session.get(urljoin(STATIC_BASE, image_url), timeout=30)
     response.raise_for_status()
     if not response.headers.get("content-type", "").startswith("image/"):
@@ -88,6 +103,7 @@ def main() -> int:
             "--confirm-live-verify is required; copy/adapt this template into an approved "
             "project and record liveReplay/verifier gates before execution"
         )
+    approve_live_verify()
 
     session = requests.Session()
     session.trust_env = args.use_env_proxy
@@ -108,6 +124,7 @@ def main() -> int:
         "pt": "1",
         "lang": "zho",
     }
+    require_live_verify_approval()
     load_response = session.get(LOAD_URL, params=load_params, timeout=30)
     load_response.raise_for_status()
     load_json = parse_jsonp(load_response.text)
@@ -163,6 +180,7 @@ def main() -> int:
         "pt": data["pt"],
         "w": helper_output["w"],
     }
+    require_live_verify_approval()
     verify_response = session.get(VERIFY_URL, params=verify_params, timeout=30)
     verify_response.raise_for_status()
     verify_json = parse_jsonp(verify_response.text)

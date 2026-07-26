@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -98,6 +99,25 @@ class PreflightSelfTestGateTests(unittest.TestCase):
         discover.assert_not_called()
         case_tests.assert_not_called()
 
+
+class ProviderGuardContractTests(unittest.TestCase):
+    def test_current_provider_guard_contracts_pass(self) -> None:
+        ok, out = preflight.check_provider_guard_contracts()
+        self.assertTrue(ok, out)
+
+    def test_missing_provider_guard_token_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / "demo.js"
+            path.write_text("console.log('unguarded')\n", encoding="utf-8")
+            findings = preflight.provider_guard_contract_findings(
+                root,
+                (("demo.js", ("WPR_APPROVED_TEMPLATE_LIVE_EGRESS",), "demo guard"),),
+            )
+        self.assertEqual(
+            ["demo guard: demo.js missing token(s): WPR_APPROVED_TEMPLATE_LIVE_EGRESS"],
+            findings,
+        )
 
 class CommitBodyPolicyTests(unittest.TestCase):
     def test_subject_only_message_has_no_body(self) -> None:

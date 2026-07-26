@@ -20,6 +20,22 @@ from PIL import Image
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
+LIVE_VERIFY_APPROVED = False
+
+
+def approve_live_verify():
+    global LIVE_VERIFY_APPROVED
+    LIVE_VERIFY_APPROVED = True
+
+
+def require_live_verify_approval():
+    if not LIVE_VERIFY_APPROVED:
+        raise RuntimeError(
+            "live verifier request is not approved; run through main() with "
+            "--confirm-live-verify after recording liveReplay/verifier gates"
+        )
+
+
 RSA_N_HEX = (
     "c1e3934d1614465b33053e7f48ee4ec87b14b95ef88947713d25eecbff7e74c"
     "7977d02dc1d9451f79dd5d1c10c29acb6a9b4d6fb7d0a0279b6719e1772565f"
@@ -233,6 +249,7 @@ def encrypt_w(payload, pt):
 
 
 def download(session, url):
+    require_live_verify_approval()
     response = session.get(urljoin(STATIC_BASE, url), timeout=30)
     response.raise_for_status()
     return response
@@ -256,6 +273,7 @@ def main():
             "--confirm-live-verify is required; copy/adapt this template into an approved "
             "project and record liveReplay/verifier gates before execution"
         )
+    approve_live_verify()
 
     fixed_fields, lot_rules = extract_bundle_metadata(args.bundle)
     session = requests.Session()
@@ -269,6 +287,7 @@ def main():
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
         ),
     })
+    require_live_verify_approval()
     load_response = session.get(LOAD_URL, params={
         "callback": callback(), "captcha_id": args.captcha_id,
         "client_type": "web", "risk_type": "slide", "lang": "zh",
@@ -331,6 +350,7 @@ def main():
     })
     replay_trace_timing(trace)
 
+    require_live_verify_approval()
     verify_response = session.get(VERIFY_URL, params={
         "callback": callback(), "captcha_id": args.captcha_id,
         "client_type": "web", "lot_number": data["lot_number"],

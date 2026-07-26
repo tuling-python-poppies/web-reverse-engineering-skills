@@ -11,7 +11,8 @@ Runs offline checks that should pass before committing skill edits:
    - import-time mkdir/network/request binding
    - module-level live side effects (AST): with-blocks, requests.* aliases,
      curl_cffi.requests, _iv8()/JSContext, mkdir, unguarded side-effect helpers
-5. HEAD commit-body policy for high-impact case edits when Git metadata exists
+5. Provider live-template guard contracts (Camoufox/GT4 fail-closed markers)
+6. HEAD commit-body policy for high-impact case edits when Git metadata exists
 
 `--skip-tests` skips only discovered case unit tests. Step 3 always runs, and a
 missing scripts/test_preflight.py is a hard failure (fail closed).
@@ -46,6 +47,48 @@ CASE_SELECTION_REGISTRY_KEYS = (
 )
 CASE_IGNORED_DIR_NAMES = {".pytest_cache", "__pycache__"}
 CASE_IGNORED_FILE_NAMES = {".DS_Store", "Thumbs.db"}
+
+ProviderGuardContract = tuple[str, tuple[str, ...], str]
+PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
+    (
+        "references/providers/reconnaissance/camoufox/templates/vm-sandbox/main.js",
+        (
+            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
+            "function assertApprovedTemplateRun()",
+            "assertApprovedTemplateRun();",
+        ),
+        "Camoufox vm-sandbox live-template guard",
+    ),
+    (
+        "references/providers/reconnaissance/camoufox/templates/wasm-loader/main.js",
+        (
+            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
+            "function assertApprovedTemplateRun()",
+            "assertApprovedTemplateRun();",
+        ),
+        "Camoufox wasm-loader live-template guard",
+    ),
+    (
+        "references/providers/implementation/verifier/scripts/gt4_replay.py",
+        (
+            "--confirm-live-verify",
+            "LIVE_VERIFY_APPROVED",
+            "def require_live_verify_approval",
+            "js_reverse_cache\" / \"source\" / \"geetest_gt4",
+        ),
+        "GT4 replay live verifier guard",
+    ),
+    (
+        "references/providers/implementation/verifier/scripts/gt4_pure_replay.py",
+        (
+            "--confirm-live-verify",
+            "LIVE_VERIFY_APPROVED",
+            "def require_live_verify_approval",
+            "js_reverse_cache\" / \"source\" / \"geetest_gt4",
+        ),
+        "GT4 pure replay live verifier guard",
+    ),
+)
 
 BARE_IV8_IMPORT = re.compile(r"(?m)^\s*import\s+iv8\b|^\s*from\s+iv8\s+import\b")
 IMPORT_TIME_MKDIR = re.compile(
@@ -224,6 +267,32 @@ def check_preflight_unit_tests() -> tuple[bool, str]:
         return False, "MISSING scripts/test_preflight.py"
     code, out = run([sys.executable, str(test_path), "-v"], SKILL_ROOT)
     return code == 0, out.strip()
+
+
+def provider_guard_contract_findings(
+    root: Path = SKILL_ROOT,
+    contracts: Sequence[ProviderGuardContract] = PROVIDER_GUARD_CONTRACTS,
+) -> list[str]:
+    findings: list[str] = []
+    for rel_path, required_tokens, description in contracts:
+        path = root / rel_path
+        if not path.is_file():
+            findings.append(f"{description}: missing file {rel_path}")
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        missing = [token for token in required_tokens if token not in text]
+        if missing:
+            findings.append(
+                f"{description}: {rel_path} missing token(s): {', '.join(missing)}"
+            )
+    return findings
+
+
+def check_provider_guard_contracts() -> tuple[bool, str]:
+    findings = provider_guard_contract_findings()
+    if not findings:
+        return True, "PASS provider guard contracts"
+    return False, "\n".join(f"FAIL {finding}" for finding in findings)
 
 
 def case_rel_from_path(path: Path) -> str:
@@ -565,6 +634,12 @@ def main(argv: list[str] | None = None) -> int:
     print(out)
     if not ok:
         failures.append("scripts/test_preflight.py failed")
+
+    print("\n== provider guard contracts ==")
+    ok, out = check_provider_guard_contracts()
+    print(out)
+    if not ok:
+        failures.append("provider guard contracts failed")
 
     print("\n== commit body policy ==")
     ok, out = check_commit_body_policy()

@@ -56,6 +56,7 @@ const CONFIG = {
 // ============ 主逻辑 ============
 
 async function getDynamicCookie(client) {
+    assertApprovedTemplateRun();
     console.log('[*] 获取动态Cookie...');
     
     // 第一阶段：请求返回JS代码的接口
@@ -79,6 +80,7 @@ async function getDynamicCookie(client) {
 }
 
 async function fetchPage(client, page) {
+    assertApprovedTemplateRun();
     // TODO: 根据实际接口修改参数
     const params = { page };
     return client.fetchWithDelay(CONFIG.dataEndpoint, params);

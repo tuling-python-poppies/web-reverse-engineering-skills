@@ -72,6 +72,7 @@ async function initWasm() {
     
     // 分析 WASM 结构
     if (CONFIG.wasmSource.startsWith('http')) {
+        assertApprovedTemplateRun();
         console.log('[*] 从远程下载 WASM...');
         const result = await loadWasmFromURL(CONFIG.wasmSource);
         wasmExports = result.exports;
@@ -108,6 +109,7 @@ function generateEncryptedParam(page) {
 }
 
 async function fetchPage(page) {
+    assertApprovedTemplateRun();
     const m = generateEncryptedParam(page);
     
     const response = await axios.get(`${CONFIG.baseURL}${CONFIG.dataEndpoint}`, {

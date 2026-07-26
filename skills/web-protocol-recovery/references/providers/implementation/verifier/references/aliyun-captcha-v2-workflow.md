@@ -36,6 +36,18 @@
 业务门禁，再用同轮 `requestInfo.token` 与 `CertifyId` 回放业务接口；用户只
 要求验证层时仍停在 `T001 + VerifyResult=true`。
 
+排障顺序：签名业务触发返回 `NOT_LOGGED_IN` 时，不要先归因账号失效或
+`ssxmod_*` 缺失。先与真实浏览器请求逐项对齐 `Referer`、Origin、业务签名
+头、设备 ID 和 TLS/HTTP2 指纹；有些站点（例如 PZDS goodsPublic）要求业务
+POST 使用根页 `Referer: https://www.pzds.com/`，详情页 referer 会被路由到
+JSON 登录态错误。若响应 HTML 带 `aliyun_waf_aa/bb` 前缀，也不要当成失败页；
+检查 `textarea#renderData` 内是否仍有 `var requestInfo = {...}`。
+
+Python 3.9 特例：`curl_cffi 0.13.x` 不支持原生 `chrome146`，而
+`curl_cffi>=0.14` 已要求 Python >=3.10。若当前站点需要新 Chrome 传输指纹，
+可以用从新版本环境提取的 `ja3`、`akamai`、`extra_fp` 自定义 profile 复现，
+并先用 challenge-only 探针连续命中 `requestInfo` 后再提交验证码。
+
 ## 分支总览（完整 vs 极速）
 
 本文件保留两套可切换路径，**不是互相替换**：

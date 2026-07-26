@@ -70,7 +70,7 @@
     "profile": "verifier/t001_profile.json from the current authorized project; not stored in this case"
   },
   "artifacts": {
-    "process": {"path": "PROCESS.md", "sha256": "e53a92ea490456b59026edafab09c07b3c0b56b8ac40fd4458436e38fde4691f"},
+    "process": {"path": "PROCESS.md", "sha256": "0080ed45f7e64e366936984d8f2a77b481dca624bc562b5c73c0bcd9a257c9dd"},
     "entry": {"path": "entry.py", "sha256": "72bff33ac66faa9c4ccf6b278bb7c9d449a340ce27a6bfd7edd7f560e0ddc16a"},
     "pullLiveState": {"path": "pull_live_state.py", "sha256": "7d62720161f584a3aff27aa9d108a4a71c9db009cd5dc3cb8f436817123fb7a9"},
     "assets": [

@@ -11,6 +11,7 @@ import ddddocr
 import requests
 from PIL import Image
 
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
@@ -71,12 +72,22 @@ def main() -> int:
     parser.add_argument(
         "--helper",
         type=Path,
-        default=Path(__file__).with_name("gt4_bundle_helper.js"),
+        default=SCRIPT_DIR / "gt4_bundle_helper.js",
     )
-    parser.add_argument("--cache-root", type=Path, default=Path.cwd() / "js_reverse_cache")
+    parser.add_argument("--cache-root", type=Path, default=Path.cwd() / "js_reverse_cache" / "source" / "geetest_gt4")
     parser.add_argument("--gap-x", type=int, help="Override OCR source-image gap x")
     parser.add_argument("--use-env-proxy", action="store_true")
+    parser.add_argument(
+        "--confirm-live-verify",
+        action="store_true",
+        help="Required because this template calls Geetest /load and /verify.",
+    )
     args = parser.parse_args()
+    if not args.confirm_live_verify:
+        parser.error(
+            "--confirm-live-verify is required; copy/adapt this template into an approved "
+            "project and record liveReplay/verifier gates before execution"
+        )
 
     session = requests.Session()
     session.trust_env = args.use_env_proxy

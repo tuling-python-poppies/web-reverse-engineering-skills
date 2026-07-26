@@ -242,10 +242,20 @@ def main():
     parser = argparse.ArgumentParser(description="Pure Python Geetest GT4 protocol replay")
     parser.add_argument("--captcha-id", required=True)
     parser.add_argument("--bundle", required=True, type=Path)
-    parser.add_argument("--cache-root", type=Path, default=Path.cwd() / "js_reverse_cache_pure")
+    parser.add_argument("--cache-root", type=Path, default=Path.cwd() / "js_reverse_cache" / "source" / "geetest_gt4")
     parser.add_argument("--gap-x", type=int)
     parser.add_argument("--use-env-proxy", action="store_true")
+    parser.add_argument(
+        "--confirm-live-verify",
+        action="store_true",
+        help="Required because this template calls Geetest /load and /verify.",
+    )
     args = parser.parse_args()
+    if not args.confirm_live_verify:
+        parser.error(
+            "--confirm-live-verify is required; copy/adapt this template into an approved "
+            "project and record liveReplay/verifier gates before execution"
+        )
 
     fixed_fields, lot_rules = extract_bundle_metadata(args.bundle)
     session = requests.Session()

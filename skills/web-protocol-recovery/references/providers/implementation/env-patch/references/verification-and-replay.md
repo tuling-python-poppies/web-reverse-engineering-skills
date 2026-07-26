@@ -8,7 +8,7 @@ Use this reference after `vm-browser-gap-diagnose.js` can load the target script
 
 Verification flow:
 
-1. Keep original target material under `js_reverse_cache/target/`.
+1. Keep original target material under `js_reverse_cache/source/` and env probes under `js_reverse_cache/env/`.
 2. Trigger the known behavior: SDK init call, XHR send, direct signer call, cookie writer, or header builder.
 3. Compare output shape against browser evidence: length, prefix, segment count, encoding, cookie name, header name, and stable fields.
 4. Move verified env state into root `mod.js` and the callable JS entry into root `main.js` only after fixed-vector parity passes.

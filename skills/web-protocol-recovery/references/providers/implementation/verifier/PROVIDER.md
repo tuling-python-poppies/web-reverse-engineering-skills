@@ -52,7 +52,7 @@ Read only the selected family reference after the work order names one matching 
 
 ## Optional Scripts
 
-Provider-local scripts are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution.
+Provider-local scripts are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution. Scripts that submit verifier requests require an explicit work order with live replay and verifier action approval; GT4 replay templates fail closed unless called with `--confirm-live-verify`.
 
 | Script | Use |
 |---|---|

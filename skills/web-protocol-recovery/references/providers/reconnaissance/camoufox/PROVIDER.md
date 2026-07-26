@@ -47,6 +47,7 @@ Rules:
 - Do not treat HTTP `200` or a non-empty signature as semantic success.
 - Reusable cases only via root `references/cases/registry.json` → declared `python-node` PROCESS. Provider-local `references/jsdom-env-patches.md` only after a proved jsdom environment blocker.
 - Historical case wording is evidence, not permission for navigation, target-code execution, account state, dependencies, or live replay.
+- Provider templates under `templates/` are disabled-by-default evidence/local-artifact examples. They must be copied into an approved project and adapted under a work order before any bounded probe; they are never final Node collectors.
 
 Operational step order and anti-patterns: `references/ops-ladder.md` when the work order names it.
 

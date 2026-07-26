@@ -1,6 +1,10 @@
 /**
  * 主脚本模板 - VM 沙箱执行
  * 
+ * Evidence-only template: copy into an approved project and adapt before use.
+ * Do not run from the skill tree and do not use this as final live egress.
+ * Final HTTP delivery belongs to Python after web-protocol-recovery accepts it.
+ *
  * 适用场景：服务端返回混淆JS用于生成Cookie/Token
  * 流程：
  *   1. 请求接口 → 返回混淆 JS
@@ -13,11 +17,21 @@
 const { executeAndExtractCookie } = require('./utils/sandbox');
 const { TwoPhaseClient } = require('./utils/request');
 
+function assertApprovedTemplateRun() {
+    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
+        throw new Error(
+            'Camoufox template is disabled by default. Copy/adapt it into an approved project, ' +
+            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe. ' +
+            'Do not deliver this Node template as the final collector.'
+        );
+    }
+}
+
 // ============ 配置区域 ============
 
 const CONFIG = {
     name: '示例项目 - 动态Cookie',
-    description: '采集全部5页数据',
+    description: 'single approved artifact probe',
     
     baseURL: 'https://target.com',
     
@@ -28,7 +42,7 @@ const CONFIG = {
     dataEndpoint: '/api/data',
     
     referer: 'https://target.com/page',
-    totalPages: 5,
+    totalPages: 1,
     delay: 2000,
 
     // 仅在确认动态 JS 来源可信并完成审查后改为 true；node:vm 不是安全隔离。
@@ -71,6 +85,7 @@ async function fetchPage(client, page) {
 }
 
 async function main() {
+    assertApprovedTemplateRun();
     console.log(`[*] 项目：${CONFIG.name}`);
     console.log(`[*] 目标：${CONFIG.description}`);
     console.log('');

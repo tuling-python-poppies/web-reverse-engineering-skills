@@ -1,6 +1,10 @@
 /**
  * 主脚本模板 - WASM 加载还原
  * 
+ * Evidence-only template: copy into an approved project and adapt before use.
+ * Do not run from the skill tree and do not use this as final live egress.
+ * Final HTTP delivery belongs to Python after web-protocol-recovery accepts it.
+ *
  * 适用场景：加密函数通过 WebAssembly 实现
  * 流程：
  *   1. 下载/加载 .wasm 文件
@@ -16,11 +20,21 @@ const { patchWasmBindgen } = require('./utils/env-patch');
 const axios = require('axios');
 const path = require('path');
 
+function assertApprovedTemplateRun() {
+    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
+        throw new Error(
+            'Camoufox WASM template is disabled by default. Copy/adapt it into an approved project, ' +
+            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe. ' +
+            'Do not deliver this Node template as the final collector.'
+        );
+    }
+}
+
 // ============ 配置区域 ============
 
 const CONFIG = {
     name: '示例项目 - WASM加密',
-    description: '采集全部5页数据',
+    description: 'single approved artifact probe',
     
     baseURL: 'https://target.com',
     dataEndpoint: '/api/data',
@@ -35,7 +49,7 @@ const CONFIG = {
     // WASM 类型: 'plain' | 'emscripten' | 'wasm-bindgen' | 'go'
     wasmType: 'plain',
     
-    totalPages: 5,
+    totalPages: 1,
     delay: 1500,
     
     cookies: {},
@@ -113,6 +127,7 @@ function sleep(ms) {
 }
 
 async function main() {
+    assertApprovedTemplateRun();
     console.log(`[*] 项目：${CONFIG.name}`);
     console.log(`[*] 目标：${CONFIG.description}`);
     console.log('');

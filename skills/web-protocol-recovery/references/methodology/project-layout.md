@@ -1,6 +1,6 @@
 # web-protocol-recovery Simple Project Layout
 
-`web-protocol-recovery-simple/v1` is the only project layout used by web-protocol-recovery and all internal providers.
+`web-protocol-recovery-simple` is the only project layout used by web-protocol-recovery and all internal providers.
 
 This layout is part of the architecture contract. Providers may not create or preserve a second layout for compatibility.
 
@@ -10,7 +10,7 @@ Before the first filesystem write, use an explicit user-supplied folder. If none
 
 Never add a wrapper directory below the selected root. Never let a provider ask for a second landing directory.
 
-Forbidden generated or required directories: `collector/`, `analysis/`, `input/`, `logs/`, provider-named project roots, and any second task root. Existing user files with those names may be read only when explicitly supplied as evidence; new delivery files still promote into `web-protocol-recovery-simple/v1` paths.
+Forbidden generated or required directories: `collector/`, `analysis/`, `input/`, `logs/`, provider-named project roots, and any second task root. Existing user files with those names may be read only when explicitly supplied as evidence; new delivery files still promote into `web-protocol-recovery-simple` paths.
 
 Reject a selected root or output path when any existing component is a symlink, Windows junction, mount-point reparse path, or hard-linked file. Resolve containment without following those aliases. Create new files by exclusive atomic publication and never overwrite an existing path.
 

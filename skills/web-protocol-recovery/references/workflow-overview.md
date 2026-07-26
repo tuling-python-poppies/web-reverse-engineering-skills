@@ -2,7 +2,7 @@
 
 Use this as the shortest end-to-end route map. Canonical field definitions and commands live in the linked contracts.
 
-Architecture and ownership boundaries live in `methodology/architecture.md`: web-protocol-recovery is the decision hub, Providers are internal skills, and all writes use `web-protocol-recovery-simple/v1`.
+Architecture and ownership boundaries live in `methodology/architecture.md`: web-protocol-recovery is the decision hub, Providers are internal skills, and all writes use `web-protocol-recovery-simple`.
 
 ## 1. Gate
 
@@ -32,5 +32,5 @@ Architecture and ownership boundaries live in `methodology/architecture.md`: web
 
 - Check fixed vectors or named intermediates, then one approved coherent live replay.
 - Validate business semantics, regenerate dynamic state at the request boundary, and repeat before scaling.
-- Deliver one `web-protocol-recovery-simple/v1` project; project layout and completion reporting come from methodology and report templates.
+- Deliver one `web-protocol-recovery-simple` project; project layout and completion reporting come from methodology and report templates.
 - Offer sanitized case writeback only after eligible verified work and the two-confirmation flow.

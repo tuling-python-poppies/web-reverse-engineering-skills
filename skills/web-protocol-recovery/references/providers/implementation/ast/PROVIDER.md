@@ -13,7 +13,7 @@
 
 Use this provider for bounded whole-file or source-region structural restoration after web-protocol-recovery identifies the relevant bundle. It does not locate network entry points and does not own request replay.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only transforms assigned source into assigned cache/callable artifacts under `web-protocol-recovery-simple/v1`, then returns hashes, proof, and unresolved blockers.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only transforms assigned source into assigned cache/callable artifacts under `web-protocol-recovery-simple`, then returns hashes, proof, and unresolved blockers.
 
 ## Inputs And Outputs
 

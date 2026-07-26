@@ -141,7 +141,7 @@ route: <final Provider ID>
 gateFamily: <one primary gate family>
 providerChain: <ordered Provider IDs>
 projectRoot: <absolute path>
-layout: web-protocol-recovery-simple/v1
+layout: web-protocol-recovery-simple
 stableFiles: <bounded paths>
 endpoint: <scheme/host/port/route>
 movingState: <signatures/cookies/headers/body fields>

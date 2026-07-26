@@ -15,7 +15,7 @@
 
 Camoufox is web-protocol-recovery's deep browser route, not the default ordinary-Web route. Select it directly when the user explicitly requests Camoufox. Otherwise use it only for custom-build engine-level property tracing, Firefox/SpiderMonkey differential evidence, Camoufox-specific source instrumentation, or an untrustworthy Chromium/Cloak result. Close js-reverse before opening Camoufox.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only captures bounded evidence, writes assigned cache artifacts under `web-protocol-recovery-simple/v1`, and returns the next narrow blocker or Provider recommendation.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only captures bounded evidence, writes assigned cache artifacts under `web-protocol-recovery-simple`, and returns the next narrow blocker or Provider recommendation.
 
 ## Inputs
 

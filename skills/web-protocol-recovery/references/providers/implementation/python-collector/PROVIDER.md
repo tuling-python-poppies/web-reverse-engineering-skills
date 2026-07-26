@@ -3,7 +3,7 @@
 ## Select When
 
 - Real endpoint and moving protocol state are already proved.
-- Desired result is `compact-replay` or `collector` under `web-protocol-recovery-simple/v1`.
+- Desired result is `compact-replay` or `collector` under `web-protocol-recovery-simple`.
 - Final live egress must be browser-free Python.
 
 ## Do Not Select When
@@ -15,7 +15,7 @@
 
 Use this provider after web-protocol-recovery has proved the real endpoint and moving protocol state. It owns the stable browser-free live-egress implementation assigned under `main.py` and `utils/`.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only implementation Provider that may own final live egress, and only inside assigned `web-protocol-recovery-simple/v1` paths.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only implementation Provider that may own final live egress, and only inside assigned `web-protocol-recovery-simple` paths.
 
 Python owns live egress, session/cookie handling, request budgets, retries, pagination, parsing, decode, persistence, and output. JavaScript, WASM, or iv8 helpers remain narrow local artifact generators. The final path never drives a browser.
 

@@ -9,7 +9,7 @@ argument-hint: "<target URL | request/source sample | artifact directory> [evide
 
 web-protocol-recovery is the only public reverse skill. It owns intake, scope, project root, evidence, provider routing, acceptance, and final delivery. Internal providers are modules, not peer skills.
 
-Architecture contract: `references/methodology/architecture.md`. It defines web-protocol-recovery as the decision hub, Providers as internal skills, and `web-protocol-recovery-simple/v1` as the only landing layout.
+Architecture contract: `references/methodology/architecture.md`. It defines web-protocol-recovery as the decision hub, Providers as internal skills, and `web-protocol-recovery-simple` as the only landing layout.
 
 ## TL;DR
 
@@ -44,7 +44,7 @@ Four mandatory policy overlays when their trigger is hit — case read, scope/bu
 
 1. Final delivery is browser-free. Python owns live egress (HTTP requests, WebSocket handshakes, and sent frames); local JS/WASM/iv8 only as narrow artifact generators.
 2. Evidence precedes implementation: real request, moving state, mutation point, one objective acceptance test.
-3. One `projectRoot` and `web-protocol-recovery-simple/v1`. Providers never choose another landing path or project shape.
+3. One `projectRoot` and `web-protocol-recovery-simple`. Providers never choose another landing path or project shape.
 4. All dynamic evidence (recon dumps, challenge JS/HTML, screenshots, browser state, probes, net logs, MCP exports) writes only under `<projectRoot>/js_reverse_cache/**`. Never default to `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, skill directories, or any path outside the approved project root.
 5. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
 6. Browser engines/profiles are lifecycle-serialized. IDs never cross engine/session/target boundaries.
@@ -101,7 +101,7 @@ Default scripts: `references/methodology/success-shape-scripts.md`.
 
 ## Phase 1: Project Root Gate
 
-🔴 CHECKPOINT · 🛑 STOP before first save: read `references/methodology/project-layout.md`. Use user folder or ask once (cwd vs custom). Record absolute `projectRoot`, `web-protocol-recovery-simple/v1`, write mode, allowed paths. Read-only evidence may continue with `writeMode=no-write`.
+🔴 CHECKPOINT · 🛑 STOP before first save: read `references/methodology/project-layout.md`. Use user folder or ask once (cwd vs custom). Record absolute `projectRoot`, `web-protocol-recovery-simple`, write mode, allowed paths. Read-only evidence may continue with `writeMode=no-write`.
 
 ## Phase 2: Evidence Or Recon
 

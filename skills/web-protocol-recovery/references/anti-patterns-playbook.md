@@ -222,7 +222,7 @@ Temptation:
 
 Why it is false progress:
 
-- violates `web-protocol-recovery-simple/v1` ownership of volatile evidence
+- violates `web-protocol-recovery-simple` ownership of volatile evidence
 - delivery cannot be re-run from the project root alone
 - secrets and large dumps leak outside the gitignored project cache contract
 

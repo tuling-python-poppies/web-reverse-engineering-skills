@@ -8,7 +8,7 @@ web-protocol-recovery is the only public protocol-recovery skill and the only de
 
 1. intake, authorization, exact scope, request budget, and artifact policy;
 2. success shape, gate family, route, and Provider sequencing;
-3. `projectRoot`, `web-protocol-recovery-simple/v1`, allowed paths, and promotion rules;
+3. `projectRoot`, `web-protocol-recovery-simple`, allowed paths, and promotion rules;
 4. acceptance tests, Provider result acceptance/rejection, cleanup state, and final delivery.
 
 Internal Providers are internal skills owned by this skill, not peer top-level skills. Same meaning: decision hub routes and accepts; each Provider is the executable skill for one capability. A Provider receives one bounded work order, performs only its assigned capability, returns evidence/code/blockers, and gives control back to web-protocol-recovery.
@@ -20,7 +20,7 @@ Use this loop for every protocol task:
 1. **Shape**: choose `evidence`, `local-proof`, `compact-replay`, or `collector`.
 2. **Gate**: record only the authorization/scope/budget/execution fields needed before the next gated action.
 3. **Route**: select `evidence-reuse`, one reconnaissance Provider, or one implementation Provider.
-4. **Layout**: before the first write, activate `project-layout.md` and bind one absolute `projectRoot` with `layout=web-protocol-recovery-simple/v1`.
+4. **Layout**: before the first write, activate `project-layout.md` and bind one absolute `projectRoot` with `layout=web-protocol-recovery-simple`.
 5. **Work order**: issue one `provider-work-order/v1` with exact allowed paths and one acceptance test.
 6. **Accept or reject**: accept only against web-protocol-recovery's acceptance test; Provider `complete` is not enough.
 7. **Next move**: continue the same shape when only the Provider changes; expand shape only after explicit user scope confirmation.
@@ -42,7 +42,7 @@ Provider-local references are operational manuals for that capability. They may 
 
 The canonical tree is `references/methodology/project-layout.md`. This architecture file owns the layout invariant only:
 
-1. all writes use `web-protocol-recovery-simple/v1` under one absolute `projectRoot`;
+1. all writes use `web-protocol-recovery-simple` under one absolute `projectRoot`;
 2. only paths required by the current task are created, and a valid final delivery may contain only `main.py`;
 3. reconnaissance, AST, env-patch, iv8, akamai, verifier, douyin-abogus-native, and sample artifacts stay in their assigned `js_reverse_cache/**` or `tests/**` paths until accepted; River Security artifacts reuse source/env/iv8/samples paths and do not own a separate cache namespace;
 4. final Python HTTP, pagination, decode, storage, and output are owned by root `main.py` and assigned `utils/**` helpers.

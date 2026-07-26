@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create only the requested paths for a web-protocol-recovery-simple/v1 project."""
+"""Create only the requested paths for a web-protocol-recovery-simple project."""
 
 from __future__ import annotations
 
@@ -353,7 +353,7 @@ def main() -> int:
         raise SystemExit("project root must be absolute")
     root = absolute_no_resolve(args.root)
     created = build(root, args)
-    print(json.dumps({"layout": "web-protocol-recovery-simple/v1", "root": str(root), "created": created}, ensure_ascii=False))
+    print(json.dumps({"layout": "web-protocol-recovery-simple", "root": str(root), "created": created}, ensure_ascii=False))
     return 0
 
 

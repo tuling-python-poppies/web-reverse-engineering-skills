@@ -4,7 +4,7 @@
 
 ## 默认骨架
 
-顶部放可编辑常量和缓存目录。只有 web-protocol-recovery 工作单给出绝对 `projectRoot`、`layout=web-protocol-recovery-simple/v1`、非 `no-write` 的 `writeMode` 和精确 `allowedPaths` 后才创建 `js_reverse_cache/`。`offline-skeleton` 是验证模式，不是写入模式；`no-write` 时只在回复中给代码，不运行文件模板。
+顶部放可编辑常量和缓存目录。只有 web-protocol-recovery 工作单给出绝对 `projectRoot`、`layout=web-protocol-recovery-simple`、非 `no-write` 的 `writeMode` 和精确 `allowedPaths` 后才创建 `js_reverse_cache/`。`offline-skeleton` 是验证模式，不是写入模式；`no-write` 时只在回复中给代码，不运行文件模板。
 
 skill 自带案例的最小 JS/HTML 素材放在对应 `references/cases/iv8/<case-id>/assets/`。新任务下载的素材仍必须写入当前项目的 `js_reverse_cache/`，不要写回 skill。只有明确确认案例回写时，才按 `references/case-ingestion-rules.md` 复制最小、公开、无凭证的 frozen 素材。
 
@@ -12,7 +12,7 @@ skill 自带案例的最小 JS/HTML 素材放在对应 `references/cases/iv8/<ca
 
 创建新任务基础模板时，默认创建 `utils/iv8_silent.py` 和 `utils/logger.py`，主脚本只导入 `import_iv8_silent()` 和 `logger`；不要在每个主脚本里重复粘贴 iv8 banner 静默代码或 loguru fallback 代码，除非用户明确要求单文件交付。进度日志用 `logger.info`，不要用裸 `print` 替代共享 logger（用户明确要求 console-only 的最终结果表除外）。动态素材只写 `js_reverse_cache/**`，禁止默认写 OS temp / AppData temp / agent temp。
 
-所有新任务都写入 web-protocol-recovery 分配的 `web-protocol-recovery-simple/v1` 项目根。若用户提供了旧项目或旧目录结构，把它当输入证据读取；不要继续生成旧布局。iv8 只能写这些路径：
+所有新任务都写入 web-protocol-recovery 分配的 `web-protocol-recovery-simple` 项目根。若用户提供了旧项目或旧目录结构，把它当输入证据读取；不要继续生成旧布局。iv8 只能写这些路径：
 
 - 稳定 helper：`utils/iv8_silent.py`、`utils/logger.py`，或工作单明确分配的 `utils/*.py`。
 - 临时 probe、netLog、运行快照：`js_reverse_cache/iv8/`。

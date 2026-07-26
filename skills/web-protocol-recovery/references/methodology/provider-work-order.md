@@ -45,7 +45,7 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
   },
   "project": {
     "projectRoot": "none",
-    "layout": "web-protocol-recovery-simple/v1",
+    "layout": "web-protocol-recovery-simple",
     "writeMode": "no-write",
     "allowedPaths": []
   },
@@ -99,6 +99,6 @@ For `status=complete`, no runtime ID may remain `live`, `cleanup.complete` is tr
 2. Do not load another provider implicitly. Return a precise blocker when another capability is required.
 3. Do not create a project root, wrapper directory, or alternate cache.
 4. Do not overwrite `main.py` or another provider's stable file unless the exact path is assigned.
-5. Do not create `collector/`, `analysis/`, `input/`, `logs/`, provider-specific project roots, or any alternate layout; all writes stay inside `web-protocol-recovery-simple/v1` assigned paths.
+5. Do not create `collector/`, `analysis/`, `input/`, `logs/`, provider-specific project roots, or any alternate layout; all writes stay inside `web-protocol-recovery-simple` assigned paths.
 6. Keep raw secrets out of provider notes, tests, cases, and persistent browser memory.
 7. web-protocol-recovery accepts or rejects the result against `acceptanceTest`; a provider's `complete` label is not sufficient.

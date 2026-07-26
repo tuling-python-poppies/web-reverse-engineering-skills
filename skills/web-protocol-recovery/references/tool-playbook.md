@@ -116,4 +116,4 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 - `scripts/check_reverse_env.py`: verify local reverse dependencies.
 - `scripts/crypto_fingerprint.py`: classify suspicious digest/alphabet output.
 - `scripts/protocol_diff.py`: compare captured wire structures.
-- `scripts/providers/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple/v1` paths.
+- `scripts/providers/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple` paths.

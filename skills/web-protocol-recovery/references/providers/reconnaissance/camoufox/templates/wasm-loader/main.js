@@ -15,19 +15,20 @@
  * TODO: 根据逆向分析结果修改配置和逻辑
  */
 
-const { loadWasmFromFile, loadWasmFromURL, analyzeWasm } = require('./utils/wasm-loader');
+// Live egress stays disabled unless WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1.
+const {
+    loadWasmFromFile,
+    loadWasmFromURL,
+    analyzeWasm,
+    assertApprovedTemplateRun,
+} = require('./utils/wasm-loader');
 const { patchWasmBindgen } = require('./utils/env-patch');
 const axios = require('axios');
 const path = require('path');
 
-function assertApprovedTemplateRun() {
-    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
-        throw new Error(
-            'Camoufox WASM template is disabled by default. Copy/adapt it into an approved project, ' +
-            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe. ' +
-            'Do not deliver this Node template as the final collector.'
-        );
-    }
+async function approvedGet(url, config = {}) {
+    assertApprovedTemplateRun();
+    return axios.get(url, config);
 }
 
 // ============ 配置区域 ============
@@ -72,7 +73,6 @@ async function initWasm() {
     
     // 分析 WASM 结构
     if (CONFIG.wasmSource.startsWith('http')) {
-        assertApprovedTemplateRun();
         console.log('[*] 从远程下载 WASM...');
         const result = await loadWasmFromURL(CONFIG.wasmSource);
         wasmExports = result.exports;
@@ -109,10 +109,9 @@ function generateEncryptedParam(page) {
 }
 
 async function fetchPage(page) {
-    assertApprovedTemplateRun();
     const m = generateEncryptedParam(page);
     
-    const response = await axios.get(`${CONFIG.baseURL}${CONFIG.dataEndpoint}`, {
+    const response = await approvedGet(`${CONFIG.baseURL}${CONFIG.dataEndpoint}`, {
         params: { page, m },
         headers: {
             ...CONFIG.headers,

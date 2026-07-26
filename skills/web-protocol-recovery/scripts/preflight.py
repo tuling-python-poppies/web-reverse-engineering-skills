@@ -54,7 +54,6 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "references/providers/reconnaissance/camoufox/templates/vm-sandbox/main.js",
         (
             "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
-            "function assertApprovedTemplateRun()",
             "assertApprovedTemplateRun();",
         ),
         "Camoufox vm-sandbox live-template guard",
@@ -72,10 +71,19 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "references/providers/reconnaissance/camoufox/templates/wasm-loader/main.js",
         (
             "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
-            "function assertApprovedTemplateRun()",
+            "async function approvedGet(",
             "assertApprovedTemplateRun();",
         ),
         "Camoufox wasm-loader live-template guard",
+    ),
+    (
+        "references/providers/reconnaissance/camoufox/templates/wasm-loader/utils/wasm-loader.js",
+        (
+            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
+            "function assertApprovedTemplateRun()",
+            "assertApprovedTemplateRun();",
+        ),
+        "Camoufox wasm-loader helper guard",
     ),
     (
         "references/providers/implementation/verifier/scripts/gt4_replay.py",
@@ -100,6 +108,14 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "GT4 pure replay live verifier guard",
     ),
 )
+
+# Outside live_get(), these templates must not call session.get directly.
+GT4_LIVE_GET_ONLY_SCRIPTS = (
+    "references/providers/implementation/verifier/scripts/gt4_replay.py",
+    "references/providers/implementation/verifier/scripts/gt4_pure_replay.py",
+)
+BARE_SESSION_GET = re.compile(r"\bsession\.get\s*\(")
+LIVE_GET_DEF = re.compile(r"(?m)^def live_get\b")
 
 BARE_IV8_IMPORT = re.compile(r"(?m)^\s*import\s+iv8\b|^\s*from\s+iv8\s+import\b")
 IMPORT_TIME_MKDIR = re.compile(
@@ -280,9 +296,32 @@ def check_preflight_unit_tests() -> tuple[bool, str]:
     return code == 0, out.strip()
 
 
+def bare_session_get_outside_live_get(text: str) -> list[int]:
+    """Return 1-based line numbers of session.get calls outside live_get()."""
+    live_get_match = LIVE_GET_DEF.search(text)
+    if not live_get_match:
+        return [
+            text.count("\n", 0, match.start()) + 1
+            for match in BARE_SESSION_GET.finditer(text)
+        ]
+
+    # live_get body ends at the next top-level def/class or EOF.
+    body_start = live_get_match.end()
+    next_top = re.search(r"(?m)^(def |class )", text[body_start:])
+    body_end = body_start + next_top.start() if next_top else len(text)
+
+    bare_lines: list[int] = []
+    for match in BARE_SESSION_GET.finditer(text):
+        if body_start <= match.start() < body_end:
+            continue
+        bare_lines.append(text.count("\n", 0, match.start()) + 1)
+    return bare_lines
+
+
 def provider_guard_contract_findings(
     root: Path = SKILL_ROOT,
     contracts: Sequence[ProviderGuardContract] = PROVIDER_GUARD_CONTRACTS,
+    gt4_scripts: Sequence[str] = GT4_LIVE_GET_ONLY_SCRIPTS,
 ) -> list[str]:
     findings: list[str] = []
     for rel_path, required_tokens, description in contracts:
@@ -295,6 +334,18 @@ def provider_guard_contract_findings(
         if missing:
             findings.append(
                 f"{description}: {rel_path} missing token(s): {', '.join(missing)}"
+            )
+    for rel_path in gt4_scripts:
+        path = root / rel_path
+        if not path.is_file():
+            findings.append(f"GT4 live_get-only: missing file {rel_path}")
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        bare_lines = bare_session_get_outside_live_get(text)
+        if bare_lines:
+            joined = ", ".join(str(line) for line in bare_lines)
+            findings.append(
+                f"GT4 live_get-only: {rel_path} has bare session.get outside live_get at line(s): {joined}"
             )
     return findings
 

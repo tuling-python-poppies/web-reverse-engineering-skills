@@ -6,6 +6,15 @@
 const fs = require('fs');
 const path = require('path');
 
+function assertApprovedTemplateRun() {
+    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
+        throw new Error(
+            'Camoufox wasm-loader helper is disabled by default. Copy/adapt it into an approved project, ' +
+            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe.'
+        );
+    }
+}
+
 /**
  * 加载本地 WASM 文件
  * @param {string} wasmPath - WASM 文件路径
@@ -24,6 +33,7 @@ async function loadWasmFromFile(wasmPath, importObject = {}) {
  * @returns {Object} WASM 实例的 exports
  */
 async function loadWasmFromURL(url, importObject = {}) {
+    assertApprovedTemplateRun();
     const axios = require('axios');
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     return loadWasm(response.data, importObject);
@@ -112,4 +122,10 @@ async function analyzeWasm(wasmPath) {
     };
 }
 
-module.exports = { loadWasmFromFile, loadWasmFromURL, loadWasm, analyzeWasm };
+module.exports = {
+    loadWasmFromFile,
+    loadWasmFromURL,
+    loadWasm,
+    analyzeWasm,
+    assertApprovedTemplateRun,
+};

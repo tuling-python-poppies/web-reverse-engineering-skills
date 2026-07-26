@@ -113,11 +113,33 @@ class ProviderGuardContractTests(unittest.TestCase):
             findings = preflight.provider_guard_contract_findings(
                 root,
                 (("demo.js", ("WPR_APPROVED_TEMPLATE_LIVE_EGRESS",), "demo guard"),),
+                gt4_scripts=(),
             )
         self.assertEqual(
             ["demo guard: demo.js missing token(s): WPR_APPROVED_TEMPLATE_LIVE_EGRESS"],
             findings,
         )
+
+    def test_bare_session_get_outside_live_get_is_detected(self) -> None:
+        text = (
+            "def live_get(session, url, **kwargs):\n"
+            "    return session.get(url, **kwargs)\n"
+            "\n"
+            "def main():\n"
+            "    session.get('https://example.com')\n"
+        )
+        self.assertEqual([5], preflight.bare_session_get_outside_live_get(text))
+
+    def test_session_get_inside_live_get_is_allowed(self) -> None:
+        text = (
+            "def live_get(session, url, **kwargs):\n"
+            "    require_live_verify_approval()\n"
+            "    return session.get(url, **kwargs)\n"
+            "\n"
+            "def main():\n"
+            "    return live_get(session, 'https://example.com')\n"
+        )
+        self.assertEqual([], preflight.bare_session_get_outside_live_get(text))
 
 class CommitBodyPolicyTests(unittest.TestCase):
     def test_subject_only_message_has_no_body(self) -> None:

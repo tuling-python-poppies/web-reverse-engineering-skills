@@ -92,6 +92,40 @@
             "selectableAs": "template"
         },
         {
+            "caseId": "python-node-pzds-aliyun-v2-goods-public",
+            "family": "verifier",
+            "status": "verified",
+            "runtime": "python-node",
+            "match": {
+                "signals": [
+                    "site:pzds",
+                    "api:goodsPublic/page",
+                    "vendor:aliyun-captcha-v2",
+                    "action:InitCaptchaV2",
+                    "action:VerifyCaptchaV2",
+                    "sidecar:DeviceConfig-Log2-Log3",
+                    "success:T001",
+                    "wasm:pzds-ad96acb6-generate_sign",
+                    "header:X-Sign-Version-v17"
+                ],
+                "minimumIndependentSignals": 3,
+                "negativeSignals": [
+                    "vendor:akamai",
+                    "vendor:river-security",
+                    "alias:ruishu",
+                    "vendor:geetest",
+                    "vendor:tencent-tdc",
+                    "runtime:pure-python-only"
+                ]
+            },
+            "manifest": {
+                "path": "python-node/pzds-aliyun-v2-goods-public/case.json",
+                "sha256": "45e9f1fc3b7a7f02a9a92628004dde473970473345abe6bc102ec8c471ae7be3"
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
+        },
+        {
             "caseId": "iv8-chinatax-ruishu",
             "family": "challenge",
             "status": "verified",

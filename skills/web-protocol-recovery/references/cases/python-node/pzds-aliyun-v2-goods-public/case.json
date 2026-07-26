@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "web-protocol-recovery-case/v1",
+  "caseId": "python-node-pzds-aliyun-v2-goods-public",
+  "revision": 1,
+  "status": "verified",
+  "family": "verifier",
+  "runtime": "python-node",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "site:pzds",
+      "api:goodsPublic/page",
+      "vendor:aliyun-captcha-v2",
+      "action:InitCaptchaV2",
+      "action:VerifyCaptchaV2",
+      "sidecar:DeviceConfig-Log2-Log3",
+      "success:T001",
+      "wasm:pzds-ad96acb6-generate_sign",
+      "header:X-Sign-Version-v17"
+    ],
+    "minimumIndependentSignals": 3,
+    "negativeSignals": [
+      "vendor:akamai",
+      "vendor:river-security",
+      "alias:ruishu",
+      "vendor:geetest",
+      "vendor:tencent-tdc",
+      "runtime:pure-python-only"
+    ]
+  },
+  "exactScopes": [
+    {"scheme": "https", "host": "www.pzds.com", "port": 443, "routePrefix": "/goodsList"},
+    {"scheme": "https", "host": "api.pzds.com", "port": 443, "routePrefix": "/api/web-client/v2/public/goodsPublic/page"},
+    {"scheme": "https", "host": "device.captcha-open.aliyuncs.com", "port": 443, "routePrefix": "/"},
+    {"scheme": "https", "host": "18152c0dc559302765e69a8f8bf3c191.captcha-pro-open.aliyuncs.com", "port": 443, "routePrefix": "/"},
+    {"scheme": "https", "host": "18152c0dc559302765e69a8f8bf3c191-verify.captcha-pro-open.aliyuncs.com", "port": 443, "routePrefix": "/"}
+  ],
+  "protocolPatterns": [
+    "vendor:aliyun-captcha-v2",
+    "captcha-type:sliding",
+    "success:T001",
+    "sidecar:Log2-Log3",
+    "business-header:Sign-PZTimestamp-Random",
+    "business-api:goodsPublic/page",
+    "runtime:python-node-wasm"
+  ],
+  "sourceProvider": "python-collector",
+  "product": {
+    "vendor": "Aliyun",
+    "product": "Captcha V2 WAF",
+    "version": "FeiLin117 / PZDS X-Sign-Version v17",
+    "subtype": "sliding-t001-pzds-goods-public"
+  },
+  "providerChain": ["chromium-recon", "verifier", "python-collector"],
+  "dependencies": {
+    "python": ">=3.10",
+    "node": "required for local helper assets",
+    "pycryptodome": "offline vectors and live replay",
+    "curl_cffi": "live replay only"
+  },
+  "liveState": {
+    "mode": "project-profile-required",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "storageKeys": [],
+    "profile": "verifier/t001_profile.json from the current authorized project; not stored in this case"
+  },
+  "artifacts": {
+    "process": {"path": "PROCESS.md", "sha256": "e53a92ea490456b59026edafab09c07b3c0b56b8ac40fd4458436e38fde4691f"},
+    "entry": {"path": "entry.py", "sha256": "72bff33ac66faa9c4ccf6b278bb7c9d449a340ce27a6bfd7edd7f560e0ddc16a"},
+    "pullLiveState": {"path": "pull_live_state.py", "sha256": "7d62720161f584a3aff27aa9d108a4a71c9db009cd5dc3cb8f436817123fb7a9"},
+    "assets": [
+      {"path": "fixtures/vectors.json", "sha256": "c58ecf8ffc6bc51e65c7de29d26ecd44ea1300d5803a4c9dc8ea029efe25ba34"},
+      {"path": "fixtures/request.sample.json", "sha256": "2bd5cba0361834111194fb2bbca6fde3f14d54d22442c9baa3f954b4ccc63d87"},
+      {"path": "fixtures/response.sample.json", "sha256": "f4ed0274ce49fbe56a6e6d20db0f57b0f717c636b1ef88158f94018ec8687d61"},
+      {"path": "fixtures/live-proof.summary.json", "sha256": "f1784b1280829101353d35d7aab1ed6e83592df0c37a9e4da48d77f5bb591ec1"},
+      {"path": "assets/data_builder.js", "sha256": "1d493a4c3536d94a0938390e1d3aa0c6fe3f6d6fa93976c4cb24cffcc09635a4"},
+      {"path": "assets/vm_codec.js", "sha256": "cb79d74688738f3bc6e4ac8582d3f62ffac2aa4a27d87f7a3831295e373d6143"},
+      {"path": "assets/pzds_wasm_sign.mjs", "sha256": "7060c9417146d146704f28f17975dba283665d648dc30ece60b8be435d75d03c"},
+      {"path": "assets/pzds_wasm_glue_03574d3f.mjs", "sha256": "501951c6d9b9f3b61264380fdafb0002cbffb6977bb580123502b4010ae6b09a"},
+      {"path": "assets/ad96acb6.wasm", "sha256": "c3ee2ed8e0457f3c73d5b705bfeb246353d9ed3d0bed77abc8e8e5ed81a59339"}
+    ]
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-07-26",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {"path": "tests/test_vectors.py", "sha256": "dd89c4c15a287df0bbd72c3940cb54ccee2ea5b6b59ae71aab9776f6acd73c01"},
+    "evidenceArtifact": {"path": "fixtures/live-proof.summary.json", "sha256": "f1784b1280829101353d35d7aab1ed6e83592df0c37a9e4da48d77f5bb591ec1"},
+    "proof": {
+      "offlineVectors": "request body sha256, field21 vectors, RPC signature, device token roundtrip, data_builder output, PZDS WASM sign output, challenge parser",
+      "unitTests": "case-local offline tests passed on 2026-07-26",
+      "liveChain": "page warmup + signed goodsPublic challenge + Aliyun V2 T001 + signed goodsPublic business replay returned JSON SUCCESS with data.records=10 for page 1 and page 2",
+      "caseLocalTests": "python -m unittest discover -s tests -v"
+    }
+  }
+}

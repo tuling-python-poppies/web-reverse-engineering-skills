@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "pzds-aliyun-v2-vectors/v1",
+  "request": {
+    "method": "POST",
+    "url": "https://api.pzds.com/api/web-client/v2/public/goodsPublic/page",
+    "bodySha256": "62520d2740bec19ee30a26886f35dc78c1a035aa2664676c259e0635bb6ac098",
+    "body": {
+      "order": "ASC",
+      "sort": null,
+      "page": 1,
+      "pageSize": 10,
+      "action": {
+        "gameId": "7",
+        "merchantMark": null,
+        "keywords": [],
+        "searchWords": [],
+        "searchPropertyIds": [],
+        "recommendSearchConfigIds": [],
+        "unionGameIds": [],
+        "goodsSearchActions": [],
+        "metas": {"single1": []},
+        "goodsCatalogueId": 6,
+        "goodsSubCatalogueIds": [],
+        "countFlag": false,
+        "conditionSearch": false
+      }
+    }
+  },
+  "field21": [
+    {
+      "suffix": "e7f61587",
+      "sourceKey": "cccccccc",
+      "xorMaskHex": "0000000000000000",
+      "expected": "SXpKeXR4e3o="
+    },
+    {
+      "suffix": "2f894218",
+      "sourceKey": "cccccccc",
+      "xorMaskHex": "0000000000000000",
+      "expected": "dUp7fHd1dHs="
+    },
+    {
+      "suffix": "983c7551",
+      "sourceKey": "68fded68",
+      "xorMaskAscii": "31f79ddc",
+      "expected": "fGEff0UdLyo="
+    },
+    {
+      "suffix": "75546758",
+      "sourceKey": "uEDwHIvF",
+      "xorMaskHex": "0000000000000000",
+      "expected": "LVpZLF5gLF4=",
+      "family": "feilin117"
+    }
+  ],
+  "rpcSignature": {
+    "secret": "TESTSECRET",
+    "method": "POST",
+    "params": {
+      "AccessKeyId": "TESTKEY",
+      "Action": "InitCaptchaV2",
+      "Format": "JSON",
+      "SignatureMethod": "HMAC-SHA1",
+      "SignatureVersion": "1.0",
+      "Timestamp": "2026-07-26T00:00:00Z",
+      "Version": "2023-03-05",
+      "SignatureNonce": "nonce-1"
+    },
+    "expected": "CqwQc0oHLFRdpvF6/3uyM+hf0u8="
+  },
+  "dataBuilder": {
+    "input": "hello-world",
+    "key": "3e627e1b4c63f913",
+    "expected": "KAgxRwhJXCBLRyE="
+  },
+  "pzdsWasmSign": {
+    "method": "post",
+    "timestamp": "1785065900000",
+    "random": "123456",
+    "expectedSign": "7fd3ba623526e269e809adab499fbfef"
+  },
+  "assets": {
+    "ad96acb6.wasm": {
+      "sha256": "c3ee2ed8e0457f3c73d5b705bfeb246353d9ed3d0bed77abc8e8e5ed81a59339",
+      "size": 70161
+    }
+  }
+}

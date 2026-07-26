@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "web-protocol-recovery-redacted-response/v1",
+  "statusCode": 200,
+  "contentType": "application/json",
+  "payloadShape": {
+    "success": true,
+    "code": "SUCCESS",
+    "info": "operation succeeded",
+    "data": {
+      "page": 1,
+      "records": [
+        {
+          "goodsNo": "<redacted-sample-id>",
+          "gameId": 7,
+          "goodsCatalogueId": 6,
+          "title": "<redacted-title>",
+          "price": 100.0,
+          "goodsImg": "https://pzdsoss.pzds.com/...",
+          "simpleMessage": "<game-platform-label>"
+        }
+      ],
+      "exInfo": {
+        "countFlag": true,
+        "next": true
+      }
+    }
+  },
+  "semanticSuccess": {
+    "success": true,
+    "code": "SUCCESS",
+    "recordsCount": 10,
+    "isCaptchaChallenge": false
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "web-protocol-recovery-redacted-request/v1",
+  "method": "POST",
+  "url": "https://api.pzds.com/api/web-client/v2/public/goodsPublic/page",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "origin": "https://www.pzds.com",
+    "referer": "https://www.pzds.com/goodsList/7/6",
+    "PZOs": "windows",
+    "PZPlatform": "pc",
+    "PZVersion": "26.724.1707",
+    "PZVersionCode": "1",
+    "Skey": "CLIENT",
+    "X-Sign-Version": "v17",
+    "Sign": "<generated-by-pzds-wasm>",
+    "PZTimestamp": "<generated-ms>",
+    "Random": "<generated-6-digits>",
+    "deviceId": "<generated-hex-16-bytes>",
+    "globalId": "<generated-hex-16-bytes>"
+  },
+  "bodySha256": "62520d2740bec19ee30a26886f35dc78c1a035aa2664676c259e0635bb6ac098",
+  "bodyShape": {
+    "order": "ASC",
+    "sort": null,
+    "page": 1,
+    "pageSize": 10,
+    "action.gameId": "7",
+    "action.goodsCatalogueId": 6,
+    "action.metas.single1": []
+  },
+  "secretPolicy": "values redacted; regenerate signer and IDs at request time"
+}

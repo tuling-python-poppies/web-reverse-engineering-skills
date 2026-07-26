@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "web-protocol-recovery-live-proof-summary/v1",
+  "executed": true,
+  "passed": true,
+  "executedAt": "2026-07-26",
+  "projectRuntime": "python-node",
+  "browserLifecycle": {
+    "chromiumDevtools": "baseline captured then parked",
+    "jsReverse": "headless normal Chrome pass captured mutation evidence then closed",
+    "finalCollector": "Python-owned HTTP egress"
+  },
+  "verification": {
+    "offlineSelfcheck": {
+      "passed": true,
+      "checks": [
+        "t001_profile_shape",
+        "field21_vectors",
+        "device_token_roundtrip",
+        "rpc_sign_stable",
+        "data_builder_js",
+        "pzds_wasm_sign",
+        "challenge_html_parse"
+      ]
+    },
+    "page1": {
+      "captcha": {"verifyCode": "T001", "verifyResult": true},
+      "business": {"statusCode": 200, "contentType": "application/json", "code": "SUCCESS", "success": true, "recordsCount": 10}
+    },
+    "page2": {
+      "captcha": {"verifyCode": "T001", "verifyResult": true},
+      "business": {"statusCode": 200, "contentType": "application/json", "code": "SUCCESS", "success": true, "recordsCount": 10}
+    }
+  },
+  "excluded": [
+    "cookies",
+    "acw_tc",
+    "ssxmod_*",
+    "u_atoken",
+    "u_asig",
+    "CertifyId",
+    "traceid",
+    "gateway token",
+    "raw live response body",
+    "browser state",
+    "absolute project path"
+  ]
+}

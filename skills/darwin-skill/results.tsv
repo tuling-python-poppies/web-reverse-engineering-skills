@@ -42,3 +42,5 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-26T18:31	26cd1b8	web-protocol-recovery	90.8	90.8	keep	dim6/8	provider live-template fence + case helper side-effect scan; critical routing dry_run prompts 1/2/5/6/7/9/13/15/18/19/20/23/24/25-32 pass 21/21; strict preflight PASS; no score claim	dry_run
 2026-07-26T18:49	4b498c5	web-protocol-recovery	90.8	90.8	keep	dim3/6	provider guard contracts enforced in strict preflight; GT4 live approval guard moved below CLI into helper path; Camoufox network helpers guard direct calls; strict preflight PASS; no score claim	dry_run
 2026-07-26T19:01	8de3b86	web-protocol-recovery	90.8	90.8	keep	dim3/6	Camoufox vm-sandbox TwoPhaseClient request helper now env-gated; GT4 live GETs route through single live_get approval wrapper; preflight contract covers request helper + live_get; strict preflight PASS; no score claim	dry_run
+2026-07-26T19:20	299d280	web-protocol-recovery	90.8	90.8	keep	dim3/6	wasm-loader helper+approvedGet fenced; preflight rejects bare session.get outside live_get; test_preflight 21/21; strict preflight PASS; no score claim	dry_run
+

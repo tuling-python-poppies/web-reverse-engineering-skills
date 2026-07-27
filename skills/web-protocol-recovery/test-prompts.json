@@ -178,5 +178,10 @@
     "id": 36,
     "prompt": "极验文字点选 Python 3.9 落地代码在 PyCharm 里提示 ndarray.max/min/astype 未解析、Image 传给 numpy 类型不匹配、Image.fromarray 期望 SupportsArrayInterface，帮我修复",
     "expected": "non-trigger unless this is an active web-protocol-recovery verifier delivery artifact; if active, route:verifier and keep protocol scope; use Python 3.9-compatible typing patterns with np.asarray, np.max/np.min, typing.cast, and Image.SupportsArrayInterface; do not change verifier fields or live replay behavior just to silence IDE warnings"
+  },
+  {
+    "id": 37,
+    "prompt": "只知道页面用了极验或阿里云验证码，没有请求样本、图片、verify 字段或失败响应，先帮我判断该走哪条路由",
+    "expected": "shape:evidence; captcha vendor name alone is verifier-priority evidence, not automatic route:verifier; ask for captcha request sample/image/protocol field/semantic failure before selecting verifier"
   }
 ]

@@ -50,8 +50,8 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-27T09:10	e5a95c5	web-protocol-recovery	90.8	90.8	keep	dim5/8	PyCharm GT4 Python 3.9 typing guidance; audit backfill only; no score claim	dry_run
 2026-07-27T09:15	a986b27	web-protocol-recovery	90.8	90.8	keep	case-library	add PZDS Aliyun V2 proof case and WASM asset; audit backfill only; no current full_test rerun; no score claim	dry_run
 2026-07-27T09:20	622e704	web-protocol-recovery	90.8	90.8	keep	dim5/8	record PZDS Python 3.9 trigger notes; audit backfill only; no score claim	dry_run
-2026-07-27T09:25	a192254	web-protocol-recovery	90.8	90.8	pending_full_test	dim2/5	tighten Camoufox/fingerprint and verifier IDE boundaries; split Chromium paired-pass table; update prompts 34/36; preflight PASS/strict PASS; no score claim	dry_run
-2026-07-27T09:30	8d0e382	darwin-skill	-	-	keep	ledger	audit backfill: record WPR routing full-test ledger commit; no score claim	full_test
+2026-07-27T09:25	a192254	web-protocol-recovery	90.8	90.8	keep	dim8	full_test selected prompts 1/7/20/25/33/34/36/37 pass 8/8; executor ses_05da67734ffe3tuyqyGFkVZB6Z + judge ses_05da36340ffepCiuAPGBxIrifK; closes Camoufox/fingerprint/IDE pending; no score increase	full_test
+2026-07-27T09:30	8d0e382	darwin-skill	-	-	keep	ledger	audit backfill: record WPR routing full-test ledger commit; original row recorded full_test; no score claim	dry_run
 2026-07-27T09:31	ebd46af	darwin-skill	-	-	keep	ledger	audit backfill: record River Security routing eval ledger commit; no score claim	dry_run
 2026-07-27T09:32	d488ad9	darwin-skill	-	-	keep	ledger	audit backfill: record WPR Phase 0 routing refactor ledger commit; no score claim	dry_run
 2026-07-27T09:33	475b3e9	web-protocol-recovery	90.8	90.8	keep	dim3/6	fence live provider templates; audit backfill only; no score claim	dry_run
@@ -60,4 +60,4 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-27T09:36	87c9328	darwin-skill	-	-	keep	ledger	audit backfill: record WPR bottom guard eval ledger commit; no score claim	dry_run
 2026-07-27T09:37	a232eb3	darwin-skill	-	-	keep	ledger	audit backfill: record WPR wasm-loader guard sweep ledger commit; no score claim	dry_run
 2026-07-27T09:38	d8342b4	darwin-skill	-	-	keep	ledger	audit backfill: trim WPR ledger blank line commit; no score claim	dry_run
-2026-07-27T09:39	workspace	web-protocol-recovery	90.8	90.8	pending_full_test	dim5	captcha vendor-only wording tightened to priority evidence; no score claim	dry_run
+2026-07-27T09:39	05ee5fd	web-protocol-recovery	90.8	90.8	keep	dim8	full_test selected prompts 1/7/20/25/33/34/36/37 pass 8/8 including vendor-only negative #37; executor+judge agree; closes captcha vendor-only pending; no score increase	full_test

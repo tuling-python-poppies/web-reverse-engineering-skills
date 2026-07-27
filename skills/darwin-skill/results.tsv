@@ -45,3 +45,9 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-26T19:20	299d280	web-protocol-recovery	90.8	90.8	keep	dim3/6	wasm-loader helper+approvedGet fenced; preflight rejects bare session.get outside live_get; test_preflight 21/21; strict preflight PASS; no score claim	dry_run
 2026-07-26T21:04	049929b	web-protocol-recovery	90.8	90.8	keep	dim6	unversion layout id to web-protocol-recovery-simple; docs/scaffold aligned; no score claim	dry_run
 2026-07-26T21:05	e0c7f7b	web-protocol-recovery	90.8	90.8	keep	dim6	report-templates layout version->layout id wording; no score claim	dry_run
+2026-07-27T09:00	c3f0e59	darwin-skill	-	-	keep	ledger	audit backfill for WPR layout id unversion trail commit after e0c7f7b; no score claim	dry_run
+2026-07-27T09:05	b33a760	web-protocol-recovery	90.8	90.8	keep	dim3/8	GT4 verifier semantic-fail hardening; audit backfill only; no score claim	dry_run
+2026-07-27T09:10	e5a95c5	web-protocol-recovery	90.8	90.8	keep	dim5/8	PyCharm GT4 Python 3.9 typing guidance; audit backfill only; no score claim	dry_run
+2026-07-27T09:15	a986b27	web-protocol-recovery	90.8	90.8	keep	case-library	add PZDS Aliyun V2 proof case and WASM asset; audit backfill only; no current full_test rerun; no score claim	dry_run
+2026-07-27T09:20	622e704	web-protocol-recovery	90.8	90.8	keep	dim5/8	record PZDS Python 3.9 trigger notes; audit backfill only; no score claim	dry_run
+2026-07-27T09:25	workspace	web-protocol-recovery	90.8	90.8	pending_full_test	dim2/5	tighten Camoufox/fingerprint and verifier IDE boundaries; split Chromium paired-pass table; update prompts 34/36; preflight PASS/strict PASS; no score claim	dry_run

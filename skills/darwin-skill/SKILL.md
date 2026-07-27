@@ -84,6 +84,8 @@ rubric 设计依据来自 **SkillLens 论文（arXiv 2605.23899）** + **本机 
 
 若子 agent 不可用（超时/资源限制），退化为「干跑验证」：读完 skill 后模拟一个典型 prompt 的执行思路，判断流程是否合理；必须在 results.tsv 标注 `dry_run`。**dry_run 比例 > 30% → 评估失效警告**（来自本机 controlled study：dim8 实测维度权重 23%，无 full_test 验证时分数不可信）。
 
+Score discipline: historical `dry_run` rows that advanced scores before this rule are audit debt, not a validated current score. Do not quote an old peak/current score as a quality claim unless the latest score-advancing row is `full_test` or explicitly human-confirmed. Post-policy dry-run work may be recorded as `old_score == new_score` with `no score claim`, or as `pending_full_test` when the candidate still needs validation.
+
 ---
 
 ## Runtime 适配性审查（gate 项，独立于 9 维度评分）

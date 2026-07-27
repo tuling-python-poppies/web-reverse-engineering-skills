@@ -167,7 +167,7 @@
   {
     "id": 34,
     "prompt": "极验 GT4 报 TypeError: window.__gtRequire(...).default.$_BEP is not a function，Chrome 正在做别的逆向任务，我允许用指纹浏览器重新侦察",
-    "expected": "route:camoufox only because user approved fingerprint browser / Chrome is occupied; scope Geetest domains; record browser lifecycle; verifier workflow must discover current registry/submitter instead of hardcoded $_BEP/$_BBFs"
+    "expected": "route:chromium-recon with Cloak tier only after gates; Chrome occupied is a tool blocker, not Camoufox evidence; no Camoufox without explicit Camoufox/SpiderMonkey/engine-level criteria or recorded untrustworthy Cloak result; verifier workflow must discover current registry/submitter instead of hardcoded $_BEP/$_BBFs"
   },
   {
     "id": 35,
@@ -177,6 +177,6 @@
   {
     "id": 36,
     "prompt": "极验文字点选 Python 3.9 落地代码在 PyCharm 里提示 ndarray.max/min/astype 未解析、Image 传给 numpy 类型不匹配、Image.fromarray 期望 SupportsArrayInterface，帮我修复",
-    "expected": "route:verifier; keep protocol scope; use Python 3.9-compatible typing patterns with np.asarray, np.max/np.min, typing.cast, and Image.SupportsArrayInterface; do not change verifier fields or live replay behavior just to silence IDE warnings"
+    "expected": "non-trigger unless this is an active web-protocol-recovery verifier delivery artifact; if active, route:verifier and keep protocol scope; use Python 3.9-compatible typing patterns with np.asarray, np.max/np.min, typing.cast, and Image.SupportsArrayInterface; do not change verifier fields or live replay behavior just to silence IDE warnings"
   }
 ]

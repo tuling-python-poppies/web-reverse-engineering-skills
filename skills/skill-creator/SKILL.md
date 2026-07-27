@@ -30,14 +30,16 @@ Adapt the depth of this loop to the user's request. If they ask for a lightweigh
 For any mode that edits a skill, use the change-control gate before the first edit:
 
 ```bash
-python scripts/change_control.py snapshot --skill-path <skill> --manifest <workspace>/change-control.json --confirm --allow SKILL.md --allow <each-approved-path> --ledger <skills-root>/auto-optimize-results.tsv
+python scripts/change_control.py snapshot --skill-path <skill> --manifest <workspace>/change-control.json --confirm --allow SKILL.md --allow <each-approved-path> --ledger <darwinRoot>/results.tsv
 ```
 
 For `create`, run the gate before creating the target directory. The parent directory must already exist, the user must have confirmed the exact new path, and the allowlist must include `SKILL.md`:
 
 ```bash
-python scripts/change_control.py snapshot --skill-path <new-skill> --allow-missing-target --manifest <workspace>/change-control.json --confirm --allow SKILL.md --allow <each-approved-new-file> --ledger <skills-root>/auto-optimize-results.tsv
+python scripts/change_control.py snapshot --skill-path <new-skill> --allow-missing-target --manifest <workspace>/change-control.json --confirm --allow SKILL.md --allow <each-approved-new-file> --ledger <darwinRoot>/results.tsv
 ```
+
+Resolve `darwinRoot` to the installed `darwin-skill` directory. Do not create a separate `auto-optimize-results.tsv` ledger beside Darwin's `results.tsv`.
 
 A missing-target restore removes only files named in that manifest and prunes only empty directories on their parent chains. It refuses when the new skill contains any non-allowlisted file, so it cannot recursively delete concurrent work.
 

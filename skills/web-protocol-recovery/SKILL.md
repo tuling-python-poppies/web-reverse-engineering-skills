@@ -65,7 +65,8 @@ First-turn routing rules choose only `shape` and `route`; they do not grant brow
 | Explicit offline / local / fixed-vector wording | Use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider. |
 | Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
 | Known implementation boundary or explicit implementation Provider request | Use the named implementation route only when the boundary/artifact is named, such as `route: browser-hooks`, `route: ast`, `route: env-patch`, or `route: iv8`; otherwise stay evidence first. |
-| Strong captcha protocol signals | Use `route: verifier` for captcha request samples/images, `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, Geetest GT3/GT4, verifier responses where `w` exists but semantic result is fail, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter. Generic `403` plus the word captcha is evidence first, not automatic solving. |
+| Captcha family signals | Use `route: verifier` for captcha request samples/images, Geetest GT3/GT4, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter. |
+| Captcha protocol fields or semantic failure | Use `route: verifier` when a sampled captcha round contains `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, or a verifier response where `w` exists but the semantic result is fail. A lone parameter named `w`, `data`, or `token` without captcha-round evidence is evidence first. IDE typing/image-processing cleanup is outside this skill unless it modifies an active verifier delivery artifact. Generic `403` plus the word captcha is evidence first, not automatic solving. |
 | Strong Akamai signals | Use `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is not Akamai proof. |
 | Strong River Security signals | Use `route: river-security` only when at least two independent observed markers corroborate the family: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, server `*S` plus client `*T` cookies, protected XHR URL/header mutation, or a confirmed River Security protection script. Alias tags such as `alias:ruishu` normalize naming and do not count as observed markers; a user guess or generic `412` alone never routes. Fresh URL reconnaissance starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. |
 | Existing Douyin Web BDMS pure-Python maintenance | Use `route: douyin-abogus-native` only when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on normal recon/implementation routes. |
@@ -113,9 +114,17 @@ Prefer supplied artifacts or one registry case before opening a browser. Fresh r
 | `camoufox` | Explicit Camoufox, or engine-level/SpiderMonkey/Camoufox instrumentation, or untrustworthy Cloak result | `references/providers/reconnaissance/camoufox/PROVIDER.md` |
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
-CloakBrowser is a Chromium recon tier, not a `route`. Use `camoufox` only for explicit Camoufox/SpiderMonkey/engine-level criteria, user-approved fingerprint-browser substitution, or after an untrustworthy Cloak result is recorded. A busy Chrome profile or an occupied visible Chrome is a tool blocker, not target evidence; record it and do not touch that browser. Final live egress still belongs to Python.
+CloakBrowser is a Chromium recon tier, not a `route`. Fingerprint-browser, Cloak, stealth, anti-detection, or busy-Chrome wording does not select `camoufox`; it selects `chromium-recon` with an optional Cloak tier after gates. Use `camoufox` only for explicit Camoufox/SpiderMonkey/engine-level criteria or after a Cloak result is captured and recorded as untrustworthy. A busy Chrome profile or an occupied visible Chrome is a tool blocker, not target evidence; record it and do not touch that browser. Final live egress still belongs to Python.
 
-Chromium recon: after recon gates, fresh targets need a **mandatory paired pass** before the final collector — (1) `chrome-devtools` baseline, (2) park Chrome, (3) `js-reverse` mutation (explicit `launch_browser`; headless preferred unless user wants visible ordinary Chrome). Skip a half only with a real tool blocker or documented exception (evidence-reuse / offline local-proof / non-Chromium route). “No ordinary window” may skip only the **visible DevTools window**; js-reverse remains required. After paired pass, optional visible Cloak on 指纹/Cloak/stealth wording or fingerprint evidence; close js-reverse before any Camoufox route. js-reverse: no auto-launch default; after `close_browser`, relaunch headless before further actions; brief relaunch flash OK, persistent headful after acceptance is a blocker.
+Chromium recon after gates:
+
+| Step | Action | Rule |
+|---|---|---|
+| 1 | `chrome-devtools` baseline | Capture ordinary request/initiator evidence, then park Chrome. |
+| 2 | `js-reverse` mutation | Explicitly call `launch_browser`; headless is preferred unless the user asks for visible ordinary Chrome. |
+| 3 | Optional Cloak tier | Use only for 指纹/Cloak/stealth wording or observed fingerprint evidence; this stays inside `chromium-recon`. |
+
+Fresh ordinary Web targets need steps 1 and 2 before the final collector. Skip a half only with a real tool blocker or documented exception (`evidence-reuse`, offline `local-proof`, or non-Chromium route). "No ordinary window" may skip only the visible DevTools window; `js-reverse` remains required. Close `js-reverse` before any later `camoufox` route. `js-reverse` has no auto-launch default; after `close_browser`, relaunch headless before further actions. A brief relaunch flash is OK; persistent headful after acceptance is a blocker.
 
 ## Phase 3: Gate Family
 
@@ -192,6 +201,7 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
 - Do not open Camoufox on ordinary Web without explicit Camoufox wording or recorded second-engine criteria.
+- Do not treat fingerprint-browser permission, Cloak wording, stealth wording, or busy Chrome as a Camoufox criterion.
 - Do not route River Security/RuiShu to Camoufox from the vendor name, `412`, or historical case provenance alone.
 - Do not open both Chromium and Camoufox recon without a Camoufox selection criterion.
 - Do not load a sibling case after one registry match failed current evidence.

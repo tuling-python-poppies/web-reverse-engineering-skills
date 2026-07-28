@@ -139,9 +139,9 @@ with iv8.JSContext() as ctx:
             baseURL: 'https://app.example.com',
             html: `<!DOCTYPE html>
                 <html><head>
-                    <script src="/vendor.js"><\/script>
-                    <script src="/main.js"><\/script>
-                    <script src="/missing.js"><\/script>
+                    <script src="/vendor.js"><\\/script>
+                    <script src="/main.js"><\\/script>
+                    <script src="/missing.js"><\\/script>
                 </head><body></body></html>`,
             resources: {
                 'https://app.example.com/vendor.js': {

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v1",
+  "schemaVersion": "web-protocol-recovery-case/v2",
   "caseId": "iv8-jd-h5st",
   "revision": 2,
   "status": "verified",
@@ -61,18 +61,12 @@
     "api:recommend_like_m",
     "site:jd"
   ],
-  "sourceProvider": "iv8",
   "product": {
     "vendor": "JD",
     "product": "h5st",
     "version": "js_security_v3_main",
     "subtype": "ParamsSignMain-2088b"
   },
-  "providerChain": [
-    "chromium-recon",
-    "iv8",
-    "python-collector"
-  ],
   "dependencies": {
     "python": ">=3.9",
     "iv8": "installed runtime",
@@ -152,5 +146,41 @@
       "invalidationNote": "historical frozen assets alone can emit h5st but often get recommend_like_m 403; prefer live bundle download each run",
       "caseLocalTests": "python -m unittest discover -s tests -v"
     }
-  }
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

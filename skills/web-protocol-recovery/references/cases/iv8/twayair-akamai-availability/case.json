@@ -1,185 +1,226 @@
 {
-    "schemaVersion": "web-protocol-recovery-case/v1",
-    "caseId": "iv8-twayair-akamai-availability",
-    "revision": 2,
-    "status": "verified",
-    "family": "challenge",
-    "runtime": "iv8",
-    "caseKind": "implementation",
-    "verificationClass": "freshly-verified",
-    "requiresFreshVerification": true,
-    "secretPolicy": "redacted-pull-live",
-    "match": {
-        "signals": [
-            "vendor:akamai",
-            "cookie:bm_s",
-            "cookie:ak_bmsc",
-            "path:espO2PwrZm-collector",
-            "queue:netfunnel",
-            "site:twayair"
-        ],
-        "minimumIndependentSignals": 2,
-        "negativeSignals": [
-            "vendor:river-security",
-            "alias:ruishu",
-            "sdk:webmssdk"
-        ]
-    },
-    "exactScopes": [
-        {
-            "scheme": "https",
-            "host": "www.twayair.com",
-            "port": 443,
-            "routePrefix": "/app"
-        },
-        {
-            "scheme": "https",
-            "host": "www.twayair.com",
-            "port": 443,
-            "routePrefix": "/espO2PwrZm"
-        },
-        {
-            "scheme": "https",
-            "host": "www.twayair.com",
-            "port": 443,
-            "routePrefix": "/akam"
-        },
-        {
-            "scheme": "https",
-            "host": "www.twayair.com",
-            "port": 443,
-            "routePrefix": "/ajax/booking"
-        },
-        {
-            "scheme": "https",
-            "host": "csnf.twayair.com",
-            "port": 443,
-            "routePrefix": "/ts.wseq"
-        }
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-twayair-akamai-availability",
+  "revision": 2,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:akamai",
+      "cookie:bm_s",
+      "cookie:ak_bmsc",
+      "path:espO2PwrZm-collector",
+      "queue:netfunnel",
+      "site:twayair"
     ],
-    "protocolPatterns": [
-        "vendor:akamai",
-        "cookie:bm_s",
-        "cookie:ak_bmsc",
-        "path:espO2PwrZm-collector",
-        "queue:netfunnel",
-        "runtime:iv8-sensor-bridge",
-        "site:twayair"
-    ],
-    "sourceProvider": "iv8",
-    "product": {
-        "vendor": "Akamai",
-        "product": "Bot Manager",
-        "version": "web-sensor",
-        "subtype": "twayair-sensor-netfunnel"
+    "minimumIndependentSignals": 2,
+    "negativeSignals": [
+      "vendor:river-security",
+      "alias:ruishu",
+      "sdk:webmssdk"
+    ]
+  },
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "www.twayair.com",
+      "port": 443,
+      "routePrefix": "/app"
     },
-    "providerChain": [
-        "chromium-recon",
-        "iv8",
-        "python-collector"
-    ],
-    "dependencies": {
-        "python": ">=3.11",
-        "iv8": "installed runtime (required for offline entry.py probe)",
-        "beautifulsoup4": "installed (parser tests / live parse)",
-        "lxml": "installed (parser tests / live parse)",
-        "curl_cffi": "live delivery only; TLS profile must exist on the installed build (0.13.0 / spider_base max chrome136)"
+    {
+      "scheme": "https",
+      "host": "www.twayair.com",
+      "port": 443,
+      "routePrefix": "/espO2PwrZm"
     },
-    "entryScope": {
-        "kind": "offline-probe",
-        "implementsLiveEgress": false,
-        "implementsCurlCffi": false,
-        "implementsFlightDateOverrides": false,
-        "proves": "iv8 parent/child Akamai sensor bridge offline vectors only"
+    {
+      "scheme": "https",
+      "host": "www.twayair.com",
+      "port": 443,
+      "routePrefix": "/akam"
     },
-    "recommendedDeliveryNotes": {
-        "appliesTo": "live delivery / source project, not this offline entry.py",
-        "curlTlsProfile": "Use highest supported curl_cffi impersonate on the current env (chrome136 on 0.13.0 / spider_base). Do not hardcode chrome146 unless BrowserType lists it.",
-        "httpUaMajor": "May mirror live Chrome Client Hints (e.g. 150) independently of TLS profile major.",
-        "flightDateDefault": "date.today() + 7 days on host clock; same-day often empty inventory",
-        "flightDateOverrideEnv": "AKAMAI_FLIGHT_DATE=YYYY-MM-DD",
-        "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL",
-        "spiderBaseLesson20260723": "conda spider_base curl_cffi 0.13.0 rejects chrome146; use chrome136 and treat empty same-day itinerary as inventory"
+    {
+      "scheme": "https",
+      "host": "www.twayair.com",
+      "port": 443,
+      "routePrefix": "/ajax/booking"
     },
-    "preRead": [
-        {
-            "path": "references/providers/implementation/iv8/references/api-inventory.md",
-            "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-        }
-    ],
-    "liveState": {
-        "mode": "browser-export-json",
-        "retention": "memory-only",
-        "requiredCookies": [],
-        "optionalCookies": [
-            "bm_s",
-            "bm_so",
-            "bm_ss",
-            "bm_sv",
-            "bm_mi",
-            "bm_lso",
-            "ak_bmsc",
-            "NetFunnel_ID",
-            "SESSION",
-            "WMONID",
-            "SETTINGS_REGION",
-            "SETTINGS_LANGUAGE",
-            "SETTINGS_CURRENCY"
-        ],
-        "cookieNamePatterns": [
-            "^bm_",
-            "^ak_"
-        ],
-        "storageKeys": [
-            "ak_bm_tab_id"
-        ]
-    },
-    "artifacts": {
-        "process": {
-            "path": "PROCESS.md",
-            "sha256": "50e532c449441387a0402f41b318de90dbea82f5cd07fdea487e90552f9fad18"
-        },
-        "pullLiveState": {
-            "path": "pull_live_state.py",
-            "sha256": "a16e9605848d948fdfab98c0e7d140f90781baee71efbed6e8fb6b999eb3cb75"
-        },
-        "assets": [
-            {
-                "path": "fixtures/vectors.json",
-                "sha256": "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
-            },
-            {
-                "path": "fixtures/response.sample.json",
-                "sha256": "722b68beee48bb29e4db1d7015efb0c2a54575d34fcc00ced08819778fbbf245"
-            }
-        ],
-        "entry": {
-            "path": "entry.py",
-            "sha256": "08db55ced9f4a94f0ea8b43d3a75935c568dad2a9919c102d9d4ae125e4d8179"
-        }
-    },
-    "verification": {
-        "executed": true,
-        "passed": true,
-        "executedAt": "2026-07-23",
-        "testCommand": "python -m unittest discover -s tests -v",
-        "testArtifact": {
-            "path": "tests/test_vectors.py",
-            "sha256": "63c5a3406a35779787e216868ea8410032c0e547659ebd1cd8a97e26f941f98f"
-        },
-        "evidenceArtifact": {
-            "path": "fixtures/vectors.json",
-            "sha256": "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
-        },
-        "proof": {
-            "offlineBridge": "post_count=1 signal_count=116 worker_message_count=1 runtime_error_count=0 via case-local python entry.py",
-            "unitTests": "3/3 case-local: parser + vectors shape + offline probe",
-            "liveChain": "source-project 2026-07-21: full chain availability 200 + flights TW301/303/305/307; re-verify 2026-07-23 live delivery under spider_base curl_cffi 0.13.0: chrome146 ImpersonateError fixed via chrome136; same-day empty itinerary diagnosed as inventory (not this offline entry.py)",
-            "caseLocalTests": "3/3 passed 2026-07-21",
-            "opsFixes20260723LiveDeliveryOnly": [
-                "live delivery CURL_PROFILE / impersonate must match installed curl_cffi (chrome136 on 0.13.0 spider_base)",
-                "live delivery FLIGHT_DATE default host today+7; override AKAMAI_FLIGHT_DATE; not implemented by offline entry.py"
-            ]
-        }
+    {
+      "scheme": "https",
+      "host": "csnf.twayair.com",
+      "port": 443,
+      "routePrefix": "/ts.wseq"
     }
+  ],
+  "protocolPatterns": [
+    "vendor:akamai",
+    "cookie:bm_s",
+    "cookie:ak_bmsc",
+    "path:espO2PwrZm-collector",
+    "queue:netfunnel",
+    "runtime:iv8-sensor-bridge",
+    "site:twayair"
+  ],
+  "product": {
+    "vendor": "Akamai",
+    "product": "Bot Manager",
+    "version": "web-sensor",
+    "subtype": "twayair-sensor-netfunnel"
+  },
+  "dependencies": {
+    "python": ">=3.11",
+    "iv8": "installed runtime (required for offline entry.py probe)",
+    "beautifulsoup4": "installed (parser tests / live parse)",
+    "lxml": "installed (parser tests / live parse)",
+    "curl_cffi": "live delivery only; TLS profile must exist on the installed build (0.13.0 / spider_base max chrome136)"
+  },
+  "entryScope": {
+    "kind": "offline-probe",
+    "implementsLiveEgress": false,
+    "implementsCurlCffi": false,
+    "implementsFlightDateOverrides": false,
+    "proves": "iv8 parent/child Akamai sensor bridge offline vectors only"
+  },
+  "recommendedDeliveryNotes": {
+    "appliesTo": "live delivery / source project, not this offline entry.py",
+    "curlTlsProfile": "Use highest supported curl_cffi impersonate on the current env (chrome136 on 0.13.0 / spider_base). Do not hardcode chrome146 unless BrowserType lists it.",
+    "httpUaMajor": "May mirror live Chrome Client Hints (e.g. 150) independently of TLS profile major.",
+    "flightDateDefault": "date.today() + 7 days on host clock; same-day often empty inventory",
+    "flightDateOverrideEnv": "AKAMAI_FLIGHT_DATE=YYYY-MM-DD",
+    "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL",
+    "spiderBaseLesson20260723": "conda spider_base curl_cffi 0.13.0 rejects chrome146; use chrome136 and treat empty same-day itinerary as inventory"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "bm_s",
+      "bm_so",
+      "bm_ss",
+      "bm_sv",
+      "bm_mi",
+      "bm_lso",
+      "ak_bmsc",
+      "NetFunnel_ID",
+      "SESSION",
+      "WMONID",
+      "SETTINGS_REGION",
+      "SETTINGS_LANGUAGE",
+      "SETTINGS_CURRENCY"
+    ],
+    "cookieNamePatterns": [
+      "^bm_",
+      "^ak_"
+    ],
+    "storageKeys": [
+      "ak_bm_tab_id"
+    ]
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "50e532c449441387a0402f41b318de90dbea82f5cd07fdea487e90552f9fad18"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "a16e9605848d948fdfab98c0e7d140f90781baee71efbed6e8fb6b999eb3cb75"
+    },
+    "assets": [
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
+      },
+      {
+        "path": "fixtures/response.sample.json",
+        "sha256": "722b68beee48bb29e4db1d7015efb0c2a54575d34fcc00ced08819778fbbf245"
+      }
+    ],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "08db55ced9f4a94f0ea8b43d3a75935c568dad2a9919c102d9d4ae125e4d8179"
+    }
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-07-23",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "63c5a3406a35779787e216868ea8410032c0e547659ebd1cd8a97e26f941f98f"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/vectors.json",
+      "sha256": "c5119b980b65fc9c6156711a510cec651b9ff85d79bd40255b2b7fa086255c8d"
+    },
+    "proof": {
+      "offlineBridge": "post_count=1 signal_count=116 worker_message_count=1 runtime_error_count=0 via case-local python entry.py",
+      "unitTests": "3/3 case-local: parser + vectors shape + offline probe",
+      "liveChain": "source-project 2026-07-21: full chain availability 200 + flights TW301/303/305/307; re-verify 2026-07-23 live delivery under spider_base curl_cffi 0.13.0: chrome146 ImpersonateError fixed via chrome136; same-day empty itinerary diagnosed as inventory (not this offline entry.py)",
+      "caseLocalTests": "3/3 passed 2026-07-21",
+      "opsFixes20260723LiveDeliveryOnly": [
+        "live delivery CURL_PROFILE / impersonate must match installed curl_cffi (chrome136 on 0.13.0 spider_base)",
+        "live delivery FLIGHT_DATE default host today+7; override AKAMAI_FLIGHT_DATE; not implemented by offline entry.py"
+      ]
+    }
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance",
+      "purpose": "current-target evidence"
+    },
+    {
+      "provider": "akamai",
+      "role": "protocol-recovery",
+      "purpose": "protocol owner"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation",
+      "ownerProvider": "akamai"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

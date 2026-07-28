@@ -1,66 +1,94 @@
 {
-    "schemaVersion": "web-protocol-recovery-case/v1",
-    "caseId": "camoufox-universal-vmp-instrumentation",
-    "revision": 1,
-    "status": "verified",
-    "family": "signer",
-    "runtime": "python-node",
-    "caseKind": "evidence",
-    "verificationClass": "historical-user-attested",
-    "requiresFreshVerification": true,
-    "secretPolicy": "redacted-pull-live",
-    "match": {
-        "signals": [
-            "structure:while-switch-vmp",
-            "method:source-instrumentation",
-            "evidence:hot-key-trace"
-        ],
-        "minimumIndependentSignals": 2,
-        "negativeSignals": []
-    },
-    "protocolPatterns": [
-        "structure:while-switch-vmp",
-        "method:source-instrumentation",
-        "evidence:hot-key-trace"
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "camoufox-universal-vmp-instrumentation",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "python-node",
+  "caseKind": "evidence",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "structure:while-switch-vmp",
+      "method:source-instrumentation",
+      "evidence:hot-key-trace"
     ],
-    "sourceProvider": "camoufox",
-    "product": {
-        "vendor": "generic",
-        "product": "JSVMP instrumentation",
-        "version": "legacy",
-        "subtype": "universal-vmp-source-instrumentation"
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "structure:while-switch-vmp",
+    "method:source-instrumentation",
+    "evidence:hot-key-trace"
+  ],
+  "product": {
+    "vendor": "generic",
+    "product": "JSVMP instrumentation",
+    "version": "legacy",
+    "subtype": "universal-vmp-source-instrumentation"
+  },
+  "dependencies": {
+    "camoufox": "connected runtime",
+    "javascript": "target supplied"
+  },
+  "preRead": [],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "ffdfaf5e2bd634745d4094f6782a05bc4d4956ae1b671a80be1f5acc528da1b1"
     },
-    "providerChain": [
-        "camoufox",
-        "browser-hooks",
-        "ast"
-    ],
-    "dependencies": {
-        "camoufox": "connected runtime",
-        "javascript": "target supplied"
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
     },
-    "preRead": [],
-    "liveState": {
-        "mode": "browser-export-json",
-        "retention": "memory-only",
-        "requiredCookies": [],
-        "optionalCookies": [],
-        "cookieNamePatterns": [],
-        "storageKeys": []
+    "assets": []
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": null,
+  "sourceStage": {
+    "provider": "camoufox",
+    "role": "reconnaissance",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "camoufox",
+      "role": "reconnaissance"
     },
-    "artifacts": {
-        "process": {
-            "path": "PROCESS.md",
-            "sha256": "ffdfaf5e2bd634745d4094f6782a05bc4d4956ae1b671a80be1f5acc528da1b1"
-        },
-        "pullLiveState": {
-            "path": "pull_live_state.py",
-            "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-        },
-        "assets": []
+    {
+      "provider": "browser-hooks",
+      "role": "protocol-recovery"
     },
-    "verification": {
-        "sourceCommit": "95be929~1",
-        "requiresFreshVerification": true
+    {
+      "provider": "ast",
+      "role": "protocol-recovery"
     }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "camoufox",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "browser-hooks",
+      "role": "protocol-recovery"
+    },
+    {
+      "provider": "ast",
+      "role": "protocol-recovery"
+    }
+  ]
 }

@@ -1,94 +1,113 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-zhipin-stoken",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "session",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "cookie:__zp_stoken__",
-                                  "challenge:code-37",
-                                  "state:seed-name-ts"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "cookie:__zp_stoken__",
-                             "challenge:code-37",
-                             "state:seed-name-ts"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "Kanzhun",
-                    "product":  "Zhipin security",
-                    "version":  "legacy",
-                    "subtype":  "browser-token"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-                                              "__zp_stoken__"
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "9b985b984a8625004e4eb0bba64bfc21099ca6fc68f7b53bb9360f8dd9a365aa"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "0cc309d0b42522128904a9f521ad4a6ab1c5b504db134d98648afd155f2c3b6e"
-                                        },
-                      "assets":  [
-                                     {
-                                         "path":  "assets/challenge.html",
-                                         "sha256":  "6007c962122d364e24375c79a40b2f60dc428ac7790bb86db17d27bd5edb019b"
-                                     },
-                                     {
-                                         "path":  "assets/zhipin_stoken.txt",
-                                         "sha256":  "a5bdc10803f9293c99af3b63153c694f64f64d862fcbcd5946773ab48fb1b6fd"
-                                     }
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "7a9dfce6829ca1373936241a826cdd0122f0f1f8181542e592d79dd3157fcaa7"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-zhipin-stoken",
+  "revision": 1,
+  "status": "verified",
+  "family": "session",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "cookie:__zp_stoken__",
+      "challenge:code-37",
+      "state:seed-name-ts"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "cookie:__zp_stoken__",
+    "challenge:code-37",
+    "state:seed-name-ts"
+  ],
+  "product": {
+    "vendor": "Kanzhun",
+    "product": "Zhipin security",
+    "version": "legacy",
+    "subtype": "browser-token"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "__zp_stoken__"
+    ],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "9b985b984a8625004e4eb0bba64bfc21099ca6fc68f7b53bb9360f8dd9a365aa"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "0cc309d0b42522128904a9f521ad4a6ab1c5b504db134d98648afd155f2c3b6e"
+    },
+    "assets": [
+      {
+        "path": "assets/challenge.html",
+        "sha256": "6007c962122d364e24375c79a40b2f60dc428ac7790bb86db17d27bd5edb019b"
+      },
+      {
+        "path": "assets/zhipin_stoken.txt",
+        "sha256": "a5bdc10803f9293c99af3b63153c694f64f64d862fcbcd5946773ab48fb1b6fd"
+      }
+    ],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "7a9dfce6829ca1373936241a826cdd0122f0f1f8181542e592d79dd3157fcaa7"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

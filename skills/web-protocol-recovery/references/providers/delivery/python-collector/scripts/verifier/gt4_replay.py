@@ -52,6 +52,13 @@ def save_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def download_text(session: requests.Session, source_url: str, path: Path) -> str:
+    response = live_get(session, urljoin(STATIC_BASE, source_url), timeout=30)
+    response.raise_for_status()
+    path.write_text(response.text, encoding="utf-8")
+    return response.text
+
+
 def download_image(session: requests.Session, image_url: str, path: Path) -> bytes:
     response = live_get(session, urljoin(STATIC_BASE, image_url), timeout=30)
     response.raise_for_status()
@@ -62,11 +69,13 @@ def download_image(session: requests.Session, image_url: str, path: Path) -> byt
 
 
 def generate_w(helper: Path, bundle: Path, data: dict, captcha_id: str,
+               gct_source: str,
                set_left: int, passtime: int, userresponse: float) -> dict:
     payload = {
         "bundle": str(bundle.resolve()),
         "loadData": data,
         "captchaId": captcha_id,
+        "gctSource": gct_source,
         "setLeft": set_left,
         "passtime": passtime,
         "userresponse": userresponse,
@@ -91,7 +100,8 @@ def main() -> int:
     parser.add_argument(
         "--helper",
         type=Path,
-        default=SCRIPT_DIR / "gt4_bundle_helper.js",
+        default=(SCRIPT_DIR.parents[3]
+                 / "implementation" / "python-node" / "scripts" / "gt4_bundle_helper.js"),
     )
     parser.add_argument("--cache-root", type=Path, default=Path.cwd() / "js_reverse_cache" / "source" / "geetest_gt4")
     parser.add_argument("--gap-x", type=int, help="Override OCR source-image gap x")
@@ -143,6 +153,7 @@ def main() -> int:
 
     slice_bytes = download_image(session, data["slice"], cache / "slice.png")
     bg_bytes = download_image(session, data["bg"], cache / "bg.png")
+    gct_source = download_text(session, data["gct_path"], cache / "gct.js")
     detected = ddddocr.DdddOcr(show_ad=False).slide_match(
         slice_bytes, bg_bytes, simple_target=True
     )
@@ -167,6 +178,7 @@ def main() -> int:
 
     helper_output = generate_w(
         args.helper, args.bundle, data, args.captcha_id,
+        gct_source,
         set_left, passtime, userresponse,
     )
     save_json(cache / "helper_output.json", helper_output)

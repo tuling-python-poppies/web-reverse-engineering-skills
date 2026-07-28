@@ -421,7 +421,7 @@ There is no meaningful sign function, but the next request only works after a ve
 
 Expected route:
 
-- `references/providers/implementation/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
 
 Must conclude:
 
@@ -438,7 +438,7 @@ I reused the token and images from one challenge round, but I kept the callback 
 
 Expected route:
 
-- `references/providers/implementation/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
 
 Must conclude:
 
@@ -456,7 +456,7 @@ The point-click verifier returns one prompt image that tells me which symbols to
 
 Expected route:
 
-- `references/providers/implementation/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
 
 Must conclude:
 
@@ -474,7 +474,7 @@ OCR or template matching finds the gap on a restored padded image, but the verif
 
 Expected route:
 
-- `references/providers/implementation/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
 
 Must conclude:
 
@@ -1127,7 +1127,7 @@ A public verifier begins with a prehandle call that returns JSONP containing a s
 
 Expected route:
 
-- `references/providers/implementation/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
 - `references/public-bootstrap-envelope-playbook.md`
 - `references/transport-wrapper-playbook.md`
 

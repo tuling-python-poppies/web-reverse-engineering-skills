@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "web-protocol-recovery-provider-work-order-v2.schema.json",
+  "title": "web-protocol-recovery provider work order v2",
+  "type": "object",
+  "required": ["schemaVersion", "workOrderId", "shape", "gateFamily", "activeProvider", "project", "authorization", "acceptanceTest"],
+  "properties": {
+    "schemaVersion": {"const": "web-protocol-recovery-provider-work-order/v2"},
+    "workOrderId": {"type": "string", "minLength": 1},
+    "shape": {"enum": ["evidence", "local-proof", "compact-replay", "collector"]},
+    "gateFamily": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
+    "secondaryGates": {"type": "array", "items": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]}, "uniqueItems": true},
+    "canonicalMutationPoint": {"type": "string"},
+    "activeProvider": {
+      "type": "object",
+      "required": ["id", "role"],
+      "properties": {
+        "id": {"type": "string"},
+        "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
+        "strategy": {"type": ["string", "null"]},
+        "profile": {"type": ["string", "null"]}
+      }
+    },
+    "protocolOwner": {"type": ["string", "null"]},
+    "implementation": {
+      "type": ["object", "null"],
+      "properties": {
+        "mode": {"enum": ["iv8", "python-node", "pure-python"]},
+        "strategy": {"type": ["string", "null"]},
+        "profile": {"type": ["string", "null"]}
+      }
+    },
+    "deliveryProvider": {"type": ["string", "null"]},
+    "caseId": {"type": ["string", "null"]},
+    "authorization": {"type": "object"},
+    "project": {"type": "object"},
+    "readPlan": {"type": "object"},
+    "inputs": {"type": "array"},
+    "requiredOutputs": {"type": "array"},
+    "acceptanceTest": {"type": "string", "minLength": 1},
+    "runtimeCustody": {"type": "object"},
+    "runtimeIds": {"type": "array"}
+  }
+}

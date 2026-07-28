@@ -1,72 +1,100 @@
 {
-    "schemaVersion": "web-protocol-recovery-case/v1",
-    "caseId": "camoufox-jsvmp-dual-sign-cacheopts",
-    "revision": 1,
-    "status": "verified",
-    "family": "signer",
-    "runtime": "python-node",
-    "caseKind": "evidence",
-    "verificationClass": "historical-user-attested",
-    "requiresFreshVerification": true,
-    "secretPolicy": "redacted-pull-live",
-    "match": {
-        "signals": [
-            "sdk:webmssdk",
-            "config:cacheOpts",
-            "header:x-bogus",
-            "header:x-gnarly"
-        ],
-        "minimumIndependentSignals": 2,
-        "negativeSignals": []
-    },
-    "protocolPatterns": [
-        "sdk:webmssdk",
-        "config:cacheOpts",
-        "header:x-bogus",
-        "header:x-gnarly"
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "camoufox-jsvmp-dual-sign-cacheopts",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "python-node",
+  "caseKind": "evidence",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "sdk:webmssdk",
+      "config:cacheOpts",
+      "header:x-bogus",
+      "header:x-gnarly"
     ],
-    "sourceProvider": "camoufox",
-    "product": {
-        "vendor": "generic",
-        "product": "JSVMP instrumentation",
-        "version": "legacy",
-        "subtype": "cacheopts-dual-sign"
-    },
-    "providerChain": [
-        "camoufox",
-        "browser-hooks",
-        "ast"
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "sdk:webmssdk",
+    "config:cacheOpts",
+    "header:x-bogus",
+    "header:x-gnarly"
+  ],
+  "product": {
+    "vendor": "generic",
+    "product": "JSVMP instrumentation",
+    "version": "legacy",
+    "subtype": "cacheopts-dual-sign"
+  },
+  "dependencies": {
+    "camoufox": "connected runtime",
+    "javascript": "target supplied"
+  },
+  "preRead": [],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "msToken",
+      "verifyFp",
+      "s_v_web_id"
     ],
-    "dependencies": {
-        "camoufox": "connected runtime",
-        "javascript": "target supplied"
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "fc92fb48e50ae22c1d4bc5c43a54e76e1d01182da5622e4c36c621445f94089e"
     },
-    "preRead": [],
-    "liveState": {
-        "mode": "browser-export-json",
-        "retention": "memory-only",
-        "requiredCookies": [],
-        "optionalCookies": [
-            "msToken",
-            "verifyFp",
-            "s_v_web_id"
-        ],
-        "cookieNamePatterns": [],
-        "storageKeys": []
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "cbd8fea3e91f878400b8df0dae8ab30d79538ffe6f973c5d40a216a1a7cce525"
     },
-    "artifacts": {
-        "process": {
-            "path": "PROCESS.md",
-            "sha256": "fc92fb48e50ae22c1d4bc5c43a54e76e1d01182da5622e4c36c621445f94089e"
-        },
-        "pullLiveState": {
-            "path": "pull_live_state.py",
-            "sha256": "cbd8fea3e91f878400b8df0dae8ab30d79538ffe6f973c5d40a216a1a7cce525"
-        },
-        "assets": []
+    "assets": []
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": null,
+  "sourceStage": {
+    "provider": "camoufox",
+    "role": "reconnaissance",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "camoufox",
+      "role": "reconnaissance"
     },
-    "verification": {
-        "sourceCommit": "95be929~1",
-        "requiresFreshVerification": true
+    {
+      "provider": "browser-hooks",
+      "role": "protocol-recovery"
+    },
+    {
+      "provider": "ast",
+      "role": "protocol-recovery"
     }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "camoufox",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "browser-hooks",
+      "role": "protocol-recovery"
+    },
+    {
+      "provider": "ast",
+      "role": "protocol-recovery"
+    }
+  ]
 }

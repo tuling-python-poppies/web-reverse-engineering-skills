@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v1",
+  "schemaVersion": "web-protocol-recovery-case/v2",
   "caseId": "pure-python-jd-h5st",
   "revision": 1,
   "status": "verified",
@@ -59,18 +59,12 @@
     "algorithm:custom-base64-env",
     "site:jd"
   ],
-  "sourceProvider": "python-collector",
   "product": {
     "vendor": "JD",
     "product": "h5st",
     "version": "5.3",
     "subtype": "request_algo-2088b-pure-python"
   },
-  "providerChain": [
-    "chromium-recon",
-    "iv8-evidence",
-    "python-collector"
-  ],
   "dependencies": {
     "python": ">=3.9",
     "curl_cffi": "live replay only"
@@ -125,5 +119,52 @@
       "liveChain": "pure Python request_algo material + pure Python h5st then recommend_like_m HTTP 200 with data.feeds.content product rows (20 items)",
       "caseLocalTests": "python -m unittest discover -s tests -v"
     }
-  }
+  },
+  "implementation": {
+    "mode": "pure-python",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "python-collector",
+    "role": "delivery",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "evidence"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance",
+      "purpose": "current-target evidence"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "historical evidence"
+    },
+    {
+      "provider": "pure-python",
+      "role": "implementation",
+      "purpose": "artifact implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

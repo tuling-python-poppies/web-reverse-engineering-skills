@@ -1,106 +1,127 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-chng-ruishu-announcement",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "challenge",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "vendor:river-security",
-                                  "alias:ruishu",
-                                  "flow:two-stage-cookie",
-                                  "transport:xhr-rewrite",
-                                  "site:chng"
-                              ],
-                  "minimumIndependentSignals":  3,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "vendor:river-security",
-                             "alias:ruishu",
-                             "flow:two-stage-cookie",
-                             "transport:xhr-rewrite",
-                             "site:chng"
-                         ],
-    "exactScopes":  [
-                         {
-                             "scheme":  "https",
-                             "host":  "ec.chng.com.cn",
-                             "port":  443,
-                             "routePrefix":  "/channel/home"
-                         },
-                         {
-                             "scheme":  "https",
-                             "host":  "ec.chng.com.cn",
-                             "port":  443,
-                             "routePrefix":  "/scm-uiaoauth-web/s/business/uiaouth/queryAnnouncementByTitle"
-                         }
-                     ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "River Security",
-                    "product":  "JS challenge",
-                    "version":  "legacy",
-                    "subtype":  "chng-announcement"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed",
-                         "loguru":  "optional"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "249f2f2ad1b3aea9f5c07ccd0caec23fc24c71b7ab7fb346d0049b0836fd70bf"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "85ff81296d1d379df5444ca5231e450ebed3596a3f5698d304ed7e1bf884fa79"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-chng-ruishu-announcement",
+  "revision": 1,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:river-security",
+      "alias:ruishu",
+      "flow:two-stage-cookie",
+      "transport:xhr-rewrite",
+      "site:chng"
+    ],
+    "minimumIndependentSignals": 3,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "vendor:river-security",
+    "alias:ruishu",
+    "flow:two-stage-cookie",
+    "transport:xhr-rewrite",
+    "site:chng"
+  ],
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "ec.chng.com.cn",
+      "port": 443,
+      "routePrefix": "/channel/home"
+    },
+    {
+      "scheme": "https",
+      "host": "ec.chng.com.cn",
+      "port": 443,
+      "routePrefix": "/scm-uiaoauth-web/s/business/uiaouth/queryAnnouncementByTitle"
+    }
+  ],
+  "product": {
+    "vendor": "River Security",
+    "product": "JS challenge",
+    "version": "legacy",
+    "subtype": "chng-announcement"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed",
+    "loguru": "optional"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "249f2f2ad1b3aea9f5c07ccd0caec23fc24c71b7ab7fb346d0049b0836fd70bf"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "85ff81296d1d379df5444ca5231e450ebed3596a3f5698d304ed7e1bf884fa79"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "river-security",
+      "role": "protocol-recovery",
+      "purpose": "protocol owner"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation",
+      "ownerProvider": "river-security"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

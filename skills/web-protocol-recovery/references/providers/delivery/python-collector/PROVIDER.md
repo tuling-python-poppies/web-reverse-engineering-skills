@@ -15,7 +15,7 @@
 
 Use this provider after web-protocol-recovery has proved the real endpoint and moving protocol state. It owns the stable browser-free live-egress implementation assigned under `main.py` and `utils/`.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only implementation Provider that may own final live egress, and only inside assigned `web-protocol-recovery-simple` paths.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider is the only delivery Provider that may own final live egress, and only inside assigned `web-protocol-recovery-simple` paths.
 
 Python owns live egress, session/cookie handling, request budgets, retries, pagination, parsing, decode, persistence, and output. JavaScript, WASM, or iv8 helpers remain narrow local artifact generators. The final path never drives a browser.
 
@@ -24,7 +24,7 @@ Python owns live egress, session/cookie handling, request budgets, retries, pagi
 First write may use the skill-root scaffold (absolute `projectRoot` required, never overwrite):
 
 ```text
-python <skill-root>/scripts/providers/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm \
+python <skill-root>/scripts/providers/delivery/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm \
   [--entry] [--utils] [--iv8-silent] [--logger] [--tests] [--cache] [--cache-namespace recon|source|ast|env|iv8|akamai|samples|private] \
   [--output] [--requirements] [--readme] [--gitignore]
 ```
@@ -40,6 +40,13 @@ Rules:
 7. Pass `--logger` alone when you need the shared logger without iv8.
 
 Layout details: `references/methodology/project-layout.md`. Delivery gate checklist: `references/delivery-gate-playbook.md`.
+
+## Optional Templates
+
+| Template | Use |
+|---|---|
+| `scripts/verifier/gt4_replay.py` | GT4 same-round `/load -> images/GCT -> python-node helper -> /verify` delivery template. Requires `--confirm-live-verify`. |
+| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires `--confirm-live-verify`. |
 
 ## Layout Ownership
 

@@ -1,112 +1,133 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-cqvip-journal-search",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "challenge",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "vendor:river-security",
-                                  "alias:ruishu",
-                                  "challenge:http-412",
-                                  "state:$_ts-nsd-cd",
-                                  "script-attr:r-m",
-                                  "cookie:generated-t",
-                                  "flow:search-replay",
-                                  "site:cqvip"
-                              ],
-                  "minimumIndependentSignals":  3,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "vendor:river-security",
-                             "alias:ruishu",
-                             "challenge:http-412",
-                             "state:$_ts-nsd-cd",
-                             "script-attr:r-m",
-                             "cookie:generated-t",
-                             "flow:search-replay",
-                             "site:cqvip"
-                          ],
-    "exactScopes":  [
-                         {
-                             "scheme":  "https",
-                             "host":  "qikan.cqvip.com",
-                             "port":  443,
-                             "routePrefix":  "/Qikan/Search"
-                         },
-                         {
-                             "scheme":  "https",
-                             "host":  "qikan.cqvip.com",
-                             "port":  443,
-                             "routePrefix":  "/Search"
-                         }
-                     ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "River Security",
-                    "product":  "JS challenge",
-                    "version":  "unknown",
-                    "subtype":  "cqvip-search"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed",
-                         "loguru":  "optional"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "a8ac40eb77f182cb4b49d6a9609d58807042c59efa35d2371e2e750e8ede3717"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "4d50d35f734ce63a80964d407c496ae4d00b08482767c590bc60f6d2b936354b"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-cqvip-journal-search",
+  "revision": 1,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:river-security",
+      "alias:ruishu",
+      "challenge:http-412",
+      "state:$_ts-nsd-cd",
+      "script-attr:r-m",
+      "cookie:generated-t",
+      "flow:search-replay",
+      "site:cqvip"
+    ],
+    "minimumIndependentSignals": 3,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "vendor:river-security",
+    "alias:ruishu",
+    "challenge:http-412",
+    "state:$_ts-nsd-cd",
+    "script-attr:r-m",
+    "cookie:generated-t",
+    "flow:search-replay",
+    "site:cqvip"
+  ],
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "qikan.cqvip.com",
+      "port": 443,
+      "routePrefix": "/Qikan/Search"
+    },
+    {
+      "scheme": "https",
+      "host": "qikan.cqvip.com",
+      "port": 443,
+      "routePrefix": "/Search"
+    }
+  ],
+  "product": {
+    "vendor": "River Security",
+    "product": "JS challenge",
+    "version": "unknown",
+    "subtype": "cqvip-search"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed",
+    "loguru": "optional"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "a8ac40eb77f182cb4b49d6a9609d58807042c59efa35d2371e2e750e8ede3717"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "4d50d35f734ce63a80964d407c496ae4d00b08482767c590bc60f6d2b936354b"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "river-security",
+      "role": "protocol-recovery",
+      "purpose": "protocol owner"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation",
+      "ownerProvider": "river-security"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

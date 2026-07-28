@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v1",
+  "schemaVersion": "web-protocol-recovery-case/v2",
   "caseId": "iv8-ouyeel-202-cookie-url",
   "revision": 1,
   "status": "verified",
@@ -25,17 +25,12 @@
     "transport:url-rewrite",
     "site:ouyeel"
   ],
-  "sourceProvider": "iv8",
   "product": {
     "vendor": "unknown",
     "product": "JS challenge",
     "version": "legacy",
     "subtype": "ouyeel-202"
   },
-  "providerChain": [
-    "iv8",
-    "python-collector"
-  ],
   "dependencies": {
     "python": ">=3.9",
     "iv8": "installed runtime",
@@ -73,5 +68,37 @@
   "verification": {
     "sourceCommit": "95be929~1",
     "requiresFreshVerification": true
-  }
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

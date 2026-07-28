@@ -67,7 +67,7 @@
   {
     "id": 14,
     "prompt": "项目里已有完整 pure_abogus.py 和 BDMS 1.0.1.19 固定 trace，帮我维护抖音 aweme/v1/web/list 的 a_bogus 纯 Python requests 脚本",
-    "expected": "route:douyin-abogus-native; require existing complete pure_abogus.py and fixed trace; pure Python only; no from-zero recovery or browser/iv8 dependency; fixed-vector parity before live replay"
+    "expected": "route:pure-python; profile:douyin-abogus-native; require existing complete pure_abogus.py and fixed trace; pure Python only; no from-zero recovery or browser/iv8 dependency; fixed-vector parity before live replay"
   },
   {
     "id": 15,

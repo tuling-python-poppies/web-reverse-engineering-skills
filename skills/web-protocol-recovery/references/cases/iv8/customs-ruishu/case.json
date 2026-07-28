@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v1",
+  "schemaVersion": "web-protocol-recovery-case/v2",
   "caseId": "iv8-customs-ruishu",
   "revision": 1,
   "status": "verified",
@@ -41,17 +41,12 @@
       "routePrefix": "/ccppserver/ccpp/queryList"
     }
   ],
-  "sourceProvider": "iv8",
   "product": {
     "vendor": "River Security",
     "product": "JS challenge",
     "version": "legacy",
     "subtype": "customs-two-stage"
   },
-  "providerChain": [
-    "iv8",
-    "python-collector"
-  ],
   "dependencies": {
     "python": ">=3.9",
     "iv8": "installed runtime",
@@ -89,5 +84,43 @@
   "verification": {
     "sourceCommit": "95be929~1",
     "requiresFreshVerification": true
-  }
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "river-security",
+      "role": "protocol-recovery",
+      "purpose": "protocol owner"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation",
+      "ownerProvider": "river-security"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

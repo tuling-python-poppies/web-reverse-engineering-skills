@@ -1,81 +1,117 @@
 {
-    "schemaVersion": "web-protocol-recovery-case/v1",
-    "caseId": "iv8-geetest-v4-slider",
-    "revision": 1,
-    "status": "verified",
-    "family": "verifier",
-    "runtime": "iv8",
-    "caseKind": "implementation",
-    "verificationClass": "historical-user-attested",
-    "requiresFreshVerification": true,
-    "secretPolicy": "redacted-pull-live",
-    "match": {
-        "signals": [
-            "vendor:geetest",
-            "version:v4",
-            "captcha-type:slider",
-            "protocol:slide"
-        ],
-        "minimumIndependentSignals": 3,
-        "negativeSignals": []
-    },
-    "protocolPatterns": [
-        "vendor:geetest",
-        "version:v4",
-        "captcha-type:slider",
-        "protocol:slide"
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-geetest-v4-slider",
+  "revision": 1,
+  "status": "verified",
+  "family": "verifier",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:geetest",
+      "version:v4",
+      "captcha-type:slider",
+      "protocol:slide"
     ],
-    "sourceProvider": "iv8",
-    "product": {
-        "vendor": "Geetest",
-        "product": "CAPTCHA",
-        "version": "v4",
-        "subtype": "slider"
-    },
-    "providerChain": [
-        "verifier",
-        "iv8",
-        "python-collector"
-    ],
-    "dependencies": {
-        "python": ">=3.9",
-        "iv8": "installed runtime",
-        "curl_cffi": "installed",
-        "ddddocr": "installed",
-        "opencv": "installed",
-        "pillow": "installed"
-    },
-    "preRead": [
-        {
-            "path": "references/providers/implementation/iv8/references/api-inventory.md",
-            "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-        }
-    ],
-    "liveState": {
-        "mode": "browser-export-json",
-        "retention": "memory-only",
-        "requiredCookies": [],
-        "optionalCookies": [],
-        "cookieNamePatterns": [],
-        "storageKeys": []
-    },
-    "artifacts": {
-        "process": {
-            "path": "PROCESS.md",
-            "sha256": "ff16afbfd36a85a1969ce24848e9b986531c20882e66c868564e863a20239bab"
-        },
-        "pullLiveState": {
-            "path": "pull_live_state.py",
-            "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-        },
-        "assets": [],
-        "entry": {
-            "path": "entry.py",
-            "sha256": "c5548963ebbc667db9886896b3750dc10141e0ef0ce6ea29d66b0d68fd85933e"
-        }
-    },
-    "verification": {
-        "sourceCommit": "95be929~1",
-        "requiresFreshVerification": true
+    "minimumIndependentSignals": 3,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "vendor:geetest",
+    "version:v4",
+    "captcha-type:slider",
+    "protocol:slide"
+  ],
+  "product": {
+    "vendor": "Geetest",
+    "product": "CAPTCHA",
+    "version": "v4",
+    "subtype": "slider"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "curl_cffi": "installed",
+    "ddddocr": "installed",
+    "opencv": "installed",
+    "pillow": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
     }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "ff16afbfd36a85a1969ce24848e9b986531c20882e66c868564e863a20239bab"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "c5548963ebbc667db9886896b3750dc10141e0ef0ce6ea29d66b0d68fd85933e"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "verifier",
+      "role": "protocol-recovery"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "verifier",
+      "role": "protocol-recovery",
+      "purpose": "protocol owner"
+    },
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation",
+      "ownerProvider": "verifier"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

@@ -1,76 +1,101 @@
 {
-    "schemaVersion": "web-protocol-recovery-case/v1",
-    "caseId": "camoufox-jsvmp-ruishu6-cookie-412-sdenv",
-    "revision": 1,
-    "status": "verified",
-    "family": "challenge",
-    "runtime": "python-node",
-    "caseKind": "evidence",
-    "verificationClass": "historical-user-attested",
-    "requiresFreshVerification": true,
-    "secretPolicy": "redacted-pull-live",
-    "match": {
-        "signals": [
-            "vendor:river-security",
-            "alias:ruishu",
-            "version:6",
-            "challenge:http-412",
-            "state:$_ts-nsd-cd",
-            "cookie:client-T-suffix"
-        ],
-        "minimumIndependentSignals": 3,
-        "negativeSignals": []
-    },
-    "protocolPatterns": [
-        "vendor:river-security",
-        "alias:ruishu",
-        "version:6",
-        "challenge:http-412",
-        "state:$_ts-nsd-cd",
-        "cookie:client-T-suffix"
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "camoufox-jsvmp-ruishu6-cookie-412-sdenv",
+  "revision": 1,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "python-node",
+  "caseKind": "evidence",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:river-security",
+      "alias:ruishu",
+      "version:6",
+      "challenge:http-412",
+      "state:$_ts-nsd-cd",
+      "cookie:client-T-suffix"
     ],
-    "sourceProvider": "camoufox",
-    "product": {
-        "vendor": "River Security",
-        "product": "JS challenge",
-        "version": "6",
-        "subtype": "cookie-412-sdenv-jsdom"
-    },
-    "providerChain": [
-        "camoufox",
-        "env-patch"
+    "minimumIndependentSignals": 3,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "vendor:river-security",
+    "alias:ruishu",
+    "version:6",
+    "challenge:http-412",
+    "state:$_ts-nsd-cd",
+    "cookie:client-T-suffix"
+  ],
+  "product": {
+    "vendor": "River Security",
+    "product": "JS challenge",
+    "version": "6",
+    "subtype": "cookie-412-sdenv-jsdom"
+  },
+  "dependencies": {
+    "camoufox": "connected runtime",
+    "javascript": "target supplied"
+  },
+  "preRead": [],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "acw_tc"
     ],
-    "dependencies": {
-        "camoufox": "connected runtime",
-        "javascript": "target supplied"
+    "cookieNamePatterns": [
+      ".*S$",
+      ".*T$"
+    ],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "fa89fb185a9bf771f01c1f066ae17b57af71a965f91a0ea1eb4b37665ae9aa57"
     },
-    "preRead": [],
-    "liveState": {
-        "mode": "browser-export-json",
-        "retention": "memory-only",
-        "requiredCookies": [],
-        "optionalCookies": [
-            "acw_tc"
-        ],
-        "cookieNamePatterns": [
-            ".*S$",
-            ".*T$"
-        ],
-        "storageKeys": []
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "d39636069908ee71d6d3e3b623e3aa61b6e523e77b9cc8b36d879872708ecbab"
     },
-    "artifacts": {
-        "process": {
-            "path": "PROCESS.md",
-            "sha256": "fa89fb185a9bf771f01c1f066ae17b57af71a965f91a0ea1eb4b37665ae9aa57"
-        },
-        "pullLiveState": {
-            "path": "pull_live_state.py",
-            "sha256": "d39636069908ee71d6d3e3b623e3aa61b6e523e77b9cc8b36d879872708ecbab"
-        },
-        "assets": []
+    "assets": []
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": null,
+  "sourceStage": {
+    "provider": "camoufox",
+    "role": "reconnaissance",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "camoufox",
+      "role": "reconnaissance"
     },
-    "verification": {
-        "sourceCommit": "95be929~1",
-        "requiresFreshVerification": true
+    {
+      "provider": "python-node",
+      "role": "implementation",
+      "purpose": "env-patch strategy",
+      "strategy": "env-patch"
     }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "camoufox",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "python-node",
+      "role": "implementation",
+      "purpose": "env-patch strategy",
+      "strategy": "env-patch"
+    }
+  ]
 }

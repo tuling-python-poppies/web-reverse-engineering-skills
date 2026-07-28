@@ -11,7 +11,7 @@ import secrets
 import tempfile
 from pathlib import Path
 
-PROVIDERS_DIR = Path(__file__).resolve().parents[1]
+PROVIDERS_DIR = Path(__file__).resolve().parents[2]
 PATH_SAFETY_PATH = PROVIDERS_DIR / "path_safety.py"
 PATH_SAFETY_SPEC = importlib.util.spec_from_file_location("wpr_path_safety", PATH_SAFETY_PATH)
 if PATH_SAFETY_SPEC is None or PATH_SAFETY_SPEC.loader is None:

@@ -1,89 +1,106 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-pdd-anti-content",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "signer",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "parameter:anti_content",
-                                  "runtime:webpack",
-                                  "module:fbeZ",
-                                  "site:pdd"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "parameter:anti_content",
-                             "runtime:webpack",
-                             "module:fbeZ",
-                             "site:pdd"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "PDD",
-                    "product":  "anti_content",
-                    "version":  "legacy",
-                    "subtype":  "webpack-runtime"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-
-                                          ],
-                      "optionalCookies":  [
-                                              "api_uid"
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "1cadd4d72c2fe5420d604c9afd07b12f72cf883f6a5b6964ef6b73fa09f601d1"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "007335b7735616498056b78798e7a1a3d83c5468283b7b40e3dea4ae761c2e88"
-                                        },
-                      "assets":  [
-
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "a12ceb608e1dbd5026163fdbb136a025b0ff2cde53109145fe8b8af72dfb831f"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-pdd-anti-content",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "parameter:anti_content",
+      "runtime:webpack",
+      "module:fbeZ",
+      "site:pdd"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "parameter:anti_content",
+    "runtime:webpack",
+    "module:fbeZ",
+    "site:pdd"
+  ],
+  "product": {
+    "vendor": "PDD",
+    "product": "anti_content",
+    "version": "legacy",
+    "subtype": "webpack-runtime"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "api_uid"
+    ],
+    "cookieNamePatterns": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "1cadd4d72c2fe5420d604c9afd07b12f72cf883f6a5b6964ef6b73fa09f601d1"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "007335b7735616498056b78798e7a1a3d83c5468283b7b40e3dea4ae761c2e88"
+    },
+    "assets": [],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "a12ceb608e1dbd5026163fdbb136a025b0ff2cde53109145fe8b8af72dfb831f"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

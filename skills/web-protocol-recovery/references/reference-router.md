@@ -34,8 +34,8 @@ Read focused generic references when the symptom matches. First response loads 0
 
 ## Cookies, Bootstrap State, And Sessions
 
-- `references/providers/implementation/akamai/PROVIDER.md` when Akamai-native markers such as `_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `sensor_data`, `/akam/13/pixel_*`, or a confirmed random-path collector have independent corroboration. The Provider owns cookie transitions, sensor/Pixel separation, transport coherence, host-local fingerprint policy, and local collector execution acceptance.
-- `references/providers/implementation/river-security/PROVIDER.md` when River Security / 瑞数 markers such as `$_ts.nsd`, `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, HTTP `412` plus S/T cookies, or URL/header challenge-state mutation have independent corroboration. A vendor guess or `412` alone is not enough.
+- `references/providers/protocol-recovery/akamai/PROVIDER.md` when Akamai-native markers such as `_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `sensor_data`, `/akam/13/pixel_*`, or a confirmed random-path collector have independent corroboration. The Provider owns cookie transitions, sensor/Pixel separation, transport coherence, host-local fingerprint policy, and local collector execution acceptance.
+- `references/providers/protocol-recovery/river-security/PROVIDER.md` when River Security / 瑞数 markers such as `$_ts.nsd`, `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, HTTP `412` plus S/T cookies, or URL/header challenge-state mutation have independent corroboration. A vendor guess or `412` alone is not enough.
 - `references/cookie-provenance-playbook.md` when a cookie is blocking replay but the writer or refresh path is still unclear
 - `references/session-contract-playbook.md` when results or submission are account-bound
 - `references/public-bootstrap-envelope-playbook.md` when a public page needs passive keys, config, nonce, entry cookies, or an encrypted wrapper
@@ -58,7 +58,7 @@ Read focused generic references when the symptom matches. First response loads 0
 
 ## Verifiers, Pagination, And Narrow Exceptions
 
-- `references/providers/implementation/verifier/PROVIDER.md` when captcha or one-shot verification is the protocol gate. The Provider owns the captcha family router; read exactly one selected family reference such as Geetest, Tencent TDC, Aliyun V2/V3, CSDN, Ctrip, ByteDance VerifyCenter, Yidun, Shumei, Yunpian, 360 Tianyu, or generic `replay-playbook.md` for unknown families.
+- `references/providers/protocol-recovery/verifier/PROVIDER.md` when captcha or one-shot verification is the protocol gate. The Provider owns the captcha family router; read exactly one selected family reference such as Geetest, Tencent TDC, Aliyun V2/V3, CSDN, Ctrip, ByteDance VerifyCenter, Yidun, Shumei, Yunpian, 360 Tianyu, or generic `replay-playbook.md` for unknown families.
 - `references/pagination-route-pivot-playbook.md` when later pages pivot route families or raw pager metadata beats parsed DOM
 - `references/page-specific-exception-playbook.md` when only one page or one request behaves differently
 - `references/troubleshooting-playbook.md` when replay logic is almost correct but still unstable

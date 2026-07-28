@@ -1,4 +1,4 @@
-# Environment Patch Provider
+# Environment Patch Strategy
 
 ## Select When
 
@@ -14,9 +14,9 @@
 
 **vs iv8:** env-patch = minimal Node gaps for a known entry; iv8 = browser-like local host when that is the smallest faithful runtime.
 
-Use this provider only with known target JS and a known entry or `script-load-only` runtime goal. It iterates run -> diagnose missing environment -> add the smallest module -> verify the target behavior.
+Use this `python-node` strategy only with known target JS and a known entry or `script-load-only` runtime goal. It iterates run -> diagnose missing environment -> add the smallest module -> verify the target behavior.
 
-Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only writes assigned env probes or verified JS helpers under `web-protocol-recovery-simple`, then returns fixed-vector proof or a blocker.
+Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. The active Provider is `python-node` with `strategy: env-patch`; this strategy only writes assigned env probes or verified JS helpers under `web-protocol-recovery-simple`, then returns fixed-vector proof or a blocker.
 
 ## Trust Gate
 
@@ -24,11 +24,11 @@ Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, l
 
 ## Workflow
 
-1. From the approved project root, run `<provider-dir>/scripts/vm-browser-gap-diagnose.js --trusted-code` without env modules. The current directory is the project path boundary, not the Provider directory.
+1. From the approved project root, run `<strategy-dir>/scripts/vm-browser-gap-diagnose.js --trusted-code` without env modules. The current directory is the project path boundary, not the installed strategy directory.
 2. Select and order the smallest modules from `env/` using `references/env-modules.md`. When a Proxy/diagnostic gap log already exists, run `scripts/gap-log-module-advisor.js <gap-log.json>` first; treat `recommendedModules` as path candidates relative to `env/`, then confirm each against `env-modules.md` before loading.
 3. Repeat diagnosis while preserving proxy/gap monitoring with selected modules.
-4. Keep generated patches and probes under `js_reverse_cache/env/` and load them through that explicit path. Built-in module names always resolve from the Provider and cannot be shadowed by the project. Relative project modules reject symlink, junction, traversal, and real-path escape.
-5. When diagnosis needs real browser seed values (UA, screen, storage, fingerprint samples) and no approved seed artifact exists, use `scripts/browser-seed-collector.js` as a DevTools Console/Snippets paste. It only reads local page state and prints JSON; save the redacted result under `js_reverse_cache/env/` or feed it via `--profile-file`. Do not start or switch a browser from this provider solely to collect seeds—request recon evidence or reuse an already-open authorized page.
+4. Keep generated patches and probes under `js_reverse_cache/env/` and load them through that explicit path. Built-in module names always resolve from the strategy directory and cannot be shadowed by the project. Relative project modules reject symlink, junction, traversal, and real-path escape.
+5. When diagnosis needs real browser seed values (UA, screen, storage, fingerprint samples) and no approved seed artifact exists, use `scripts/browser-seed-collector.js` as a DevTools Console/Snippets paste. It only reads local page state and prints JSON; save the redacted result under `js_reverse_cache/env/` or feed it via `--profile-file`. Do not start or switch a browser from this strategy solely to collect seeds; request recon evidence or reuse an already-open authorized page.
 6. **Optional advanced branch** (not default): if modular rounds already ran (or evidence is native-only), and you need `setFuncNative` / constructor shape / targeted `monitor` / cache-area hand-written verification before promoting `mod.js`/`main.js`, read `references/advanced-env-path.md`, copy `scripts/advanced-env-engine.js` into `js_reverse_cache/env/`, and verify there. Take only needed shells from `references/browser-stubs.md`. Do not open advanced on the first turn without the gate in that doc.
 7. After runtime success, read `references/verification-and-replay.md` before claiming functional success; trigger the known signer/cookie/header behavior and compare fixed vectors or browser intermediates.
 8. Promote only verified stable output to assigned `mod.js` and `main.js`; use `templates/` only as project-local skeletons, and web-protocol-recovery owns final `main.py` integration.
@@ -47,7 +47,7 @@ Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, l
 
 ## Runtime Boundary
 
-Default architecture is `env/core/*` monitors, the `env/` module tree, project-local `js_reverse_cache/env/ai-generated/*.js` patches, and the diagnose/advisor/seed scripts. `advanced-env-engine.js` is an **optional branch inside this provider** for native shape and targeted monitoring after the advanced gate is met—not a second default and not a replacement for iv8 when browser-host semantics are required. Do not run modular spray and advanced as two competing ungoverned defaults in the same loop. If host semantics remain the first divergence after modular and (when gated) advanced work, return a blocker or escalate to iv8 per `references/path-upgrade-checklist.md`.
+Default architecture is `env/core/*` monitors, the `env/` module tree, project-local `js_reverse_cache/env/ai-generated/*.js` patches, and the diagnose/advisor/seed scripts. `advanced-env-engine.js` is an **optional branch inside this strategy** for native shape and targeted monitoring after the advanced gate is met, not a second default and not a replacement for iv8 when browser-host semantics are required. Do not run modular spray and advanced as two competing ungoverned defaults in the same loop. If host semantics remain the first divergence after modular and (when gated) advanced work, return a blocker or escalate to iv8 per `references/path-upgrade-checklist.md`.
 
 ## Optional References
 

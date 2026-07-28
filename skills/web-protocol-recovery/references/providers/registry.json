@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "web-protocol-recovery-provider-registry/v1",
+  "routeSentinels": ["evidence-reuse"],
+  "implementationModes": ["iv8", "python-node", "pure-python"],
+  "gateFamilies": ["signer", "challenge", "verifier", "decode", "session", "transport"],
+  "providers": [
+    {
+      "id": "chromium-recon",
+      "role": "reconnaissance",
+      "entry": "references/providers/reconnaissance/chromium-recon/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "camoufox",
+      "role": "reconnaissance",
+      "entry": "references/providers/reconnaissance/camoufox/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "wechat-miniapp",
+      "role": "reconnaissance",
+      "entry": "references/providers/reconnaissance/wechat-miniapp/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "browser-hooks",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/browser-hooks/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "ast",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/ast/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "verifier",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/verifier/PROVIDER.md",
+      "ownsProtocolAcceptance": true,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "akamai",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/akamai/PROVIDER.md",
+      "ownsProtocolAcceptance": true,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "river-security",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/river-security/PROVIDER.md",
+      "ownsProtocolAcceptance": true,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "iv8",
+      "role": "implementation",
+      "entry": "references/providers/implementation/iv8/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
+      "id": "python-node",
+      "role": "implementation",
+      "entry": "references/providers/implementation/python-node/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": ["direct-node", "env-patch", "wasm-sidecar"],
+      "profiles": []
+    },
+    {
+      "id": "pure-python",
+      "role": "implementation",
+      "entry": "references/providers/implementation/pure-python/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": ["douyin-abogus-native"]
+    },
+    {
+      "id": "python-collector",
+      "role": "delivery",
+      "entry": "references/providers/delivery/python-collector/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": true,
+      "strategies": [],
+      "profiles": []
+    }
+  ]
+}

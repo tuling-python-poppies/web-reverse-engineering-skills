@@ -69,17 +69,18 @@ def image_to_array(image: Image.Image) -> np.ndarray:
 
 可直接复用：
 
-- `scripts/gt4_bundle_helper.js`：读取当前 bundle，动态提取元数据、PoW、GCT 和 `w`。
-- `scripts/gt4_replay.py`：同轮 `/load -> 图片 -> helper -> sleep -> /verify` 模板。
-- `scripts/gt4_pure_replay.py`：不执行 JavaScript 的纯 Python `/load -> OCR -> PoW/GCT/AES/RSA -> sleep -> /verify` 模板。
+- `references/providers/implementation/python-node/scripts/gt4_bundle_helper.js`：读取当前 bundle，动态提取元数据、PoW、GCT 和 `w`；只接收 Python 传入的 `gctSource` 或 `biht`，不直接下载目标资源。
+- `references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py`：同轮 `/load -> 图片/GCT -> helper -> sleep -> /verify` delivery 模板。
+- `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`：不执行 JavaScript 的纯 Python `/load -> OCR -> PoW/GCT/AES/RSA -> sleep -> /verify` delivery 模板。
 
 运行模板：
 
 ```bash
-python scripts/gt4_replay.py \
+python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py \
   --captcha-id <captcha_id> \
   --bundle <当前 gcaptcha4.js> \
-  --helper scripts/gt4_bundle_helper.js
+  --helper <skill-root>/references/providers/implementation/python-node/scripts/gt4_bundle_helper.js \
+  --confirm-live-verify
 ```
 
 ## 纯 Python 极速路径
@@ -87,7 +88,7 @@ python scripts/gt4_replay.py \
 用户明确要求“纯 Python / 纯算”且已提供当前 bundle 时，按下面顺序执行，避免先做一轮 Node/vm 再返工：
 
 1. 先在工作区搜索 `gt4_pure.py`、`gt4_protocol.py`、`RSA_N_HEX`、`PKCS1_v1_5`。已有实现只作为算法和公钥来源，必须用当前 bundle 与新 challenge 重新验证。
-2. 直接复制或改造 `scripts/gt4_pure_replay.py`，依赖仅为 `requests`、`ddddocr`、`Pillow`、`pycryptodome`。运行路径不得导入 `subprocess`，不得调用 Node、iv8、ExecJS、jsdom 或浏览器。
+2. 直接复制或改造 `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`，依赖仅为 `requests`、`ddddocr`、`Pillow`、`pycryptodome`。运行路径不得导入 `subprocess`，不得调用 Node、iv8、ExecJS、jsdom 或浏览器。
 3. 用完整 bundle 文本解出顶部 XOR 字符串表，再解析 `_lib/lib._abo` 初始化段。大字符串表可能占据源码前数十万字符，不要用 `source[:20000]` 查元数据；先定位明文 `n[...]` lot rule，再向前截取小窗口查 `_lib` 对象。
 4. Python 的 `decodeURI` 兼容实现必须保留 URI reserved 字符的 `%XX` 形式；不能无条件使用 `urllib.parse.unquote()`，否则 XOR 输入长度可能变化，导致后半段字符串表错位。
 5. PoW 明文固定核对为 `version|bits|hashfunc|datetime|captcha_id|lot_number||nonce`。当前 bundle 调 PoW 模块的最后一个参数是空字符串，不能误传 `/load` 返回的长 `payload`。
@@ -100,9 +101,10 @@ python scripts/gt4_replay.py \
 最短命令：
 
 ```bash
-python scripts/gt4_pure_replay.py \
+python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py \
   --captcha-id <captcha_id> \
-  --bundle <当前 gcaptcha4.js>
+  --bundle <当前 gcaptcha4.js> \
+  --confirm-live-verify
 ```
 
 ## Bundle 更新故障判定
@@ -261,7 +263,7 @@ const wPayload = {
 4. 从本轮原始 GCT 源码计算 `biht`。
 5. Python 生成 PoW、`gee_guard`、`em`、AES key、AES ciphertext 和 RSA encrypted key。
 
-实现时优先直接使用 `scripts/gt4_pure_replay.py`，下面内容用于理解和排错，不要每个目标重新手写一次。
+实现时优先直接使用 `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`，下面内容用于理解和排错，不要每个目标重新手写一次。
 
 当前规则必须从 bundle 解析，不要手写。2026-07-23 样本对应：
 

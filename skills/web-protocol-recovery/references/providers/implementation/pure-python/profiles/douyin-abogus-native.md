@@ -1,4 +1,4 @@
-# Douyin A-Bogus Native Provider
+# Douyin A-Bogus Native Profile
 
 ## Select When
 
@@ -13,7 +13,7 @@
 - The only evidence is an `a_bogus` parameter name, a non-empty signer output, URL roundtrip, or one HTTP `200`.
 - The target is not Douyin Web BDMS 1.0.1.19 under `aweme/v1/web/*`.
 
-This Provider route is `douyin-abogus-native`. It owns already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and request adaptation. web-protocol-recovery still owns route choice, authorization, `projectRoot`, allowed paths, acceptance tests, live-egress budget, and final delivery status.
+This is a `pure-python` implementation profile, not a route. The active route is `pure-python` with `profile: douyin-abogus-native`. The profile covers already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and artifact adaptation. web-protocol-recovery still owns route choice, authorization, `projectRoot`, allowed paths, acceptance tests, live-egress budget, and final delivery status.
 
 ## Work Order Inputs
 
@@ -40,7 +40,7 @@ If any required file or vector is missing, return `nextAsk` for only that missin
 2. Do not import iv8, jsdom, Node, browser MCPs, or page runtime helpers into final Python code.
 3. Keep dynamic evidence and failing samples under assigned `js_reverse_cache/**`; never write into the installed skill directory.
 4. For `local-proof`, return fixed-vector parity, first divergence if any, URL roundtrip, dependency scan, and exact artifact paths/hashes.
-5. For `compact-replay` or `collector`, return a pure Python helper/request adapter for the Python-owned live-egress chain; web-protocol-recovery must still accept semantic business response shape before scale.
+5. For `compact-replay` or `collector`, return a pure Python helper for the Python-owned live-egress chain; `python-collector` owns actual HTTP, and web-protocol-recovery must still accept semantic business response shape before scale.
 
 ## Acceptance
 
@@ -56,7 +56,7 @@ All required:
 
 | Trigger | First fix | Still fails -> stop |
 |---|---|---|
-| Missing complete generator or fixed trace | Return blocker naming missing file/evidence | Route back to recon/AST/iv8 instead of inventing fields |
+| Missing complete generator or fixed trace | Return blocker naming missing file/evidence | Route back to recon/recovery/implementation instead of inventing fields |
 | Fixed-vector mismatch | Diff digest, packing slots, alphabet, UA, and explicit fingerprint inputs | Save first divergence; no live replay |
 | Shape correct but business response fails | Check cookie/session, UA coherence, first page visit, time window, and request boundary | Return semantic mismatch; do not add browser dependency |
 | User asks for from-zero recovery | Preserve samples and current blocker | Route to normal web-protocol-recovery implementation chain |

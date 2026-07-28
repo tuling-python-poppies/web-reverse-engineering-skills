@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "web-protocol-recovery-case-registry-v2.schema.json",
+  "title": "web-protocol-recovery case registry v2",
+  "type": "object",
+  "required": ["schemaVersion", "cases"],
+  "properties": {
+    "schemaVersion": {"const": "web-protocol-recovery-case-registry/v2"},
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["caseId", "family", "status", "runtime", "caseKind", "match", "manifest", "verificationClass", "selectableAs"],
+        "properties": {
+          "caseId": {"type": "string"},
+          "family": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
+          "status": {"enum": ["verified", "stale", "deprecated"]},
+          "runtime": {"enum": ["iv8", "python-node", "pure-python"]},
+          "caseKind": {"enum": ["evidence", "implementation"]},
+          "implementation": {"type": ["object", "null"]},
+          "exactScopes": {"type": "array"},
+          "match": {"type": "object"},
+          "providerPlan": {"type": "array"},
+          "manifest": {"type": "object"},
+          "verificationClass": {"enum": ["freshly-verified", "historical-user-attested"]},
+          "selectableAs": {"enum": ["proof", "template"]}
+        }
+      }
+    }
+  }
+}

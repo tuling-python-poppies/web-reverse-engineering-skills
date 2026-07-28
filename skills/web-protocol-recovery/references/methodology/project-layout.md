@@ -91,7 +91,7 @@ Before any new file/dir under a task project, answer yes to all applicable:
 When the work order needs new empty layout paths under an absolute `projectRoot`, python-collector may call:
 
 ```text
-python <skill-root>/scripts/providers/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm [flags]
+python <skill-root>/scripts/providers/delivery/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm [flags]
 ```
 
 Create only requested missing files; never overwrite. See the python-collector Provider for flags and reject rules.

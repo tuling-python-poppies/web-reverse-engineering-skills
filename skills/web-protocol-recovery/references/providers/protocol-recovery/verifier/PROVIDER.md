@@ -58,9 +58,9 @@ Provider-local scripts are reusable templates, not direct in-place runners. Copy
 
 | Script | Use |
 |---|---|
-| `scripts/gt4_bundle_helper.js` | GT4 current bundle metadata, PoW, GCT, and `w` helper |
-| `scripts/gt4_replay.py` | GT4 same-round Python + Node helper replay template |
-| `scripts/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` template |
+| `references/providers/implementation/python-node/scripts/gt4_bundle_helper.js` | GT4 current bundle metadata, PoW, GCT, and `w` artifact helper. It receives `gctSource` or `biht`; it does not download target resources. |
+| `references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py` | GT4 same-round Python + Node helper replay template; Python owns `/load`, images, GCT, and `/verify`. |
+| `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. |
 | `scripts/aliyun_v2_profile_diff.py` | Aliyun V2 DeviceConfig/Log2/token/profile diff helper |
 
 ## Acceptance

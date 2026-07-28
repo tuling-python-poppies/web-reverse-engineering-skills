@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "web-protocol-recovery-case-v2.schema.json",
+  "title": "web-protocol-recovery case v2",
+  "type": "object",
+  "required": ["schemaVersion", "caseId", "status", "family", "runtime", "caseKind", "match", "artifacts", "verification"],
+  "properties": {
+    "schemaVersion": {"const": "web-protocol-recovery-case/v2"},
+    "caseId": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "status": {"enum": ["verified", "stale", "deprecated"]},
+    "family": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
+    "runtime": {"enum": ["iv8", "python-node", "pure-python"]},
+    "caseKind": {"enum": ["evidence", "implementation"]},
+    "implementation": {
+      "type": ["object", "null"],
+      "properties": {
+        "mode": {"enum": ["iv8", "python-node", "pure-python"]},
+        "strategy": {"type": ["string", "null"]},
+        "profile": {"type": ["string", "null"]}
+      }
+    },
+    "sourceStage": {"type": "object"},
+    "historicalProviderChain": {"type": "array"},
+    "requiredCurrentProviderChain": {"type": "array"},
+    "match": {"type": "object"},
+    "exactScopes": {"type": "array"},
+    "protocolPatterns": {"type": "array"},
+    "product": {"type": "object"},
+    "dependencies": {"type": "object"},
+    "liveState": {"type": "object"},
+    "artifacts": {"type": "object"},
+    "verification": {"type": "object"},
+    "verificationClass": {"enum": ["freshly-verified", "historical-user-attested"]},
+    "requiresFreshVerification": {"type": "boolean"},
+    "secretPolicy": {"const": "redacted-pull-live"}
+  }
+}

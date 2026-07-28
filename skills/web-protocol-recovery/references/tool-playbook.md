@@ -21,14 +21,14 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 | Explicit CloakBrowser / 指纹浏览器 / fingerprint / stealth wording, or first proved fingerprint escalation | Chromium Recon Provider, Cloak tier | Camoufox as a name substitute |
 | Explicit Camoufox/SpiderMonkey or engine-event property tracing | `references/providers/reconnaissance/camoufox/PROVIDER.md` (+ optional `camoufox/references/ops-ladder.md`) | Chromium contexts in parallel |
 | WMPF/AppService/WeChat miniapp debugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` (+ optional `wechat-miniapp/references/ops-playbook.md`) | Web browser reconnaissance |
-| One known reversible observation boundary | `references/providers/implementation/browser-hooks/PROVIDER.md` | Broad unknown-entry discovery |
-| Identified source region needs structural restoration | `references/providers/implementation/ast/PROVIDER.md` | Network ownership or final delivery |
-| Concrete environment-read mismatch is proved | `references/providers/implementation/env-patch/PROVIDER.md` | Guessing broad browser surfaces |
+| One known reversible observation boundary | `references/providers/protocol-recovery/browser-hooks/PROVIDER.md` | Broad unknown-entry discovery |
+| Identified source region needs structural restoration | `references/providers/protocol-recovery/ast/PROVIDER.md` | Network ownership or final delivery |
+| Concrete environment-read mismatch is proved | `references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md` | Guessing broad browser surfaces |
 | Narrow artifact needs host-visible JS semantics | `references/embedded-browser-runtime-playbook.md`, then `references/providers/implementation/iv8/PROVIDER.md` (API gate: `iv8/references/api-inventory.md`) | Full rendering/interaction as delivery |
-| Captcha or one-shot verification owns the gate | `references/providers/implementation/verifier/PROVIDER.md` | Treating it as an ordinary signer or generic OCR |
-| Akamai Bot Manager sensor/cookie state machine owns the gate | `references/providers/implementation/akamai/PROVIDER.md` | Guessing from generic 403, one cookie name, or treating sensor 200 as success |
-| River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge state owns the gate | `references/providers/implementation/river-security/PROVIDER.md` | Treating vendor name, suspicion, or 412 alone as proof; jumping to Camoufox by default |
-| Protocol is proved and browser-free Python delivery remains | `references/providers/implementation/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
+| Captcha or one-shot verification owns the gate | `references/providers/protocol-recovery/verifier/PROVIDER.md` | Treating it as an ordinary signer or generic OCR |
+| Akamai Bot Manager sensor/cookie state machine owns the gate | `references/providers/protocol-recovery/akamai/PROVIDER.md` | Guessing from generic 403, one cookie name, or treating sensor 200 as success |
+| River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge state owns the gate | `references/providers/protocol-recovery/river-security/PROVIDER.md` | Treating vendor name, suspicion, or 412 alone as proof; jumping to Camoufox by default |
+| Protocol is proved and browser-free Python delivery remains | `references/providers/delivery/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
 
 ## Browser Lifecycle Invariant
 
@@ -116,4 +116,4 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 - `scripts/check_reverse_env.py`: verify local reverse dependencies.
 - `scripts/crypto_fingerprint.py`: classify suspicious digest/alphabet output.
 - `scripts/protocol_diff.py`: compare captured wire structures.
-- `scripts/providers/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple` paths.
+- `scripts/providers/delivery/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple` paths.

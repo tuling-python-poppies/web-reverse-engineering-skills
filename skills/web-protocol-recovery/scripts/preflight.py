@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import re
 import subprocess
 import sys
@@ -86,7 +87,7 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "Camoufox wasm-loader helper guard",
     ),
     (
-        "references/providers/implementation/verifier/scripts/gt4_replay.py",
+        "references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py",
         (
             "--confirm-live-verify",
             "LIVE_VERIFY_APPROVED",
@@ -97,7 +98,7 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "GT4 replay live verifier guard",
     ),
     (
-        "references/providers/implementation/verifier/scripts/gt4_pure_replay.py",
+        "references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py",
         (
             "--confirm-live-verify",
             "LIVE_VERIFY_APPROVED",
@@ -111,8 +112,8 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
 
 # Outside live_get(), these templates must not call session.get directly.
 GT4_LIVE_GET_ONLY_SCRIPTS = (
-    "references/providers/implementation/verifier/scripts/gt4_replay.py",
-    "references/providers/implementation/verifier/scripts/gt4_pure_replay.py",
+    "references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py",
+    "references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py",
 )
 BARE_SESSION_GET = re.compile(r"\bsession\.get\s*\(")
 LIVE_GET_DEF = re.compile(r"(?m)^def live_get\b")
@@ -154,6 +155,8 @@ SIDE_EFFECT_FUNCS = {
 
 
 def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
+    env = os.environ.copy()
+    env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
     proc = subprocess.run(
         cmd,
         cwd=str(cwd),
@@ -161,6 +164,7 @@ def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=env,
     )
     out = (proc.stdout or "") + (proc.stderr or "")
     return proc.returncode, out
@@ -261,7 +265,17 @@ def check_commit_body_policy() -> tuple[bool, str]:
 
 
 def check_hashes() -> tuple[bool, str]:
-    code, out = run([sys.executable, "scripts/verify_case_hashes.py"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/verify_case_hashes.py"], SKILL_ROOT)
+    return code == 0, out.strip()
+
+
+def check_case_registry_projection() -> tuple[bool, str]:
+    code, out = run([sys.executable, "-B", "scripts/build_case_registry.py", "--check"], SKILL_ROOT)
+    return code == 0, out.strip()
+
+
+def check_architecture_contract() -> tuple[bool, str]:
+    code, out = run([sys.executable, "-B", "scripts/validate_architecture.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
@@ -678,6 +692,18 @@ def main(argv: list[str] | None = None) -> int:
     print(out)
     if not ok:
         failures.append("verify_case_hashes failed")
+
+    print("\n== case registry projection ==")
+    ok, out = check_case_registry_projection()
+    print(out)
+    if not ok:
+        failures.append("build_case_registry.py --check failed")
+
+    print("\n== architecture contract ==")
+    ok, out = check_architecture_contract()
+    print(out)
+    if not ok:
+        failures.append("validate_architecture.py failed")
 
     if not args.skip_tests:
         print("\n== case unit tests ==")

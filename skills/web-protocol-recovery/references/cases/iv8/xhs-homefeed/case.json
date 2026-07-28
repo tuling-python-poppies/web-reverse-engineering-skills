@@ -1,109 +1,132 @@
 {
-    "schemaVersion":  "web-protocol-recovery-case/v1",
-    "caseId":  "iv8-xhs-homefeed",
-    "revision":  1,
-    "status":  "verified",
-    "family":  "signer",
-    "runtime":  "iv8",
-    "caseKind":  "implementation",
-    "verificationClass":  "historical-user-attested",
-    "requiresFreshVerification":  true,
-    "secretPolicy":  "redacted-pull-live",
-    "match":  {
-                  "signals":  [
-                                  "header:x-s",
-                                  "header:x-t",
-                                  "header:x-s-common",
-                                  "runtime:mnsv2",
-                                  "site:xhs"
-                              ],
-                  "minimumIndependentSignals":  2,
-                  "negativeSignals":  [
-
-                                      ]
-              },
-    "protocolPatterns":  [
-                             "header:x-s",
-                             "header:x-t",
-                             "header:x-s-common",
-                             "runtime:mnsv2",
-                             "site:xhs"
-                         ],
-    "sourceProvider":  "iv8",
-    "product":  {
-                    "vendor":  "Xiaohongshu",
-                    "product":  "homefeed signing",
-                    "version":  "legacy",
-                    "subtype":  "mnsv2"
-                },
-    "providerChain":  [
-                          "iv8",
-                          "python-collector"
-                      ],
-    "dependencies":  {
-                         "python":  "\u003e=3.9",
-                         "iv8":  "installed runtime",
-                         "requests":  "installed"
-                     },
-    "preRead":  [
-                    {
-                        "path":  "references/providers/implementation/iv8/references/api-inventory.md",
-                        "sha256":  "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
-                    }
-                ],
-    "liveState":  {
-                      "mode":  "browser-export-json",
-                      "retention":  "memory-only",
-                      "requiredCookies":  [
-                                              "a1"
-                                          ],
-                      "optionalCookies":  [
-                                              "id_token",
-                                              "web_session",
-                                              "acw_tc",
-                                              "unread"
-                                          ],
-                      "cookieNamePatterns":  [
-
-                                             ],
-                      "storageKeys":  [
-                                          "b1",
-                                          "b1b1",
-                                          "dsllt",
-                                          "dsl",
-                                          "sc"
-                                      ]
-                  },
-    "artifacts":  {
-                      "process":  {
-                                      "path":  "PROCESS.md",
-                                      "sha256":  "a42bccf506597b0f42290405704c1766ab01648208b92ae520082a1497502aa3"
-                                  },
-                      "pullLiveState":  {
-                                            "path":  "pull_live_state.py",
-                                            "sha256":  "a7a09d9914a511a8c9a0ae6366600073ad189c7fe793c0d21f96a548f47d8666"
-                                        },
-                      "assets":  [
-                                     {
-                                         "path":  "assets/signV2Init_function.json",
-                                         "sha256":  "fc33e17ed2f2a112afdabf5a854b28633586e4cf2b1a0487acb7939cd140db06"
-                                     },
-                                     {
-                                         "path":  "assets/xhs_header_sign.js",
-                                         "sha256":  "a5059251cca41d953c0f3a0974d54aed0356d598899741ef895bf28c4db33bd5"
-                                     },
-                                     {
-                                         "path":  "fixtures/runtime_seed.sample.json",
-                                         "sha256":  "e29fdcc66dfc921da1189e0e2e029a3e573f2bf03faea917467084217064833b"
-                                     }
-                                 ],
-                      "entry":  {
-                                    "path":  "entry.py",
-                                    "sha256":  "c5808efd8ed40f2a9dee8a2b9eb339dff7c965140f0b2a10ad90343c529a47a3"
-                                }
-                  },
-    "verification":  {
-                         "sourceCommit":  "95be929~1",
-                         "requiresFreshVerification":  true
-                     }
+  "schemaVersion": "web-protocol-recovery-case/v2",
+  "caseId": "iv8-xhs-homefeed",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "iv8",
+  "caseKind": "implementation",
+  "verificationClass": "historical-user-attested",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "header:x-s",
+      "header:x-t",
+      "header:x-s-common",
+      "runtime:mnsv2",
+      "site:xhs"
+    ],
+    "minimumIndependentSignals": 2,
+    "negativeSignals": []
+  },
+  "protocolPatterns": [
+    "header:x-s",
+    "header:x-t",
+    "header:x-s-common",
+    "runtime:mnsv2",
+    "site:xhs"
+  ],
+  "product": {
+    "vendor": "Xiaohongshu",
+    "product": "homefeed signing",
+    "version": "legacy",
+    "subtype": "mnsv2"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  },
+  "preRead": [
+    {
+      "path": "references/providers/implementation/iv8/references/api-inventory.md",
+      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+    }
+  ],
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [
+      "a1"
+    ],
+    "optionalCookies": [
+      "id_token",
+      "web_session",
+      "acw_tc",
+      "unread"
+    ],
+    "cookieNamePatterns": [],
+    "storageKeys": [
+      "b1",
+      "b1b1",
+      "dsllt",
+      "dsl",
+      "sc"
+    ]
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "a42bccf506597b0f42290405704c1766ab01648208b92ae520082a1497502aa3"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "a7a09d9914a511a8c9a0ae6366600073ad189c7fe793c0d21f96a548f47d8666"
+    },
+    "assets": [
+      {
+        "path": "assets/signV2Init_function.json",
+        "sha256": "fc33e17ed2f2a112afdabf5a854b28633586e4cf2b1a0487acb7939cd140db06"
+      },
+      {
+        "path": "assets/xhs_header_sign.js",
+        "sha256": "a5059251cca41d953c0f3a0974d54aed0356d598899741ef895bf28c4db33bd5"
+      },
+      {
+        "path": "fixtures/runtime_seed.sample.json",
+        "sha256": "e29fdcc66dfc921da1189e0e2e029a3e573f2bf03faea917467084217064833b"
+      }
+    ],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "c5808efd8ed40f2a9dee8a2b9eb339dff7c965140f0b2a10ad90343c529a47a3"
+    }
+  },
+  "verification": {
+    "sourceCommit": "95be929~1",
+    "requiresFreshVerification": true
+  },
+  "implementation": {
+    "mode": "iv8",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "iv8",
+    "role": "implementation",
+    "purpose": "source evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "iv8",
+      "role": "implementation",
+      "purpose": "artifact implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
 }

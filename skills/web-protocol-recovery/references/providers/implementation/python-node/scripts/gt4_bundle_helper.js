@@ -50,16 +50,20 @@ function resolveLotFields(lotNumber, rules) {
   return result;
 }
 
-async function getBiht(gctPath) {
-  const url = new URL(gctPath, 'https://static.geetest.com').href;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`GCT download failed: ${response.status}`);
-  const source = await response.text();
+async function getBiht(input) {
+  if (input.biht) {
+    if (!/^\d+$/.test(String(input.biht))) throw new Error('Input biht must be digits');
+    return String(input.biht);
+  }
+  const source = input.gctSource;
+  if (typeof source !== 'string' || !source.trim()) {
+    throw new Error('gctSource or biht is required; Python delivery owns GCT download');
+  }
   const context = {};
   context.globalThis = context;
   context.self = context;
   vm.createContext(context);
-  vm.runInContext(source, context, { timeout: 5000, filename: url });
+  vm.runInContext(source, context, { timeout: 5000, filename: 'gct-source.js' });
   if (typeof context._gct !== 'function') throw new Error('GCT did not export _gct');
   const payload = { geetest: 'captcha', lang: 'zh', ep: '123' };
   context._gct(payload);
@@ -80,7 +84,7 @@ async function build(input) {
     detail.datetime,
     ''
   );
-  const biht = await getBiht(data.gct_path);
+  const biht = await getBiht(input);
   const lotFields = resolveLotFields(data.lot_number, bundle.lotRules);
   // Re-check these version-specific environment outputs after a bundle upgrade.
   const geeGuard = {

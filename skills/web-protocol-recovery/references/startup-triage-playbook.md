@@ -77,14 +77,14 @@ First move:
 
 - freeze one coherent challenge chain: first response, headers, `Set-Cookie`, challenge HTML, linked scripts, generated state, and second request delta
 - do not classify from `412` or a user hypothesis alone
-- for River Security, read `references/providers/implementation/river-security/PROVIDER.md` before selecting a case or runtime
+- for River Security, read `references/providers/protocol-recovery/river-security/PROVIDER.md` before selecting a case or runtime
 - for generic challenge bootstrap, read `references/challenge-state-envelope-playbook.md`
 - use Chromium recon by default; River Security is not a Camoufox criterion
 
 Primary references:
 
-- `references/providers/implementation/river-security/PROVIDER.md` for confirmed River Security / 瑞数 markers
-- `references/providers/implementation/akamai/PROVIDER.md` for confirmed Akamai markers
+- `references/providers/protocol-recovery/river-security/PROVIDER.md` for confirmed River Security / 瑞数 markers
+- `references/providers/protocol-recovery/akamai/PROVIDER.md` for confirmed Akamai markers
 - `references/challenge-state-envelope-playbook.md` for unclassified executable challenge state
 - `references/cookie-provenance-playbook.md` when the writer or refresh order is unknown
 
@@ -126,7 +126,7 @@ First move:
 
 Primary references (pick one first path):
 
-- `references/providers/implementation/verifier/references/replay-playbook.md` when captcha/one-shot verification is the gate
+- `references/providers/protocol-recovery/verifier/references/replay-playbook.md` when captcha/one-shot verification is the gate
 - `references/challenge-state-envelope-playbook.md` when a bootstrap getter/egress already has the artifact
 - `references/troubleshooting-playbook.md` when replay is close but unstable
 - later only if needed: verifier PROVIDER, cookie-provenance, embedded-browser-runtime

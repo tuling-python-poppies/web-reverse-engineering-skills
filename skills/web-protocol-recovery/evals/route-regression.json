@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "web-protocol-recovery-route-regression/v1",
+  "cases": [
+    {
+      "id": "douyin-abogus-native-profile",
+      "prompt": "Existing proved Douyin Web BDMS 1.0.1.19 pure_abogus.py needs fixed-vector maintenance and Python helper adaptation.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "pure-python",
+        "profile": "douyin-abogus-native",
+        "notRoute": ["douyin-abogus-native", "env-patch"]
+      }
+    },
+    {
+      "id": "jd-h5st-pure-python-case",
+      "prompt": "JD h5st 5.3 request_algo 2088b has the pure Python case signals and wants a browser-free signer proof.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "pure-python",
+        "caseId": "pure-python-jd-h5st"
+      }
+    },
+    {
+      "id": "node-env-patch-strategy",
+      "prompt": "Known JS signer entry only misses navigator and DOM descriptor surfaces under Node vm/jsdom.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "python-node",
+        "strategy": "env-patch",
+        "notRoute": ["env-patch"]
+      }
+    },
+    {
+      "id": "gt4-verifier-owner",
+      "prompt": "Geetest GT4 slider returns non-empty w but data.result is fail; need one coherent verifier round and proof criteria.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "verifier",
+        "gateFamily": "verifier"
+      }
+    },
+    {
+      "id": "proved-protocol-python-delivery",
+      "prompt": "Endpoint, moving state, fixed vectors, and request budget are approved; build the final browser-free Python collector.",
+      "expect": {
+        "shape": "collector",
+        "route": "python-collector",
+        "deliveryProvider": "python-collector"
+      }
+    }
+  ]
+}

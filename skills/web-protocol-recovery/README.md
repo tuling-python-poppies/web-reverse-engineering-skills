@@ -14,6 +14,7 @@
 - Symptom routing: `references/reference-router.md`
 - Tool-family selection/escalation: `references/tool-playbook.md`
 - Case selector: `references/cases/registry.json`
+- Route regression evals: `evals/route-regression.json`
 
 ## Provider Architecture
 
@@ -60,6 +61,7 @@ Reverse-engineering helpers under `scripts/` are optional aids, not gates:
 python scripts\check_reverse_env.py
 python scripts\crypto_fingerprint.py <sample>
 python scripts\protocol_diff.py <capture-a> <capture-b>
+python scripts\validate_evals.py
 python scripts\providers\delivery\python-collector\scaffold_project.py <project-root> --entry --cache
 ```
 

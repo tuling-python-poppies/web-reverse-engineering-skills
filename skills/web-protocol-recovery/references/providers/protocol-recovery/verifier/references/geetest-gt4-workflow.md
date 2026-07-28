@@ -80,6 +80,7 @@ python <skill-root>/references/providers/delivery/python-collector/scripts/verif
   --captcha-id <captcha_id> \
   --bundle <当前 gcaptcha4.js> \
   --helper <skill-root>/references/providers/implementation/python-node/scripts/gt4_bundle_helper.js \
+  --work-order <validated-provider-work-order-v2.json> \
   --confirm-live-verify
 ```
 
@@ -104,6 +105,7 @@ python <skill-root>/references/providers/delivery/python-collector/scripts/verif
 python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py \
   --captcha-id <captcha_id> \
   --bundle <当前 gcaptcha4.js> \
+  --work-order <validated-provider-work-order-v2.json> \
   --confirm-live-verify
 ```
 

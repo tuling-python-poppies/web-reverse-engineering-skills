@@ -5,7 +5,7 @@ import re
 import subprocess
 import time
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import ddddocr
 import requests
@@ -17,18 +17,20 @@ LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
 LIVE_VERIFY_APPROVED = False
+APPROVED_WORK_ORDER_ID = None
 
 
-def approve_live_verify() -> None:
-    global LIVE_VERIFY_APPROVED
+def approve_live_verify(work_order: dict) -> None:
+    global LIVE_VERIFY_APPROVED, APPROVED_WORK_ORDER_ID
     LIVE_VERIFY_APPROVED = True
+    APPROVED_WORK_ORDER_ID = work_order["workOrderId"]
 
 
 def require_live_verify_approval() -> None:
     if not LIVE_VERIFY_APPROVED:
         raise RuntimeError(
             "live verifier request is not approved; run through main() with "
-            "--confirm-live-verify after recording liveReplay/verifier gates"
+            "--confirm-live-verify and --work-order after recording liveReplay/verifier gates"
         )
 
 
@@ -50,6 +52,72 @@ def parse_jsonp(text: str) -> dict:
 
 def save_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def scope_allows(scopes: list[dict], target_url: str) -> bool:
+    parsed = urlparse(target_url)
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    path = parsed.path or "/"
+    for scope in scopes:
+        prefix = scope.get("routePrefix") or "/"
+        if not prefix.startswith("/"):
+            continue
+        try:
+            scope_port = int(scope.get("port", -1))
+        except (TypeError, ValueError):
+            continue
+        if (
+            scope.get("scheme") == parsed.scheme
+            and str(scope.get("host", "")).lower() == parsed.hostname
+            and scope_port == port
+            and (path == prefix or path.startswith(prefix.rstrip("/") + "/"))
+        ):
+            return True
+    return False
+
+
+def validate_work_order(path: Path) -> dict:
+    try:
+        work_order = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"cannot read work order {path}: {error}") from error
+    active = work_order.get("activeProvider") or {}
+    authorization = work_order.get("authorization") or {}
+    budget = authorization.get("requestBudget") or {}
+    scopes = authorization.get("allowedHostsAndRoutes") or []
+    artifact_policy = authorization.get("artifactPolicy") or {}
+
+    errors = []
+    if not work_order.get("workOrderId"):
+        errors.append("workOrderId is required")
+    if work_order.get("schemaVersion") != "web-protocol-recovery-provider-work-order/v2":
+        errors.append("schemaVersion must be web-protocol-recovery-provider-work-order/v2")
+    if work_order.get("gateFamily") != "verifier":
+        errors.append("gateFamily must be verifier")
+    if active.get("id") != "python-collector" or active.get("role") != "delivery":
+        errors.append("activeProvider must be python-collector with role=delivery")
+    if work_order.get("protocolOwner") != "verifier":
+        errors.append("protocolOwner must be verifier")
+    if work_order.get("deliveryProvider") != "python-collector":
+        errors.append("deliveryProvider must be python-collector")
+    if authorization.get("liveReplayAllowed") is not True:
+        errors.append("authorization.liveReplayAllowed must be true")
+    try:
+        remaining_budget = int(budget.get("remaining", 0))
+    except (TypeError, ValueError):
+        remaining_budget = 0
+    if remaining_budget < 5:
+        errors.append("authorization.requestBudget.remaining must be at least 5")
+    if artifact_policy.get("repositoryExcluded") is not True:
+        errors.append("authorization.artifactPolicy.repositoryExcluded must be true")
+    for target_url in (LOAD_URL, VERIFY_URL, STATIC_BASE):
+        if not scope_allows(scopes, target_url):
+            errors.append(f"allowedHostsAndRoutes missing scope for {target_url}")
+    if not work_order.get("acceptanceTest"):
+        errors.append("acceptanceTest is required")
+    if errors:
+        raise ValueError("invalid GT4 work order: " + "; ".join(errors))
+    return work_order
 
 
 def download_text(session: requests.Session, source_url: str, path: Path) -> str:
@@ -111,13 +179,23 @@ def main() -> int:
         action="store_true",
         help="Required because this template calls Geetest /load and /verify.",
     )
+    parser.add_argument(
+        "--work-order",
+        required=True,
+        type=Path,
+        help="Validated web-protocol-recovery-provider-work-order/v2 JSON.",
+    )
     args = parser.parse_args()
     if not args.confirm_live_verify:
         parser.error(
             "--confirm-live-verify is required; copy/adapt this template into an approved "
             "project and record liveReplay/verifier gates before execution"
         )
-    approve_live_verify()
+    try:
+        work_order = validate_work_order(args.work_order)
+    except ValueError as error:
+        parser.error(str(error))
+    approve_live_verify(work_order)
 
     session = requests.Session()
     session.trust_env = args.use_env_proxy
@@ -204,6 +282,7 @@ def main() -> int:
     result = verify_json.get("data", {}).get("result")
     print(json.dumps({
         "cache": str(cache.resolve()),
+        "workOrderId": APPROVED_WORK_ORDER_ID,
         "lot_number": data["lot_number"],
         "gap_x": gap_x,
         "setLeft": set_left,

@@ -4,15 +4,18 @@
 Runs offline checks that should pass before committing skill edits:
 
 1. case hash/registry integrity (verify_case_hashes.py)
-2. all case unit tests discovered under references/cases/*/*/tests
-3. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
-4. discipline scans on case Python files:
+2. generated case registry projection (build_case_registry.py --check)
+3. architecture/document/read-plan contracts (validate_architecture.py)
+4. route regression eval metadata (validate_evals.py)
+5. all case unit tests discovered under references/cases/*/*/tests
+6. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
+7. discipline scans on case Python files:
    - bare top-level `import iv8`
    - import-time mkdir/network/request binding
    - module-level live side effects (AST): with-blocks, requests.* aliases,
      curl_cffi.requests, _iv8()/JSContext, mkdir, unguarded side-effect helpers
-5. Provider live-template guard contracts (Camoufox/GT4 fail-closed markers)
-6. HEAD commit-body policy for high-impact case edits when Git metadata exists
+8. Provider live-template guard contracts (Camoufox/GT4 fail-closed markers)
+9. HEAD commit-body policy for high-impact case edits when Git metadata exists
 
 `--skip-tests` skips only discovered case unit tests. Step 3 always runs, and a
 missing scripts/test_preflight.py is a hard failure (fail closed).
@@ -90,6 +93,10 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py",
         (
             "--confirm-live-verify",
+            "--work-order",
+            "def validate_work_order",
+            "liveReplayAllowed",
+            "requestBudget",
             "LIVE_VERIFY_APPROVED",
             "def require_live_verify_approval",
             "def live_get",
@@ -101,6 +108,10 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py",
         (
             "--confirm-live-verify",
+            "--work-order",
+            "def validate_work_order",
+            "liveReplayAllowed",
+            "requestBudget",
             "LIVE_VERIFY_APPROVED",
             "def require_live_verify_approval",
             "def live_get",
@@ -276,6 +287,11 @@ def check_case_registry_projection() -> tuple[bool, str]:
 
 def check_architecture_contract() -> tuple[bool, str]:
     code, out = run([sys.executable, "-B", "scripts/validate_architecture.py"], SKILL_ROOT)
+    return code == 0, out.strip()
+
+
+def check_route_regression_evals() -> tuple[bool, str]:
+    code, out = run([sys.executable, "-B", "scripts/validate_evals.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
@@ -704,6 +720,12 @@ def main(argv: list[str] | None = None) -> int:
     print(out)
     if not ok:
         failures.append("validate_architecture.py failed")
+
+    print("\n== route regression evals ==")
+    ok, out = check_route_regression_evals()
+    print(out)
+    if not ok:
+        failures.append("validate_evals.py failed")
 
     if not args.skip_tests:
         print("\n== case unit tests ==")

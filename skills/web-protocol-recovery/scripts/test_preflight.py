@@ -93,6 +93,11 @@ class PreflightSelfTestGateTests(unittest.TestCase):
                 "check_architecture_contract",
                 return_value=(True, "architecture ok"),
             ),
+            mock.patch.object(
+                preflight,
+                "check_route_regression_evals",
+                return_value=(True, "evals ok"),
+            ),
             mock.patch.object(preflight, "scan_entries", return_value=[]),
             mock.patch.object(
                 preflight,

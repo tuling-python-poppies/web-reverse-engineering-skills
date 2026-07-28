@@ -45,8 +45,8 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 
 | Template | Use |
 |---|---|
-| `scripts/verifier/gt4_replay.py` | GT4 same-round `/load -> images/GCT -> python-node helper -> /verify` delivery template. Requires `--confirm-live-verify`. |
-| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires `--confirm-live-verify`. |
+| `scripts/verifier/gt4_replay.py` | GT4 same-round `/load -> images/GCT -> python-node helper -> /verify` delivery template. Requires `--confirm-live-verify` and a validated `--work-order` v2 JSON with verifier scope/budget approval. |
+| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires `--confirm-live-verify` and a validated `--work-order` v2 JSON with verifier scope/budget approval. |
 
 ## Layout Ownership
 

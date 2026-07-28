@@ -13,6 +13,9 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 PROVIDER_REGISTRY = SKILL_ROOT / "references" / "providers" / "registry.json"
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
+WORK_ORDER_SCHEMA = SKILL_ROOT / "references" / "schemas" / "provider-work-order-v2.schema.json"
+WORK_ORDER_DOC = SKILL_ROOT / "references" / "methodology" / "provider-work-order.md"
+READ_BUDGET_DOC = SKILL_ROOT / "references" / "methodology" / "read-budget.md"
 
 EXPECTED_PROVIDER_IDS = {
     "chromium-recon",
@@ -149,6 +152,50 @@ def documentation_contract_findings() -> list[str]:
     return findings
 
 
+def read_plan_contract_findings() -> list[str]:
+    findings: list[str] = []
+    schema = load_json(WORK_ORDER_SCHEMA)
+    required = set(schema.get("required", []))
+    if "readPlan" not in schema.get("properties", {}):
+        findings.append("provider-work-order-v2 schema must define readPlan")
+    if "activeProvider" not in required:
+        findings.append("provider-work-order-v2 schema must require activeProvider")
+
+    work_order_text = WORK_ORDER_DOC.read_text(encoding="utf-8", errors="replace")
+    read_budget_text = READ_BUDGET_DOC.read_text(encoding="utf-8", errors="replace")
+    for token in (
+        '"schemaVersion": "web-protocol-recovery-provider-work-order/v2"',
+        '"activeProvider"',
+        '"readPlan"',
+        '"required"',
+        '"optional"',
+    ):
+        if token not in work_order_text:
+            findings.append(f"provider-work-order.md missing token: {token}")
+    for token in ("| Whole task | 24 distinct paths |", "`readPlan`", "required", "optional"):
+        if token not in read_budget_text:
+            findings.append(f"read-budget.md missing token: {token}")
+
+    whole_task_cap = 24
+    official_chain = [
+        ("initial dispatch", 3, 3),
+        ("provider handoff", 3, 3),
+        ("case selection", 1, 1),
+        ("selected case bundle", 8, 8),
+        ("implementation handoff", 3, 3),
+        ("delivery handoff", 3, 3),
+        ("write gate", 1, 1),
+    ]
+    total = 0
+    for name, used, cap in official_chain:
+        if used > cap:
+            findings.append(f"read-plan sim window exceeds cap: {name} used={used} cap={cap}")
+        total += used
+    if total > whole_task_cap:
+        findings.append(f"read-plan sim exceeds whole-task cap: used={total} cap={whole_task_cap}")
+    return findings
+
+
 def case_manifest_findings() -> list[str]:
     findings: list[str] = []
     for path in sorted(CASES_ROOT.glob("**/case.json")):
@@ -248,6 +295,7 @@ def main() -> int:
         ("provider registry", provider_registry_findings),
         ("route literals", route_literal_findings),
         ("documentation contract", documentation_contract_findings),
+        ("read-plan contract", read_plan_contract_findings),
         ("case manifests", case_manifest_findings),
         ("live egress", live_egress_findings),
         ("residue", residue_findings),

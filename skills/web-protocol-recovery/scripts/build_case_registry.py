@@ -47,9 +47,57 @@ def registry_row(path: Path) -> dict:
     }
 
 
+def scope_key(scope: dict) -> tuple[str, str, int, str]:
+    return (
+        str(scope.get("scheme", "")).lower(),
+        str(scope.get("host", "")).lower(),
+        int(scope.get("port", 0)),
+        str(scope.get("routePrefix") or "/"),
+    )
+
+
+def scopes_overlap(left: dict, right: dict) -> bool:
+    l_scheme, l_host, l_port, l_prefix = scope_key(left)
+    r_scheme, r_host, r_port, r_prefix = scope_key(right)
+    if (l_scheme, l_host, l_port) != (r_scheme, r_host, r_port):
+        return False
+    l_prefix = l_prefix.rstrip("/") or "/"
+    r_prefix = r_prefix.rstrip("/") or "/"
+    return l_prefix == r_prefix or l_prefix.startswith(r_prefix + "/") or r_prefix.startswith(l_prefix + "/")
+
+
+def signal_set(row: dict, field: str) -> set[str]:
+    values = row.get("match", {}).get(field, [])
+    return set(map(str, values))
+
+
+def rows_disambiguated(left: dict, right: dict) -> bool:
+    left_signals = signal_set(left, "signals")
+    right_signals = signal_set(right, "signals")
+    left_negative = signal_set(left, "negativeSignals")
+    right_negative = signal_set(right, "negativeSignals")
+    return bool(left_negative & right_signals) or bool(right_negative & left_signals)
+
+
+def ambiguity_findings(rows: list[dict]) -> list[str]:
+    findings: list[str] = []
+    for index, left in enumerate(rows):
+        for right in rows[index + 1:]:
+            if left["family"] != right["family"]:
+                continue
+            if not any(scopes_overlap(l_scope, r_scope) for l_scope in left["exactScopes"] for r_scope in right["exactScopes"]):
+                continue
+            if not rows_disambiguated(left, right):
+                findings.append(f"ambiguous exactScopes without negative-signal discriminator: {left['caseId']} <-> {right['caseId']}")
+    return findings
+
+
 def build_registry() -> dict:
     rows = [registry_row(path) for path in sorted(CASES_ROOT.glob("**/case.json"))]
     rows.sort(key=lambda item: item["caseId"])
+    findings = ambiguity_findings(rows)
+    if findings:
+        raise ValueError("\n".join(findings))
     return {"schemaVersion": "web-protocol-recovery-case-registry/v2", "cases": rows}
 
 
@@ -58,7 +106,11 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="verify registry.json instead of writing it")
     args = parser.parse_args()
 
-    registry = build_registry()
+    try:
+        registry = build_registry()
+    except ValueError as error:
+        print(str(error))
+        return 1
     payload = json.dumps(registry, ensure_ascii=False, indent=4) + "\n"
     if args.check:
         current = REGISTRY_PATH.read_text(encoding="utf-8") if REGISTRY_PATH.exists() else ""

@@ -7,7 +7,7 @@ import re
 import secrets
 import time
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import parse_qsl, urljoin, urlparse
 
 import ddddocr
 import requests
@@ -20,6 +20,16 @@ from PIL import Image
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
+LOAD_QUERY_KEYS = {"callback", "captcha_id", "client_type", "risk_type", "lang"}
+VERIFY_QUERY_KEYS = {
+    "callback", "captcha_id", "client_type", "lot_number", "risk_type",
+    "payload", "process_token", "payload_protocol", "pt", "w",
+}
+RAW_ARTIFACT_FIELDS = {
+    "gt4.load.jsonp", "gt4.load.json", "gt4.cookies.json",
+    "gt4.slice.png", "gt4.bg.png", "gt4.gct.raw.js", "gt4.trace.json",
+    "gt4.image_meta.json", "gt4.pure_output.json", "gt4.verify.jsonp", "gt4.verify.json",
+}
 LIVE_VERIFY_APPROVED = False
 APPROVED_WORK_ORDER_ID = None
 APPROVED_SCOPES = []
@@ -50,8 +60,14 @@ def require_live_verify_approval(target_url):
 
 
 def live_get(session, url, **kwargs):
-    require_live_verify_approval(url)
-    return session.get(url, **kwargs)
+    target_url = prepared_get_url(url, kwargs.get("params"))
+    require_live_verify_approval(target_url)
+    kwargs.setdefault("allow_redirects", False)
+    response = session.get(url, **kwargs)
+    if response.is_redirect:
+        location = response.headers.get("location", "")
+        raise RuntimeError(f"live verifier redirect denied without explicit work-order hop: {location}")
+    return response
 
 
 RSA_N_HEX = (
@@ -83,29 +99,124 @@ def save_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def scope_allows(scopes, target_url):
+def prepared_get_url(url, params):
+    prepared = requests.Request("GET", url, params=params).prepare()
+    return prepared.url or url
+
+
+def query_policy_allows(scope, parsed_query):
+    policy = scope.get("queryPolicy")
+    if not isinstance(policy, dict):
+        return False
+    pairs = parse_qsl(parsed_query, keep_blank_values=True)
+    mode = policy.get("mode")
+    if mode == "deny":
+        return not pairs
+    if mode == "allow-all":
+        return True
+    if mode != "allow-listed":
+        return False
+    allowed_keys = set(policy.get("allowedKeys") or [])
+    allowed_values = policy.get("allowedValues") or {}
+    for key, value in pairs:
+        if key not in allowed_keys:
+            return False
+        if key in allowed_values and value not in set(map(str, allowed_values[key])):
+            return False
+    return True
+
+
+def scope_matches_route(scope, target_url):
     parsed = urlparse(target_url)
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     path = parsed.path or "/"
+    prefix = scope.get("routePrefix") or "/"
+    if not prefix.startswith("/"):
+        return False
+    try:
+        scope_port = int(scope.get("port", -1))
+    except (TypeError, ValueError):
+        return False
+    return (
+        scope.get("scheme") == parsed.scheme
+        and str(scope.get("host", "")).lower() == parsed.hostname
+        and scope_port == port
+        and (path == prefix or path.startswith(prefix.rstrip("/") + "/"))
+    )
+
+
+def scope_allows(scopes, target_url):
+    parsed = urlparse(target_url)
     for scope in scopes:
-        prefix = scope.get("routePrefix") or "/"
-        if not prefix.startswith("/"):
-            continue
-        try:
-            scope_port = int(scope.get("port", -1))
-        except (TypeError, ValueError):
-            continue
-        if (
-            scope.get("scheme") == parsed.scheme
-            and str(scope.get("host", "")).lower() == parsed.hostname
-            and scope_port == port
-            and (path == prefix or path.startswith(prefix.rstrip("/") + "/"))
-        ):
+        if scope_matches_route(scope, target_url) and query_policy_allows(scope, parsed.query):
             return True
     return False
 
 
-def validate_work_order(path):
+def query_policy_covers(scope, required_keys):
+    policy = scope.get("queryPolicy")
+    if not isinstance(policy, dict):
+        return False
+    mode = policy.get("mode")
+    if mode == "allow-all":
+        return True
+    if mode == "deny":
+        return not required_keys
+    if mode == "allow-listed":
+        return set(required_keys) <= set(policy.get("allowedKeys") or [])
+    return False
+
+
+def route_scope_covers(scopes, target_url, required_query_keys):
+    return any(
+        scope_matches_route(scope, target_url) and query_policy_covers(scope, required_query_keys)
+        for scope in scopes
+    )
+
+
+def absolute_under(path, parent):
+    try:
+        path.resolve(strict=False).relative_to(parent.resolve(strict=False))
+        return True
+    except ValueError:
+        return False
+
+
+def validate_cache_root(project, cache_root):
+    errors = []
+    project_root = Path(str(project.get("projectRoot") or ""))
+    if not project_root.is_absolute():
+        return ["project.projectRoot must be absolute"]
+    cache_root = cache_root if cache_root.is_absolute() else (Path.cwd() / cache_root)
+    allowed_paths = project.get("allowedPaths") or []
+    if not absolute_under(cache_root, project_root):
+        errors.append("--cache-root must stay under project.projectRoot")
+    allowed_roots = []
+    for item in allowed_paths:
+        candidate = Path(str(item))
+        allowed_roots.append(candidate if candidate.is_absolute() else project_root / candidate)
+    if not allowed_roots or not any(absolute_under(cache_root, allowed) for allowed in allowed_roots):
+        errors.append("--cache-root must stay under one project.allowedPaths entry")
+    for ancestor in [cache_root, *cache_root.parents]:
+        if not ancestor.exists() or ancestor == ancestor.parent:
+            continue
+        if ancestor.is_symlink():
+            errors.append(f"--cache-root ancestor must not be symlink: {ancestor}")
+            break
+    return errors
+
+
+def safe_lot_cache(cache_root, lot_number):
+    lot = str(lot_number or "")
+    if not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", lot) or lot in {".", ".."}:
+        raise ValueError(f"unsafe lot_number for cache path: {lot!r}")
+    cache = cache_root / lot
+    if not absolute_under(cache, cache_root):
+        raise ValueError(f"lot_number escapes cache root: {lot!r}")
+    return cache
+
+
+def validate_work_order(path, cache_root):
     try:
         work_order = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -115,6 +226,8 @@ def validate_work_order(path):
     budget = authorization.get("requestBudget") or {}
     scopes = authorization.get("allowedHostsAndRoutes") or []
     artifact_policy = authorization.get("artifactPolicy") or {}
+    execution_policy = authorization.get("executionPolicy") or {}
+    project = work_order.get("project") or {}
 
     errors = []
     if not work_order.get("workOrderId"):
@@ -141,9 +254,23 @@ def validate_work_order(path):
         errors.append("authorization.requestBudget.remaining must be at least 5")
     if artifact_policy.get("repositoryExcluded") is not True:
         errors.append("authorization.artifactPolicy.repositoryExcluded must be true")
-    for target_url in (LOAD_URL, VERIFY_URL, STATIC_BASE):
-        if not scope_allows(scopes, target_url):
-            errors.append(f"allowedHostsAndRoutes missing scope for {target_url}")
+    if artifact_policy.get("mode") == "metadata-only":
+        errors.append("authorization.artifactPolicy.mode must allow approved raw GT4 artifacts")
+    approved_raw = set(map(str, artifact_policy.get("approvedRawFields") or []))
+    missing_raw = sorted(RAW_ARTIFACT_FIELDS - approved_raw)
+    if missing_raw:
+        errors.append("authorization.artifactPolicy.approvedRawFields missing: " + ", ".join(missing_raw))
+    if not artifact_policy.get("retentionDeadline") or artifact_policy.get("retentionDeadline") == "none":
+        errors.append("authorization.artifactPolicy.retentionDeadline is required for raw GT4 artifacts")
+    if execution_policy.get("targetCodeExecution") != "blocked":
+        errors.append("authorization.executionPolicy.targetCodeExecution must be blocked for pure replay")
+    if not route_scope_covers(scopes, LOAD_URL, LOAD_QUERY_KEYS):
+        errors.append(f"allowedHostsAndRoutes missing load scope/query policy for {LOAD_URL}")
+    if not route_scope_covers(scopes, VERIFY_URL, VERIFY_QUERY_KEYS):
+        errors.append(f"allowedHostsAndRoutes missing verify scope/query policy for {VERIFY_URL}")
+    if not route_scope_covers(scopes, STATIC_BASE, set()):
+        errors.append(f"allowedHostsAndRoutes missing static scope/query policy for {STATIC_BASE}")
+    errors.extend(validate_cache_root(project, cache_root))
     if not work_order.get("acceptanceTest"):
         errors.append("acceptanceTest is required")
     if errors:
@@ -365,7 +492,7 @@ def main():
             "project and record liveReplay/verifier gates before execution"
         )
     try:
-        work_order = validate_work_order(args.work_order)
+        work_order = validate_work_order(args.work_order, args.cache_root)
     except ValueError as error:
         parser.error(str(error))
     approve_live_verify(work_order)
@@ -391,7 +518,7 @@ def main():
     if load_json.get("status") != "success":
         raise RuntimeError(f"Load failed: {load_json}")
     data = load_json["data"]
-    cache = args.cache_root / data["lot_number"]
+    cache = safe_lot_cache(args.cache_root, data["lot_number"])
     cache.mkdir(parents=True, exist_ok=True)
     (cache / "load.jsonp").write_text(load_response.text, encoding="utf-8")
     save_json(cache / "load.json", load_json)

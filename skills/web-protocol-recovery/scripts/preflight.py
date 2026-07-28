@@ -57,35 +57,35 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
     (
         "references/providers/reconnaissance/camoufox/templates/vm-sandbox/main.js",
         (
-            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
-            "assertApprovedTemplateRun();",
+            "offline-only",
+            "Python delivery must own live egress",
         ),
         "Camoufox vm-sandbox live-template guard",
     ),
     (
         "references/providers/reconnaissance/camoufox/templates/vm-sandbox/utils/request.js",
         (
-            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
-            "function assertApprovedTemplateRun()",
-            "assertApprovedTemplateRun();",
+            "function assertOfflineTemplateRun()",
+            "Python delivery must own live egress",
+            "assertOfflineTemplateRun();",
         ),
         "Camoufox vm-sandbox request-helper guard",
     ),
     (
         "references/providers/reconnaissance/camoufox/templates/wasm-loader/main.js",
         (
-            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
-            "async function approvedGet(",
-            "assertApprovedTemplateRun();",
+            "offline-only",
+            "Python delivery owns live egress",
+            "offline fixture only",
         ),
         "Camoufox wasm-loader live-template guard",
     ),
     (
         "references/providers/reconnaissance/camoufox/templates/wasm-loader/utils/wasm-loader.js",
         (
-            "WPR_APPROVED_TEMPLATE_LIVE_EGRESS",
-            "function assertApprovedTemplateRun()",
-            "assertApprovedTemplateRun();",
+            "function assertOfflineTemplateRun()",
+            "Python delivery must download approved remote WASM",
+            "assertOfflineTemplateRun();",
         ),
         "Camoufox wasm-loader helper guard",
     ),
@@ -294,6 +294,16 @@ def check_architecture_contract() -> tuple[bool, str]:
     return code == 0, out.strip()
 
 
+def check_schema_contract() -> tuple[bool, str]:
+    code, out = run([sys.executable, "-B", "scripts/validate_schemas.py"], SKILL_ROOT)
+    return code == 0, out.strip()
+
+
+def check_markdown_contract() -> tuple[bool, str]:
+    code, out = run([sys.executable, "-B", "scripts/validate_markdown.py"], SKILL_ROOT)
+    return code == 0, out.strip()
+
+
 def check_route_regression_evals() -> tuple[bool, str]:
     code, out = run([sys.executable, "-B", "scripts/validate_evals.py"], SKILL_ROOT)
     return code == 0, out.strip()
@@ -328,6 +338,23 @@ def check_preflight_unit_tests() -> tuple[bool, str]:
         return False, "MISSING scripts/test_preflight.py"
     code, out = run([sys.executable, str(test_path), "-v"], SKILL_ROOT)
     return code == 0, out.strip()
+
+
+def check_acceptance_unit_tests() -> tuple[bool, str]:
+    tests = [
+        SKILL_ROOT / "scripts" / "test_architecture_contract.py",
+        SKILL_ROOT / "scripts" / "test_scaffold_project.py",
+    ]
+    missing = [str(path.relative_to(SKILL_ROOT)) for path in tests if not path.is_file()]
+    if missing:
+        return False, "MISSING " + ", ".join(missing)
+    out_parts: list[str] = []
+    for path in tests:
+        code, out = run([sys.executable, str(path), "-v"], SKILL_ROOT)
+        out_parts.append(out.strip())
+        if code != 0:
+            return False, "\n---\n".join(out_parts)
+    return True, "\n---\n".join(out_parts)
 
 
 def bare_session_get_outside_live_get(text: str) -> list[int]:
@@ -725,6 +752,18 @@ def main(argv: list[str] | None = None) -> int:
     if not ok:
         failures.append("validate_architecture.py failed")
 
+    print("\n== schema contract ==")
+    ok, out = check_schema_contract()
+    print(out)
+    if not ok:
+        failures.append("validate_schemas.py failed")
+
+    print("\n== markdown contract ==")
+    ok, out = check_markdown_contract()
+    print(out)
+    if not ok:
+        failures.append("validate_markdown.py failed")
+
     print("\n== route regression evals ==")
     ok, out = check_route_regression_evals()
     print(out)
@@ -748,6 +787,12 @@ def main(argv: list[str] | None = None) -> int:
     print(out)
     if not ok:
         failures.append("scripts/test_preflight.py failed")
+
+    print("\n== acceptance unit tests ==")
+    ok, out = check_acceptance_unit_tests()
+    print(out)
+    if not ok:
+        failures.append("acceptance unit tests failed")
 
     print("\n== provider guard contracts ==")
     ok, out = check_provider_guard_contracts()

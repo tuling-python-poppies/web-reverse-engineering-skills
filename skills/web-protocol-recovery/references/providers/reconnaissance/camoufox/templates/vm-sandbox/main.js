@@ -3,7 +3,7 @@
  * 
  * Evidence-only template: copy into an approved project and adapt before use.
  * Do not run from the skill tree and do not use this as final live egress.
- * Final HTTP delivery belongs to Python after web-protocol-recovery accepts it.
+ * Python delivery must own live egress after web-protocol-recovery accepts it.
  *
  * 适用场景：服务端返回混淆JS用于生成Cookie/Token
  * 流程：
@@ -17,14 +17,9 @@
 const { executeAndExtractCookie } = require('./utils/sandbox');
 const { TwoPhaseClient } = require('./utils/request');
 
-function assertApprovedTemplateRun() {
-    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
-        throw new Error(
-            'Camoufox template is disabled by default. Copy/adapt it into an approved project, ' +
-            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe. ' +
-            'Do not deliver this Node template as the final collector.'
-        );
-    }
+function assertOfflineTemplateRun() {
+    // offline-only template: live HTTP belongs to python-collector delivery.
+    return true;
 }
 
 // ============ 配置区域 ============
@@ -56,11 +51,10 @@ const CONFIG = {
 // ============ 主逻辑 ============
 
 async function getDynamicCookie(client) {
-    assertApprovedTemplateRun();
+    assertOfflineTemplateRun();
     console.log('[*] 获取动态Cookie...');
     
-    // 第一阶段：请求返回JS代码的接口
-    const jsCode = await client.fetchDynamicJS(CONFIG.jsEndpoint);
+    const jsCode = 'document.cookie = "dynamic_token=offline_fixture; path=/";';
     
     // 在VM沙箱中执行，提取Cookie
     const result = executeAndExtractCookie(jsCode, {
@@ -80,14 +74,12 @@ async function getDynamicCookie(client) {
 }
 
 async function fetchPage(client, page) {
-    assertApprovedTemplateRun();
-    // TODO: 根据实际接口修改参数
-    const params = { page };
-    return client.fetchWithDelay(CONFIG.dataEndpoint, params);
+    assertOfflineTemplateRun();
+    return { data: [{ page, value: page, cookie: client.getCookieString() }] };
 }
 
 async function main() {
-    assertApprovedTemplateRun();
+    assertOfflineTemplateRun();
     console.log(`[*] 项目：${CONFIG.name}`);
     console.log(`[*] 目标：${CONFIG.description}`);
     console.log('');

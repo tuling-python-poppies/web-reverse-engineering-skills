@@ -3,33 +3,46 @@
   "$id": "web-protocol-recovery-provider-result-v2.schema.json",
   "title": "web-protocol-recovery provider result v2",
   "type": "object",
-  "required": ["schemaVersion", "workOrderId", "provider", "status", "verification", "cleanup"],
+  "additionalProperties": true,
+  "required": ["schemaVersion", "workOrderId", "provider", "shape", "gateFamily", "status", "verification", "requestBudget", "execution", "runtimeIds", "cleanup"],
   "properties": {
     "schemaVersion": {"const": "web-protocol-recovery-provider-result/v2"},
     "workOrderId": {"type": "string", "minLength": 1},
-    "provider": {
-      "type": "object",
-      "required": ["id", "role"],
-      "properties": {
-        "id": {"type": "string"},
-        "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
-        "strategy": {"type": ["string", "null"]},
-        "profile": {"type": ["string", "null"]}
-      }
-    },
+    "provider": {"$ref": "#/$defs/providerRef"},
     "protocolOwner": {"type": ["string", "null"]},
     "shape": {"enum": ["evidence", "local-proof", "compact-replay", "collector"]},
     "gateFamily": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
     "status": {"enum": ["complete", "blocked", "failed"]},
     "artifactBoundary": {"type": ["string", "null"]},
-    "artifacts": {"type": "array"},
-    "verification": {"type": "object"},
-    "requestBudget": {"type": "object"},
-    "execution": {"type": "object"},
-    "runtimeIds": {"type": "array"},
+    "artifacts": {"type": "array", "items": {"type": "object"}},
+    "verification": {
+      "type": "object",
+      "required": ["fixedVectorPass", "liveReplayPass", "semanticSuccess"],
+      "properties": {
+        "fixedVectorPass": {"type": "boolean"},
+        "liveReplayPass": {"type": "boolean"},
+        "semanticSuccess": {"type": "boolean"},
+        "firstDivergence": {"type": ["string", "null"]}
+      }
+    },
+    "requestBudget": {"type": "object", "required": ["remaining"], "properties": {"remaining": {"type": "integer", "minimum": 0}}},
+    "execution": {"type": "object", "required": ["targetCodeExecution"], "properties": {"targetCodeExecution": {"enum": ["blocked", "local-only", "approved-reviewed-hash"]}}},
+    "runtimeIds": {"type": "array", "items": {"type": "string"}},
     "sideEffects": {"type": "array"},
-    "cleanup": {"type": "object"},
+    "cleanup": {"type": "object", "required": ["complete", "runtimeIdsClosed"], "properties": {"complete": {"type": "boolean"}, "runtimeIdsClosed": {"type": "boolean"}}},
     "residualRisks": {"type": "array"},
     "recommendedNextProvider": {"type": ["string", "null"]}
+  },
+  "$defs": {
+    "providerRef": {
+      "type": "object",
+      "required": ["id", "role"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
+        "strategy": {"type": ["string", "null"]},
+        "profile": {"type": ["string", "null"]}
+      }
+    }
   }
 }

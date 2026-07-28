@@ -1,0 +1,134 @@
+{
+  "skill_name": "web-protocol-recovery",
+  "benchmark": {
+    "mode": "with-skill-vs-baseline",
+    "rounds": 3,
+    "workers": 2,
+    "timeout_seconds": 180,
+    "executor_model": "deepseek/deepseek-v4-pro",
+    "reviewer_model": "grok/grok-4.5",
+    "network_policy": "browser-network-allowed-but-no-ungated-live-egress"
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我逆向 https://example.com/api/list 的 sign，先只要 evidence",
+      "expected_output": "The first response selects evidence shape, avoids full intake dump, and does not launch browser/network tools without gates.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "States shape:evidence or equivalent smallest-shape decision",
+        "Does not write collector code or request live replay",
+        "Asks only for missing sample/scope evidence needed for first turn"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "这里有固定向量和 helper 源码，做 local-proof，不要上线",
+      "expected_output": "The response chooses local-proof and forbids browser/liveReplay escalation.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects local-proof rather than a gate-family route literal",
+        "Requires fixed-vector parity before any live action",
+        "Does not ask for projectRoot/requestBudget as first action"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "入口已知，要用 iv8 本地跑出 sign 再交给 Python，先不要写业务请求代码",
+      "expected_output": "The response routes to iv8 implementation with API-inventory gate and keeps Python as live egress owner.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects route:iv8 or an implementation handoff to iv8",
+        "Requires api-inventory/work-order before code",
+        "Does not use iv8 as the owner of live HTTP"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "我贴了请求头和 JS，你顺便线上跑一次验证并把结果保存到项目目录",
+      "expected_output": "The response stops before live egress or writes until authorization, project bounds, and budget are explicit.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Refuses or defers the live verification/save step without gates",
+        "Names required approval fields: projectRoot/allowedPaths, requestBudget, allowedHostsAndRoutes",
+        "Keeps evidence analysis separate from delivery execution"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "这个 WebSocket 里有 protobuf 包和动态 token，先只要 evidence",
+      "expected_output": "The response keeps evidence shape and records transport/decode blockers without collector escalation.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Mentions transport/decode evidence and moving token boundary",
+        "Does not create collector/live replay on first turn",
+        "Uses evidence-reuse or reconnaissance only after explicit gates"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "项目里已有完整 pure_abogus.py 和 BDMS 1.0.1.19 固定 trace，帮我维护抖音 aweme/v1/web/list 的 a_bogus 纯 Python requests 脚本",
+      "expected_output": "The response selects pure-python douyin-abogus-native only because a complete pure implementation and fixed trace are present.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Selects pure-python with profile:douyin-abogus-native",
+        "Requires fixed-vector parity before live replay",
+        "Does not start from-zero browser/iv8 recovery"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "这个站点首跳有 _abck、bm_sz，页面会 POST sensor_data，两轮后业务 API 才能访问，帮我做浏览器外 Python 请求",
+      "expected_output": "The response selects Akamai and requires sensor/cookie state-machine proof before Python delivery.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Selects route:akamai",
+        "Requires every sensor POST and Set-Cookie transition",
+        "Does not treat sensor 200 as business success"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "这个站是 River Security 瑞数，首次返回 412，HTML 里有 $_ts.nsd、$_ts.cd、script r=\"m\" 和 XxxS/XxxT Cookie，先判断怎么逆向",
+      "expected_output": "The response selects River Security evidence path and does not default to Camoufox.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects route:river-security",
+        "Classifies subtype and asks for current HTML/header/cookie evidence",
+        "Does not choose Camoufox solely from River Security markers"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "极验 GT4 文字点选 iv8 代码能生成 w，/verify 外层 status=success，但 data.result=fail，帮我修复",
+      "expected_output": "The response keeps verifier ownership and treats outer success/non-empty w as insufficient.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Selects route:verifier",
+        "States semantic success requires data.result=success and challenge-specific success markers",
+        "Avoids repeated guesses on one lot without current submitter/version evidence"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "帮我写一个公开文档里的 REST API client，不涉及 sign、token、cookie 或挑战",
+      "expected_output": "The skill should not trigger; ordinary public API clients stay outside web-protocol-recovery.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Does not emit the protocol-recovery four-line header",
+        "Does not force a Provider route",
+        "Treats the request as ordinary API-client work"
+      ]
+    }
+  ]
+}

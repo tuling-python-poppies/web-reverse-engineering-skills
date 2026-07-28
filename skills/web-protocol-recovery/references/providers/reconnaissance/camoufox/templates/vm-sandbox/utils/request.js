@@ -3,15 +3,11 @@
  * 支持两阶段请求：先获取动态JS生成Cookie，再携带Cookie请求数据
  */
 
-const axios = require('axios');
-
-function assertApprovedTemplateRun() {
-    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
-        throw new Error(
-            'Camoufox request helper is disabled by default. Copy/adapt it into an approved project, ' +
-            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe.'
-        );
-    }
+function assertOfflineTemplateRun() {
+    throw new Error(
+        'Camoufox request helper is offline-only in the skill tree. Python delivery must own live egress; ' +
+        'copy/adapt this template into an approved project and inject captured fixture data instead of calling HTTP here.'
+    );
 }
 
 const DEFAULT_HEADERS = {
@@ -28,11 +24,7 @@ class TwoPhaseClient {
         this.headers = { ...DEFAULT_HEADERS, ...options.headers };
         this.delay = options.delay || 1500;
 
-        this.client = axios.create({
-            baseURL: this.baseURL,
-            timeout: options.timeout || 30000,
-            headers: this.headers,
-        });
+        this.fixtures = options.fixtures || {};
     }
 
     getCookieString() {
@@ -49,33 +41,23 @@ class TwoPhaseClient {
      * @returns {string} JS 代码字符串
      */
     async fetchDynamicJS(url, params = {}) {
-        assertApprovedTemplateRun();
-        const response = await this.client.get(url, {
-            params,
-            headers: { Cookie: this.getCookieString() },
-            transformResponse: [(data) => data],
-        });
-        return response.data;
+        const key = `${url}?${new URLSearchParams(params).toString()}`;
+        if (Object.prototype.hasOwnProperty.call(this.fixtures, key)) return this.fixtures[key];
+        if (Object.prototype.hasOwnProperty.call(this.fixtures, url)) return this.fixtures[url];
+        assertOfflineTemplateRun();
     }
 
     /**
      * 第二阶段：携带Cookie请求数据
      */
     async fetchData(url, params = {}) {
-        assertApprovedTemplateRun();
-        const response = await this.client.get(url, {
-            params,
-            headers: { Cookie: this.getCookieString() },
-        });
-        return response.data;
+        return this.fetchDynamicJS(url, params);
     }
 
     async post(url, data = {}) {
-        assertApprovedTemplateRun();
-        const response = await this.client.post(url, data, {
-            headers: { Cookie: this.getCookieString() },
-        });
-        return response.data;
+        const key = `POST ${url}`;
+        if (Object.prototype.hasOwnProperty.call(this.fixtures, key)) return this.fixtures[key];
+        assertOfflineTemplateRun();
     }
 
     sleep(ms) {
@@ -90,4 +72,4 @@ class TwoPhaseClient {
     }
 }
 
-module.exports = { TwoPhaseClient, DEFAULT_HEADERS, assertApprovedTemplateRun };
+module.exports = { TwoPhaseClient, DEFAULT_HEADERS, assertOfflineTemplateRun };

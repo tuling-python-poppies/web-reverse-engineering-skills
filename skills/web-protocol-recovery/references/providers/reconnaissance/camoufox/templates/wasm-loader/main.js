@@ -15,21 +15,15 @@
  * TODO: 根据逆向分析结果修改配置和逻辑
  */
 
-// Live egress stays disabled unless WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1.
+// Skill-tree template is offline-only. Python delivery owns live egress.
 const {
     loadWasmFromFile,
     loadWasmFromURL,
     analyzeWasm,
-    assertApprovedTemplateRun,
+    assertOfflineTemplateRun,
 } = require('./utils/wasm-loader');
 const { patchWasmBindgen } = require('./utils/env-patch');
-const axios = require('axios');
 const path = require('path');
-
-async function approvedGet(url, config = {}) {
-    assertApprovedTemplateRun();
-    return axios.get(url, config);
-}
 
 // ============ 配置区域 ============
 
@@ -110,17 +104,10 @@ function generateEncryptedParam(page) {
 
 async function fetchPage(page) {
     const m = generateEncryptedParam(page);
-    
-    const response = await approvedGet(`${CONFIG.baseURL}${CONFIG.dataEndpoint}`, {
-        params: { page, m },
-        headers: {
-            ...CONFIG.headers,
-            'Cookie': Object.entries(CONFIG.cookies).map(([k, v]) => `${k}=${v}`).join('; '),
-            Referer: CONFIG.baseURL,
-        },
-    });
-    
-    return response.data;
+    return {
+        data: [{ page, value: page, encryptedParam: m }],
+        note: 'offline fixture only; send live requests through python-collector delivery',
+    };
 }
 
 function sleep(ms) {
@@ -128,7 +115,6 @@ function sleep(ms) {
 }
 
 async function main() {
-    assertApprovedTemplateRun();
     console.log(`[*] 项目：${CONFIG.name}`);
     console.log(`[*] 目标：${CONFIG.description}`);
     console.log('');

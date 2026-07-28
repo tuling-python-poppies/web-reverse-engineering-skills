@@ -3,7 +3,8 @@
   "$id": "web-protocol-recovery-provider-work-order-v2.schema.json",
   "title": "web-protocol-recovery provider work order v2",
   "type": "object",
-  "required": ["schemaVersion", "workOrderId", "shape", "gateFamily", "activeProvider", "project", "authorization", "acceptanceTest"],
+  "additionalProperties": true,
+  "required": ["schemaVersion", "workOrderId", "shape", "gateFamily", "activeProvider", "project", "authorization", "readPlan", "acceptanceTest", "runtimeCustody", "runtimeIds"],
   "properties": {
     "schemaVersion": {"const": "web-protocol-recovery-provider-work-order/v2"},
     "workOrderId": {"type": "string", "minLength": 1},
@@ -11,19 +12,11 @@
     "gateFamily": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
     "secondaryGates": {"type": "array", "items": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]}, "uniqueItems": true},
     "canonicalMutationPoint": {"type": "string"},
-    "activeProvider": {
-      "type": "object",
-      "required": ["id", "role"],
-      "properties": {
-        "id": {"type": "string"},
-        "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
-        "strategy": {"type": ["string", "null"]},
-        "profile": {"type": ["string", "null"]}
-      }
-    },
+    "activeProvider": {"$ref": "#/$defs/providerRef"},
     "protocolOwner": {"type": ["string", "null"]},
     "implementation": {
       "type": ["object", "null"],
+      "required": ["mode"],
       "properties": {
         "mode": {"enum": ["iv8", "python-node", "pure-python"]},
         "strategy": {"type": ["string", "null"]},
@@ -32,13 +25,101 @@
     },
     "deliveryProvider": {"type": ["string", "null"]},
     "caseId": {"type": ["string", "null"]},
-    "authorization": {"type": "object"},
-    "project": {"type": "object"},
-    "readPlan": {"type": "object"},
+    "authorization": {
+      "type": "object",
+      "required": ["liveReplayAllowed", "actionClass", "allowedHostsAndRoutes", "requestBudget", "artifactPolicy", "executionPolicy"],
+      "properties": {
+        "liveReplayAllowed": {"type": "boolean"},
+        "actionClass": {"enum": ["none", "read-only", "verifier-submit", "mutation-submit"]},
+        "allowedHostsAndRoutes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeScope"}},
+        "requestBudget": {"$ref": "#/$defs/requestBudget"},
+        "artifactPolicy": {"$ref": "#/$defs/artifactPolicy"},
+        "executionPolicy": {"$ref": "#/$defs/executionPolicy"}
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": ["projectRoot", "allowedPaths", "writeMode"],
+      "properties": {
+        "projectRoot": {"type": "string", "minLength": 1},
+        "allowedPaths": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "writeMode": {"enum": ["none", "read-only", "create-only", "modify-allowlisted"]}
+      }
+    },
+    "readPlan": {
+      "type": "object",
+      "required": ["maxDistinctPaths", "windows"],
+      "properties": {
+        "maxDistinctPaths": {"type": "integer", "minimum": 1, "maximum": 24},
+        "windows": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "paths"], "properties": {"name": {"type": "string", "minLength": 1}, "paths": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}}}}
+      }
+    },
     "inputs": {"type": "array"},
     "requiredOutputs": {"type": "array"},
     "acceptanceTest": {"type": "string", "minLength": 1},
-    "runtimeCustody": {"type": "object"},
-    "runtimeIds": {"type": "array"}
+    "runtimeCustody": {"type": "object", "required": ["owner", "cleanupRequired"], "properties": {"owner": {"type": "string", "minLength": 1}, "cleanupRequired": {"type": "boolean"}}},
+    "runtimeIds": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "providerRef": {
+      "type": "object",
+      "required": ["id", "role"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
+        "strategy": {"type": ["string", "null"]},
+        "profile": {"type": ["string", "null"]}
+      }
+    },
+    "routeScope": {
+      "type": "object",
+      "required": ["scheme", "host", "port", "routePrefix", "queryPolicy"],
+      "properties": {
+        "scheme": {"enum": ["http", "https"]},
+        "host": {"type": "string", "minLength": 1},
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "routePrefix": {"type": "string", "pattern": "^/"},
+        "queryPolicy": {"$ref": "#/$defs/queryPolicy"}
+      }
+    },
+    "queryPolicy": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["deny", "allow-listed", "allow-all"]},
+        "allowedKeys": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "allowedValues": {"type": "object"}
+      }
+    },
+    "requestBudget": {
+      "type": "object",
+      "required": ["remaining", "maxRequests"],
+      "properties": {
+        "remaining": {"type": "integer", "minimum": 0},
+        "maxRequests": {"type": "integer", "minimum": 0},
+        "redirects": {"type": "integer", "minimum": 0},
+        "retries": {"type": "integer", "minimum": 0},
+        "responseByteCap": {"type": "integer", "minimum": 0},
+        "concurrency": {"type": "integer", "minimum": 1}
+      }
+    },
+    "artifactPolicy": {
+      "type": "object",
+      "required": ["mode", "repositoryExcluded", "approvedRawFields", "retentionDeadline"],
+      "properties": {
+        "mode": {"enum": ["metadata-only", "allowlisted-raw"]},
+        "repositoryExcluded": {"const": true},
+        "approvedRawFields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "retentionDeadline": {"type": "string", "minLength": 1}
+      }
+    },
+    "executionPolicy": {
+      "type": "object",
+      "required": ["targetCodeExecution"],
+      "properties": {
+        "targetCodeExecution": {"enum": ["blocked", "local-only", "approved-reviewed-hash"]},
+        "approvedCodeSha256": {"type": "array", "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "uniqueItems": true}
+      }
+    }
   }
 }

@@ -66,7 +66,10 @@ OBSOLETE_CONTRACT_TEXT = (
 )
 
 NETWORK_JS = re.compile(
-    r"\bfetch\s*\(|new\s+(?:XMLHttpRequest|WebSocket)\s*\(|\brequire\(['\"](?:http|https)['\"]\)"
+    r"\bfetch\s*\(|new\s+(?:XMLHttpRequest|WebSocket)\s*\(|"
+    r"\brequire\(['\"](?:http|https|axios|got|node:http|node:https)['\"]\)|"
+    r"\baxios\.(?:get|post|put|delete|patch|request)\s*\(|"
+    r"\bgot\.(?:get|post|put|delete|patch)\s*\("
 )
 ROUTE_LITERAL = re.compile(r"route:[^\S\r\n]*`?([A-Za-z0-9_-]+)")
 
@@ -452,8 +455,6 @@ def python_live_egress_findings(path: Path) -> list[str]:
         return []
     if "cases" in path.parts:
         return []
-    if "api-examples" in path.parts:
-        return []
     try:
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
     except SyntaxError:
@@ -484,7 +485,7 @@ def live_egress_findings() -> list[str]:
             continue
         if "delivery" in path.parts:
             continue
-        if "reconnaissance" in path.parts or "env" in path.parts or "api-examples" in path.parts:
+        if "env" in path.parts:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         if NETWORK_JS.search(text):

@@ -6,13 +6,11 @@
 const fs = require('fs');
 const path = require('path');
 
-function assertApprovedTemplateRun() {
-    if (process.env.WPR_APPROVED_TEMPLATE_LIVE_EGRESS !== '1') {
-        throw new Error(
-            'Camoufox wasm-loader helper is disabled by default. Copy/adapt it into an approved project, ' +
-            'record scope/budget/liveReplay gates, and set WPR_APPROVED_TEMPLATE_LIVE_EGRESS=1 only for a bounded probe.'
-        );
-    }
+function assertOfflineTemplateRun() {
+    throw new Error(
+        'Camoufox wasm-loader is offline-only in the skill tree. Python delivery must download approved remote WASM ' +
+        'under a work-order guard and pass a local file or bytes into this helper.'
+    );
 }
 
 /**
@@ -33,10 +31,7 @@ async function loadWasmFromFile(wasmPath, importObject = {}) {
  * @returns {Object} WASM 实例的 exports
  */
 async function loadWasmFromURL(url, importObject = {}) {
-    assertApprovedTemplateRun();
-    const axios = require('axios');
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    return loadWasm(response.data, importObject);
+    assertOfflineTemplateRun();
 }
 
 /**
@@ -127,5 +122,5 @@ module.exports = {
     loadWasmFromURL,
     loadWasm,
     analyzeWasm,
-    assertApprovedTemplateRun,
+    assertOfflineTemplateRun,
 };

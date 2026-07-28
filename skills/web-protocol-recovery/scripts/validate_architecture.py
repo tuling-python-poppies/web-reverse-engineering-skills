@@ -190,6 +190,21 @@ def read_plan_contract_findings() -> list[str]:
         if token not in read_budget_text:
             findings.append(f"read-budget.md missing token: {token}")
 
+    layout_text = (SKILL_ROOT / "references" / "methodology" / "project-layout.md").read_text(
+        encoding="utf-8", errors="replace"
+    )
+    skill_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8", errors="replace")
+    report_text = (SKILL_ROOT / "references" / "report-templates.md").read_text(
+        encoding="utf-8", errors="replace"
+    )
+    for token in ("分析报告.md", "compact-replay", "collector"):
+        if token not in layout_text:
+            findings.append(f"project-layout.md missing delivery report token: {token}")
+    if "分析报告.md" not in skill_text:
+        findings.append("SKILL.md must require 分析报告.md for Full compact-replay/collector completion")
+    if "## 分析报告.md" not in report_text:
+        findings.append("report-templates.md must define ## 分析报告.md section")
+
     whole_task_cap = 24
     initial = [
         "README.md",

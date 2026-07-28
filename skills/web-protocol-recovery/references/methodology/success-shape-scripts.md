@@ -46,8 +46,9 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
    reconSequence: mandatory paired pass (chrome-devtools clean baseline -> Chrome parked -> js-reverse mutation, explicit launch; headless preferred for mutation) -> visible CloakBrowser only after explicit/fingerprint selection
    ```
 3. Recover one short root `main.py` path, often with a narrow iv8/helper artifact generator.
-4. Verify fixed vectors, then one approved minimal live replay.
-5. Do not add pagination, concurrency, or broad collection.
+4. Write root `分析报告.md` before claiming Full complete (see `references/report-templates.md`).
+5. Verify fixed vectors, then one approved minimal live replay.
+6. Do not add pagination, concurrency, or broad collection.
 
 ## collector
 
@@ -56,6 +57,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 3. Prove real endpoint and moving state before scaffolding.
 4. Read `references/providers/delivery/python-collector/PROVIDER.md` only after protocol proof.
 5. Final path is browser-free Python; Python owns live egress. Scale only after repeatable first request and explicit confirmation.
+6. Write root `分析报告.md` before claiming Full complete; scaffold may use `--report`.
 
 ## WeChat Route Overlay
 

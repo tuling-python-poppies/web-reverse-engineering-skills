@@ -19,6 +19,7 @@ Reject a selected root or output path when any existing component is a symlink, 
 ```text
 <project-root>/
   main.py                  # default final entry, created only when implementation exists
+  分析报告.md              # required for compact-replay/collector delivery completion
   main.js                  # optional callable JS entry
   mod.js                   # optional verified Node environment
   config.local.json        # optional private local config; always ignored
@@ -44,13 +45,14 @@ Reject a selected root or output path when any existing component is a symlink, 
   .gitignore               # when local/private/cache/output files exist
 ```
 
-Create only paths required by the current task. A valid delivery may contain only `main.py`.
+Create only paths required by the current task. A minimal code skeleton may start as only `main.py`, but **Full completion** for `compact-replay` or `collector` also requires root `分析报告.md` (never under `js_reverse_cache/`).
 
 **On-demand rule:** do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|akamai|samples|private`, `tests/`, or `output/` just because they appear in the layout diagram. Create a subdirectory only when the first write for that namespace is about to happen (or the user/work order explicitly requests it via scaffold `--cache-namespace` / `--tests` / `--output`). Empty placeholder trees are forbidden.
 
 ## Ownership
 
-- web-protocol-recovery owns `main.py` and final integration.
+- web-protocol-recovery owns `main.py`, root `分析报告.md`, and final integration.
+- `分析报告.md` is mandatory when shape is `compact-replay` or `collector` and stable delivery files were written under `projectRoot`. Pure read-only `evidence` work does not require it. Place it at project root only; do not store it under `js_reverse_cache/`.
 - Reconnaissance providers write only assigned `js_reverse_cache/recon/**` and `js_reverse_cache/source/**` paths.
 - AST writes intermediate products under `js_reverse_cache/ast/`; promote only a callable, verified result to `main.js` or `utils/*.js`.
 - env-patch writes probes under `js_reverse_cache/env/`; verified stable output may become `mod.js` and `main.js`.
@@ -91,7 +93,7 @@ Before any new file/dir under a task project, answer yes to all applicable:
 When the work order needs new empty layout paths under an absolute `projectRoot`, python-collector may call:
 
 ```text
-python <skill-root>/scripts/providers/delivery/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm [flags]
+python <skill-root>/scripts/providers/delivery/python-collector/scaffold_project.py <ABS_PROJECT_ROOT> --confirm [--entry] [--report] [other flags]
 ```
 
 Create only requested missing files; never overwrite. See the python-collector Provider for flags and reject rules.

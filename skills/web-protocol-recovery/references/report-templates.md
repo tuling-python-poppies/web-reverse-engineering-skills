@@ -135,6 +135,8 @@ route: <current Provider ID|evidence-reuse>
 
 ## Final delivery report
 
+Chat/final summary may still use the compact machine fields below. Project delivery additionally requires root file `分析报告.md`.
+
 ```markdown
 shape: <compact-replay|collector>
 route: <final Provider ID>
@@ -143,6 +145,7 @@ providerStages: <ordered {provider, role, strategy?, profile?, purpose?} stages>
 projectRoot: <absolute path>
 layout: web-protocol-recovery-simple
 stableFiles: <bounded paths>
+report: 分析报告.md
 endpoint: <scheme/host/port/route>
 movingState: <signatures/cookies/headers/body fields>
 transportKind: <HTTP/WebSocket/GraphQL/etc.>
@@ -152,6 +155,55 @@ browserLifecycle: <engines opened/parked/closed and ID disposition>
 limits: <page/retry/concurrency/rate/duration bounds>
 caseWriteback: <not-eligible|offer-pending|declined|accepted>
 residualRisks: <bounded list or none>
+```
+
+## 分析报告.md
+
+Required at `<projectRoot>/分析报告.md` for Full completion of `compact-replay` or `collector` after stable delivery files are written. Not required for pure read-only `evidence`. Never place under `js_reverse_cache/`.
+
+```markdown
+# 分析报告
+
+## 任务摘要
+- 目标站点/接口：
+- 成功形态：compact-replay | collector
+- 结论一句话：
+
+## 目标与范围
+- scheme/host/port/route：
+- 授权与预算边界：
+
+## 证据与入口
+- 关键请求/入口函数：
+- 状态来源（cookie/header/body/sign）：
+
+## 协议/门控
+- 主 gate family：
+- 次要门控：
+- 规范突变点：
+
+## 实现路径
+- Provider 顺序：
+- 本地工件（iv8/python-node/pure-python 等）：
+- 最终 live egress：python-collector / main.py
+
+## 验收结果
+- 固定向量/检查点：
+- 最小 live 复放：
+- 业务语义/数据形状：
+
+## 稳定文件
+- main.py / utils / tests：
+- 分析报告.md：本文件
+
+## 风险与限制
+- residual risks：
+- 不该扩展的范围：
+
+## 复现步骤
+1.
+2.
+3.
 ```
 
 ## Minimal verifiable facts

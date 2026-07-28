@@ -219,9 +219,9 @@ Full anti-pattern detail: `references/anti-patterns-playbook.md`.
 
 ## Completion
 
-**Light** (`evidence`/`local-proof`): shape, route, decisive evidence, blocker/next step, browser lifecycle. Local-proof always includes `acceptanceTest` and `result`; with artifact, also path and SHA-256.
+**Light** (`evidence`/`local-proof`): shape, route, decisive evidence, blocker/next step, browser lifecycle. Local-proof always includes `acceptanceTest` and `result`; with artifact, also path and SHA-256. Pure read-only evidence does not require `分析报告.md`.
 
-**Full** (replay/collector): gate family + provider chain; endpoint + moving state; project root + stable files; verification results; browser lifecycle; limits; case writeback offer. Keep logs bounded and redacted; point to artifacts. Reject complete when cleanup is incomplete.
+**Full** (replay/collector): gate family + provider chain; endpoint + moving state; project root + stable files; verification results; browser lifecycle; limits; case writeback offer; **and root `分析报告.md`**. Keep logs bounded and redacted; point to artifacts. Reject complete when cleanup is incomplete or when `compact-replay`/`collector` delivery wrote project files without `分析报告.md`. Template: `references/report-templates.md` section `分析报告.md`.
 
 ## References
 

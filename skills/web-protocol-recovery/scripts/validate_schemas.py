@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute JSON Schema contract fixtures for Architecture V2."""
+"""Execute JSON Schema contract fixtures for current architecture."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def load_schema(name: str) -> dict:
 
 
 VALID_WORK_ORDER = {
-    "schemaVersion": "web-protocol-recovery-provider-work-order/v2",
+    "schemaVersion": "web-protocol-recovery-provider-work-order",
     "workOrderId": "wo-test",
     "shape": "evidence",
     "gateFamily": "signer",
@@ -108,7 +108,7 @@ VALID_WORK_ORDER = {
 
 
 VALID_RESULT = {
-    "schemaVersion": "web-protocol-recovery-provider-result/v2",
+    "schemaVersion": "web-protocol-recovery-provider-result",
     "workOrderId": "wo-test",
     "provider": {"id": "chromium-recon", "role": "reconnaissance", "strategy": None, "profile": None},
     "protocolOwner": None,
@@ -156,10 +156,10 @@ def doc_example_findings(work_order: Draft202012Validator) -> list[str]:
 
 def main() -> int:
     failures: list[str] = []
-    work_order = Draft202012Validator(load_schema("provider-work-order-v2.schema.json"))
-    result = Draft202012Validator(load_schema("provider-result-v2.schema.json"))
-    Draft202012Validator.check_schema(load_schema("case-v2.schema.json"))
-    Draft202012Validator.check_schema(load_schema("case-registry-v2.schema.json"))
+    work_order = Draft202012Validator(load_schema("provider-work-order.schema.json"))
+    result = Draft202012Validator(load_schema("provider-result.schema.json"))
+    Draft202012Validator.check_schema(load_schema("case.schema.json"))
+    Draft202012Validator.check_schema(load_schema("case-registry.schema.json"))
 
     failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid offline work order"))
     failures.extend(doc_example_findings(work_order))

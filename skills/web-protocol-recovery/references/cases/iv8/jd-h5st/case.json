@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v2",
+  "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-jd-h5st",
   "revision": 2,
   "status": "verified",
@@ -114,7 +114,7 @@
       },
       {
         "path": "fixtures/vectors.json",
-        "sha256": "f11ff8d506331b8bfcc5eef173d6d3e0f787dd21af32355a4d75b39f95c713a0"
+        "sha256": "bee01d3898c2489ef4475dd2a3fee14e04accfcfffc93bac7ed0d7090fa9992c"
       },
       {
         "path": "fixtures/response.sample.json",
@@ -137,7 +137,7 @@
     },
     "evidenceArtifact": {
       "path": "fixtures/vectors.json",
-      "sha256": "f11ff8d506331b8bfcc5eef173d6d3e0f787dd21af32355a4d75b39f95c713a0"
+      "sha256": "bee01d3898c2489ef4475dd2a3fee14e04accfcfffc93bac7ed0d7090fa9992c"
     },
     "proof": {
       "offlineVectors": "body sha256 vector, product parser sample, import-safe offline run",

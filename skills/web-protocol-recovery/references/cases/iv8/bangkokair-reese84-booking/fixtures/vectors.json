@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-vector/v1",
+  "schemaVersion": "web-protocol-recovery-vector",
   "caseId": "iv8-bangkokair-reese84-booking",
   "notes": "Redacted shapes only; no live tokens or full private responses.",
   "oauthResponseShape": {

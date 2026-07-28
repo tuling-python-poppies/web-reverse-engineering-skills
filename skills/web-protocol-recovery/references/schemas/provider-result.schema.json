@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "web-protocol-recovery-provider-result-v2.schema.json",
+  "$id": "web-protocol-recovery-provider-result.schema.json",
   "title": "web-protocol-recovery provider result v2",
   "type": "object",
   "additionalProperties": true,
   "required": ["schemaVersion", "workOrderId", "provider", "shape", "gateFamily", "status", "verification", "requestBudget", "execution", "runtimeIds", "cleanup"],
   "properties": {
-    "schemaVersion": {"const": "web-protocol-recovery-provider-result/v2"},
+    "schemaVersion": {"const": "web-protocol-recovery-provider-result"},
     "workOrderId": {"type": "string", "minLength": 1},
     "provider": {"$ref": "#/$defs/providerRef"},
     "protocolOwner": {"type": ["string", "null"]},

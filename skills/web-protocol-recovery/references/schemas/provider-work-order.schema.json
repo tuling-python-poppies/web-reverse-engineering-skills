@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "web-protocol-recovery-provider-work-order-v2.schema.json",
+  "$id": "web-protocol-recovery-provider-work-order.schema.json",
   "title": "web-protocol-recovery provider work order v2",
   "type": "object",
   "additionalProperties": true,
   "required": ["schemaVersion", "workOrderId", "shape", "gateFamily", "activeProvider", "project", "authorization", "readPlan", "acceptanceTest", "runtimeCustody", "runtimeIds"],
   "properties": {
-    "schemaVersion": {"const": "web-protocol-recovery-provider-work-order/v2"},
+    "schemaVersion": {"const": "web-protocol-recovery-provider-work-order"},
     "workOrderId": {"type": "string", "minLength": 1},
     "shape": {"enum": ["evidence", "local-proof", "compact-replay", "collector"]},
     "gateFamily": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},

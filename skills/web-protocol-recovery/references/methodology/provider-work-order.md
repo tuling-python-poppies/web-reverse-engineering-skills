@@ -6,7 +6,7 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
 
 ```json
 {
-  "schemaVersion": "web-protocol-recovery-provider-work-order/v2",
+  "schemaVersion": "web-protocol-recovery-provider-work-order",
   "workOrderId": "stable-id",
   "shape": "evidence",
   "gateFamily": "signer",
@@ -88,7 +88,7 @@ Before executing target-supplied code, hash the exact reviewed bytes and require
 
 ```json
 {
-  "schemaVersion": "web-protocol-recovery-provider-result/v2",
+  "schemaVersion": "web-protocol-recovery-provider-result",
   "workOrderId": "stable-id",
   "provider": {
     "id": "chromium-recon",

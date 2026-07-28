@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-vector/v1",
+  "schemaVersion": "web-protocol-recovery-vector",
   "caseId": "iv8-jd-h5st",
   "notes": "Redacted shapes only. Live signing requires current js_security_v3_main.js.",
   "signInput": {

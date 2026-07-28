@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "web-protocol-recovery-case-v2.schema.json",
+  "$id": "web-protocol-recovery-case.schema.json",
   "title": "web-protocol-recovery case v2",
   "type": "object",
   "required": ["schemaVersion", "caseId", "status", "family", "runtime", "caseKind", "match", "artifacts", "verification"],
   "properties": {
-    "schemaVersion": {"const": "web-protocol-recovery-case/v2"},
+    "schemaVersion": {"const": "web-protocol-recovery-case"},
     "caseId": {"type": "string", "minLength": 1},
     "revision": {"type": "integer", "minimum": 1},
     "status": {"enum": ["verified", "stale", "deprecated"]},

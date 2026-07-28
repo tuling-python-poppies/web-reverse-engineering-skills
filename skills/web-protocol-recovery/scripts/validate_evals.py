@@ -14,7 +14,7 @@ SKILL_EVALS_PATH = SKILL_ROOT / "evals" / "evals.json"
 TRIGGER_EVALS_PATH = SKILL_ROOT / "evals" / "trigger-evals.json"
 TEST_PROMPTS_PATH = SKILL_ROOT / "test-prompts.json"
 REGISTRY_PATH = SKILL_ROOT / "references" / "providers" / "registry.json"
-SCHEMA_VERSION = "web-protocol-recovery-route-regression/v1"
+SCHEMA_VERSION = "web-protocol-recovery-route-regression"
 REQUIRED_CASE_IDS = {
     "douyin-abogus-native-profile",
     "jd-h5st-pure-python-case",

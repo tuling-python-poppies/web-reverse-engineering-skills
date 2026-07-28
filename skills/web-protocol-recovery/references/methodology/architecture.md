@@ -21,7 +21,7 @@ Use this loop for every protocol task:
 2. **Gate**: choose one primary gate family (`signer`, `challenge`, `verifier`, `decode`, `session`, or `transport`) and record only the authorization/scope/budget/execution fields needed before the next gated action.
 3. **Route**: select `evidence-reuse` or one active Provider ID. `route` is never a gate family, strategy, profile, or file path.
 4. **Layout**: before the first write, activate `project-layout.md` and bind one absolute `projectRoot` with `layout=web-protocol-recovery-simple`.
-5. **Work order**: issue one `provider-work-order/v2` with exact allowed paths, active Provider role, optional protocol owner, optional implementation mode, and one acceptance test.
+5. **Work order**: issue one `provider-work-order` with exact allowed paths, active Provider role, optional protocol owner, optional implementation mode, and one acceptance test.
 6. **Accept or reject**: accept only against web-protocol-recovery's acceptance test; Provider `complete` is not enough.
 7. **Next move**: continue the same shape when only the Provider changes; expand shape only after explicit user scope confirmation.
 

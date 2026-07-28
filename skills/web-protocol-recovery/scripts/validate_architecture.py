@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline architecture checks for web-protocol-recovery v2."""
+"""Offline architecture checks for web-protocol-recovery."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 PROVIDER_REGISTRY = SKILL_ROOT / "references" / "providers" / "registry.json"
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
-WORK_ORDER_SCHEMA = SKILL_ROOT / "references" / "schemas" / "provider-work-order-v2.schema.json"
+WORK_ORDER_SCHEMA = SKILL_ROOT / "references" / "schemas" / "provider-work-order.schema.json"
 WORK_ORDER_DOC = SKILL_ROOT / "references" / "methodology" / "provider-work-order.md"
 READ_BUDGET_DOC = SKILL_ROOT / "references" / "methodology" / "read-budget.md"
 
@@ -52,8 +52,19 @@ OBSOLETE_PROVIDER_PATHS = (
 )
 OBSOLETE_SCHEMA_STRINGS = (
     "web-protocol-recovery-provider-work-order/v1",
+    "web-protocol-recovery-provider-work-order/v2",
     "web-protocol-recovery-provider-result/v1",
+    "web-protocol-recovery-provider-result/v2",
+    "web-protocol-recovery-case-registry/v1",
+    "web-protocol-recovery-case-registry/v2",
     "web-protocol-recovery-case/v1",
+    "web-protocol-recovery-case/v2",
+    "web-protocol-recovery-provider-registry/v1",
+    "Architecture V2",
+    "case-v2.schema.json",
+    "provider-work-order-v2.schema.json",
+    "provider-result-v2.schema.json",
+    "case-registry-v2.schema.json",
 )
 OBSOLETE_CONTRACT_TEXT = (
     "providerChain:",
@@ -160,14 +171,14 @@ def read_plan_contract_findings() -> list[str]:
     schema = load_json(WORK_ORDER_SCHEMA)
     required = set(schema.get("required", []))
     if "readPlan" not in schema.get("properties", {}):
-        findings.append("provider-work-order-v2 schema must define readPlan")
+        findings.append("provider-work-order schema must define readPlan")
     if "activeProvider" not in required:
-        findings.append("provider-work-order-v2 schema must require activeProvider")
+        findings.append("provider-work-order schema must require activeProvider")
 
     work_order_text = WORK_ORDER_DOC.read_text(encoding="utf-8", errors="replace")
     read_budget_text = READ_BUDGET_DOC.read_text(encoding="utf-8", errors="replace")
     for token in (
-        '"schemaVersion": "web-protocol-recovery-provider-work-order/v2"',
+        '"schemaVersion": "web-protocol-recovery-provider-work-order"',
         '"activeProvider"',
         '"readPlan"',
         '"required"',
@@ -442,8 +453,8 @@ def case_manifest_findings() -> list[str]:
         data = load_json(path)
         case_id = data.get("caseId")
         schema = data.get("schemaVersion")
-        if schema != "web-protocol-recovery-case/v2":
-            findings.append(f"{rel(path)}: schemaVersion must be web-protocol-recovery-case/v2")
+        if schema != "web-protocol-recovery-case":
+            findings.append(f"{rel(path)}: schemaVersion must be web-protocol-recovery-case")
             continue
         implementation = data.get("implementation")
         if data.get("caseKind") == "evidence" and implementation is not None:

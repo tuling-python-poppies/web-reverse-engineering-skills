@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v2",
+  "schemaVersion": "web-protocol-recovery-case",
   "caseId": "pure-python-jd-h5st",
   "revision": 1,
   "status": "verified",
@@ -92,7 +92,7 @@
       },
       {
         "path": "fixtures/live-proof.summary.json",
-        "sha256": "a4a287f40b2a8f0e867bf3937d1057097952f84c58d19bfe07419db097f90440"
+        "sha256": "d6b09465452efaf551c28b1857c151c2181e87094213d98b4aef9d262a91c6ee"
       }
     ],
     "entry": {
@@ -111,7 +111,7 @@
     },
     "evidenceArtifact": {
       "path": "fixtures/live-proof.summary.json",
-      "sha256": "a4a287f40b2a8f0e867bf3937d1057097952f84c58d19bfe07419db097f90440"
+      "sha256": "d6b09465452efaf551c28b1857c151c2181e87094213d98b4aef9d262a91c6ee"
     },
     "proof": {
       "offlineVectors": "body sha256, JD _seData, JD md5/sha256 wrapper, custom env Base64, synthetic h5st shape, product parser sample, redacted live-proof summary",

@@ -126,7 +126,7 @@ def build_registry() -> dict:
     findings = ambiguity_findings(rows)
     if findings:
         raise ValueError("\n".join(findings))
-    return {"schemaVersion": "web-protocol-recovery-case-registry/v2", "cases": rows}
+    return {"schemaVersion": "web-protocol-recovery-case-registry", "cases": rows}
 
 
 def main() -> int:

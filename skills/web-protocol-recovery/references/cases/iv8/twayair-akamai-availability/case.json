@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v2",
+  "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-twayair-akamai-availability",
   "revision": 2,
   "status": "verified",

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v2",
+  "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
   "revision": 1,
   "status": "verified",
@@ -112,15 +112,15 @@
       },
       {
         "path": "fixtures/request.sample.json",
-        "sha256": "2bd5cba0361834111194fb2bbca6fde3f14d54d22442c9baa3f954b4ccc63d87"
+        "sha256": "48ffb3a201d5838ade2e20daa26b896dd6703c546aa134de96a449a70e3e87e1"
       },
       {
         "path": "fixtures/response.sample.json",
-        "sha256": "f4ed0274ce49fbe56a6e6d20db0f57b0f717c636b1ef88158f94018ec8687d61"
+        "sha256": "2ea3bd208cc610f9e77882e13f8fc509a184f34dc88fe9cef8ccfc8112ec0104"
       },
       {
         "path": "fixtures/live-proof.summary.json",
-        "sha256": "f1784b1280829101353d35d7aab1ed6e83592df0c37a9e4da48d77f5bb591ec1"
+        "sha256": "d403c461756ac5570bc86c0bcbe59fd69a22628ad43c4500a2febf4fdb1e2fdd"
       },
       {
         "path": "assets/data_builder.js",
@@ -155,7 +155,7 @@
     },
     "evidenceArtifact": {
       "path": "fixtures/live-proof.summary.json",
-      "sha256": "f1784b1280829101353d35d7aab1ed6e83592df0c37a9e4da48d77f5bb591ec1"
+      "sha256": "d403c461756ac5570bc86c0bcbe59fd69a22628ad43c4500a2febf4fdb1e2fdd"
     },
     "proof": {
       "offlineVectors": "request body sha256, field21 vectors, RPC signature, device token roundtrip, data_builder output, PZDS WASM sign output, challenge parser",

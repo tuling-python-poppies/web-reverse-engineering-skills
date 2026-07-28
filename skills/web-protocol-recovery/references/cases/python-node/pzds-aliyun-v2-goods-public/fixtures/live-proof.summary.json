@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-live-proof-summary/v1",
+  "schemaVersion": "web-protocol-recovery-live-proof-summary",
   "executed": true,
   "passed": true,
   "executedAt": "2026-07-26",

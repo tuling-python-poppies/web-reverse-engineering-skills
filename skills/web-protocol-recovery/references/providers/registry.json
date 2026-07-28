@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-provider-registry/v1",
+  "schemaVersion": "web-protocol-recovery-provider-registry",
   "routeSentinels": ["evidence-reuse"],
   "implementationModes": ["iv8", "python-node", "pure-python"],
   "gateFamilies": ["signer", "challenge", "verifier", "decode", "session", "transport"],

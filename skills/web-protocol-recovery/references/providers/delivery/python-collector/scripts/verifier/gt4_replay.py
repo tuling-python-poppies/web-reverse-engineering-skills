@@ -233,8 +233,8 @@ def validate_work_order(path: Path, cache_root: Path, bundle: Path) -> dict:
     errors = []
     if not work_order.get("workOrderId"):
         errors.append("workOrderId is required")
-    if work_order.get("schemaVersion") != "web-protocol-recovery-provider-work-order/v2":
-        errors.append("schemaVersion must be web-protocol-recovery-provider-work-order/v2")
+    if work_order.get("schemaVersion") != "web-protocol-recovery-provider-work-order":
+        errors.append("schemaVersion must be web-protocol-recovery-provider-work-order")
     if work_order.get("gateFamily") != "verifier":
         errors.append("gateFamily must be verifier")
     if active.get("id") != "python-collector" or active.get("role") != "delivery":
@@ -362,7 +362,7 @@ def main() -> int:
         "--work-order",
         required=True,
         type=Path,
-        help="Validated web-protocol-recovery-provider-work-order/v2 JSON.",
+        help="Validated web-protocol-recovery-provider-work-order JSON.",
     )
     args = parser.parse_args()
     if not args.confirm_live_verify:

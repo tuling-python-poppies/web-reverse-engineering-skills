@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-redacted-response/v1",
+  "schemaVersion": "web-protocol-recovery-redacted-response",
   "statusCode": 200,
   "contentType": "application/json",
   "payloadShape": {

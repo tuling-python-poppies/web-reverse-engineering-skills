@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-case/v2",
+  "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-bangkokair-reese84-booking",
   "revision": 3,
   "status": "verified",
@@ -109,7 +109,7 @@
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "5fb378bdb969c8ee96fa858dd63d3f2f1dc9deee87a27918b9eae2ffeae40719"
+        "sha256": "37425f3187eb856b4be5a9c6496d5d63c8c5b9db3a8f5f0058baf8d46648e89b"
       },
       {
         "path": "fixtures/response.sample.json",
@@ -117,7 +117,7 @@
       },
       {
         "path": "fixtures/live-proof.summary.json",
-        "sha256": "6f7a845dbf7b1c6207b4f7fece9dbdb3830307433a72bac090e00d32792239e2"
+        "sha256": "08c3d6da0a21e34f894161b7a82ff8aef0ffc153ca56a22fc2f7a461f5005030"
       },
       {
         "path": "lib/__init__.py",
@@ -152,7 +152,7 @@
     },
     "evidenceArtifact": {
       "path": "fixtures/live-proof.summary.json",
-      "sha256": "6f7a845dbf7b1c6207b4f7fece9dbdb3830307433a72bac090e00d32792239e2"
+      "sha256": "08c3d6da0a21e34f894161b7a82ff8aef0ffc153ca56a22fc2f7a461f5005030"
     },
     "proof": {
       "offlineVectors": "case-local parser, payload shape, import-safe run, live-state selector, and redacted live-proof summary tests",

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "web-protocol-recovery-live-proof-summary/v1",
+  "schemaVersion": "web-protocol-recovery-live-proof-summary",
   "caseId": "pure-python-jd-h5st",
   "executedAt": "2026-07-23",
   "evidenceClass": "redacted-live-summary",

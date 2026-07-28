@@ -35,7 +35,7 @@ Every Provider must obey these boundaries:
 4. Do not open a sibling Provider reference or case unless web-protocol-recovery issues a new work order.
 5. Do not own final live egress unless the selected Provider is `python-collector` with role `delivery` under an accepted delivery work order.
 6. Do not claim completion while task-owned browser/session/worker/runtime resources remain live.
-7. Historical case entries listed in `references/cases/historical-live-egress.json` may still contain live HTTP as provenance/reproduction code. They are not delivery Providers and must not be copied as new final collectors. New live egress requires `python-collector` plus a validated work-order/v2.
+7. Case library entries are offline-only. Bundled case `entry.py` and helpers must not perform live HTTP; final live egress belongs only to task-project `main.py` via `python-collector` under a validated work-order.
 
 Provider-local references are operational manuals for that capability. They may explain how to use hooks, AST visitors, python-node strategies, iv8 APIs, pure-Python profiles, or verifier tactics, but they do not define the global methodology, escalation policy, project layout, or final delivery contract.
 

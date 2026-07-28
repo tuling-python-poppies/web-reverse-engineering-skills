@@ -485,18 +485,6 @@ def residue_findings() -> list[str]:
     return findings
 
 
-HISTORICAL_CASE_LIVE_ALLOWLIST = (
-    SKILL_ROOT / "references" / "cases" / "historical-live-egress.json"
-)
-
-
-def historical_case_live_paths() -> set[str]:
-    if not HISTORICAL_CASE_LIVE_ALLOWLIST.is_file():
-        return set()
-    data = load_json(HISTORICAL_CASE_LIVE_ALLOWLIST)
-    return {str(item).replace("\\", "/") for item in data.get("paths", [])}
-
-
 def _python_http_call_lines(path: Path) -> list[int]:
     try:
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
@@ -521,41 +509,56 @@ def _python_http_call_lines(path: Path) -> list[int]:
     return lines
 
 
-def python_live_egress_findings(path: Path, allowlist: set[str] | None = None) -> list[str]:
+def _imports_curl_cffi(path: Path) -> bool:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+    except SyntaxError:
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "curl_cffi" or alias.name.startswith("curl_cffi."):
+                    return True
+        if isinstance(node, ast.ImportFrom) and node.module:
+            if node.module == "curl_cffi" or node.module.startswith("curl_cffi."):
+                return True
+    return False
+
+
+def python_live_egress_findings(path: Path) -> list[str]:
     if "delivery" in path.parts:
         return []
+    findings: list[str] = []
+    # Case library must stay offline-only: no curl_cffi imports and no live HTTP calls.
+    if "cases" in path.parts and _imports_curl_cffi(path):
+        findings.append(
+            f"{rel(path)}: curl_cffi import is forbidden in cases; offline-only case library"
+        )
     lines = _python_http_call_lines(path)
-    if not lines:
-        return []
-    if "cases" in path.parts:
-        path_key = rel(path)
-        allowed = allowlist if allowlist is not None else historical_case_live_paths()
-        if path_key in allowed:
-            return []
-        return [
-            f"{path_key}: case live HTTP at line {lines[0]} is not delivery-owned and "
-            "not listed in references/cases/historical-live-egress.json"
-        ]
-    return [
-        f"{rel(path)}: possible non-delivery live HTTP call at line {line}" for line in lines
-    ]
+    for line in lines:
+        if "cases" in path.parts:
+            findings.append(
+                f"{rel(path)}: case live HTTP at line {line} is forbidden; "
+                "cases are offline-only and final live egress belongs to python-collector"
+            )
+        else:
+            findings.append(f"{rel(path)}: possible non-delivery live HTTP call at line {line}")
+    return findings
 
 
 def live_egress_findings() -> list[str]:
     findings: list[str] = []
-    allowlist = historical_case_live_paths()
-    if not allowlist:
-        findings.append("missing or empty references/cases/historical-live-egress.json")
-    for path_key in sorted(allowlist):
-        if not (SKILL_ROOT / path_key).is_file():
-            findings.append(f"historical live-egress allowlist path missing: {path_key}")
+    if (SKILL_ROOT / "references" / "cases" / "historical-live-egress.json").is_file():
+        findings.append(
+            "references/cases/historical-live-egress.json must be removed; cases are offline-only"
+        )
     for path in SKILL_ROOT.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
             continue
         if set(path.parts) & RESIDUE_NAMES:
             continue
         if path.suffix.lower() == ".py":
-            findings.extend(python_live_egress_findings(path, allowlist=allowlist))
+            findings.extend(python_live_egress_findings(path))
             continue
         if "delivery" in path.parts or "cases" in path.parts or "env" in path.parts:
             continue

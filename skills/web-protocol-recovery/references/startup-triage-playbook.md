@@ -24,7 +24,7 @@ Complete these four checks first:
 3. family triage
     - choose the first family that explains the failure mode best
     - before loading a family-specific scaffold or playbook, corroborate the family across at least two evidence surfaces such as response shape, cookie behavior, runtime markers, script traits, or wire behavior
-    - add the secondary tag `transport-gated` when TLS, ALPN, UA, HTTP version, or route-local admission blocks the clean baseline before application semantics are visible
+    - add secondary gate family `transport` when TLS, ALPN, UA, HTTP version, or route-local admission blocks the clean baseline before application semantics are visible
     - if the family changes after new evidence, restate it explicitly
 4. delivery intent
    - state the smallest acceptable final shape
@@ -42,7 +42,7 @@ For the full rung-by-rung rule, proof requirements, and "do not jump layers" con
 
 ## Family triage
 
-### `signer-gated`
+### `signer` gate family
 
 Symptoms:
 
@@ -64,7 +64,7 @@ Primary references:
 - `references/crypto-patterns.md`
 - `references/embedded-browser-runtime-playbook.md` when host semantics matter
 
-### `challenge-gated`
+### `challenge` gate family
 
 Symptoms:
 
@@ -88,7 +88,7 @@ Primary references:
 - `references/challenge-state-envelope-playbook.md` for unclassified executable challenge state
 - `references/cookie-provenance-playbook.md` when the writer or refresh order is unknown
 
-### `transport-gated` (secondary tag)
+### `transport` secondary gate family
 
 Symptoms:
 
@@ -108,7 +108,7 @@ Primary references:
 
 - `references/transport-pre-gate-playbook.md`
 
-### `verifier-gated`
+### `verifier` gate family
 
 Symptoms:
 
@@ -121,7 +121,7 @@ First move:
 - capture a clean untouched baseline before invasive instrumentation
 - diff requests and verifier outputs first
 - only then add the narrowest hook that proves the boundary
-- if challenge HTML plus scripts appear to seed a cookie, URL suffix, or headers, route to `challenge-gated` first
+- if challenge HTML plus scripts appear to seed a cookie, URL suffix, or headers, switch `gateFamily` to `challenge` and use the River Security Provider or challenge-state playbook first
 - if a bootstrap runtime exposes a getter after init or self-issues the decisive request, route to `references/challenge-state-envelope-playbook.md`
 
 Primary references (pick one first path):
@@ -131,7 +131,7 @@ Primary references (pick one first path):
 - `references/troubleshooting-playbook.md` when replay is close but unstable
 - later only if needed: verifier PROVIDER, cookie-provenance, embedded-browser-runtime
 
-### `decode-gated`
+### `decode` gate family
 
 Symptoms:
 
@@ -151,7 +151,7 @@ Primary references:
 - `references/challenge-state-envelope-playbook.md`
 - `references/structured-transport-playbook.md` when the payload sits inside a binary envelope
 
-### `session-gated`
+### `session` gate family
 
 Symptoms:
 

@@ -1366,7 +1366,7 @@ Expected route:
 
 Must conclude:
 
-- classify `transport-gated` as a secondary tag
+- classify `transport` as a secondary gate family
 - freeze a small route/client/UA/HTTP-version admission matrix
 - keep the transport exception route-local
 - do not blame signer or cookie logic until application semantics are visible

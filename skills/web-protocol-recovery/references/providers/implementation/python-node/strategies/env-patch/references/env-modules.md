@@ -1,6 +1,6 @@
 # 环境模块属性映射表
 
-根据 `undefinedPaths` 的前缀选择最小 env 模块。模块路径均相对于当前 env-patch Provider 的 `env/` 目录。
+根据 `undefinedPaths` 的前缀选择最小 env 模块。模块路径均相对于当前 `python-node` 的 `env-patch` strategy `env/` 目录。
 
 每轮只读一个匹配 reference。初次选择按 `core` 自动基线 -> `bom` -> `dom` -> `webapi` -> `encoding` -> `timer` -> `js_reverse_cache/env/` 项目补丁排序；同组仅加载目标实际读取的模块。BOM 内按 `window-global-apis -> navigator -> location -> history -> screen -> storage -> crypto -> performance`，DOM 内按 `event-constructors -> document-dom-runtime -> html-element-constructors`，WebAPI 内按 `fetch -> XHR -> blob/form-data -> URLSearchParams -> network recorder`。只有证据表明模块替换或依赖顺序仍错误时，下一轮改读 `references/loading-order.md`。
 

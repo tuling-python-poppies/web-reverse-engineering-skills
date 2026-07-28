@@ -36,6 +36,31 @@ TEXT_SUFFIXES = {".md", ".json", ".py", ".js", ".mjs", ".cjs"}
 CODE_SUFFIXES = {".py", ".js", ".mjs", ".cjs"}
 RESIDUE_NAMES = {"__pycache__", ".pytest_cache"}
 RESIDUE_SUFFIXES = {".pyc", ".pyo"}
+OBSOLETE_PROVIDER_PATHS = (
+    "providers/implementation/env-patch/PROVIDER.md",
+    "providers/implementation/verifier/PROVIDER.md",
+    "providers/implementation/akamai/PROVIDER.md",
+    "providers/implementation/river-security/PROVIDER.md",
+    "providers/implementation/browser-hooks/PROVIDER.md",
+    "providers/implementation/ast/PROVIDER.md",
+    "providers/implementation/python-collector/PROVIDER.md",
+    "providers/implementation/douyin-abogus-native/PROVIDER.md",
+    "scripts/providers/python-collector/scaffold_project.py",
+)
+OBSOLETE_SCHEMA_STRINGS = (
+    "web-protocol-recovery-provider-work-order/v1",
+    "web-protocol-recovery-provider-result/v1",
+    "web-protocol-recovery-case/v1",
+)
+OBSOLETE_CONTRACT_TEXT = (
+    "providerChain:",
+    "route to `challenge-gated`",
+    "route to `signer-gated`",
+    "route to `verifier-gated`",
+    "route to `decode-gated`",
+    "route to `session-gated`",
+    "route to `transport-gated`",
+)
 
 NETWORK_JS = re.compile(
     r"\bfetch\s*\(|new\s+(?:XMLHttpRequest|WebSocket)\s*\(|\brequire\(['\"](?:http|https)['\"]\)"
@@ -85,6 +110,8 @@ def route_literal_findings() -> list[str]:
     for path in SKILL_ROOT.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
             continue
+        if path.resolve() == Path(__file__).resolve():
+            continue
         if set(path.parts) & RESIDUE_NAMES:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
@@ -94,6 +121,31 @@ def route_literal_findings() -> list[str]:
                 findings.append(f"{rel(path)}: obsolete or gate-family route literal: {value}")
             elif value not in valid_routes and value not in {"selected", "current", "Provider"}:
                 findings.append(f"{rel(path)}: unknown route literal: {value}")
+    return findings
+
+
+def documentation_contract_findings() -> list[str]:
+    findings: list[str] = []
+    for path in SKILL_ROOT.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
+            continue
+        if path.resolve() == Path(__file__).resolve():
+            continue
+        if set(path.parts) & RESIDUE_NAMES:
+            continue
+        if "references" in path.parts and "cases" in path.parts and path.name != "README.md":
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        normalized = text.replace("\\", "/")
+        for needle in OBSOLETE_PROVIDER_PATHS:
+            if needle in normalized:
+                findings.append(f"{rel(path)}: obsolete provider path: {needle}")
+        for needle in OBSOLETE_SCHEMA_STRINGS:
+            if needle in text:
+                findings.append(f"{rel(path)}: obsolete schema string: {needle}")
+        for needle in OBSOLETE_CONTRACT_TEXT:
+            if needle in text:
+                findings.append(f"{rel(path)}: obsolete contract text: {needle}")
     return findings
 
 
@@ -195,6 +247,7 @@ def main() -> int:
     checks = [
         ("provider registry", provider_registry_findings),
         ("route literals", route_literal_findings),
+        ("documentation contract", documentation_contract_findings),
         ("case manifests", case_manifest_findings),
         ("live egress", live_egress_findings),
         ("residue", residue_findings),

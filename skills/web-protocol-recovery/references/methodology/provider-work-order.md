@@ -6,10 +6,22 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
 
 ```json
 {
-  "schemaVersion": "web-protocol-recovery-provider-work-order/v1",
+  "schemaVersion": "web-protocol-recovery-provider-work-order/v2",
   "workOrderId": "stable-id",
-  "provider": "chromium-recon",
-  "phase": "reconnaissance",
+  "shape": "evidence",
+  "gateFamily": "signer",
+  "secondaryGates": [],
+  "canonicalMutationPoint": "request query parameter: h5st",
+  "activeProvider": {
+    "id": "chromium-recon",
+    "role": "reconnaissance",
+    "strategy": null,
+    "profile": null
+  },
+  "protocolOwner": null,
+  "implementation": null,
+  "deliveryProvider": null,
+  "caseId": null,
   "authorization": {
     "authorizationBasis": "public-unauthenticated",
     "allowedHostsAndRoutes": [
@@ -49,6 +61,11 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
     "writeMode": "no-write",
     "allowedPaths": []
   },
+  "readPlan": {
+    "window": "handoff",
+    "required": ["references/providers/reconnaissance/chromium-recon/PROVIDER.md"],
+    "optional": []
+  },
   "inputs": [],
   "requiredOutputs": ["one precise blocker or evidence"],
   "acceptanceTest": "return bounded offline evidence",
@@ -71,10 +88,19 @@ Before executing target-supplied code, hash the exact reviewed bytes and require
 
 ```json
 {
-  "schemaVersion": "web-protocol-recovery-provider-result/v1",
+  "schemaVersion": "web-protocol-recovery-provider-result/v2",
   "workOrderId": "stable-id",
-  "provider": "chromium-recon",
+  "provider": {
+    "id": "chromium-recon",
+    "role": "reconnaissance",
+    "strategy": null,
+    "profile": null
+  },
+  "protocolOwner": null,
+  "shape": "evidence",
+  "gateFamily": "signer",
   "status": "complete",
+  "artifactBoundary": null,
   "artifacts": [],
   "verification": {"test": "return bounded offline evidence", "passed": true, "evidence": "offline contract validated"},
   "requestBudget": {"consumed": 0, "remaining": 0, "byKind": {"navigation": 0, "request": 0, "retry": 0, "websocketHandshake": 0, "websocketFrame": 0}, "observedAutomatic": {"total": 0, "byKind": {"redirect": 0, "subresource": 0, "xhrFetch": 0, "beaconPing": 0, "eventSource": 0, "websocket": 0}, "destinations": []}, "minDelayMsApplied": 0, "maxConcurrencyObserved": 1},

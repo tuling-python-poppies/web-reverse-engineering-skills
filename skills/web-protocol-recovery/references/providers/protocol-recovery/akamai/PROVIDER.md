@@ -51,7 +51,7 @@ Read only the selected reference after a work order names the current blocker.
 - Unknown family or weak evidence returns to web-protocol-recovery evidence/recon instead of guessing Akamai.
 - Hook-only observation uses `browser-hooks`.
 - Whole-source recovery uses `ast`.
-- Generic environment patching uses `env-patch`.
+- Generic environment patching uses `python-node` with `strategy: env-patch`.
 - Local browser-like collector execution uses `iv8`, with Akamai acceptance still owned by this Provider.
 - CAPTCHA or interactive verification uses `verifier`.
 - Stable final HTTP delivery uses `python-collector` after Akamai proof is accepted.

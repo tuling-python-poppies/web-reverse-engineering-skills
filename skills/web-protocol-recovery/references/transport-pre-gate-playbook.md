@@ -69,7 +69,7 @@ Preferred shape:
 
 Report these items explicitly:
 
-- which route family was transport-gated
+- which route/gate family carried the `transport` secondary gate
 - which narrow client profile admitted the baseline
 - whether the exception is route-local or global
 - whether a sibling route bypassed the gate

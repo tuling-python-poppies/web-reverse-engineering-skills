@@ -1,6 +1,6 @@
 # Environment Patch Playbook
 
-Canonical first path when browser vs local diverge or host surfaces are missing. Implementation work order: `providers/implementation/env-patch/PROVIDER.md`.
+Canonical first path when browser vs local diverge or host surfaces are missing. Implementation work order: `references/providers/implementation/python-node/PROVIDER.md` with `strategy: env-patch`; strategy entry: `references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md`.
 
 ## Triage before patching
 

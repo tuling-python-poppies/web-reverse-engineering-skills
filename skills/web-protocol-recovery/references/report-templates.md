@@ -139,7 +139,7 @@ route: <current Provider ID|evidence-reuse>
 shape: <compact-replay|collector>
 route: <final Provider ID>
 gateFamily: <one primary gate family>
-providerChain: <ordered Provider IDs>
+providerStages: <ordered {provider, role, strategy?, profile?, purpose?} stages>
 projectRoot: <absolute path>
 layout: web-protocol-recovery-simple
 stableFiles: <bounded paths>

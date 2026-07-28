@@ -14,7 +14,7 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 - on direct Camoufox or WeChat routes, Provider ownership, target lifecycle, durable evidence, and cleanup recorded instead of claiming Chromium passes
 - dual browser reconnaissance ran sequentially with isolated browser contexts/profiles, or explicit profile reuse and contamination risk were documented
 - relevant MCP capabilities considered through `references/tool-playbook.md` before declaring a tooling blocker
-- clean baseline captured before invasive tooling when the target is verifier-gated or behavior-sensitive
+- clean baseline captured before invasive tooling when `gateFamily=verifier` or behavior-sensitive evidence is present
 - paired-pass (or documented blocker) evidence captured before any CloakBrowser escalation on the Chromium route without upstream fingerprint evidence, unless that baseline path was unavailable and that blocker is documented
 - normal `js-reverse-mcp` use used explicit `launch_browser({headless:true, cloakBinaryPath:""})` for the mutation pass and no unintended ordinary-browser window; otherwise the task records an explicit visible-ordinary-browser approval or a tooling blocker
 - CloakBrowser use, if any, has explicit fingerprint, anti-bot, or environment-verification evidence and was done through `launch_browser({headless:false, cloakBinaryPath: "..."})` on `js-reverse-mcp` unless the user explicitly asked for hidden Cloak
@@ -39,10 +39,10 @@ Use this checklist before marking a protocol recovery task complete. Apply only 
 - heartbeat, ack, counter, or message-tag rules documented when the stream is stateful
 - raw frame parsing and business decode proven on at least one exact captured frame
 - media-key derivation documented when file download or decryption uses separate secrets
-- transport-gated route families documented with the narrow admission profile and route-local scope
+- `transport` secondary gate family documented with the narrow admission profile and route-local scope
 - challenge-generated envelope families documented with framing, checksum, alphabet, state dependency, inner cipher, and payload anchor
 - pagination route pivots and raw-source route metadata documented when later pages stop matching first-page arithmetic
-- verifier-gated or challenge-bootstrap targets proved one fresh minimal live replay on one session chain before broad environment patching, runtime shrink, pagination scaling, or reuse generalization
+- `verifier` or challenge-bootstrap targets proved one fresh minimal live replay on one session chain before broad environment patching, runtime shrink, pagination scaling, or reuse generalization
 
 ## Delivery Gates
 

@@ -83,7 +83,7 @@ Move from reconnaissance to one implementation Provider only after naming the bo
 
 - stable method/property/request boundary -> browser-hooks
 - structural bundle blocker -> AST
-- missing environment read/identity/reflection surface -> env-patch
+- missing environment read/identity/reflection surface -> `python-node` with `strategy: env-patch`
 - browser-visible host semantics needed for one local artifact -> iv8
 - captcha / verification round -> verifier
 - Akamai sensor/cookie state machine -> akamai
@@ -104,9 +104,9 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | Live inspection unstable; debugger traps / self-rewriting sources | `offline-inline-deob-playbook.md` |
 | Challenge harvest / server-JS cookie / side asset / full envelope | `challenge-state-envelope-playbook.md` (one file only) |
 | Public passive key/config/nonce and encrypted wrapper | `public-bootstrap-envelope-playbook.md` |
-| Captcha / one-shot verifier gates business request | `providers/implementation/verifier/PROVIDER.md`, then one selected captcha family reference |
-| Akamai `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gates business request | `providers/implementation/akamai/PROVIDER.md` |
-| River Security / 瑞数 `412` + `$_ts` / S-T Cookie / `r="m"` gates business request | `providers/implementation/river-security/PROVIDER.md` |
+| Captcha / one-shot verifier gates business request | `references/providers/protocol-recovery/verifier/PROVIDER.md`, then one selected captcha family reference |
+| Akamai `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gates business request | `references/providers/protocol-recovery/akamai/PROVIDER.md` |
+| River Security / 瑞数 `412` + `$_ts` / S-T Cookie / `r="m"` gates business request | `references/providers/protocol-recovery/river-security/PROVIDER.md` |
 | Output depends on navigator/DOM/reflection/native surfaces | `environment-patch-playbook.md` |
 | Encoded/compressed/font/binary response | `response-decode-playbook.md` |
 | Replay exists but `403`/`412`/`429`, business error, stale state, or pacing remains | `troubleshooting-playbook.md` |

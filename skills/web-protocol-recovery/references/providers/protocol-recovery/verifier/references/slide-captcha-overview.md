@@ -22,7 +22,7 @@
 1. 只做图片缺口识别，不做验证码协议或动态参数。
 2. 只要浏览器 hook 脚本，转 web-protocol-recovery 内部 `browser-hooks` Provider。
 3. 只泛化定位某个 sign/token 入口，转正常 evidence/recon 路由，不进入验证码协议分支。
-4. 只做通用 Node.js 补环境，转 web-protocol-recovery 内部 `env-patch` Provider。
+4. 只做通用 Node.js 补环境，转 web-protocol-recovery 内部 `python-node`，并设置 `strategy: env-patch`。
 5. 明确要求 Python + iv8 跑完整浏览器 JS 并请求接口，转 web-protocol-recovery 内部 `iv8` Provider；验证码状态机仍由 `verifier` 接收验收。
 
 ## 总体流程

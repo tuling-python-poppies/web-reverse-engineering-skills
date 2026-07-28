@@ -19,33 +19,38 @@
 
 ```text
 references/providers/
+  registry.json
   reconnaissance/
     chromium-recon/PROVIDER.md
     camoufox/PROVIDER.md
     camoufox/references/ops-ladder.md
     wechat-miniapp/PROVIDER.md
     wechat-miniapp/references/ops-playbook.md
-  implementation/
+  protocol-recovery/
     browser-hooks/PROVIDER.md
     ast/PROVIDER.md
-    env-patch/PROVIDER.md
-    iv8/PROVIDER.md
-    douyin-abogus-native/PROVIDER.md
+    verifier/PROVIDER.md
+    verifier/references/*.md
+    verifier/scripts/*
     akamai/PROVIDER.md
     akamai/references/*.md
     akamai/scripts/*
     river-security/PROVIDER.md
-    verifier/PROVIDER.md
-    verifier/references/*.md
-    verifier/scripts/*
+  implementation/
+    iv8/PROVIDER.md
+    python-node/PROVIDER.md
+    python-node/strategies/env-patch/STRATEGY.md
+    pure-python/PROVIDER.md
+    pure-python/profiles/douyin-abogus-native.md
+  delivery/
     python-collector/PROVIDER.md
 ```
 
-Internal skills are Providers under this tree (not peer top-level skills). `douyin-abogus-native` owns already-proved Douyin Web BDMS pure-Python `a_bogus` maintenance and request adaptation. `verifier` owns captcha protocol workflows and proof criteria. `akamai` owns Akamai Bot Manager workflow, cookie state machine, transport rules, iv8 collector route, and T'way field case. `river-security` owns River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge-state subtype selection and historical case reuse boundaries. Providers receive `web-protocol-recovery-provider-work-order/v1` and return `web-protocol-recovery-provider-result/v1` (schema in `references/methodology/provider-work-order.md`). web-protocol-recovery remains the owner of methodology, scope, project root, layout, acceptance, and browser-free delivery.
+Internal skills are Providers under this tree (not peer top-level skills). Roles are explicit: reconnaissance locates evidence; protocol-recovery owns family rules and acceptance; implementation Providers generate one local artifact; delivery owns final browser-free Python egress. `env-patch` is a `python-node` strategy, not a route. `douyin-abogus-native` is a `pure-python` profile, not a route. Providers receive `web-protocol-recovery-provider-work-order/v2` and return `web-protocol-recovery-provider-result/v2`; schemas live in `references/schemas/` and the explanatory contract is `references/methodology/provider-work-order.md`.
 
 ## Cases
 
-The root registry indexes 21 hash-bound `web-protocol-recovery-case/v1` manifests grouped by runtime: 16 `iv8`, one `pure-python`, and four `python-node` evidence cases. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
+The root registry indexes 22 hash-bound `web-protocol-recovery-case/v2` manifests grouped by implementation runtime: 16 `iv8`, 5 `python-node`, and 1 `pure-python`. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
 
 ## Runtime Helpers
 
@@ -55,7 +60,7 @@ Reverse-engineering helpers under `scripts/` are optional aids, not gates:
 python scripts\check_reverse_env.py
 python scripts\crypto_fingerprint.py <sample>
 python scripts\protocol_diff.py <capture-a> <capture-b>
-python scripts\providers\python-collector\scaffold_project.py <project-root> --entry --cache
+python scripts\providers\delivery\python-collector\scaffold_project.py <project-root> --entry --cache
 ```
 
 `scripts/providers/cases/live_state.py` backs each case's `pull_live_state.py` for in-memory credential pulls. web-protocol-recovery-specific deposition and dedup rules live in `references/methodology/knowledge-maintenance.md`.

@@ -7,15 +7,15 @@
 
 ## Do Not Select When
 
-- Only minimal Node/jsdom gaps for a known entry (prefer env-patch).
+- Only minimal Node/jsdom gaps for a known entry (prefer `python-node` with `strategy: env-patch`).
 - Final live egress should stay in a browser (forbidden; Python owns egress).
 - No artifact boundary is named yet.
 
-## vs env-patch
+## vs python-node env-patch
 
 | If | Prefer |
 |---|---|
-| Known entry needs a few missing Node/jsdom surfaces | `env-patch` |
+| Known entry needs a few missing Node/jsdom surfaces | `python-node` with `strategy: env-patch` |
 | Bundle expects browser-like host, timers, XHR/fetch semantics, or full page-like runtime | `iv8` |
 | Both plausible | name the artifact boundary; pick the smaller host that still produces that artifact |
 

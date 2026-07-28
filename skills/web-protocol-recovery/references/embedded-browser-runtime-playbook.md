@@ -12,10 +12,10 @@ Use a local embedded runtime only when evidence proves it is the smallest faithf
 ## Provider Selection
 
 - iv8: browser-like local runtime, official XHR/fetch mutation, h5st, BDMS, challenge pages, verifier proof builders.
-- env-patch: known JS entry that can run in Node/vm/jsdom after minimal environment completion.
+- `python-node` with `strategy: env-patch`: known JS entry that can run in Node/vm/jsdom after minimal environment completion.
 - AST: source structure must first be restored before either runtime can execute a bounded entry.
 
-Issue `web-protocol-recovery-provider-work-order/v1`; do not create a cross-skill handoff. The provider returns `web-protocol-recovery-provider-result/v1` with artifact path/hash, runtime versions, side effects, cleanup, and acceptance result.
+Issue `web-protocol-recovery-provider-work-order/v2`; do not create a cross-skill handoff. The provider returns `web-protocol-recovery-provider-result/v2` with artifact path/hash, runtime versions, side effects, cleanup, and acceptance result.
 
 ## Stable Boundary
 

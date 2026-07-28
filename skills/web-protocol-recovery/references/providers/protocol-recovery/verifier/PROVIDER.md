@@ -46,7 +46,7 @@ Read only the selected family reference after the work order names one matching 
 5. Slider tasks separate original/restored image distance, displayed coordinate, submitted coordinate, behavior track, declared duration, and real wall-clock wait.
 6. Sidecar/device models such as Aliyun FeiLin/TDC require full same-session profile, sparse token/counter, timestamps, and telemetry. A valid checksum on one packet does not prove cross-packet state consistency.
 7. Browser automation is evidence only unless the user explicitly asked for UI automation. Final delivery is protocol replay plus local helpers; Python owns live HTTP egress.
-8. When platform workflow requires iv8 or JS runtime, route the execution backend through web-protocol-recovery's internal `iv8` or `env-patch` Provider.
+8. When platform workflow requires iv8 or JS runtime, route the execution backend through web-protocol-recovery's internal `iv8` Provider or `python-node` with `strategy: env-patch`.
 9. If the user only wants the verification layer, stop at captcha success and do not add business replay to the entry point or success condition.
 10. `verify_has_w=true`, non-empty proof fields, or outer `status=success` with semantic verifier failure is current-round failure evidence, not success. Re-check perception, coordinate mapping, proof packaging, and current bundle entry before any retry.
 11. GT4 point-click/ordered-text code must treat public `captchaObj` as a wrapper until proven otherwise. Discover the current bundle's submitter/registry path from live/cache evidence; do not ship hardcoded old module IDs or stale `$_BEP -> $_BBFs` assumptions.
@@ -86,8 +86,8 @@ All applicable checks must pass:
 | GT4 `w` generated but `data.result=fail` | Confirm current `gcaptcha4.js` version and submitter path before changing OCR only | Do not treat non-empty `w` or `status=success` as proof |
 | Sidecar/device logs omitted | Add same-session telemetry proof per selected reference | Do not blame track first |
 | Live verify denied | Stay offline with fixtures and proof inputs | No verifier submission |
-| Platform workflow needs JS/iv8 host semantics | Return an internal work-order blocker for `iv8` or `env-patch` | Do not turn browser UI automation into delivery |
+| Platform workflow needs JS/iv8 host semantics | Return an internal work-order blocker for `iv8` or `python-node` with `strategy: env-patch` | Do not turn browser UI automation into delivery |
 
 ## Exit
 
-Return: selected captcha family/reference, one-round state summary, proof-input shape, perception confidence, offline vector status, live verify state or offline-only blocker, artifact paths/hashes, sidecar/telemetry status, budget consumed/remaining, cleanup state, and next hub action (`python-collector`, `iv8`/`env-patch`, another verifier work order, or stop).
+Return: selected captcha family/reference, one-round state summary, proof-input shape, perception confidence, offline vector status, live verify state or offline-only blocker, artifact paths/hashes, sidecar/telemetry status, budget consumed/remaining, cleanup state, and next hub action (`python-collector`, `iv8`, `python-node` with `strategy: env-patch`, another verifier work order, or stop).

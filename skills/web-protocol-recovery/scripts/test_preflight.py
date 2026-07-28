@@ -83,12 +83,32 @@ class PreflightSelfTestGateTests(unittest.TestCase):
     def test_skip_tests_still_runs_self_tests(self) -> None:
         with (
             mock.patch.object(preflight, "check_hashes", return_value=(True, "hash ok")),
+            mock.patch.object(
+                preflight,
+                "check_case_registry_projection",
+                return_value=(True, "registry ok"),
+            ),
+            mock.patch.object(
+                preflight,
+                "check_architecture_contract",
+                return_value=(True, "architecture ok"),
+            ),
             mock.patch.object(preflight, "scan_entries", return_value=[]),
             mock.patch.object(
                 preflight,
                 "check_preflight_unit_tests",
                 return_value=(True, "self tests ok"),
             ) as self_tests,
+            mock.patch.object(
+                preflight,
+                "check_provider_guard_contracts",
+                return_value=(True, "guards ok"),
+            ),
+            mock.patch.object(
+                preflight,
+                "check_commit_body_policy",
+                return_value=(True, "commit policy ok"),
+            ),
             mock.patch.object(preflight, "discover_test_cases") as discover,
             mock.patch.object(preflight, "check_case_tests") as case_tests,
             redirect_stdout(io.StringIO()),

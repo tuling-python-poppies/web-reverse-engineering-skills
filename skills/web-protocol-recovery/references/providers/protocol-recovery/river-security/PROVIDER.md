@@ -30,7 +30,7 @@ Use **River Security** in new prose. `RuiShu`, `Ruishu`, and `瑞数` are aliase
 
 | Evidence | Subtype | Next owner |
 |---|---|---|
-| `412` + `$_ts.nsd/cd` + `r="m"` + server `*S` + client `*T` cookie | RS6-style cookie challenge | `env-patch` or `iv8`; old `sdenv` path only after execution/dependency gates |
+| `412` + `$_ts.nsd/cd` + `r="m"` + server `*S` + client `*T` cookie | RS6-style cookie challenge | `python-node` with `strategy: env-patch` or `iv8`; old `sdenv` path only after execution/dependency gates |
 | Two-stage cookie and protected XHR rewrites URL suffix | two-stage URL mutation | `iv8` after API-inventory gate |
 | Two-stage cookie and protected XHR rewrites URL plus headers | two-stage URL/header mutation | `iv8` after API-inventory gate |
 | Generated `*T` cookie then form POST returns HTML fragment | search/form replay | `iv8` -> `python-collector` |
@@ -52,7 +52,7 @@ Load `references/cases/registry.json` first; select at most one case. Stop reuse
 ## Runtime Boundary
 
 1. Browser and DevTools are evidence only.
-2. `env-patch` is for a known JS entry with minimal Node/jsdom gaps.
+2. `python-node` with `strategy: env-patch` is for a known JS entry with minimal Node/jsdom gaps.
 3. `iv8` is for a narrow browser-like artifact generator: cookie, URL suffix, header set, or form-admission state.
 4. `sdenv` or other native Node helpers require explicit dependency and target-code execution approval; they are never the final HTTP owner.
 5. `python-collector` owns final live egress after the River Security artifact boundary is accepted.

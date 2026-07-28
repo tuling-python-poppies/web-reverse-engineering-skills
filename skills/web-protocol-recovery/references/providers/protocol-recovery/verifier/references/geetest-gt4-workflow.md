@@ -73,7 +73,7 @@ def image_to_array(image: Image.Image) -> np.ndarray:
 - `references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py`：同轮 `/load -> 图片/GCT -> helper -> sleep -> /verify` delivery 模板。
 - `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`：不执行 JavaScript 的纯 Python `/load -> OCR -> PoW/GCT/AES/RSA -> sleep -> /verify` delivery 模板。
 
-运行模板：
+运行模板：work order 必须包含 `authorization.actionClass=verifier-submit`、`liveReplayAllowed=true`、至少 5 个剩余请求预算单位，并授权 `gcaptcha4.geetest.com/load`、`gcaptcha4.geetest.com/verify` 与 `static.geetest.com/` scope。模板会在每次 live request 前重新检查 scope 并扣减预算。
 
 ```bash
 python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py \

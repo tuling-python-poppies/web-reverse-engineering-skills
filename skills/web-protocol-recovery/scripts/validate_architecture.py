@@ -178,21 +178,55 @@ def read_plan_contract_findings() -> list[str]:
 
     whole_task_cap = 24
     official_chain = [
-        ("initial dispatch", 3, 3),
-        ("provider handoff", 3, 3),
-        ("case selection", 1, 1),
-        ("selected case bundle", 8, 8),
-        ("implementation handoff", 3, 3),
-        ("delivery handoff", 3, 3),
-        ("write gate", 1, 1),
+        ("initial dispatch", 3, [
+            "README.md",
+            "references/startup-triage-playbook.md",
+            "references/tool-playbook.md",
+        ]),
+        ("provider handoff", 3, [
+            "references/providers/registry.json",
+            "references/methodology/provider-work-order.md",
+            "references/providers/reconnaissance/chromium-recon/PROVIDER.md",
+        ]),
+        ("case selection", 1, [
+            "references/cases/registry.json",
+        ]),
+        ("selected case bundle", 8, [
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/case.json",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/PROCESS.md",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/entry.py",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/tests/test_vectors.py",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/vectors.json",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/request.sample.json",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/response.sample.json",
+            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/live-proof.summary.json",
+        ]),
+        ("implementation handoff", 3, [
+            "references/providers/implementation/python-node/PROVIDER.md",
+            "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
+            "references/methodology/read-budget.md",
+        ]),
+        ("delivery handoff", 3, [
+            "references/providers/delivery/python-collector/PROVIDER.md",
+            "scripts/providers/delivery/python-collector/scaffold_project.py",
+            "references/report-templates.md",
+        ]),
+        ("write gate", 1, [
+            "references/methodology/case-writeback.md",
+        ]),
     ]
-    total = 0
-    for name, used, cap in official_chain:
-        if used > cap:
-            findings.append(f"read-plan sim window exceeds cap: {name} used={used} cap={cap}")
-        total += used
-    if total > whole_task_cap:
-        findings.append(f"read-plan sim exceeds whole-task cap: used={total} cap={whole_task_cap}")
+    distinct_paths: set[str] = set()
+    for name, cap, paths in official_chain:
+        if len(paths) > cap:
+            findings.append(f"read-plan sim window exceeds cap: {name} used={len(paths)} cap={cap}")
+        for rel_path in paths:
+            if not (SKILL_ROOT / rel_path).exists():
+                findings.append(f"read-plan sim path missing: {rel_path}")
+            distinct_paths.add(rel_path)
+    if len(distinct_paths) > whole_task_cap:
+        findings.append(
+            f"read-plan sim exceeds whole-task cap: used={len(distinct_paths)} cap={whole_task_cap}"
+        )
     return findings
 
 

@@ -22,24 +22,35 @@ VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
 LIVE_VERIFY_APPROVED = False
 APPROVED_WORK_ORDER_ID = None
+APPROVED_SCOPES = []
+APPROVED_BUDGET_REMAINING = 0
 
 
 def approve_live_verify(work_order):
-    global LIVE_VERIFY_APPROVED, APPROVED_WORK_ORDER_ID
+    global LIVE_VERIFY_APPROVED, APPROVED_WORK_ORDER_ID, APPROVED_SCOPES, APPROVED_BUDGET_REMAINING
+    authorization = work_order["authorization"]
     LIVE_VERIFY_APPROVED = True
     APPROVED_WORK_ORDER_ID = work_order["workOrderId"]
+    APPROVED_SCOPES = authorization["allowedHostsAndRoutes"]
+    APPROVED_BUDGET_REMAINING = int(authorization["requestBudget"]["remaining"])
 
 
-def require_live_verify_approval():
+def require_live_verify_approval(target_url):
+    global APPROVED_BUDGET_REMAINING
     if not LIVE_VERIFY_APPROVED:
         raise RuntimeError(
             "live verifier request is not approved; run through main() with "
             "--confirm-live-verify and --work-order after recording liveReplay/verifier gates"
         )
+    if not scope_allows(APPROVED_SCOPES, target_url):
+        raise RuntimeError(f"live verifier request outside approved scope: {target_url}")
+    if APPROVED_BUDGET_REMAINING <= 0:
+        raise RuntimeError(f"live verifier request budget exhausted before: {target_url}")
+    APPROVED_BUDGET_REMAINING -= 1
 
 
 def live_get(session, url, **kwargs):
-    require_live_verify_approval()
+    require_live_verify_approval(url)
     return session.get(url, **kwargs)
 
 
@@ -120,6 +131,8 @@ def validate_work_order(path):
         errors.append("deliveryProvider must be python-collector")
     if authorization.get("liveReplayAllowed") is not True:
         errors.append("authorization.liveReplayAllowed must be true")
+    if authorization.get("actionClass") != "verifier-submit":
+        errors.append("authorization.actionClass must be verifier-submit")
     try:
         remaining_budget = int(budget.get("remaining", 0))
     except (TypeError, ValueError):
@@ -446,6 +459,7 @@ def main():
     print(json.dumps({
         "runtime": "pure-python", "cache": str(cache.resolve()),
         "workOrderId": APPROVED_WORK_ORDER_ID,
+        "budgetRemaining": APPROVED_BUDGET_REMAINING,
         "lot_number": data["lot_number"], "gap_x": gap_x, "setLeft": set_left,
         "passtime": passtime, "trace_points": len(trace), "biht": biht,
         "fixed_fields": fixed_fields, "lot_rules": lot_rules,

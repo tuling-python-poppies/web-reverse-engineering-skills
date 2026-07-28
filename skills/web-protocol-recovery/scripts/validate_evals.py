@@ -198,6 +198,34 @@ def main() -> int:
             print(f"FAIL {finding}")
         print(f"summary: failures={len(findings)}")
         return 1
+    results_dir = SKILL_ROOT / "evals" / "benchmark-results"
+    results_file = results_dir / "iteration-1-full10.json"
+    acceptance_file = results_dir / "ACCEPTANCE.md"
+    if results_file.is_file() and acceptance_file.is_file():
+        try:
+            results = load_json(results_file)
+        except (OSError, json.JSONDecodeError) as error:
+            findings.append(f"benchmark results unreadable: {error}")
+            print(f"summary: failures={len(findings)}")
+            return 1
+        if results.get("eval_mode") != "full_test":
+            findings.append("benchmark results eval_mode must be full_test")
+        if results.get("summary", {}).get("comparison") != "with_skill_clear_win":
+            findings.append("benchmark results must record with_skill_clear_win for acceptance")
+        cases_ran = results.get("cases") or []
+        if len(cases_ran) < 10:
+            findings.append("benchmark results must cover 10 behavioral cases")
+        if findings:
+            for finding in findings:
+                print(f"FAIL {finding}")
+            print(f"summary: failures={len(findings)}")
+            return 1
+        print(
+            f"PASS route regression evals: cases={len(cases)}; "
+            "behavioral_evals=metadata_ok; trigger_evals=metadata_ok; "
+            "full_model_benchmark=executed_round1_full10"
+        )
+        return 0
     print(
         f"PASS route regression evals: cases={len(cases)}; "
         "behavioral_evals=metadata_ok; trigger_evals=metadata_ok; "

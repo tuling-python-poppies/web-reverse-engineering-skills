@@ -43,6 +43,8 @@ Hash cascade is mandatory after any hash-bound edit: recompute SHA-256 of the ch
 
 Any commit that changes a hash-bound case file, a `minimumIndependentSignals` threshold, `exactScopes`, `negativeSignals`, or case-selection semantics must carry a commit body stating what changed, why, and the verification result (for example the `verify_case_hashes.py` and `preflight.py --strict` outcome). A one-line subject alone is not enough for these high-impact edits, because the threshold or hash change is otherwise invisible in the log. In a Git worktree, `scripts/preflight.py` enforces this for HEAD commits that touch hash-bound case files or registry threshold/scope/exclusion keys.
 
+Historical note: commit `5b37aef` mixed provider-tree migration with the first case schema cascade and used a subject-only message. That history is retained without rewrite; new high-impact case commits must still carry a body, and acceptance is judged on current HEAD plus preflight rather than rewriting that commit.
+
 Historical user attestation does not replace fresh current-target acceptance and never authorizes embedded live requests, dependencies, verifier submission, account state, or raw persistence. New work must use `freshly-verified`; restored historical manifests are read-only except for credential removal, path migration, or integrity repairs explicitly approved by the user.
 
 ## PROCESS.md

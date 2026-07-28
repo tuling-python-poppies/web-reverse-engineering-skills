@@ -7,7 +7,15 @@
     "timeout_seconds": 180,
     "executor_model": "deepseek/deepseek-v4-pro",
     "reviewer_model": "grok/grok-4.5",
-    "network_policy": "browser-network-allowed-but-no-ungated-live-egress"
+    "network_policy": "browser-network-allowed-but-no-ungated-live-egress",
+    "last_executed": {
+      "artifact": "evals/benchmark-results/iteration-1-full10.json",
+      "acceptance": "evals/benchmark-results/ACCEPTANCE.md",
+      "rounds_completed": 1,
+      "prompts": 10,
+      "comparison": "with_skill_clear_win",
+      "eval_mode": "full_test"
+    }
   },
   "evals": [
     {

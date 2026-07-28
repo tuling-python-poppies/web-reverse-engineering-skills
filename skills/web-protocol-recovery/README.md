@@ -15,6 +15,7 @@
 - Tool-family selection/escalation: `references/tool-playbook.md`
 - Case selector: `references/cases/registry.json`
 - Route regression evals: `evals/route-regression.json`
+- Behavioral benchmark results: `evals/benchmark-results/ACCEPTANCE.md`
 
 ## Provider Architecture
 

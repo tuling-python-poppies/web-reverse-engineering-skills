@@ -177,56 +177,224 @@ def read_plan_contract_findings() -> list[str]:
             findings.append(f"read-budget.md missing token: {token}")
 
     whole_task_cap = 24
-    official_chain = [
-        ("initial dispatch", 3, [
-            "README.md",
-            "references/startup-triage-playbook.md",
-            "references/tool-playbook.md",
-        ]),
-        ("provider handoff", 3, [
-            "references/providers/registry.json",
-            "references/methodology/provider-work-order.md",
-            "references/providers/reconnaissance/chromium-recon/PROVIDER.md",
-        ]),
-        ("case selection", 1, [
-            "references/cases/registry.json",
-        ]),
-        ("selected case bundle", 8, [
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/case.json",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/PROCESS.md",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/entry.py",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/tests/test_vectors.py",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/vectors.json",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/request.sample.json",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/response.sample.json",
-            "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/live-proof.summary.json",
-        ]),
-        ("implementation handoff", 3, [
-            "references/providers/implementation/python-node/PROVIDER.md",
-            "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
-            "references/methodology/read-budget.md",
-        ]),
-        ("delivery handoff", 3, [
-            "references/providers/delivery/python-collector/PROVIDER.md",
-            "scripts/providers/delivery/python-collector/scaffold_project.py",
-            "references/report-templates.md",
-        ]),
-        ("write gate", 1, [
-            "references/methodology/case-writeback.md",
-        ]),
+    initial = [
+        "README.md",
+        "references/startup-triage-playbook.md",
+        "references/tool-playbook.md",
     ]
-    distinct_paths: set[str] = set()
-    for name, cap, paths in official_chain:
-        if len(paths) > cap:
-            findings.append(f"read-plan sim window exceeds cap: {name} used={len(paths)} cap={cap}")
-        for rel_path in paths:
-            if not (SKILL_ROOT / rel_path).exists():
-                findings.append(f"read-plan sim path missing: {rel_path}")
-            distinct_paths.add(rel_path)
-    if len(distinct_paths) > whole_task_cap:
-        findings.append(
-            f"read-plan sim exceeds whole-task cap: used={len(distinct_paths)} cap={whole_task_cap}"
-        )
+    registry_handoff = [
+        "references/providers/registry.json",
+        "references/methodology/provider-work-order.md",
+        "references/methodology/read-budget.md",
+    ]
+    case_selection = ["references/cases/registry.json"]
+    delivery = [
+        "references/providers/delivery/python-collector/PROVIDER.md",
+        "scripts/providers/delivery/python-collector/scaffold_project.py",
+        "references/report-templates.md",
+    ]
+    write_gate = ["references/methodology/project-layout.md"]
+    pure_python_case = [
+        "references/cases/pure-python/jd-h5st/case.json",
+        "references/cases/pure-python/jd-h5st/PROCESS.md",
+        "references/cases/pure-python/jd-h5st/entry.py",
+        "references/cases/pure-python/jd-h5st/tests/test_vectors.py",
+        "references/cases/pure-python/jd-h5st/fixtures/vectors.json",
+        "references/cases/pure-python/jd-h5st/fixtures/response.sample.json",
+        "references/cases/pure-python/jd-h5st/fixtures/live-proof.summary.json",
+    ]
+    python_node_case = [
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/case.json",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/PROCESS.md",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/entry.py",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/tests/test_vectors.py",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/vectors.json",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/request.sample.json",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/response.sample.json",
+        "references/cases/python-node/pzds-aliyun-v2-goods-public/fixtures/live-proof.summary.json",
+    ]
+    iv8_case = [
+        "references/cases/iv8/twayair-akamai-availability/case.json",
+        "references/cases/iv8/twayair-akamai-availability/PROCESS.md",
+        "references/cases/iv8/twayair-akamai-availability/entry.py",
+        "references/cases/iv8/twayair-akamai-availability/tests/test_vectors.py",
+        "references/cases/iv8/twayair-akamai-availability/fixtures/vectors.json",
+        "references/cases/iv8/twayair-akamai-availability/fixtures/response.sample.json",
+    ]
+    gt4_case = [
+        "references/cases/iv8/geetest-v4-slider/case.json",
+        "references/cases/iv8/geetest-v4-slider/PROCESS.md",
+        "references/cases/iv8/geetest-v4-slider/entry.py",
+        "references/cases/iv8/geetest-v4-slider/pull_live_state.py",
+    ]
+
+    official_chains = {
+        "evidence-reuse local-proof": [
+            ("initial dispatch", 3, initial),
+            ("provider handoff", 3, registry_handoff),
+            ("case selection", 1, case_selection),
+            ("selected case bundle", 8, pure_python_case),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/pure-python/PROVIDER.md",
+                "references/providers/implementation/pure-python/profiles/douyin-abogus-native.md",
+                "references/methodology/success-shape-scripts.md",
+            ]),
+            ("write gate", 1, write_gate),
+        ],
+        "chromium hooks pure-python collector": [
+            ("initial dispatch", 3, initial),
+            ("recon handoff", 3, [
+                "references/providers/registry.json",
+                "references/methodology/provider-work-order.md",
+                "references/providers/reconnaissance/chromium-recon/PROVIDER.md",
+            ]),
+            ("protocol handoff", 3, [
+                "references/providers/protocol-recovery/browser-hooks/PROVIDER.md",
+                "references/providers/protocol-recovery/browser-hooks/references/network.md",
+                "references/providers/protocol-recovery/browser-hooks/references/crypto.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/pure-python/PROVIDER.md",
+                "references/methodology/success-shape-scripts.md",
+                "references/methodology/read-budget.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "ast env-patch collector": [
+            ("initial dispatch", 3, initial),
+            ("protocol handoff", 3, [
+                "references/providers/registry.json",
+                "references/providers/protocol-recovery/ast/PROVIDER.md",
+                "references/providers/protocol-recovery/ast/references/template-usage.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/python-node/PROVIDER.md",
+                "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
+                "references/providers/implementation/python-node/strategies/env-patch/references/env-modules.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "verifier iv8 collector": [
+            ("initial dispatch", 3, initial),
+            ("verifier handoff", 3, [
+                "references/providers/protocol-recovery/verifier/PROVIDER.md",
+                "references/providers/protocol-recovery/verifier/references/geetest-gt4-workflow.md",
+                "references/providers/protocol-recovery/verifier/references/replay-playbook.md",
+            ]),
+            ("case selection", 1, case_selection),
+            ("selected case bundle", 8, gt4_case),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+                "references/providers/implementation/iv8/references/script-writing-rules.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+        ],
+        "verifier python-node collector": [
+            ("initial dispatch", 3, initial),
+            ("verifier handoff", 3, [
+                "references/providers/protocol-recovery/verifier/PROVIDER.md",
+                "references/providers/protocol-recovery/verifier/references/geetest-gt4-workflow.md",
+                "references/methodology/provider-work-order.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/python-node/PROVIDER.md",
+                "references/providers/implementation/python-node/scripts/gt4_bundle_helper.js",
+                "references/methodology/read-budget.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "verifier pure-python collector": [
+            ("initial dispatch", 3, initial),
+            ("verifier handoff", 3, [
+                "references/providers/protocol-recovery/verifier/PROVIDER.md",
+                "references/providers/protocol-recovery/verifier/references/geetest-gt4-workflow.md",
+                "references/providers/protocol-recovery/verifier/references/slide-captcha-overview.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/pure-python/PROVIDER.md",
+                "references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py",
+                "references/methodology/success-shape-scripts.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "akamai iv8 collector": [
+            ("initial dispatch", 3, initial),
+            ("akamai handoff", 3, [
+                "references/providers/protocol-recovery/akamai/PROVIDER.md",
+                "references/providers/protocol-recovery/akamai/references/workflow.md",
+                "references/providers/protocol-recovery/akamai/references/cookie-state-machine.md",
+            ]),
+            ("case selection", 1, case_selection),
+            ("selected case bundle", 8, iv8_case),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+                "references/providers/implementation/iv8/references/browser-iv8-bridge.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+        ],
+        "river-security iv8 collector": [
+            ("initial dispatch", 3, initial),
+            ("river handoff", 3, [
+                "references/providers/protocol-recovery/river-security/PROVIDER.md",
+                "references/transport-pre-gate-playbook.md",
+                "references/methodology/provider-work-order.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+                "references/providers/implementation/iv8/references/runtime-cheatsheet.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "api-inventory selected case": [
+            ("initial dispatch", 3, initial),
+            ("provider handoff", 3, registry_handoff),
+            ("iv8 api inventory gate", 3, [
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+                "references/providers/implementation/iv8/references/case-ingestion-rules.md",
+            ]),
+            ("case selection", 1, case_selection),
+            ("selected case bundle", 8, iv8_case),
+            ("write gate", 1, write_gate),
+        ],
+        "python-node selected case collector": [
+            ("initial dispatch", 3, initial),
+            ("provider handoff", 3, registry_handoff),
+            ("case selection", 1, case_selection),
+            ("selected case bundle", 8, python_node_case),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/python-node/PROVIDER.md",
+                "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
+                "references/methodology/success-shape-scripts.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+        ],
+    }
+    for chain_name, windows in official_chains.items():
+        distinct_paths: set[str] = set()
+        for window_name, cap, paths in windows:
+            if len(paths) > cap:
+                findings.append(
+                    f"read-plan sim window exceeds cap: {chain_name}/{window_name} "
+                    f"used={len(paths)} cap={cap}"
+                )
+            for rel_path in paths:
+                if not (SKILL_ROOT / rel_path).exists():
+                    findings.append(f"read-plan sim path missing: {chain_name}: {rel_path}")
+                distinct_paths.add(rel_path)
+        if len(distinct_paths) > whole_task_cap:
+            findings.append(
+                f"read-plan sim exceeds whole-task cap: {chain_name} "
+                f"used={len(distinct_paths)} cap={whole_task_cap}"
+            )
     return findings
 
 

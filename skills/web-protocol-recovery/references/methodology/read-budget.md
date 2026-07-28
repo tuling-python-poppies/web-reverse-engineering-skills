@@ -23,6 +23,8 @@ Sequential Providers start a new handoff window only after web-protocol-recovery
 
 Provider work orders carry a `readPlan` object with `window`, `required`, and `optional` paths. Required paths must fit the active window cap before the handoff is issued. Optional paths are blockers, not preloads: the Provider may open at most one optional path only after naming the missing fact and only if the whole-task cap still has room.
 
+`scripts/validate_architecture.py` keeps this contract executable by simulating the official routing chains as explicit path lists, including evidence reuse, Chromium/hooks, AST/env-patch, verifier implementation variants, Akamai, River Security, selected cases, and iv8 API inventory gates. Each simulated chain must reference existing files, keep every window within its cap, and stay within the 24-path whole-task cap after de-duplication.
+
 ## First Load Rules
 
 1. Name the current blocker or success shape before opening any playbook.

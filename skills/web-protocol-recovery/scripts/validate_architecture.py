@@ -279,6 +279,26 @@ def read_plan_contract_findings() -> list[str]:
             ("delivery handoff", 3, delivery),
             ("write gate", 1, write_gate),
         ],
+        "chromium ast env-patch collector": [
+            ("initial dispatch", 3, initial),
+            ("recon handoff", 3, [
+                "references/providers/registry.json",
+                "references/methodology/provider-work-order.md",
+                "references/providers/reconnaissance/chromium-recon/PROVIDER.md",
+            ]),
+            ("protocol handoff", 3, [
+                "references/providers/protocol-recovery/ast/PROVIDER.md",
+                "references/providers/protocol-recovery/ast/references/control-flow-patterns.md",
+                "references/methodology/read-budget.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/python-node/PROVIDER.md",
+                "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
+                "references/providers/implementation/python-node/strategies/env-patch/references/env-modules.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
         "verifier iv8 collector": [
             ("initial dispatch", 3, initial),
             ("verifier handoff", 3, [
@@ -352,6 +372,21 @@ def read_plan_contract_findings() -> list[str]:
                 "references/providers/implementation/iv8/PROVIDER.md",
                 "references/providers/implementation/iv8/references/api-inventory.md",
                 "references/providers/implementation/iv8/references/runtime-cheatsheet.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "river-security env-patch collector": [
+            ("initial dispatch", 3, initial),
+            ("river handoff", 3, [
+                "references/providers/protocol-recovery/river-security/PROVIDER.md",
+                "references/methodology/provider-work-order.md",
+                "references/challenge-state-envelope-playbook.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/python-node/PROVIDER.md",
+                "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
+                "references/providers/implementation/python-node/strategies/env-patch/references/verification-and-replay.md",
             ]),
             ("delivery handoff", 3, delivery),
             ("write gate", 1, write_gate),
@@ -450,42 +485,79 @@ def residue_findings() -> list[str]:
     return findings
 
 
-def python_live_egress_findings(path: Path) -> list[str]:
-    if "delivery" in path.parts:
-        return []
-    if "cases" in path.parts:
-        return []
+HISTORICAL_CASE_LIVE_ALLOWLIST = (
+    SKILL_ROOT / "references" / "cases" / "historical-live-egress.json"
+)
+
+
+def historical_case_live_paths() -> set[str]:
+    if not HISTORICAL_CASE_LIVE_ALLOWLIST.is_file():
+        return set()
+    data = load_json(HISTORICAL_CASE_LIVE_ALLOWLIST)
+    return {str(item).replace("\\", "/") for item in data.get("paths", [])}
+
+
+def _python_http_call_lines(path: Path) -> list[int]:
     try:
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
     except SyntaxError:
         return []
-    findings: list[str] = []
+    lines: list[int] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             target = node.func
-            if isinstance(target, ast.Attribute) and target.attr in {"get", "post", "put", "delete", "patch", "request"}:
+            if isinstance(target, ast.Attribute) and target.attr in {
+                "get",
+                "post",
+                "put",
+                "delete",
+                "patch",
+                "request",
+            }:
                 base = target.value
                 name = base.id if isinstance(base, ast.Name) else None
                 if name in {"requests", "session", "httpx", "client"}:
-                    findings.append(f"{rel(path)}: possible non-delivery live HTTP call at line {node.lineno}")
-    return findings
+                    lines.append(node.lineno)
+    return lines
+
+
+def python_live_egress_findings(path: Path, allowlist: set[str] | None = None) -> list[str]:
+    if "delivery" in path.parts:
+        return []
+    lines = _python_http_call_lines(path)
+    if not lines:
+        return []
+    if "cases" in path.parts:
+        path_key = rel(path)
+        allowed = allowlist if allowlist is not None else historical_case_live_paths()
+        if path_key in allowed:
+            return []
+        return [
+            f"{path_key}: case live HTTP at line {lines[0]} is not delivery-owned and "
+            "not listed in references/cases/historical-live-egress.json"
+        ]
+    return [
+        f"{rel(path)}: possible non-delivery live HTTP call at line {line}" for line in lines
+    ]
 
 
 def live_egress_findings() -> list[str]:
     findings: list[str] = []
+    allowlist = historical_case_live_paths()
+    if not allowlist:
+        findings.append("missing or empty references/cases/historical-live-egress.json")
+    for path_key in sorted(allowlist):
+        if not (SKILL_ROOT / path_key).is_file():
+            findings.append(f"historical live-egress allowlist path missing: {path_key}")
     for path in SKILL_ROOT.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
             continue
         if set(path.parts) & RESIDUE_NAMES:
             continue
-        if "cases" in path.parts:
-            continue
         if path.suffix.lower() == ".py":
-            findings.extend(python_live_egress_findings(path))
+            findings.extend(python_live_egress_findings(path, allowlist=allowlist))
             continue
-        if "delivery" in path.parts:
-            continue
-        if "env" in path.parts:
+        if "delivery" in path.parts or "cases" in path.parts or "env" in path.parts:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         if NETWORK_JS.search(text):

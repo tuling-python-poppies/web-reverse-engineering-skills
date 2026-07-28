@@ -18,7 +18,12 @@
       "site:chng"
     ],
     "minimumIndependentSignals": 3,
-    "negativeSignals": []
+    "negativeSignals": [
+      "site:chinatax",
+      "site:customs",
+      "site:cqvip",
+      "version:6"
+    ]
   },
   "protocolPatterns": [
     "vendor:river-security",

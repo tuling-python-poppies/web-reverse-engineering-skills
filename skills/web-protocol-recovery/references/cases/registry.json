@@ -58,7 +58,14 @@
                     "cookie:client-T-suffix"
                 ],
                 "minimumIndependentSignals": 3,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "site:cqvip",
+                    "site:chinatax",
+                    "site:chng",
+                    "site:customs",
+                    "flow:search-replay",
+                    "runtime:iv8"
+                ]
             },
             "providerPlan": [
                 {
@@ -74,7 +81,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
-                "sha256": "9ea26e3c72235dd2f5ac0a17179e361437eea08ddbfaadfc025c21e7c4e08b35"
+                "sha256": "68f91836d0dac2137f9bc613f855e780f683bdbd97aad0cdf44ca7a0fef1154b"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -266,7 +273,12 @@
                     "site:chinatax"
                 ],
                 "minimumIndependentSignals": 3,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "site:chng",
+                    "site:customs",
+                    "site:cqvip",
+                    "version:6"
+                ]
             },
             "providerPlan": [
                 {
@@ -288,7 +300,7 @@
             ],
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
-                "sha256": "ef089ca1f6ee5c660586f4910749381059d107896825beb49f9cc654aca86c70"
+                "sha256": "15ba6da6741cd3b4806a9207336a3c583241c9b4f6f19de0c6ec50de895b329a"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -327,7 +339,12 @@
                     "site:chng"
                 ],
                 "minimumIndependentSignals": 3,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "site:chinatax",
+                    "site:customs",
+                    "site:cqvip",
+                    "version:6"
+                ]
             },
             "providerPlan": [
                 {
@@ -349,7 +366,7 @@
             ],
             "manifest": {
                 "path": "iv8/chng-ruishu-announcement/case.json",
-                "sha256": "730f9b90e8830a199738851290d3d5a38c2b0af9fbd6ba80d3f3d687a3ea62c9"
+                "sha256": "06ad4e7be78ae050f52226fd3942423444edca7739e72a91593f2c97220c64b9"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -391,7 +408,14 @@
                     "site:cqvip"
                 ],
                 "minimumIndependentSignals": 3,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "version:6",
+                    "cookie:client-T-suffix",
+                    "runtime:python-node",
+                    "site:chinatax",
+                    "site:chng",
+                    "site:customs"
+                ]
             },
             "providerPlan": [
                 {
@@ -413,7 +437,7 @@
             ],
             "manifest": {
                 "path": "iv8/cqvip-journal-search/case.json",
-                "sha256": "8e30e9f35426cb4778346d0f45a092d90e62aaa2cca7d977b8b979f74c8c5302"
+                "sha256": "2b8af405ddbde651982d2eab126ce8db954bb0a1d6f2a0c2ffcb7b9225a96b26"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -452,7 +476,12 @@
                     "site:customs"
                 ],
                 "minimumIndependentSignals": 3,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "site:chinatax",
+                    "site:chng",
+                    "site:cqvip",
+                    "version:6"
+                ]
             },
             "providerPlan": [
                 {
@@ -474,7 +503,7 @@
             ],
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
-                "sha256": "c9955725167195e8036660cfc921434fd911aef1e5fea328a7962d8e5ee0a23d"
+                "sha256": "e6c71edd116070858c5f90f1ad4f4be513a3836fca7616d192cd321fa80b6848"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

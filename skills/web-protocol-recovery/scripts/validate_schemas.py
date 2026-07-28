@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS = ROOT / "references" / "schemas"
+WORK_ORDER_DOC = ROOT / "references" / "methodology" / "provider-work-order.md"
 
 
 def load_schema(name: str) -> dict:
@@ -25,36 +26,83 @@ def load_schema(name: str) -> dict:
 VALID_WORK_ORDER = {
     "schemaVersion": "web-protocol-recovery-provider-work-order/v2",
     "workOrderId": "wo-test",
-    "shape": "collector",
-    "gateFamily": "verifier",
-    "activeProvider": {"id": "python-collector", "role": "delivery"},
-    "protocolOwner": "verifier",
-    "deliveryProvider": "python-collector",
+    "shape": "evidence",
+    "gateFamily": "signer",
+    "activeProvider": {"id": "chromium-recon", "role": "reconnaissance", "strategy": None, "profile": None},
+    "protocolOwner": None,
+    "implementation": None,
+    "deliveryProvider": None,
+    "caseId": None,
     "authorization": {
-        "liveReplayAllowed": True,
-        "actionClass": "verifier-submit",
+        "authorizationBasis": "public-unauthenticated",
         "allowedHostsAndRoutes": [
             {
+                "scopeId": "primary",
                 "scheme": "https",
-                "host": "gcaptcha4.geetest.com",
+                "host": "example.com",
                 "port": 443,
-                "routePrefix": "/load",
-                "queryPolicy": {"mode": "allow-listed", "allowedKeys": ["captcha_id", "callback"]},
+                "routePrefix": "/api",
+                "queryPolicy": {"mode": "deny", "allowedKeys": [], "allowedValues": {}},
             }
         ],
-        "requestBudget": {"remaining": 5, "maxRequests": 5, "redirects": 0, "retries": 0, "concurrency": 1},
-        "artifactPolicy": {
-            "mode": "allowlisted-raw",
-            "repositoryExcluded": True,
-            "approvedRawFields": ["gt4.load.json"],
-            "retentionDeadline": "2026-08-01T00:00:00Z",
+        "actionClass": "read-only",
+        "accountOrSessionUse": "none",
+        "browserReconAllowed": False,
+        "browserNavigationSideEffectsApproved": False,
+        "liveReplayAllowed": False,
+        "requestBudget": {
+            "total": 0,
+            "remaining": 0,
+            "minDelayMs": 0,
+            "concurrency": 1,
+            "automaticObservationStopThreshold": 0,
+            "observedAutomatic": {
+                "total": 0,
+                "byKind": {
+                    "redirect": 0,
+                    "subresource": 0,
+                    "xhrFetch": 0,
+                    "beaconPing": 0,
+                    "eventSource": 0,
+                    "websocket": 0,
+                },
+                "destinations": [],
+            },
         },
-        "executionPolicy": {"targetCodeExecution": "blocked", "approvedCodeSha256": []},
+        "artifactPolicy": {
+            "mode": "metadata-only",
+            "approvedRawFields": [],
+            "retentionDeadline": "none",
+            "repositoryExcluded": True,
+        },
+        "executionPolicy": {
+            "targetCodeExecution": "blocked",
+            "approvedCodeSha256": [],
+            "dependencyInstall": "blocked",
+            "approvedCommands": [],
+            "approvalEvidence": "none",
+            "approvalDeadline": "none",
+        },
     },
-    "project": {"projectRoot": "C:/tmp/wpr", "allowedPaths": ["js_reverse_cache"], "writeMode": "create-only"},
-    "readPlan": {"maxDistinctPaths": 24, "windows": [{"name": "initial", "paths": ["SKILL.md"]}]},
-    "acceptanceTest": "semantic body shape and cleanup complete",
-    "runtimeCustody": {"owner": "python-collector", "cleanupRequired": True},
+    "project": {
+        "projectRoot": "none",
+        "layout": "web-protocol-recovery-simple",
+        "writeMode": "no-write",
+        "allowedPaths": [],
+    },
+    "readPlan": {
+        "window": "handoff",
+        "required": ["references/providers/reconnaissance/chromium-recon/PROVIDER.md"],
+        "optional": [],
+    },
+    "inputs": [],
+    "requiredOutputs": ["one precise blocker or evidence"],
+    "acceptanceTest": "return bounded offline evidence",
+    "runtimeCustody": {
+        "providerOwnsBrowser": False,
+        "providerOwnsWorker": False,
+        "providerOwnsLease": False,
+    },
     "runtimeIds": [],
 }
 
@@ -62,11 +110,14 @@ VALID_WORK_ORDER = {
 VALID_RESULT = {
     "schemaVersion": "web-protocol-recovery-provider-result/v2",
     "workOrderId": "wo-test",
-    "provider": {"id": "python-collector", "role": "delivery"},
-    "shape": "collector",
-    "gateFamily": "verifier",
+    "provider": {"id": "chromium-recon", "role": "reconnaissance", "strategy": None, "profile": None},
+    "protocolOwner": None,
+    "shape": "evidence",
+    "gateFamily": "signer",
     "status": "complete",
-    "verification": {"fixedVectorPass": True, "liveReplayPass": True, "semanticSuccess": True},
+    "artifactBoundary": None,
+    "artifacts": [],
+    "verification": {"fixedVectorPass": True, "liveReplayPass": False, "semanticSuccess": True},
     "requestBudget": {"remaining": 0},
     "execution": {"targetCodeExecution": "blocked"},
     "runtimeIds": [],
@@ -90,6 +141,19 @@ def expect_invalid(validator: Draft202012Validator, value: dict, label: str) -> 
     return [f"{label}: expected invalid but passed"]
 
 
+def doc_example_findings(work_order: Draft202012Validator) -> list[str]:
+    text = WORK_ORDER_DOC.read_text(encoding="utf-8")
+    start = text.find("```json")
+    end = text.find("```", start + 7)
+    if start < 0 or end < 0:
+        return ["provider-work-order.md missing JSON example"]
+    try:
+        example = json.loads(text[start + 7 : end])
+    except json.JSONDecodeError as error:
+        return [f"provider-work-order.md example is not valid JSON: {error}"]
+    return expect_valid(work_order, example, "provider-work-order.md example")
+
+
 def main() -> int:
     failures: list[str] = []
     work_order = Draft202012Validator(load_schema("provider-work-order-v2.schema.json"))
@@ -97,15 +161,31 @@ def main() -> int:
     Draft202012Validator.check_schema(load_schema("case-v2.schema.json"))
     Draft202012Validator.check_schema(load_schema("case-registry-v2.schema.json"))
 
-    failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid work order"))
+    failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid offline work order"))
+    failures.extend(doc_example_findings(work_order))
+
     missing_query_policy = copy.deepcopy(VALID_WORK_ORDER)
     del missing_query_policy["authorization"]["allowedHostsAndRoutes"][0]["queryPolicy"]
     failures.extend(expect_invalid(work_order, missing_query_policy, "missing queryPolicy"))
-    missing_project_bounds = copy.deepcopy(VALID_WORK_ORDER)
-    missing_project_bounds["project"].pop("allowedPaths")
-    failures.extend(expect_invalid(work_order, missing_project_bounds, "missing project.allowedPaths"))
+
+    bad_write_mode = copy.deepcopy(VALID_WORK_ORDER)
+    bad_write_mode["project"]["writeMode"] = "none"
+    failures.extend(expect_invalid(work_order, bad_write_mode, "invalid writeMode none"))
+
+    bad_read_plan = copy.deepcopy(VALID_WORK_ORDER)
+    bad_read_plan["readPlan"] = {"maxDistinctPaths": 24, "windows": []}
+    failures.extend(expect_invalid(work_order, bad_read_plan, "legacy readPlan shape"))
+
+    remaining_gt_total = copy.deepcopy(VALID_WORK_ORDER)
+    remaining_gt_total["authorization"]["requestBudget"] = {"total": 1, "remaining": 2}
+    # schema alone cannot enforce remaining<=total; fixture still validates shape
+    failures.extend(expect_valid(work_order, remaining_gt_total, "budget shape still valid"))
+
     bad_hash = copy.deepcopy(VALID_WORK_ORDER)
-    bad_hash["authorization"]["executionPolicy"] = {"targetCodeExecution": "approved-reviewed-hash", "approvedCodeSha256": ["bad"]}
+    bad_hash["authorization"]["executionPolicy"] = {
+        "targetCodeExecution": "approved-reviewed-hash",
+        "approvedCodeSha256": ["bad"],
+    }
     failures.extend(expect_invalid(work_order, bad_hash, "invalid approvedCodeSha256"))
 
     failures.extend(expect_valid(result, VALID_RESULT, "valid provider result"))
@@ -118,8 +198,8 @@ def main() -> int:
 
     if failures:
         print("== schema contract ==")
-        for failure in failures:
-            print(f"FAIL {failure}")
+        for item in failures:
+            print(f"FAIL {item}")
         print(f"summary: failures={len(failures)}")
         return 1
     print("== schema contract ==")

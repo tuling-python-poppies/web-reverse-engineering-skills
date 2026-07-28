@@ -19,7 +19,14 @@
       "cookie:client-T-suffix"
     ],
     "minimumIndependentSignals": 3,
-    "negativeSignals": []
+    "negativeSignals": [
+      "site:cqvip",
+      "site:chinatax",
+      "site:chng",
+      "site:customs",
+      "flow:search-replay",
+      "runtime:iv8"
+    ]
   },
   "protocolPatterns": [
     "vendor:river-security",

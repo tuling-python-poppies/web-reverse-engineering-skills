@@ -10,8 +10,12 @@
     "workOrderId": {"type": "string", "minLength": 1},
     "shape": {"enum": ["evidence", "local-proof", "compact-replay", "collector"]},
     "gateFamily": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
-    "secondaryGates": {"type": "array", "items": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]}, "uniqueItems": true},
-    "canonicalMutationPoint": {"type": "string"},
+    "secondaryGates": {
+      "type": "array",
+      "items": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
+      "uniqueItems": true
+    },
+    "canonicalMutationPoint": {"type": ["string", "null"]},
     "activeProvider": {"$ref": "#/$defs/providerRef"},
     "protocolOwner": {"type": ["string", "null"]},
     "implementation": {
@@ -29,9 +33,13 @@
       "type": "object",
       "required": ["liveReplayAllowed", "actionClass", "allowedHostsAndRoutes", "requestBudget", "artifactPolicy", "executionPolicy"],
       "properties": {
+        "authorizationBasis": {"type": "string"},
         "liveReplayAllowed": {"type": "boolean"},
         "actionClass": {"enum": ["none", "read-only", "verifier-submit", "mutation-submit"]},
-        "allowedHostsAndRoutes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeScope"}},
+        "accountOrSessionUse": {"type": "string"},
+        "browserReconAllowed": {"type": "boolean"},
+        "browserNavigationSideEffectsApproved": {"type": "boolean"},
+        "allowedHostsAndRoutes": {"type": "array", "items": {"$ref": "#/$defs/routeScope"}},
         "requestBudget": {"$ref": "#/$defs/requestBudget"},
         "artifactPolicy": {"$ref": "#/$defs/artifactPolicy"},
         "executionPolicy": {"$ref": "#/$defs/executionPolicy"}
@@ -39,25 +47,35 @@
     },
     "project": {
       "type": "object",
-      "required": ["projectRoot", "allowedPaths", "writeMode"],
+      "required": ["projectRoot", "layout", "writeMode", "allowedPaths"],
       "properties": {
         "projectRoot": {"type": "string", "minLength": 1},
-        "allowedPaths": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
-        "writeMode": {"enum": ["none", "read-only", "create-only", "modify-allowlisted"]}
+        "layout": {"const": "web-protocol-recovery-simple"},
+        "writeMode": {"enum": ["no-write", "create-only", "modify-allowlisted"]},
+        "allowedPaths": {"type": "array", "items": {"type": "string"}}
       }
     },
     "readPlan": {
       "type": "object",
-      "required": ["maxDistinctPaths", "windows"],
+      "required": ["window", "required", "optional"],
       "properties": {
-        "maxDistinctPaths": {"type": "integer", "minimum": 1, "maximum": 24},
-        "windows": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "paths"], "properties": {"name": {"type": "string", "minLength": 1}, "paths": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}}}}
+        "window": {"type": "string", "minLength": 1},
+        "required": {"type": "array", "items": {"type": "string"}},
+        "optional": {"type": "array", "items": {"type": "string"}}
       }
     },
     "inputs": {"type": "array"},
     "requiredOutputs": {"type": "array"},
     "acceptanceTest": {"type": "string", "minLength": 1},
-    "runtimeCustody": {"type": "object", "required": ["owner", "cleanupRequired"], "properties": {"owner": {"type": "string", "minLength": 1}, "cleanupRequired": {"type": "boolean"}}},
+    "runtimeCustody": {
+      "type": "object",
+      "required": ["providerOwnsBrowser", "providerOwnsWorker", "providerOwnsLease"],
+      "properties": {
+        "providerOwnsBrowser": {"type": "boolean"},
+        "providerOwnsWorker": {"type": "boolean"},
+        "providerOwnsLease": {"type": "boolean"}
+      }
+    },
     "runtimeIds": {"type": "array", "items": {"type": "string"}}
   },
   "$defs": {
@@ -75,6 +93,7 @@
       "type": "object",
       "required": ["scheme", "host", "port", "routePrefix", "queryPolicy"],
       "properties": {
+        "scopeId": {"type": "string"},
         "scheme": {"enum": ["http", "https"]},
         "host": {"type": "string", "minLength": 1},
         "port": {"type": "integer", "minimum": 1, "maximum": 65535},
@@ -93,14 +112,18 @@
     },
     "requestBudget": {
       "type": "object",
-      "required": ["remaining", "maxRequests"],
+      "required": ["total", "remaining"],
       "properties": {
+        "total": {"type": "integer", "minimum": 0},
         "remaining": {"type": "integer", "minimum": 0},
+        "minDelayMs": {"type": "integer", "minimum": 0},
+        "concurrency": {"type": "integer", "minimum": 1},
+        "automaticObservationStopThreshold": {"type": "integer", "minimum": 0},
+        "observedAutomatic": {"type": "object"},
         "maxRequests": {"type": "integer", "minimum": 0},
         "redirects": {"type": "integer", "minimum": 0},
         "retries": {"type": "integer", "minimum": 0},
-        "responseByteCap": {"type": "integer", "minimum": 0},
-        "concurrency": {"type": "integer", "minimum": 1}
+        "responseByteCap": {"type": "integer", "minimum": 0}
       }
     },
     "artifactPolicy": {
@@ -108,7 +131,7 @@
       "required": ["mode", "repositoryExcluded", "approvedRawFields", "retentionDeadline"],
       "properties": {
         "mode": {"enum": ["metadata-only", "allowlisted-raw"]},
-        "repositoryExcluded": {"const": true},
+        "repositoryExcluded": {"type": "boolean"},
         "approvedRawFields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
         "retentionDeadline": {"type": "string", "minLength": 1}
       }
@@ -118,7 +141,15 @@
       "required": ["targetCodeExecution"],
       "properties": {
         "targetCodeExecution": {"enum": ["blocked", "local-only", "approved-reviewed-hash"]},
-        "approvedCodeSha256": {"type": "array", "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "uniqueItems": true}
+        "approvedCodeSha256": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "uniqueItems": true
+        },
+        "dependencyInstall": {"type": "string"},
+        "approvedCommands": {"type": "array", "items": {"type": "string"}},
+        "approvalEvidence": {"type": "string"},
+        "approvalDeadline": {"type": "string"}
       }
     }
   }

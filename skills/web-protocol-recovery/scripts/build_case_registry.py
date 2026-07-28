@@ -79,16 +79,44 @@ def rows_disambiguated(left: dict, right: dict) -> bool:
     return bool(left_negative & right_signals) or bool(right_negative & left_signals)
 
 
+def minimum_signals(row: dict) -> int:
+    try:
+        return int(row.get("match", {}).get("minimumIndependentSignals", 2))
+    except (TypeError, ValueError):
+        return 2
+
+
+def signal_sets_ambiguous(left: dict, right: dict) -> bool:
+    left_signals = signal_set(left, "signals")
+    right_signals = signal_set(right, "signals")
+    if not left_signals or not right_signals:
+        return False
+    shared = left_signals & right_signals
+    threshold = max(minimum_signals(left), minimum_signals(right))
+    return len(shared) >= threshold
+
+
 def ambiguity_findings(rows: list[dict]) -> list[str]:
     findings: list[str] = []
     for index, left in enumerate(rows):
-        for right in rows[index + 1:]:
+        for right in rows[index + 1 :]:
             if left["family"] != right["family"]:
                 continue
-            if not any(scopes_overlap(l_scope, r_scope) for l_scope in left["exactScopes"] for r_scope in right["exactScopes"]):
+            scope_overlap = any(
+                scopes_overlap(l_scope, r_scope)
+                for l_scope in left["exactScopes"]
+                for r_scope in right["exactScopes"]
+            )
+            signal_overlap = signal_sets_ambiguous(left, right)
+            if not scope_overlap and not signal_overlap:
                 continue
-            if not rows_disambiguated(left, right):
-                findings.append(f"ambiguous exactScopes without negative-signal discriminator: {left['caseId']} <-> {right['caseId']}")
+            if rows_disambiguated(left, right):
+                continue
+            kind = "exactScopes" if scope_overlap else "minimum-signal set"
+            findings.append(
+                f"ambiguous {kind} without negative-signal discriminator: "
+                f"{left['caseId']} <-> {right['caseId']}"
+            )
     return findings
 
 

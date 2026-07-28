@@ -21,7 +21,14 @@
       "site:cqvip"
     ],
     "minimumIndependentSignals": 3,
-    "negativeSignals": []
+    "negativeSignals": [
+      "version:6",
+      "cookie:client-T-suffix",
+      "runtime:python-node",
+      "site:chinatax",
+      "site:chng",
+      "site:customs"
+    ]
   },
   "protocolPatterns": [
     "vendor:river-security",

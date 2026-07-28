@@ -198,7 +198,11 @@ def main() -> int:
             print(f"FAIL {finding}")
         print(f"summary: failures={len(findings)}")
         return 1
-    print(f"PASS route regression evals: cases={len(cases)}; behavioral_evals=ok; trigger_evals=ok")
+    print(
+        f"PASS route regression evals: cases={len(cases)}; "
+        "behavioral_evals=metadata_ok; trigger_evals=metadata_ok; "
+        "full_model_benchmark=deferred"
+    )
     return 0
 
 

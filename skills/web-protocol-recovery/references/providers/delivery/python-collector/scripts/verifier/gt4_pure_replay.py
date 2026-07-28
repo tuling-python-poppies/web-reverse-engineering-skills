@@ -62,9 +62,10 @@ def require_live_verify_approval(target_url):
 def live_get(session, url, **kwargs):
     target_url = prepared_get_url(url, kwargs.get("params"))
     require_live_verify_approval(target_url)
-    kwargs.setdefault("allow_redirects", False)
+    # Force-closed: callers cannot re-enable redirects to skip hop-by-hop scope/budget checks.
+    kwargs["allow_redirects"] = False
     response = session.get(url, **kwargs)
-    if response.is_redirect:
+    if response.is_redirect or 300 <= int(response.status_code) < 400:
         location = response.headers.get("location", "")
         raise RuntimeError(f"live verifier redirect denied without explicit work-order hop: {location}")
     return response
@@ -252,6 +253,19 @@ def validate_work_order(path, cache_root):
         remaining_budget = 0
     if remaining_budget < 5:
         errors.append("authorization.requestBudget.remaining must be at least 5")
+    try:
+        total_budget = int(budget.get("total", budget.get("maxRequests", -1)))
+    except (TypeError, ValueError):
+        total_budget = -1
+    if total_budget < 0:
+        errors.append("authorization.requestBudget.total or maxRequests is required")
+    elif remaining_budget > total_budget:
+        errors.append("authorization.requestBudget.remaining cannot exceed total/maxRequests")
+    write_mode = str(project.get("writeMode") or "")
+    if write_mode not in {"create-only", "modify-allowlisted"}:
+        errors.append("project.writeMode must allow cache writes (create-only or modify-allowlisted)")
+    if project.get("projectRoot") in {None, "", "none"}:
+        errors.append("project.projectRoot must be an absolute project path for live GT4")
     if artifact_policy.get("repositoryExcluded") is not True:
         errors.append("authorization.artifactPolicy.repositoryExcluded must be true")
     if artifact_policy.get("mode") == "metadata-only":

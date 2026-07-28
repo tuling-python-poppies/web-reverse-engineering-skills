@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
-SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "<http://", "<https://")
+SKIP_PREFIXES = ("http://", "https://", "mailto:", "<http://", "<https://")
 
 
 def slug(text: str) -> str:
@@ -50,6 +50,9 @@ def validate_file(path: Path) -> list[str]:
         if raw.startswith(SKIP_PREFIXES):
             continue
         target_path, target_anchor = split_target(raw)
+        # Same-file anchors: `[text](#heading)`
+        if raw.startswith("#"):
+            target_path, target_anchor = "", raw[1:]
         if target_path and not (
             target_path.startswith(("./", "../", "/"))
             or "/" in target_path
@@ -67,7 +70,7 @@ def validate_file(path: Path) -> list[str]:
         except ValueError:
             findings.append(f"{path.relative_to(ROOT).as_posix()}: link escapes skill root: {raw}")
             continue
-        if not target_file.exists():
+        if target_path and not target_file.exists():
             findings.append(f"{path.relative_to(ROOT).as_posix()}: missing link target: {raw}")
             continue
         if target_anchor and target_file.suffix.lower() == ".md":

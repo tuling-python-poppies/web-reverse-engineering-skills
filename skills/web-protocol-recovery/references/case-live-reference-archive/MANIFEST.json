@@ -1,0 +1,121 @@
+{
+  "policy": "Read-only historical implementations restored from git f19f82c~1 (before offline-only rewrite). Not delivery. Not imported by case entry. Final live egress: project main.py + python-collector.",
+  "source": "f19f82c~1",
+  "offlineOnlyCommit": "f19f82c",
+  "files": [
+    {
+      "caseRelative": "iv8/bangkokair-reese84-booking/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/bangkokair-reese84-booking/entry.py",
+      "sha256": "ece393d1c06dc277de520abf68b0a62d43e5c78c067bafd80edb80049d31e734",
+      "bytes": 13726
+    },
+    {
+      "caseRelative": "iv8/bangkokair-reese84-booking/lib/challenge_discover.py",
+      "archivePath": "references/case-live-reference-archive/iv8/bangkokair-reese84-booking/lib/challenge_discover.py",
+      "sha256": "0ae156057872903764668e8ce0e82f65364af10dd701ae39694c4584d34c2bad",
+      "bytes": 3732
+    },
+    {
+      "caseRelative": "iv8/bangkokair-reese84-booking/lib/http_session.py",
+      "archivePath": "references/case-live-reference-archive/iv8/bangkokair-reese84-booking/lib/http_session.py",
+      "sha256": "9ad34b6fd9f19d42f396fe450137f5843cd23b7370648b0a61565e8ebb55d238",
+      "bytes": 1233
+    },
+    {
+      "caseRelative": "iv8/bangkokair-reese84-booking/lib/reese_iv8.py",
+      "archivePath": "references/case-live-reference-archive/iv8/bangkokair-reese84-booking/lib/reese_iv8.py",
+      "sha256": "1b56ce6304fcd5b616209505c48a3be33d83da3bc4f722c7fcab0f3b88f6a0af",
+      "bytes": 42299
+    },
+    {
+      "caseRelative": "iv8/chinatax-ruishu/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/chinatax-ruishu/entry.py",
+      "sha256": "8b4f85eaf2a2063dba448d38f8aba8303f8b106973a14a8091ea7ebecb5c35fb",
+      "bytes": 6410
+    },
+    {
+      "caseRelative": "iv8/chng-ruishu-announcement/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/chng-ruishu-announcement/entry.py",
+      "sha256": "d5d69ab0073a381491a765db8a27da803fa12e50791c5febe201d66ae55a9340",
+      "bytes": 10857
+    },
+    {
+      "caseRelative": "iv8/cqvip-journal-search/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/cqvip-journal-search/entry.py",
+      "sha256": "bd0d6ebbf0b42412ab165a3a7616403f25bc550c2047af9fb490cc87f4ab9413",
+      "bytes": 8828
+    },
+    {
+      "caseRelative": "iv8/customs-ruishu/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/customs-ruishu/entry.py",
+      "sha256": "d3771cb093754c6456e440759f0147124262593a16fc493e305031a0867c2457",
+      "bytes": 6383
+    },
+    {
+      "caseRelative": "iv8/douyin-bdms/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/douyin-bdms/entry.py",
+      "sha256": "576a2d21742812459d5da8f14dbcf572033de836883f62ad9455993ebb5a5235",
+      "bytes": 5245
+    },
+    {
+      "caseRelative": "iv8/geetest-v4-slider/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/geetest-v4-slider/entry.py",
+      "sha256": "c6d499c9bd75a16a5ec238fb4702fabd2624508289e7b4f8dddf0c4241c5db68",
+      "bytes": 10500
+    },
+    {
+      "caseRelative": "iv8/geetest-v4-word-click/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/geetest-v4-word-click/entry.py",
+      "sha256": "761eb9041e17b9e93385823263eb20f8f3a8458da3b8734e70341fd69ac5c1af",
+      "bytes": 15913
+    },
+    {
+      "caseRelative": "iv8/jd-h5st/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/jd-h5st/entry.py",
+      "sha256": "3bf74903c856fe3fb4b1bf5575be668bcecea6cbf12404f1a8818fc91b218601",
+      "bytes": 10181
+    },
+    {
+      "caseRelative": "iv8/nmpa-md5-cookie/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/nmpa-md5-cookie/entry.py",
+      "sha256": "b0bdd339a2eeb310fe172cc92e75433bfb955ac6366ad88d4abaf0edd9a35413",
+      "bytes": 4649
+    },
+    {
+      "caseRelative": "iv8/ouyeel-202-cookie-url/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/ouyeel-202-cookie-url/entry.py",
+      "sha256": "45e3424a02682b16d55aa7fa4bbcd687a255054a2871bdf99274020597b49265",
+      "bytes": 5648
+    },
+    {
+      "caseRelative": "iv8/pdd-anti-content/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/pdd-anti-content/entry.py",
+      "sha256": "43a475837f28f8c2bbc689c8c6a55b1941ded20765831ffb90a1e0d5b6812e01",
+      "bytes": 6850
+    },
+    {
+      "caseRelative": "iv8/tencent-tdc-slider/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/tencent-tdc-slider/entry.py",
+      "sha256": "bb668954ae9d25f67ffdb116f753ce59b854c14dcb4734b36873d11c80ecb24c",
+      "bytes": 15020
+    },
+    {
+      "caseRelative": "iv8/xhs-homefeed/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/xhs-homefeed/entry.py",
+      "sha256": "f657c8ac9d027b9aa86b6893c59169b44e3b56cdb17879ac683df94a71cf7895",
+      "bytes": 12296
+    },
+    {
+      "caseRelative": "iv8/zhipin-stoken/entry.py",
+      "archivePath": "references/case-live-reference-archive/iv8/zhipin-stoken/entry.py",
+      "sha256": "5d49636131a105e153a9d5adc4a22424ca10c2cc8c76bf391b7fc284391817e4",
+      "bytes": 7532
+    },
+    {
+      "caseRelative": "pure-python/jd-h5st/entry.py",
+      "archivePath": "references/case-live-reference-archive/pure-python/jd-h5st/entry.py",
+      "sha256": "d27c15d05020fbcd59594d1e2ffd85560a2aa28373565a3882a60847f449cfba",
+      "bytes": 11006
+    }
+  ]
+}

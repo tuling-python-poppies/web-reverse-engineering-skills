@@ -64,7 +64,7 @@
     "assets": [],
     "entry": {
       "path": "entry.py",
-      "sha256": "50005b760e9dbc57c0f961fd43a62a87b2a47f2db26f89e470f620e574b45711"
+      "sha256": "c08a80e913ec4a30b437d8af909092f8ebf459b5ae3d7accc35ce5008f8f832d"
     }
   },
   "verification": {

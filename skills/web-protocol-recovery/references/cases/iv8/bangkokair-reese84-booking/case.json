@@ -125,20 +125,20 @@
       },
       {
         "path": "lib/http_session.py",
-        "sha256": "30710198c79d226e57ba99b860057994856c5a9cf9fc5ee51834c72329c11091"
+        "sha256": "9130e1252c8ad1813b1745e9aef18286c59ff1d986562901e329fe3fde00e470"
       },
       {
         "path": "lib/challenge_discover.py",
-        "sha256": "39bcb878a8f364beb8c25863e8dd96a57efb88b1ed390d3ee66ddd7fe617b7fa"
+        "sha256": "e02c3407b39c4fbf40eac88f341acdb148ef4e14ba5152e093ecd869a50cac51"
       },
       {
         "path": "lib/reese_iv8.py",
-        "sha256": "216f5672ea11418a2987e1c1bc559f133427f7feffc7b29674ad6c5c871b5302"
+        "sha256": "e2f097c0ce8b097e0656dcca88d8117419ba7866584996464bd88d4de1d293a5"
       }
     ],
     "entry": {
       "path": "entry.py",
-      "sha256": "3a120a90bc0c6cae23999d982135753ba21a39dcb24db456ca54dc8d4feafc13"
+      "sha256": "5c72638f751d4431be71e03c45fe51151539f66045e4138e44c13e8932d00902"
     }
   },
   "verification": {

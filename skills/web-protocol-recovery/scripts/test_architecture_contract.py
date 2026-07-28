@@ -57,6 +57,16 @@ class ArchitectureContractTests(unittest.TestCase):
             self.assertTrue(findings)
             self.assertIn("non-delivery live HTTP", findings[0])
 
+    def test_case_live_reference_archive_is_study_only(self) -> None:
+        archive = validate_architecture.SKILL_ROOT / "references" / "case-live-reference-archive"
+        with tempfile.TemporaryDirectory(dir=archive) as tmp:
+            path = Path(tmp) / "entry.py"
+            path.write_text(
+                "import requests\n\ndef main():\n    requests.get('https://example.com')\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(validate_architecture.python_live_egress_findings(path), [])
+
     def test_current_case_entries_are_offline(self) -> None:
         path = (
             validate_architecture.SKILL_ROOT

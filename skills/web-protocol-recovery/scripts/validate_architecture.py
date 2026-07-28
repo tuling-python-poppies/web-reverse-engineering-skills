@@ -554,8 +554,11 @@ def _imports_curl_cffi(path: Path) -> bool:
 def python_live_egress_findings(path: Path) -> list[str]:
     if "delivery" in path.parts:
         return []
+    # Historical study copies may contain live HTTP; they are not case entry points.
+    if "case-live-reference-archive" in path.parts:
+        return []
     findings: list[str] = []
-    # Case library must stay offline-only: no curl_cffi imports and no live HTTP calls.
+    # Active case library must stay offline-only: no curl_cffi imports and no live HTTP calls.
     if "cases" in path.parts and _imports_curl_cffi(path):
         findings.append(
             f"{rel(path)}: curl_cffi import is forbidden in cases; offline-only case library"
@@ -582,6 +585,8 @@ def live_egress_findings() -> list[str]:
         if not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
             continue
         if set(path.parts) & RESIDUE_NAMES:
+            continue
+        if "case-live-reference-archive" in path.parts:
             continue
         if path.suffix.lower() == ".py":
             findings.extend(python_live_egress_findings(path))

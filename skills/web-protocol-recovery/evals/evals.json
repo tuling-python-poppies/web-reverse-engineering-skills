@@ -139,6 +139,30 @@
         "Does not force a Provider route",
         "Treats the request as ordinary API-client work"
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "抓包里有 reese84 Cookie、同值 x-d-token、initializeProtection 脚本，以及返回 token/renewInSec/cookieDomain 的 solution POST，先恢复状态机再做 Python 请求",
+      "expected_output": "The response selects Reese84 as protocol owner, keeps challenge as the primary gate, and requires business-semantic acceptance before delivery.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects route:reese84",
+        "Preserves one coherent challenge, cookie/header projection, and business-consumer chain",
+        "Does not route directly to iv8 or treat token/OAuth/HTTP 200 as business success"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "只看到 Imperva Pardon Our Interruption、403 和一个 visid_incap Cookie，没有 reese84、x-d-token、challenge script 或 token response",
+      "expected_output": "The response stays evidence first and asks for Reese84-native evidence instead of classifying the product or launching Camoufox.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Does not select route:reese84",
+        "Does not select Akamai, River Security, or Camoufox from generic evidence",
+        "Asks for challenge script, solution POST, token response, cookie transition, or business token consumption"
+      ]
     }
   ]
 }

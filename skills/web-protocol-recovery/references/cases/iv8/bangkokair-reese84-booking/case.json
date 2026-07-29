@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-bangkokair-reese84-booking",
-  "revision": 5,
+  "revision": 6,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
@@ -95,7 +95,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "ff012f5056ec1a5d9d9925f8998c441a417de217673bfd539af0f1ab07f187b3"
+      "sha256": "6459ee48789d9e233abbbc4c56404907ff1823d8d4bed9f43de71ee2f08c11ed"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -121,7 +121,7 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-29T14:51:37+08:00",
+    "metadataMigratedAt": "2026-07-29T15:00:00+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
     "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only."
@@ -147,6 +147,11 @@
     }
   ],
   "requiredCurrentProviderChain": [
+    {
+      "provider": "reese84",
+      "role": "protocol-recovery",
+      "purpose": "protocol and acceptance owner"
+    },
     {
       "provider": "iv8",
       "role": "implementation",

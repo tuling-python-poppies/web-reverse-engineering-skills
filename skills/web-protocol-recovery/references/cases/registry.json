@@ -218,6 +218,11 @@
             },
             "providerPlan": [
                 {
+                    "provider": "reese84",
+                    "role": "protocol-recovery",
+                    "purpose": "protocol and acceptance owner"
+                },
+                {
                     "provider": "iv8",
                     "role": "implementation",
                     "purpose": "artifact implementation"
@@ -230,7 +235,7 @@
             ],
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "1561bb354c0510f114a0abfd8ed4d4dc24c0334b1d8c04ce539b1aff95887e85"
+                "sha256": "20c48dd9dcf0af632f5d00dad1ec2f58d6f9c1dd5f6d0b56db8462a54b71158b"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

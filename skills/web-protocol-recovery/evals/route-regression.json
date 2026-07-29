@@ -40,6 +40,24 @@
       }
     },
     {
+      "id": "reese84-protocol-owner",
+      "prompt": "A capture has a reese84 cookie, matching x-d-token, initializeProtection challenge script, and a solution response with token, renewInSec, and cookieDomain; prove the challenge state before Python replay.",
+      "expect": {
+        "shape": "evidence",
+        "route": "reese84",
+        "gateFamily": "challenge",
+        "protocolOwner": "reese84"
+      }
+    },
+    {
+      "id": "imperva-generic-negative",
+      "prompt": "The page only shows Imperva Pardon Our Interruption, HTTP 403, and one visid_incap cookie; no reese84, x-d-token, challenge script, or token response is captured.",
+      "expect": {
+        "shape": "evidence",
+        "route": "evidence-reuse"
+      }
+    },
+    {
       "id": "proved-protocol-python-delivery",
       "prompt": "Endpoint, moving state, fixed vectors, and request budget are approved; build the final browser-free Python collector.",
       "expect": {

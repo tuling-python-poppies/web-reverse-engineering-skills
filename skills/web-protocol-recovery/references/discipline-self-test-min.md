@@ -16,5 +16,6 @@ Run these prompts (or mental checks) after skill edits that touch layout, gates,
 | D10 | JD h5st frozen-only path | Documented as often 403 on recommend; live bundle is default |
 | D11 | Historical case entry import | import of entry must not open network, mkdir, or start iv8; live path only under `main()`; alias/from-import requests and unguarded side-effect helpers must be caught by preflight AST scan; `--skip-tests` must still run `scripts/test_preflight.py` |
 | D12 | River Security / 瑞数 first turn | `route:river-security` requires >=2 independent observed markers; alias tags do not count; a user guess or `412` alone never routes; River Security alone does not trigger Camoufox |
+| D13 | Reese84 first turn | `route:reese84` requires one Reese84-native marker plus independent corroboration; generic Imperva/interstitial/error 15/incap cookie evidence stays evidence first; Reese84 alone does not trigger Camoufox |
 
 Map recurring shortcuts to `references/anti-patterns-playbook.md` rather than inventing a new exception.

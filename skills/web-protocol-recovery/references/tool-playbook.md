@@ -28,6 +28,7 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 | Captcha or one-shot verification owns the gate | `references/providers/protocol-recovery/verifier/PROVIDER.md` | Treating it as an ordinary signer or generic OCR |
 | Akamai Bot Manager sensor/cookie state machine owns the gate | `references/providers/protocol-recovery/akamai/PROVIDER.md` | Guessing from generic 403, one cookie name, or treating sensor 200 as success |
 | River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge state owns the gate | `references/providers/protocol-recovery/river-security/PROVIDER.md` | Treating vendor name, suspicion, or 412 alone as proof; jumping to Camoufox by default |
+| Reese84 challenge, solution token, `reese84` cookie / `x-d-token`, and business admission own the gate | `references/providers/protocol-recovery/reese84/PROVIDER.md` | Guessing from generic Imperva/interstitial/error 15/incap cookies, or treating a token/OAuth 200 as business success |
 | Protocol is proved and browser-free Python delivery remains | `references/providers/delivery/python-collector/PROVIDER.md` | Further reconnaissance without a blocker |
 
 ## Browser Lifecycle Invariant
@@ -88,6 +89,7 @@ Move from reconnaissance to one implementation Provider only after naming the bo
 - captcha / verification round -> verifier
 - Akamai sensor/cookie state machine -> akamai
 - River Security challenge state -> river-security
+- Reese84 challenge-cookie and business-admission state -> reese84
 - proved protocol ready for delivery -> python-collector
 
 If the selected Provider returns a new blocker, add one Provider/reference. Do not fan out across sibling implementations.
@@ -108,6 +110,7 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | Captcha / one-shot verifier gates business request | `references/providers/protocol-recovery/verifier/PROVIDER.md`, then one selected captcha family reference |
 | Akamai `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gates business request | `references/providers/protocol-recovery/akamai/PROVIDER.md` |
 | River Security / 瑞数 `412` + `$_ts` / S-T Cookie / `r="m"` gates business request | `references/providers/protocol-recovery/river-security/PROVIDER.md` |
+| Reese84 cookie / `x-d-token` plus challenge script or token-response evidence gates business request | `references/providers/protocol-recovery/reese84/PROVIDER.md` |
 | Output depends on navigator/DOM/reflection/native surfaces | `environment-patch-playbook.md` |
 | Complete runtime profiles work but mixed fragments or later transform stages fail | `opaque-runtime-profile-playbook.md` |
 | Accepted/rejected chains need secret-free normalization and first-divergence comparison | `reproducible-evidence-playbook.md` |

@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、verifier、akamai、river-security、iv8、python-node、pure-python 或 Python delivery Provider。单点 hook/入口定位/已知 AST、Node/jsdom 补环境、iv8 工件、纯 Python signer、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
+  唯一 Web 与小程序协议逆向入口。用于 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/Reese84/Imperva/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议及 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、verifier、akamai、river-security、reese84、iv8、python-node、pure-python 或 Python delivery Provider。单点 hook/入口定位/已知 AST、Node/jsdom 补环境、iv8 工件、纯 Python signer、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机、Reese84 challenge/cookie/x-d-token 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。不要为这些能力另选顶层逆向 skill。不触发：普通 HTTP/API 故障排查、静态抓取或公开文档 API client、浏览器 QA、仅安全头审计、纯 UI/CSS/组件开发、与协议无关的通用编程，以及 skill 本身的描述/评测维护（改走 skill-creator）。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -69,6 +69,7 @@ First-turn routing rules choose only `shape` and `route`; they do not grant brow
 | Captcha protocol fields or semantic failure | Use `route: verifier` when a sampled captcha round contains `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, or a verifier response where `w` exists but the semantic result is fail. A lone parameter named `w`, `data`, or `token` without captcha-round evidence is evidence first. IDE typing/image-processing cleanup is outside this skill unless it modifies an active verifier delivery artifact. Generic `403` plus the word captcha is evidence first, not automatic solving. |
 | Strong Akamai signals | Use `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is not Akamai proof. |
 | Strong River Security signals | Use `route: river-security` only when at least two independent observed markers corroborate the family: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, server `*S` plus client `*T` cookies, protected XHR URL/header mutation, or a confirmed River Security protection script. Alias tags such as `alias:ruishu` normalize naming and do not count as observed markers; a user guess or generic `412` alone never routes. Fresh URL reconnaissance starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. |
+| Strong Reese84 signals | Use `route: reese84` only when one Reese84-native marker (`reese84` cookie, `x-d-token` projection, `initializeProtection` / `onProtectionInitialized` challenge script, or solution response with `token` + `renewInSec` + `cookieDomain`) has independent network/script/cookie-transition/business-consumer corroboration. Generic `403`, error 15, an Imperva label/interstitial, or one `visid_incap_*` / `incap_ses_*` / `nlbi_*` cookie is not Reese84 proof. Fresh URL reconnaissance starts with Chromium; unknown Imperva products stay evidence first. |
 | Existing Douyin Web BDMS pure-Python maintenance | Use `route: pure-python` with `profile: douyin-abogus-native` only when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on normal recon/implementation routes. |
 
 Fallback rules:
@@ -128,7 +129,7 @@ Fresh ordinary Web targets need steps 1 and 2 before the final collector. Skip a
 
 ## Phase 3: Gate Family
 
-Choose exactly one primary gate family: `signer` · `challenge` · `verifier` · `decode` · `session` · `transport`. Record other blockers as secondary gates; platform labels such as miniapp are not gate families. `akamai` and `river-security` are routes, not gate families: their primary gate is usually `challenge`, with `transport` or `session` recorded as secondary when the evidence shows that blocker.
+Choose exactly one primary gate family: `signer` · `challenge` · `verifier` · `decode` · `session` · `transport`. Record other blockers as secondary gates; platform labels such as miniapp are not gate families. `akamai`, `river-security`, and `reese84` are routes, not gate families: their primary gate is usually `challenge`, with `transport` or `session` recorded as secondary when the evidence shows that blocker.
 
 Canonical mutation order: wire request -> interceptor -> bootstrap asset -> exposed helper -> runtime egress -> WASM export -> server challenge -> response-refreshed state -> frame encoder.
 
@@ -143,12 +144,13 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Captcha protocol / verifier / slider / point-click / WAF captcha gateway | `verifier` | protocol owner | `references/providers/protocol-recovery/verifier/PROVIDER.md` |
 | Akamai Bot Manager sensor/cookie state machine and business replay | `akamai` | protocol owner | `references/providers/protocol-recovery/akamai/PROVIDER.md` |
 | River Security / 瑞数 412, `$_ts`, S/T Cookie, URL/header challenge state | `river-security` | protocol owner | `references/providers/protocol-recovery/river-security/PROVIDER.md` |
+| Reese84 challenge, randomized solution path, `reese84` cookie / `x-d-token`, and business admission | `reese84` | protocol owner | `references/providers/protocol-recovery/reese84/PROVIDER.md` |
 | Browser-like local runtime / XHR netLog / registry runtime case | `iv8` | implementation mode | `references/providers/implementation/iv8/PROVIDER.md`; stable Python import uses `utils/iv8_silent.import_iv8_silent()` |
 | Known JS entry in Node/vm/jsdom or Node/WASM sidecar | `python-node` | implementation mode | `references/providers/implementation/python-node/PROVIDER.md`; `env-patch` is `strategy: env-patch`, not a route |
 | Portable signer/decoder/checksum/serializer in Python | `pure-python` | implementation mode | `references/providers/implementation/pure-python/PROVIDER.md`; Douyin BDMS maintenance is `profile: douyin-abogus-native` |
 | Stable browser-free Python delivery | `python-collector` | delivery | `references/providers/delivery/python-collector/PROVIDER.md` |
 
-Chains are sequential and role-aware (typical: recon -> AST -> python-node/iv8/pure-python -> python-collector; verifier -> iv8/python-node/pure-python -> python-collector for captcha proof builders; akamai -> iv8/python-node -> python-collector for host-bound collectors; river-security -> python-node with `strategy: env-patch` or iv8 -> python-collector for challenge state; or evidence-reuse -> pure-python with `profile: douyin-abogus-native` -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. Implementation Providers produce narrow artifacts only; protocol owners keep acceptance while implementation runs; `python-collector` is delivery and owns final live egress.
+Chains are sequential and role-aware (typical: recon -> AST -> python-node/iv8/pure-python -> python-collector; verifier -> iv8/python-node/pure-python -> python-collector for captcha proof builders; akamai -> iv8/python-node -> python-collector for host-bound collectors; river-security -> python-node with `strategy: env-patch` or iv8 -> python-collector for challenge state; reese84 -> iv8/python-node -> python-collector for challenge-cookie state and business admission; or evidence-reuse -> pure-python with `profile: douyin-abogus-native` -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. Implementation Providers produce narrow artifacts only; protocol owners keep acceptance while implementation runs; `python-collector` is delivery and owns final live egress.
 
 ## Phase 5: Verification
 
@@ -203,6 +205,7 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 - Do not open Camoufox on ordinary Web without explicit Camoufox wording or recorded second-engine criteria.
 - Do not treat fingerprint-browser permission, Cloak wording, stealth wording, or busy Chrome as a Camoufox criterion.
 - Do not route River Security/RuiShu to Camoufox from the vendor name, `412`, or historical case provenance alone.
+- Do not route generic Imperva/interstitial/error-15 evidence to Reese84; require one Reese84-native marker plus independent corroboration, and do not use Reese84 wording alone to select Camoufox.
 - Do not open both Chromium and Camoufox recon without a Camoufox selection criterion.
 - Do not load a sibling case after one registry match failed current evidence.
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.

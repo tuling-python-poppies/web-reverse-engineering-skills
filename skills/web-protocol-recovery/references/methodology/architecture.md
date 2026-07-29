@@ -46,13 +46,13 @@ The canonical Provider inventory is `references/providers/registry.json`.
 | Role | Providers | Responsibility |
 |---|---|---|
 | `reconnaissance` | `chromium-recon`, `camoufox`, `wechat-miniapp` | Locate requests, initiators, moving state, scripts, runtime blockers, and precise next capability. |
-| `protocol-recovery` | `browser-hooks`, `ast`, `verifier`, `akamai`, `river-security` | Recover rules or own protocol-family state and acceptance criteria. |
+| `protocol-recovery` | `browser-hooks`, `ast`, `verifier`, `akamai`, `river-security`, `reese84` | Recover rules or own protocol-family state and acceptance criteria. |
 | `implementation` | `iv8`, `python-node`, `pure-python` | Produce one local protocol artifact. |
 | `delivery` | `python-collector` | Perform final Python-owned HTTP/WebSocket live egress and bounded collection. |
 
 There are exactly three implementation modes: `iv8`, `python-node`, and `pure-python`. `env-patch` is a `python-node` strategy. `douyin-abogus-native` is a `pure-python` profile. `python-collector` is delivery, not an implementation mode.
 
-Protocol owners stay active while implementation Providers run. Example: `akamai -> iv8 -> python-collector` means Akamai remains the protocol owner and acceptance owner while iv8 generates the collector artifact, then python-collector performs final egress.
+Protocol owners stay active while implementation Providers run. Example: `akamai -> iv8 -> python-collector` means Akamai remains the protocol owner and acceptance owner while iv8 generates the collector artifact, then python-collector performs final egress. The same ownership rule applies to `reese84 -> iv8/python-node -> python-collector`: Reese84 owns challenge-cookie and business-admission acceptance while the implementation Provider produces only a narrow artifact.
 
 ## Unified Project Layout
 
@@ -60,7 +60,7 @@ The canonical tree is `references/methodology/project-layout.md`. This architect
 
 1. all writes use `web-protocol-recovery-simple` under one absolute `projectRoot`;
 2. only paths required by the current task are created, and a valid final delivery may contain only `main.py`;
-3. reconnaissance, protocol-recovery, implementation, and sample artifacts stay in their assigned `js_reverse_cache/**` or `tests/**` paths until accepted; River Security artifacts reuse source/env/iv8/samples paths and do not own a separate cache namespace;
+3. reconnaissance, protocol-recovery, implementation, and sample artifacts stay in their assigned `js_reverse_cache/**` or `tests/**` paths until accepted; River Security and Reese84 artifacts reuse source/env/iv8/samples/private paths and do not own separate cache namespaces;
 4. final Python HTTP, pagination, decode, storage, and output are owned by root `main.py` and assigned `utils/**` helpers.
 
 Forbidden generated roots/directories are defined in `project-layout.md`; Providers must not restate or fork the tree.

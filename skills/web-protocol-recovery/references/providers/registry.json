@@ -77,6 +77,15 @@
       "profiles": []
     },
     {
+      "id": "reese84",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/reese84/PROVIDER.md",
+      "ownsProtocolAcceptance": true,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
       "id": "iv8",
       "role": "implementation",
       "entry": "references/providers/implementation/iv8/PROVIDER.md",

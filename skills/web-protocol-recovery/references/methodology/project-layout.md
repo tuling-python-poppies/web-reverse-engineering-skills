@@ -58,7 +58,7 @@ Create only paths required by the current task. A minimal code skeleton may star
 - env-patch writes probes under `js_reverse_cache/env/`; verified stable output may become `mod.js` and `main.js`.
 - iv8 writes probes and net logs under `js_reverse_cache/iv8/`; stable Python helpers belong in `utils/` or the compact `main.py`. When the delivery imports iv8, `utils/iv8_silent.py` is an allowed stable helper for silent package import only.
 - akamai writes transient collector, sensor, Pixel, cookie-transition, transport, and host-fingerprint evidence under `js_reverse_cache/akamai/`; accepted helper code promotes only through `utils/` or `main.py`.
-- river-security writes challenge HTML/JS under `js_reverse_cache/source/`, env probes under `js_reverse_cache/env/`, iv8 runtime logs under `js_reverse_cache/iv8/`, and redacted fixed vectors under `js_reverse_cache/samples/`; accepted helper code promotes only through `utils/` or `main.py`.
+- river-security and reese84 write challenge HTML/JS under `js_reverse_cache/source/`, env probes under `js_reverse_cache/env/`, iv8 runtime logs under `js_reverse_cache/iv8/`, and redacted fixed vectors under `js_reverse_cache/samples/`; accepted helper code promotes only through `utils/` or `main.py`.
 - verifier keeps transient images under `js_reverse_cache/source/` and fixed redacted vectors under `js_reverse_cache/samples/` or stable `tests/`.
 - douyin-abogus-native keeps fixed traces and redacted vectors under `js_reverse_cache/samples/` or stable `tests/`; accepted pure Python helpers promote only through `utils/` or `main.py`.
 - python-collector owns stable HTTP, pagination, decode, and storage helpers assigned under `main.py` and `utils/`.

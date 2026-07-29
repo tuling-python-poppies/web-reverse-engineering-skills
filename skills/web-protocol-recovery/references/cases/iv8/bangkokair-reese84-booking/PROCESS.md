@@ -103,8 +103,9 @@ Moving state (names only; values pulled live, never stored in the case library):
 ## Provider Order
 
 1. `chromium-recon` (optional Cloak tier) — prove Imperva gate, capture challenge path, OAuth, air-bounds shape, fare family codes.
-2. `iv8` (when generating reese84 offline) — run randomized challenge JS with page.load + pyHttp bridge; Python owns real HTTP for gpc/solution.
-3. `python-collector` — OAuth + air-bounds + parse; progress via `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
+2. `reese84` — own family proof, challenge/cookie/header state, transport coherence, refresh boundaries, and business acceptance.
+3. `iv8` (when generating reese84 offline) — run randomized challenge JS with page.load + pyHttp bridge; Python owns real HTTP for gpc/solution while Reese84 keeps acceptance ownership.
+4. `python-collector` — OAuth + air-bounds + parse; progress via `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
 
 ## Historical Implementation Shape
 

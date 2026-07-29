@@ -17,6 +17,7 @@ Use this file only when a recurring symptom is already visible and you need the 
 | Entry HTML, cookie, URL/body/response fields share packet markers | separate state chain, framing, and inner crypto | `challenge-state-envelope-playbook.md` |
 | `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gate business replay | prove Akamai family, cookie transition, multi-stage sensor, Pixel, transport, and egress separately | `references/providers/protocol-recovery/akamai/PROVIDER.md` |
 | River Security / 瑞数 `412` + `$_ts.nsd/cd` / `r="m"` / S-T Cookie gates replay | classify subtype, preserve one challenge round, then choose `python-node` with `strategy: env-patch` or `iv8`; Chromium recon first | `references/providers/protocol-recovery/river-security/PROVIDER.md` |
+| Reese84 cookie / `x-d-token` plus challenge script or token-response markers gate business replay | prove one coherent challenge, token writer, cookie/header projection, transport/session coherence, and first business consumer | `references/providers/protocol-recovery/reese84/PROVIDER.md` |
 | Cookie blocks replay but writer/refresh path is unknown | attribute `Set-Cookie`, JS writes, and wire consumption | `cookie-provenance-playbook.md` |
 | Session exists but business route rejects, redirects, or changes tenant/shop/org | separate identity, admission, and active context | `session-contract-playbook.md` |
 | Anonymous flow fails only after logged-in state is added | rebuild one clean anonymous session chain | `session-contract-playbook.md` |

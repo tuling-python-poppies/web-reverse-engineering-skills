@@ -26,6 +26,7 @@ EXPECTED_PROVIDER_IDS = {
     "verifier",
     "akamai",
     "river-security",
+    "reese84",
     "iv8",
     "python-node",
     "pure-python",
@@ -112,6 +113,11 @@ def provider_registry_findings() -> list[str]:
             findings.append("python-collector must have role=delivery")
         if pid in {"iv8", "python-node", "pure-python"} and role != "implementation":
             findings.append(f"{pid} must have role=implementation")
+        if pid in {"verifier", "akamai", "river-security", "reese84"}:
+            if role != "protocol-recovery":
+                findings.append(f"{pid} must have role=protocol-recovery")
+            if not provider.get("ownsProtocolAcceptance"):
+                findings.append(f"{pid} must own protocol acceptance")
         if provider.get("mayOwnFinalLiveEgress") and pid != "python-collector":
             findings.append(f"{pid}: only python-collector may own final live egress")
         if pid == "python-node" and "env-patch" not in provider.get("strategies", []):
@@ -254,6 +260,14 @@ def read_plan_contract_findings() -> list[str]:
         "references/cases/iv8/geetest-v4-slider/case.json",
         "references/cases/iv8/geetest-v4-slider/PROCESS.md",
         "references/cases/iv8/geetest-v4-slider/pull_live_state.py",
+    ]
+    reese84_case = [
+        "references/cases/iv8/bangkokair-reese84-booking/case.json",
+        "references/cases/iv8/bangkokair-reese84-booking/PROCESS.md",
+        "references/cases/iv8/bangkokair-reese84-booking/pull_live_state.py",
+        "references/cases/iv8/bangkokair-reese84-booking/fixtures/vectors.json",
+        "references/cases/iv8/bangkokair-reese84-booking/fixtures/response.sample.json",
+        "references/cases/iv8/bangkokair-reese84-booking/fixtures/live-proof.summary.json",
     ]
 
     official_chains = {
@@ -412,6 +426,23 @@ def read_plan_contract_findings() -> list[str]:
                 "references/providers/implementation/python-node/PROVIDER.md",
                 "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
                 "references/providers/implementation/python-node/strategies/env-patch/references/verification-and-replay.md",
+            ]),
+            ("delivery handoff", 3, delivery),
+            ("write gate", 1, write_gate),
+        ],
+        "reese84 iv8 collector": [
+            ("initial dispatch", 3, initial),
+            ("reese84 handoff", 3, [
+                "references/providers/protocol-recovery/reese84/PROVIDER.md",
+                "references/transport-pre-gate-playbook.md",
+                "references/methodology/provider-work-order.md",
+            ]),
+            ("case selection", 1, case_selection),
+            ("selected case bundle", 8, reese84_case),
+            ("implementation handoff", 3, [
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+                "references/providers/implementation/iv8/references/browser-iv8-bridge.md",
             ]),
             ("delivery handoff", 3, delivery),
             ("write gate", 1, write_gate),

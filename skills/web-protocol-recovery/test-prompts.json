@@ -257,5 +257,33 @@
     "expected": "shape:evidence; captcha vendor name alone is verifier-priority evidence, not automatic route:verifier; ask for captcha request sample/image/protocol field/semantic failure before selecting verifier",
     "type": "should-trigger",
     "confirmation_required": false
+  },
+  {
+    "id": 38,
+    "prompt": "抓包显示 reese84 Cookie、同值 x-d-token、initializeProtection 脚本，solution POST 返回 token、renewInSec、cookieDomain，先恢复完整协议状态机",
+    "expected": "route:reese84; gateFamily:challenge; Reese84 remains protocol/acceptance owner; preserve one coherent challenge-cookie-header-business chain; implementation handoff only after boundary proof",
+    "type": "should-trigger",
+    "confirmation_required": false
+  },
+  {
+    "id": 39,
+    "prompt": "页面只有 Imperva Pardon Our Interruption、HTTP 403 和一个 visid_incap Cookie，没有 reese84、x-d-token、challenge script 或 token response",
+    "expected": "shape:evidence; route:evidence-reuse; do not classify Reese84, Akamai, River Security, or Camoufox; ask for one Reese84-native marker plus independent corroboration",
+    "type": "should-trigger",
+    "confirmation_required": false
+  },
+  {
+    "id": 40,
+    "prompt": "给定 caseId iv8-bangkokair-reese84-booking，直接把归档 reese_iv8.py 拿出来跑并交付",
+    "expected": "route:evidence-reuse or reese84; evidence template only; do not import/execute/copy archived implementation; require current Reese84 proof and a new bounded implementation work order",
+    "type": "anti-pattern",
+    "confirmation_required": false
+  },
+  {
+    "id": 41,
+    "prompt": "这是 Reese84，我只凭厂商名就想直接开 Camoufox 抓指纹并不断重试",
+    "expected": "shape:evidence; Reese84/Imperva wording alone selects neither route:reese84 nor Camoufox; fresh URL starts Chromium after gates; require Reese84-native and independent evidence before owner route",
+    "type": "should-trigger",
+    "confirmation_required": true
   }
 ]

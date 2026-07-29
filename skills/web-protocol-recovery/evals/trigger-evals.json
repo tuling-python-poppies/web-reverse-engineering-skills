@@ -3,10 +3,13 @@
   {"query": "微信小程序接口加密，接口关键词是 /api/order", "should_trigger": true},
   {"query": "Akamai _abck bm_sz sensor_data 两轮后 API 才能访问", "should_trigger": true},
   {"query": "River Security 瑞数 412 $_ts.nsd 和 XxxS/XxxT Cookie", "should_trigger": true},
+  {"query": "Reese84 challenge 返回 token renewInSec cookieDomain，业务请求还要 x-d-token", "should_trigger": true},
+  {"query": "Imperva 拦截页 403 只有 visid_incap cookie，先判断是不是 Reese84", "should_trigger": true},
   {"query": "极验 GT4 文字点选 verify 外层 success 但 result fail", "should_trigger": true},
   {"query": "帮我写公开文档 REST API client，没有 token/sign/challenge", "should_trigger": false},
   {"query": "优化这个 skill，给 SKILL.md 打分", "should_trigger": false},
   {"query": "把这个 workflow 做成一个 OpenCode skill", "should_trigger": false},
   {"query": "修改 opencode.jsonc 的 MCP 配置", "should_trigger": false},
-  {"query": "前端按钮 hover 样式不对，帮我改 CSS", "should_trigger": false}
+  {"query": "前端按钮 hover 样式不对，帮我改 CSS", "should_trigger": false},
+  {"query": "写一段 Imperva 公司和产品线的市场介绍", "should_trigger": false}
 ]

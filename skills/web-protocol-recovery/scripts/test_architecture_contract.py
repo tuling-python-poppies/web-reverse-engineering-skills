@@ -103,6 +103,46 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertIn("minimum-signal set", findings[0])
 
+    def test_reese84_signal_groups_are_disjoint_and_declared(self) -> None:
+        match = {
+            "signals": ["cookie:reese84", "challenge:randomized-path"],
+            "minimumIndependentSignals": 2,
+            "requiredSignalGroups": [
+                {"name": "reese84-native", "anyOf": ["cookie:reese84"]},
+                {
+                    "name": "independent-corroboration",
+                    "anyOf": ["challenge:randomized-path"],
+                },
+            ],
+        }
+        self.assertEqual(
+            validate_architecture.required_signal_group_findings(
+                "reese84-case",
+                match,
+                {"reese84-native", "independent-corroboration"},
+            ),
+            [],
+        )
+
+    def test_reese84_vendor_labels_cannot_fill_both_groups(self) -> None:
+        match = {
+            "signals": ["vendor:imperva", "vendor:reese84"],
+            "minimumIndependentSignals": 2,
+            "requiredSignalGroups": [
+                {"name": "reese84-native", "anyOf": ["vendor:imperva"]},
+                {
+                    "name": "independent-corroboration",
+                    "anyOf": ["vendor:reese84"],
+                },
+            ],
+        }
+        findings = validate_architecture.required_signal_group_findings(
+            "reese84-case",
+            match,
+            {"reese84-native", "independent-corroboration"},
+        )
+        self.assertTrue(any("labels cannot satisfy" in finding for finding in findings))
+
 
 if __name__ == "__main__":
     unittest.main()

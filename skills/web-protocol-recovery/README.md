@@ -38,6 +38,7 @@ references/providers/
     akamai/references/*.md
     akamai/scripts/*
     river-security/PROVIDER.md
+    reese84/PROVIDER.md
   implementation/
     iv8/PROVIDER.md
     python-node/PROVIDER.md
@@ -48,7 +49,7 @@ references/providers/
     python-collector/PROVIDER.md
 ```
 
-Internal skills are Providers under this tree (not peer top-level skills). Roles are explicit: reconnaissance locates evidence; protocol-recovery owns family rules and acceptance; implementation Providers generate one local artifact; delivery owns final browser-free Python egress. `env-patch` is a `python-node` strategy, not a route. `douyin-abogus-native` is a `pure-python` profile, not a route. Providers receive `web-protocol-recovery-provider-work-order` and return `web-protocol-recovery-provider-result`; schemas live in `references/schemas/` and the explanatory contract is `references/methodology/provider-work-order.md`.
+Internal skills are Providers under this tree (not peer top-level skills). Roles are explicit: reconnaissance locates evidence; protocol-recovery owns family rules and acceptance; implementation Providers generate one local artifact; delivery owns final browser-free Python egress. A typical Reese84 chain is `reese84 -> iv8/python-node -> python-collector`: Reese84 keeps protocol acceptance while the implementation Provider produces a narrow artifact. `env-patch` is a `python-node` strategy, not a route. `douyin-abogus-native` is a `pure-python` profile, not a route. Providers receive `web-protocol-recovery-provider-work-order` and return `web-protocol-recovery-provider-result`; schemas live in `references/schemas/` and the explanatory contract is `references/methodology/provider-work-order.md`.
 
 ## Cases
 

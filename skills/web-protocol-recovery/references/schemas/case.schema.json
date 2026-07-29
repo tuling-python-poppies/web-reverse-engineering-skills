@@ -39,7 +39,42 @@
     "sourceStage": {"type": "object"},
     "historicalProviderChain": {"type": "array"},
     "requiredCurrentProviderChain": {"type": "array"},
-    "match": {"type": "object"},
+    "match": {
+      "type": "object",
+      "required": ["signals", "minimumIndependentSignals", "negativeSignals"],
+      "properties": {
+        "signals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "minimumIndependentSignals": {"type": "integer", "minimum": 1},
+        "negativeSignals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "requiredSignalGroups": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["name", "anyOf"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "anyOf": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "string", "minLength": 1},
+                "uniqueItems": true
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "exactScopes": {"type": "array"},
     "protocolPatterns": {"type": "array"},
     "product": {"type": "object"},

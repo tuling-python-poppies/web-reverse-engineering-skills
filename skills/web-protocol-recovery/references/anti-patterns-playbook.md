@@ -304,6 +304,30 @@ Self-check:
 
 - can a cold machine reproduce after wiping OS temp, with only project files + documented refresh steps?
 
+## Anti-pattern: Generic Imperva or intermediate success as Reese84 proof
+
+Temptation:
+
+- route an Imperva interstitial, error 15, or one incap cookie directly to Reese84
+- treat a fresh `reese84`, OAuth `200`, or a non-empty token as business acceptance
+- import or execute a template's archived challenge implementation to skip reconstruction
+
+Why it is false progress:
+
+- generic Imperva surfaces do not identify the Reese84 product family
+- challenge and OAuth success can coexist with a rejected business request
+- archived code is provenance tied to an old target state, not a current implementation asset
+
+Smallest honest next move:
+
+- require one Reese84-native marker plus an independent network, script, cookie-transition, or business-consumer surface
+- preserve one challenge -> cookie/header -> business-consumer chain and validate parsed business fields
+- use archived references only to name a bounded implementation fact, then reconstruct it under a current work order
+
+Self-check:
+
+- would the route and acceptance still hold if the vendor label, OAuth status, and archived code were removed from the evidence?
+
 ## Anti-pattern: Pre-create empty layout trees
 
 Temptation:

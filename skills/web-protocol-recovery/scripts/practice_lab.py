@@ -29,6 +29,23 @@ CASES = (
     LabCase("modified-digest", "Custom byte masks and rotate semantics differ from stock digests", "Use stock SHA-256 or drop the mask"),
     LabCase("context-activation", "Account identity and complete business context pass a final reread", "Omit scope type or submit a display label as an ID"),
     LabCase("async-export-isolation", "A new matching task and complete fields are required", "Reuse an existing task or accept fewer columns"),
+    LabCase("reese84-family-gate", "One Reese84-native marker and one independent corroborating surface are both required", "Count vendor labels or one native marker as two independent signals"),
+)
+
+REESE84_NATIVE_MARKERS = frozenset(
+    {
+        "cookie:reese84",
+        "header:x-d-token",
+        "script:initializeProtection",
+        "response:token-renew-cookie-domain",
+    }
+)
+REESE84_CORROBORATION_MARKERS = frozenset(
+    {
+        "challenge:randomized-path",
+        "resource:incapsula-swji",
+        "business:x-d-token-consumer",
+    }
 )
 
 
@@ -44,6 +61,11 @@ def session_token(session_id: str) -> str:
 
 def same_session_accepts(session_id: str, token: str) -> bool:
     return token == session_token(session_id)
+
+
+def reese84_family_accepts(observed: Sequence[str]) -> bool:
+    signals = set(observed)
+    return bool(signals & REESE84_NATIVE_MARKERS) and bool(signals & REESE84_CORROBORATION_MARKERS)
 
 
 def encode_response(value: Mapping[str, Any]) -> bytes:
@@ -143,6 +165,14 @@ def run_self_test() -> None:
     if same_session_accepts("session-b", first_token):
         failures.append("same-session splice control")
 
+    reese84_positive = ("cookie:reese84", "challenge:randomized-path")
+    if not reese84_family_accepts(reese84_positive):
+        failures.append("reese84 family positive")
+    if reese84_family_accepts(("vendor:imperva", "vendor:reese84")):
+        failures.append("reese84 vendor-label control")
+    if reese84_family_accepts(("cookie:reese84", "header:x-d-token")):
+        failures.append("reese84 native-only control")
+
     encoded = encode_response({"accepted": True, "rows": [1, 2]})
     if decode_response(encoded).get("accepted") is not True:
         failures.append("response-transform positive")
@@ -218,7 +248,7 @@ def run_self_test() -> None:
 
     if failures:
         raise AssertionError(", ".join(failures))
-    print("practice_lab_self_test=PASS cases=7 negative_controls=15")
+    print("practice_lab_self_test=PASS cases=8 negative_controls=17")
 
 
 def describe_cases() -> List[Dict[str, str]]:

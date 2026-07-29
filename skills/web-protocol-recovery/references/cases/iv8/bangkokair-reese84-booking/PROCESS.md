@@ -22,13 +22,20 @@ Historical L1 success predicate: OAuth 200 + air-bounds 200 with flight number, 
 
 ## Match And Exclusion Signals
 
-Select this case when at least two independent signals match:
+An exact declared scope may select this template. Otherwise, registry selection
+requires at least two independent signals and at least one observed signal from
+each group below. Product labels such as `vendor:imperva` or `vendor:reese84`
+are context only and do not satisfy either group.
 
-- `vendor:imperva` / `vendor:reese84` — `reese84` cookie, `x-d-token` header, `Pardon Our Interruption` / interstitial, `/_Incapsula_Resource?SWJIYLWA=`
-- `cookie:reese84` set after challenge solution POST (`token` + `renewInSec` + `cookieDomain`)
-- `path:challenge-random` — randomized challenge script path (e.g. `/foot-I-not-binde-...` or `/o-exasphem-...`) with `initializeProtection` / solution envelope
-- `api:amadeus-dapi` — host `api-des.bangkokair.com`, paths `/v1/security/oauth2/token` and `/v2/search/air-bounds`
-- `site:bangkokair` — host `digital.bangkokair.com` booking SPA
+- **Reese84-native:** `cookie:reese84`, `header:x-d-token`,
+  `script:initializeProtection`, or a solution response containing
+  `token` + `renewInSec` + `cookieDomain`.
+- **Independent corroboration:** a randomized challenge request,
+  `/_Incapsula_Resource?SWJIYLWA=`, or a business request that consumes the
+  current token as `x-d-token`.
+
+`api:amadeus-dapi` and `site:bangkokair` identify this case after the Reese84
+family gate passes; they do not independently prove the product family.
 
 Do not select for: pure Akamai sensor sites (use twayair-akamai case), Ruishu two-stage cookie, header-only sign sites with no Imperva challenge.
 
@@ -102,7 +109,12 @@ Moving state (names only; values pulled live, never stored in the case library):
 
 ## Provider Order
 
-1. `chromium-recon` (optional Cloak tier) — prove Imperva gate, capture challenge path, OAuth, air-bounds shape, fare family codes.
+`case.json.requiredCurrentProviderChain` starts at the accepted protocol owner.
+For a fresh target, use `chromium-recon` first only when supplied artifacts do
+not already prove the Reese84 route; reconnaissance is a pre-route evidence
+step, not part of the owner/implementation/delivery chain.
+
+1. `chromium-recon` when current evidence is insufficient (optional Cloak tier after its own gate) — prove the Imperva gate and capture challenge path, OAuth, air-bounds shape, and fare family codes.
 2. `reese84` — own family proof, challenge/cookie/header state, transport coherence, refresh boundaries, and business acceptance.
 3. `iv8` (when generating reese84 offline) — run randomized challenge JS with page.load + pyHttp bridge; Python owns real HTTP for gpc/solution while Reese84 keeps acceptance ownership.
 4. `python-collector` — OAuth + air-bounds + parse; progress via `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
@@ -137,7 +149,7 @@ Desktop project pattern: bare `python main.py` → **mode=l3, engine=iv8**. Opti
 
 ## Fixed-Vector / Live Proof
 
-- Offline: fixture shape for air-bounds sample (groups present, flight dict keys, total price fields) — PASS via case tests (2026-07-22).
+- Offline fixture shape for air-bounds samples was reported PASS in the source-project tests on 2026-07-22. No current case unit test is bundled; this is historical provenance, not current acceptance.
 - Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX priced bounds — PASS (2026-07-22).
 - Live **L2 pure iv8** (2026-07-23): challenge → solution POST (~28–35KB) → token → OAuth → air-bounds **15** flights BKK–CNX (cheapest PG215 PGPROMO 2630 THB). **No browser automation / cookie paste.**
 - Live **L3 pure iv8** (2026-07-23): two independent cold sessions, both success, distinct token SHA-256; bare `python main.py` default path.

@@ -72,19 +72,23 @@ Symptoms:
 - server seed cookies plus client-derived cookies decide admission
 - challenge JavaScript rewrites URL suffixes, headers, body fields, or replay state before business data is visible
 - River Security markers appear: `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, or paired server `*S` + generated `*T` cookies
+- Reese84-native markers appear: a `reese84` cookie, `x-d-token` projection, `initializeProtection` script, or a solution response with `token` + `renewInSec` + `cookieDomain`
 
 First move:
 
 - freeze one coherent challenge chain: first response, headers, `Set-Cookie`, challenge HTML, linked scripts, generated state, and second request delta
 - do not classify from `412` or a user hypothesis alone
 - for River Security, read `references/providers/protocol-recovery/river-security/PROVIDER.md` before selecting a case or runtime
+- for Reese84, require one native marker plus an independent network, script, cookie-transition, or business-consumer surface before reading `references/providers/protocol-recovery/reese84/PROVIDER.md`
+- generic Imperva branding, an interstitial, error 15, or one incap cookie is not Reese84 proof; keep the route unclassified
 - for generic challenge bootstrap, read `references/challenge-state-envelope-playbook.md`
-- use Chromium recon by default; River Security is not a Camoufox criterion
+- use Chromium recon by default; River Security, Imperva, and Reese84 names are not Camoufox criteria
 
 Primary references:
 
 - `references/providers/protocol-recovery/river-security/PROVIDER.md` for confirmed River Security / 瑞数 markers
 - `references/providers/protocol-recovery/akamai/PROVIDER.md` for confirmed Akamai markers
+- `references/providers/protocol-recovery/reese84/PROVIDER.md` for confirmed Reese84-native evidence plus independent corroboration
 - `references/challenge-state-envelope-playbook.md` for unclassified executable challenge state
 - `references/cookie-provenance-playbook.md` when the writer or refresh order is unknown
 
@@ -121,7 +125,7 @@ First move:
 - capture a clean untouched baseline before invasive instrumentation
 - diff requests and verifier outputs first
 - only then add the narrowest hook that proves the boundary
-- if challenge HTML plus scripts appear to seed a cookie, URL suffix, or headers, switch `gateFamily` to `challenge` and use the River Security Provider or challenge-state playbook first
+- if challenge HTML plus scripts appear to seed a cookie, URL suffix, or headers, switch `gateFamily` to `challenge` and use the confirmed family owner (River Security, Akamai, or Reese84) or the generic challenge-state playbook first
 - if a bootstrap runtime exposes a getter after init or self-issues the decisive request, route to `references/challenge-state-envelope-playbook.md`
 
 Primary references (pick one first path):

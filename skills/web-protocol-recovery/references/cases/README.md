@@ -5,7 +5,7 @@
 - `verificationClass`: `freshly-verified` or `historical-user-attested` (must match the case manifest)
 - `selectableAs`: `proof` (freshly-verified current-target proof after offline vectors) or `template` (historical shape/process evidence only)
 
-If multiple verified entries match the same exact scope or minimum signal set, stop and require a discriminator (runtime, algorithm, product subtype, or negative signal) instead of choosing by registry order. The manifest is the complete source of metadata and hash-binds every file in that case directory.
+If a row declares `match.requiredSignalGroups`, non-scope selection must match at least one observed signal from every disjoint group in addition to the minimum signal count. If multiple verified entries match the same exact scope or minimum signal set, stop and require a discriminator (runtime, algorithm, product subtype, or negative signal) instead of choosing by registry order. The manifest is the complete source of metadata and hash-binds every file in that case directory.
 
 Cases are grouped by the runtime needed to reproduce or rebuild the protocol artifact:
 

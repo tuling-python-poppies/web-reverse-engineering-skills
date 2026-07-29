@@ -16,6 +16,8 @@ CASES_ROOT = SKILL_ROOT / "references" / "cases"
 WORK_ORDER_SCHEMA = SKILL_ROOT / "references" / "schemas" / "provider-work-order.schema.json"
 WORK_ORDER_DOC = SKILL_ROOT / "references" / "methodology" / "provider-work-order.md"
 READ_BUDGET_DOC = SKILL_ROOT / "references" / "methodology" / "read-budget.md"
+README_DOC = SKILL_ROOT / "README.md"
+STARTUP_TRIAGE_DOC = SKILL_ROOT / "references" / "startup-triage-playbook.md"
 
 EXPECTED_PROVIDER_IDS = {
     "chromium-recon",
@@ -169,6 +171,26 @@ def documentation_contract_findings() -> list[str]:
         for needle in OBSOLETE_CONTRACT_TEXT:
             if needle in text:
                 findings.append(f"{rel(path)}: obsolete contract text: {needle}")
+    required_routing_tokens = {
+        README_DOC: (
+            "reese84/PROVIDER.md",
+            "reese84 -> iv8/python-node -> python-collector",
+        ),
+        READ_BUDGET_DOC: (
+            "Reese84 -> iv8/python-node -> python-collector",
+            "references/providers/protocol-recovery/reese84/PROVIDER.md",
+        ),
+        STARTUP_TRIAGE_DOC: (
+            "references/providers/protocol-recovery/reese84/PROVIDER.md",
+            "generic Imperva",
+            "not Camoufox criteria",
+        ),
+    }
+    for path, tokens in required_routing_tokens.items():
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for token in tokens:
+            if token not in text:
+                findings.append(f"{rel(path)} missing Reese84 routing token: {token}")
     return findings
 
 
@@ -492,6 +514,72 @@ def read_plan_contract_findings() -> list[str]:
     return findings
 
 
+def required_signal_group_findings(
+    case_id: str,
+    match: dict,
+    required_names: set[str] | None = None,
+) -> list[str]:
+    findings: list[str] = []
+    required_names = required_names or set()
+    groups = match.get("requiredSignalGroups", [])
+    if not groups:
+        if required_names:
+            findings.append(f"{case_id}: requiredSignalGroups missing")
+        return findings
+    if not isinstance(groups, list):
+        return [f"{case_id}: requiredSignalGroups must be an array"]
+
+    declared_signals = set(map(str, match.get("signals", [])))
+    group_names: set[str] = set()
+    grouped_signals: set[str] = set()
+    for index, group in enumerate(groups):
+        if not isinstance(group, dict):
+            findings.append(f"{case_id}: requiredSignalGroups[{index}] must be an object")
+            continue
+        name = group.get("name")
+        if not isinstance(name, str) or not name:
+            findings.append(f"{case_id}: requiredSignalGroups[{index}] needs a name")
+        elif name in group_names:
+            findings.append(f"{case_id}: duplicate required signal group {name!r}")
+        else:
+            group_names.add(name)
+        values = group.get("anyOf", [])
+        if not isinstance(values, list) or not values:
+            findings.append(f"{case_id}: requiredSignalGroups[{index}].anyOf must be non-empty")
+            continue
+        value_set = set(map(str, values))
+        label_values = sorted(
+            value for value in value_set if value.startswith(("vendor:", "alias:"))
+        )
+        if required_names and label_values:
+            findings.append(
+                f"{case_id}: labels cannot satisfy required signal groups: "
+                + ", ".join(label_values)
+            )
+        undeclared = sorted(value_set - declared_signals)
+        if undeclared:
+            findings.append(
+                f"{case_id}: requiredSignalGroups[{index}] uses undeclared signals: "
+                + ", ".join(undeclared)
+            )
+        overlap = sorted(value_set & grouped_signals)
+        if overlap:
+            findings.append(
+                f"{case_id}: required signal groups overlap: " + ", ".join(overlap)
+            )
+        grouped_signals.update(value_set)
+
+    missing_names = sorted(required_names - group_names)
+    if missing_names:
+        findings.append(f"{case_id}: missing required signal groups: {', '.join(missing_names)}")
+    minimum = match.get("minimumIndependentSignals")
+    if isinstance(minimum, int) and minimum < len(groups):
+        findings.append(
+            f"{case_id}: minimumIndependentSignals must be >= required signal group count"
+        )
+    return findings
+
+
 def case_manifest_findings() -> list[str]:
     findings: list[str] = []
     for path in sorted(CASES_ROOT.glob("**/case.json")):
@@ -516,6 +604,14 @@ def case_manifest_findings() -> list[str]:
                 findings.append(f"{case_id}: env-patch strategy requires mode=python-node")
             if profile == "douyin-abogus-native" and mode != "pure-python":
                 findings.append(f"{case_id}: douyin-abogus-native profile requires mode=pure-python")
+        required_group_names: set[str] = set()
+        if (data.get("product") or {}).get("product") == "Reese84":
+            required_group_names = {"reese84-native", "independent-corroboration"}
+        findings.extend(
+            required_signal_group_findings(
+                str(case_id), data.get("match") or {}, required_group_names
+            )
+        )
         for field in ("historicalProviderChain", "requiredCurrentProviderChain"):
             for index, stage in enumerate(data.get(field, [])):
                 provider = stage.get("provider")

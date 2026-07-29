@@ -201,14 +201,36 @@
             ],
             "match": {
                 "signals": [
-                    "vendor:imperva",
-                    "vendor:reese84",
                     "cookie:reese84",
                     "header:x-d-token",
+                    "script:initializeProtection",
+                    "response:token-renew-cookie-domain",
+                    "challenge:randomized-path",
+                    "resource:incapsula-swji",
+                    "business:x-d-token-consumer",
                     "api:amadeus-dapi",
                     "site:bangkokair"
                 ],
                 "minimumIndependentSignals": 2,
+                "requiredSignalGroups": [
+                    {
+                        "name": "reese84-native",
+                        "anyOf": [
+                            "cookie:reese84",
+                            "header:x-d-token",
+                            "script:initializeProtection",
+                            "response:token-renew-cookie-domain"
+                        ]
+                    },
+                    {
+                        "name": "independent-corroboration",
+                        "anyOf": [
+                            "challenge:randomized-path",
+                            "resource:incapsula-swji",
+                            "business:x-d-token-consumer"
+                        ]
+                    }
+                ],
                 "negativeSignals": [
                     "vendor:akamai",
                     "vendor:river-security",
@@ -235,7 +257,7 @@
             ],
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "20c48dd9dcf0af632f5d00dad1ec2f58d6f9c1dd5f6d0b56db8462a54b71158b"
+                "sha256": "7dc4b3fc4334e6ffbf0da26eb30034f9a17ac7cd293b89f92cd227577764f514"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

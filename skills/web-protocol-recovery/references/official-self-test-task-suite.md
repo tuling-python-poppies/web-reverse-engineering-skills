@@ -84,6 +84,46 @@ Must conclude:
 - corroborate the family across at least two evidence surfaces before loading a specialized scaffold or playbook
 - keep the classification provisional and continue evidence gathering when corroboration is still missing
 
+## Task 0A1: Generic Imperva is not Reese84 proof
+
+Prompt:
+
+```text
+The page shows Imperva Pardon Our Interruption, HTTP 403, and one visid_incap cookie. There is no reese84 cookie, x-d-token, initializeProtection script, or token/renewInSec/cookieDomain solution response. Is this Reese84, and should I open Camoufox?
+```
+
+Expected route:
+
+- `references/startup-triage-playbook.md`
+- `references/anti-patterns-playbook.md`
+
+Must conclude:
+
+- keep `shape: evidence`; do not select `route: reese84`
+- generic Imperva branding, interstitial, error 15, or one incap cookie is not Reese84 proof
+- require one Reese84-native marker plus an independent network/script/cookie-transition/business-consumer surface
+- Imperva/Reese84 wording alone is not a Camoufox criterion; fresh URL recon starts with Chromium after gates
+
+## Task 0A2: Reese84 native plus corroboration owns the gate
+
+Prompt:
+
+```text
+Capture has a reese84 cookie, matching x-d-token, initializeProtection challenge script, and a solution response with token, renewInSec, and cookieDomain. Prove the challenge state before Python business replay.
+```
+
+Expected route:
+
+- `references/providers/protocol-recovery/reese84/PROVIDER.md`
+
+Must conclude:
+
+- select `route: reese84` with primary gate `challenge`
+- Reese84 remains protocol and acceptance owner while any later iv8/python-node handoff only produces a narrow artifact
+- preserve one coherent challenge -> cookie/header projection -> business-consumer chain
+- do not treat token length, OAuth 200, or one HTTP 200 as business success
+- final live egress stays Python-owned after the challenge boundary is accepted
+
 ## Task 0G: Explicit Camoufox route
 
 Prompt:

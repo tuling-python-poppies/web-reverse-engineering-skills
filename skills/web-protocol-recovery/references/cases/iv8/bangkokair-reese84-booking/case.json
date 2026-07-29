@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-bangkokair-reese84-booking",
-  "revision": 7,
+  "revision": 8,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
@@ -117,7 +117,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "67b75677426cce2e2a6f782b551f82a67299d49340a5928ada2a83725f7a3f11"
+      "sha256": "3e4b13eed045f2ef55deba2adefefac1f1383175344ba37b1b2dfc277a592f21"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -143,10 +143,10 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-29T21:39:18+08:00",
+    "metadataMigratedAt": "2026-07-29T22:10:00+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Clarified the Reese84 owner chain, added disjoint native/corroboration signal groups, and kept the case template-only with no active implementation."
+    "migration": "Clarify optional chromium-recon as pre-route only, mark L1/L2/L3 live rows as historical provenance, and keep template-only with no active implementation."
   },
   "implementation": null,
   "sourceStage": {

@@ -109,15 +109,25 @@ Moving state (names only; values pulled live, never stored in the case library):
 
 ## Provider Order
 
-`case.json.requiredCurrentProviderChain` starts at the accepted protocol owner.
-For a fresh target, use `chromium-recon` first only when supplied artifacts do
-not already prove the Reese84 route; reconnaissance is a pre-route evidence
-step, not part of the owner/implementation/delivery chain.
+`case.json.requiredCurrentProviderChain` is the owner chain only. It starts at
+the accepted protocol owner and does **not** include reconnaissance.
 
-1. `chromium-recon` when current evidence is insufficient (optional Cloak tier after its own gate) — prove the Imperva gate and capture challenge path, OAuth, air-bounds shape, and fare family codes.
-2. `reese84` — own family proof, challenge/cookie/header state, transport coherence, refresh boundaries, and business acceptance.
-3. `iv8` (when generating reese84 offline) — run randomized challenge JS with page.load + pyHttp bridge; Python owns real HTTP for gpc/solution while Reese84 keeps acceptance ownership.
-4. `python-collector` — OAuth + air-bounds + parse; progress via `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
+### Pre-route (optional)
+
+- `chromium-recon` only when supplied artifacts do not already prove the Reese84
+  route (optional Cloak tier after its own gate). Capture challenge path, OAuth,
+  air-bounds shape, and fare family codes. This is a pre-route evidence step,
+  never an owner-chain stage.
+
+### Owner / implementation / delivery chain
+
+1. `reese84` — family proof, challenge/cookie/header state, transport coherence,
+   refresh boundaries, and business acceptance.
+2. `iv8` (when generating reese84 offline) — run randomized challenge JS with
+   page.load + pyHttp bridge; Python owns real HTTP for gpc/solution while
+   Reese84 keeps acceptance ownership.
+3. `python-collector` — OAuth + air-bounds + parse; progress via
+   `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
 
 ## Historical Implementation Shape
 
@@ -149,12 +159,25 @@ Desktop project pattern: bare `python main.py` → **mode=l3, engine=iv8**. Opti
 
 ## Fixed-Vector / Live Proof
 
-- Offline fixture shape for air-bounds samples was reported PASS in the source-project tests on 2026-07-22. No current case unit test is bundled; this is historical provenance, not current acceptance.
-- Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200; BKK→CNX priced bounds — PASS (2026-07-22).
-- Live **L2 pure iv8** (2026-07-23): challenge → solution POST (~28–35KB) → token → OAuth → air-bounds **15** flights BKK–CNX (cheapest PG215 PGPROMO 2630 THB). **No browser automation / cookie paste.**
-- Live **L3 pure iv8** (2026-07-23): two independent cold sessions, both success, distinct token SHA-256; bare `python main.py` default path.
-- Redacted live proof summary: `fixtures/live-proof.summary.json` (no raw cookie, OAuth token, client secret, HAR, or private response body).
-- Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`; no OS temp as primary storage; on-demand cache namespaces only.
+All rows below are **historical source-project provenance**, not current
+acceptance. No current case unit test is bundled. Reuse requires fresh
+authorization, reconstruction, and rerun on the current target.
+
+- Offline fixture shape for air-bounds samples: reported PASS in the
+  source-project tests on 2026-07-22 (historical only).
+- Live **L1** (approved session with fresh reese84): OAuth 200 → air-bounds 200;
+  BKK→CNX priced bounds — historical PASS (2026-07-22).
+- Live **L2 pure iv8** (2026-07-23): challenge → solution POST (~28–35KB) →
+  token → OAuth → air-bounds **15** flights BKK–CNX (cheapest PG215 PGPROMO
+  2630 THB). No browser automation / cookie paste. Historical only.
+- Live **L3 pure iv8** (2026-07-23): two independent cold sessions, both
+  success, distinct token SHA-256; bare `python main.py` default path.
+  Historical only.
+- Redacted live proof summary: `fixtures/live-proof.summary.json` (no raw
+  cookie, OAuth token, client secret, HAR, or private response body;
+  `currentAcceptance: false`).
+- Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`;
+  no OS temp as primary storage; on-demand cache namespaces only.
 
 ### iv8 implementation keys (L2) — critical
 

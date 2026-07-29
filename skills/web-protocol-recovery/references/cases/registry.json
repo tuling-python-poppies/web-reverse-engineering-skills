@@ -257,7 +257,7 @@
             ],
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "7dc4b3fc4334e6ffbf0da26eb30034f9a17ac7cd293b89f92cd227577764f514"
+                "sha256": "57eada12cd69909ad5e39c77e86b3f34c7f0c3465c3be5262b86b806a1d8e96e"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

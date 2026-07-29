@@ -174,8 +174,9 @@ authorization, reconstruction, and rerun on the current target.
   success, distinct token SHA-256; bare `python main.py` default path.
   Historical only.
 - Redacted live proof summary: `fixtures/live-proof.summary.json` (no raw
-  cookie, OAuth token, client secret, HAR, or private response body;
-  `currentAcceptance: false`).
+  cookie, OAuth token, client secret, HAR, or private response body). The case
+  manifest classifies this artifact as historical provenance with
+  `currentAcceptance: false`; the proof file does not claim current acceptance.
 - Layout lesson: dynamic evidence only under `projectRoot/js_reverse_cache/**`;
   no OS temp as primary storage; on-demand cache namespaces only.
 

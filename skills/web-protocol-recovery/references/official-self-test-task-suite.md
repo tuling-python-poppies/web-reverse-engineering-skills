@@ -109,7 +109,7 @@ Must conclude:
 Prompt:
 
 ```text
-Capture has a reese84 cookie, matching x-d-token, initializeProtection challenge script, and a solution response with token, renewInSec, and cookieDomain. Prove the challenge state before Python business replay.
+Capture has an initializeProtection script loaded from a randomized challenge path. Its solution response carries token, renewInSec, and cookieDomain; that token is then written as the reese84 cookie, projected as matching x-d-token, and consumed by the first business request. Prove the challenge state before accepting the Python business replay.
 ```
 
 Expected route:

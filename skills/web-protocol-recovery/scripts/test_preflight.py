@@ -113,6 +113,11 @@ class PreflightSelfTestGateTests(unittest.TestCase):
             ) as self_tests,
             mock.patch.object(
                 preflight,
+                "check_diagnostic_self_tests",
+                return_value=(True, "diagnostic tests ok"),
+            ) as diagnostic_tests,
+            mock.patch.object(
+                preflight,
                 "check_provider_guard_contracts",
                 return_value=(True, "guards ok"),
             ),
@@ -128,8 +133,39 @@ class PreflightSelfTestGateTests(unittest.TestCase):
             code = preflight.main(["--skip-tests"])
         self.assertEqual(0, code)
         self_tests.assert_called_once()
+        diagnostic_tests.assert_called_once()
         discover.assert_not_called()
         case_tests.assert_not_called()
+
+
+class DiagnosticSelfTestGateTests(unittest.TestCase):
+    def test_missing_diagnostic_script_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ok, out = preflight.check_diagnostic_self_tests(
+                ("scripts/missing.py",),
+                Path(tmp),
+            )
+        self.assertFalse(ok)
+        self.assertEqual("MISSING scripts/missing.py", out)
+
+    def test_diagnostic_script_runs_self_test(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            scripts = root / "scripts"
+            scripts.mkdir()
+            (scripts / "tool.py").write_text("pass\n", encoding="utf-8")
+            with mock.patch.object(
+                preflight,
+                "run",
+                return_value=(0, "tool_self_test=PASS\n"),
+            ) as runner:
+                ok, out = preflight.check_diagnostic_self_tests(
+                    ("scripts/tool.py",),
+                    root,
+                )
+        self.assertTrue(ok, out)
+        command = runner.call_args.args[0]
+        self.assertEqual("--self-test", command[-1])
 
 
 class ProviderGuardContractTests(unittest.TestCase):

@@ -29,6 +29,7 @@ Read focused generic references when the symptom matches. First response loads 0
 
 - `references/decoy-and-real-request-playbook.md` when the page and the wire disagree on the real endpoint
 - `references/transport-wrapper-playbook.md` when transport wrappers rewrite params, headers, or payloads
+- `references/multi-writer-field-playbook.md` when one field has disjoint value shapes, more than one writer path, or a locally proved writer never appears on accepted wire traffic
 - `references/crypto-patterns.md` when signatures or standard-looking helper outputs do not match fixed inputs
 - `references/obfuscation-guide.md` when packed code or string tables dominate the bundle
 
@@ -48,10 +49,12 @@ Read focused generic references when the symptom matches. First response loads 0
 - `references/providers/implementation/iv8/PROVIDER.md` after the embedded-runtime playbook selects `iv8`; the Provider routes to its runtime cheatsheet after API verification
 - `references/hook-techniques.md` when runtime proof is faster than static reading
 - `references/offline-inline-deob-playbook.md` when live inspection is unstable, anti-debug noise is high, or inline/eval-packed code must move offline
+- `references/opaque-runtime-profile-playbook.md` when stage-level transforms require one coherent runtime profile, fragments from separate runs fail when combined, or delivery class must distinguish algorithmic/profile-driven/artifact-pool behavior
 
 ## Transport, Decode, And Structured Payloads
 
 - `references/transport-pre-gate-playbook.md` when TLS, ALPN, UA, HTTP version, or route admission blocks semantics before signer/cookie analysis
+- `references/native-transport-profile-playbook.md` only after the transport pre-gate proves the nearest maintained impersonation backend cannot express one observed TLS/H2/connection field
 - `references/response-decode-playbook.md` when the payload needs local decode before it becomes usable data
 - `references/structured-transport-playbook.md` when GraphQL, WebSocket, protobuf, msgpack, or binary envelopes carry the real contract
 - `references/jsvmp-analysis-playbook.md` when a custom VM or bytecode interpreter hides the logic
@@ -60,6 +63,7 @@ Read focused generic references when the symptom matches. First response loads 0
 
 - `references/providers/protocol-recovery/verifier/PROVIDER.md` when captcha or one-shot verification is the protocol gate. The Provider owns the captcha family router; read exactly one selected family reference such as Geetest, Tencent TDC, Aliyun V2/V3, CSDN, Ctrip, ByteDance VerifyCenter, Yidun, Shumei, Yunpian, 360 Tianyu, or generic `replay-playbook.md` for unknown families.
 - `references/pagination-route-pivot-playbook.md` when later pages pivot route families or raw pager metadata beats parsed DOM
+- `references/async-export-job-playbook.md` when create/poll/download is a task state machine and this run needs new-task proof plus file-completeness gates
 - `references/page-specific-exception-playbook.md` when only one page or one request behaves differently
 - `references/troubleshooting-playbook.md` when replay logic is almost correct but still unstable
 - `references/stateful-stream-e2ee-playbook.md` when login, pairing, session keys, keepalive frames, or media decryption make the stream stateful
@@ -69,6 +73,7 @@ Read focused generic references when the symptom matches. First response loads 0
 - `references/doctrine-index.md` for family-level invariants
 - `references/pattern-atlas.md#symptom-index` for symptom -> first move
 - `references/minimal-verifiable-facts-playbook.md` when durable facts must be recorded
+- `references/reproducible-evidence-playbook.md` when captures must be normalized without reusable state, accepted/rejected chains need a first-divergence proof, or a deterministic negative control is required
 
 ## Maintaining This Skill (not ordinary protocol tasks)
 

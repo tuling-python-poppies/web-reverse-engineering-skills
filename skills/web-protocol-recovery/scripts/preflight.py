@@ -9,13 +9,14 @@ Runs offline checks that should pass before committing skill edits:
 4. route regression eval metadata (validate_evals.py)
 5. all case unit tests discovered under references/cases/*/*/tests
 6. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
-7. discipline scans on case Python files:
+7. bundled diagnostic self-tests for evidence, chain, transform, transport, and local controls
+8. discipline scans on case Python files:
    - bare top-level `import iv8`
    - import-time mkdir/network/request binding
    - module-level live side effects (AST): with-blocks, requests.* aliases,
      curl_cffi.requests, _iv8()/JSContext, mkdir, unguarded side-effect helpers
-8. Provider live-template guard contracts (Camoufox/GT4 fail-closed markers)
-9. HEAD commit-body policy for high-impact case edits when Git metadata exists
+9. Provider live-template guard contracts (Camoufox/GT4 fail-closed markers)
+10. HEAD commit-body policy for high-impact case edits when Git metadata exists
 
 `--skip-tests` skips only discovered case unit tests. Step 3 always runs, and a
 missing scripts/test_preflight.py is a hard failure (fail closed).
@@ -51,6 +52,13 @@ CASE_SELECTION_REGISTRY_KEYS = (
 )
 CASE_IGNORED_DIR_NAMES = {".pytest_cache", "__pycache__"}
 CASE_IGNORED_FILE_NAMES = {".DS_Store", "Thumbs.db"}
+DIAGNOSTIC_SELF_TESTS = (
+    "scripts/evidence_normalizer.py",
+    "scripts/transcript_diff.py",
+    "scripts/transform_trace_diff.py",
+    "scripts/transport_profile_diff.py",
+    "scripts/practice_lab.py",
+)
 
 ProviderGuardContract = tuple[str, tuple[str, ...], str]
 PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
@@ -338,6 +346,25 @@ def check_preflight_unit_tests() -> tuple[bool, str]:
         return False, "MISSING scripts/test_preflight.py"
     code, out = run([sys.executable, str(test_path), "-v"], SKILL_ROOT)
     return code == 0, out.strip()
+
+
+def check_diagnostic_self_tests(
+    rel_paths: Sequence[str] = DIAGNOSTIC_SELF_TESTS,
+    skill_root: Path = SKILL_ROOT,
+) -> tuple[bool, str]:
+    out_parts: list[str] = []
+    for rel_path in rel_paths:
+        path = skill_root / rel_path
+        if not path.is_file():
+            return False, f"MISSING {rel_path}"
+        code, out = run(
+            [sys.executable, "-B", str(path), "--self-test"],
+            skill_root,
+        )
+        out_parts.append(f"{rel_path}: {out.strip()}")
+        if code != 0:
+            return False, "\n".join(out_parts)
+    return True, "\n".join(out_parts)
 
 
 def check_acceptance_unit_tests() -> tuple[bool, str]:
@@ -787,6 +814,12 @@ def main(argv: list[str] | None = None) -> int:
     print(out)
     if not ok:
         failures.append("scripts/test_preflight.py failed")
+
+    print("\n== diagnostic self-tests ==")
+    ok, out = check_diagnostic_self_tests()
+    print(out)
+    if not ok:
+        failures.append("diagnostic self-tests failed")
 
     print("\n== acceptance unit tests ==")
     ok, out = check_acceptance_unit_tests()

@@ -100,6 +100,7 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | Page and wire disagree on route | `decoy-and-real-request-playbook.md` |
 | Wrapper changes query/body/header slots | `transport-wrapper-playbook.md` |
 | Helper named md5/btoa/sha but fixed inputs disagree with stdlib | `crypto-patterns.md` |
+| One field has short/long bands or several writer call stacks | `multi-writer-field-playbook.md` |
 | Browser vs local multi-layer mismatch; redirect/wrapper triage still open | `environment-patch-playbook.md` |
 | Live inspection unstable; debugger traps / self-rewriting sources | `offline-inline-deob-playbook.md` |
 | Challenge harvest / server-JS cookie / side asset / full envelope | `challenge-state-envelope-playbook.md` (one file only) |
@@ -108,7 +109,11 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 | Akamai `_abck` / `bm_*` / `sensor_data` / `/akam/13/pixel_*` gates business request | `references/providers/protocol-recovery/akamai/PROVIDER.md` |
 | River Security / 瑞数 `412` + `$_ts` / S-T Cookie / `r="m"` gates business request | `references/providers/protocol-recovery/river-security/PROVIDER.md` |
 | Output depends on navigator/DOM/reflection/native surfaces | `environment-patch-playbook.md` |
+| Complete runtime profiles work but mixed fragments or later transform stages fail | `opaque-runtime-profile-playbook.md` |
+| Accepted/rejected chains need secret-free normalization and first-divergence comparison | `reproducible-evidence-playbook.md` |
+| Maintained impersonation backend cannot express one proved TLS/H2 field | `native-transport-profile-playbook.md` |
 | Encoded/compressed/font/binary response | `response-decode-playbook.md` |
+| Export/report uses create, task polling, delayed verification, and download | `async-export-job-playbook.md` |
 | Replay exists but `403`/`412`/`429`, business error, stale state, or pacing remains | `troubleshooting-playbook.md` |
 
 ## Local Helpers
@@ -116,4 +121,9 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 - `scripts/check_reverse_env.py`: verify local reverse dependencies.
 - `scripts/crypto_fingerprint.py`: classify suspicious digest/alphabet output.
 - `scripts/protocol_diff.py`: compare captured wire structures.
+- `scripts/evidence_normalizer.py`: normalize HAR/transcript chains into secret-free ordered evidence.
+- `scripts/transcript_diff.py`: report the first structural difference between normalized chains.
+- `scripts/transform_trace_diff.py`: report the first stage and byte divergence in runtime traces.
+- `scripts/transport_profile_diff.py`: validate and compare ordered TLS/H2/connection profiles.
+- `scripts/practice_lab.py`: run seven deterministic protocol cases with negative controls.
 - `scripts/providers/delivery/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple` paths.

@@ -62,3 +62,4 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-27T09:38	d8342b4	darwin-skill	-	-	keep	ledger	audit backfill: trim WPR ledger blank line commit; no score claim	dry_run
 2026-07-27T09:39	05ee5fd	web-protocol-recovery	90.8	90.8	keep	dim8	full_test selected prompts 1/7/20/25/33/34/36/37 pass 8/8 including vendor-only negative #37; executor+judge agree; closes captcha vendor-only pending; no score increase	full_test
 2026-07-27T15:00	1ad5b90	web-protocol-recovery	90.8	90.8	keep	dim8	pin close commit: full_test 1/7/20/25/33/34/36/37 pass 8/8; adds vendor-only negative #37; closes pending_full_test; no score increase	full_test
+2026-07-29T16:05	WORKTREE	web-protocol-recovery	-	-	keep	capability	offline evidence, transform, transport, export, and multi-writer controls; strict preflight PASS; no score claim	dry_run

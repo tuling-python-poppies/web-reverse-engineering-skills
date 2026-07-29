@@ -1,7 +1,6 @@
 {
-  "policy": "Read-only historical implementations restored from git f19f82c~1 (before offline-only rewrite). Not delivery. Not imported by case entry. Final live egress: project main.py + python-collector.",
-  "source": "f19f82c~1",
-  "offlineOnlyCommit": "f19f82c",
+  "policy": "Read-only historical implementations restored from git 1e719718a25a52776b28518948715e6238576fe0 before the offline-only rewrite. Not delivery. Not imported by active cases. Final live egress: project main.py + python-collector.",
+  "offlineOnlyCommit": "f19f82c298355aeeb182b1937721bd53ea793f8b",
   "files": [
     {
       "caseRelative": "iv8/bangkokair-reese84-booking/entry.py",
@@ -116,6 +115,22 @@
       "archivePath": "references/case-live-reference-archive/pure-python/jd-h5st/entry.py",
       "sha256": "d27c15d05020fbcd59594d1e2ffd85560a2aa28373565a3882a60847f449cfba",
       "bytes": 11006
+    }
+  ],
+  "schemaVersion": "web-protocol-recovery-case-live-reference-archive",
+  "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+  "reviewedSensitiveLiterals": [
+    {
+      "archivePath": "references/case-live-reference-archive/iv8/bangkokair-reese84-booking/lib/http_session.py",
+      "finding": "function-default:install_reese_cookie.cookie_domain",
+      "classification": "public-cookie-domain",
+      "reason": "Public cookie scope hostname used by the historical helper; not a cookie value or credential."
+    },
+    {
+      "archivePath": "references/case-live-reference-archive/iv8/nmpa-md5-cookie/entry.py",
+      "finding": "function-default:json_md5_to_str.app_secret",
+      "classification": "historical-protocol-constant",
+      "reason": "Public request-signing constant retained byte-for-byte from the source commit; not a user credential."
     }
   ]
 }

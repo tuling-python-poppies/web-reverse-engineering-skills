@@ -1,11 +1,11 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-douyin-bdms",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
-  "caseKind": "implementation",
+  "caseKind": "evidence",
   "verificationClass": "historical-user-attested",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
@@ -30,11 +30,6 @@
     "product": "BDMS",
     "version": "1.0.1.19",
     "subtype": "xhr-signing"
-  },
-  "dependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "requests": "installed"
   },
   "preRead": [
     {
@@ -72,21 +67,17 @@
         "path": "assets/bdms_1.0.1.19.js",
         "sha256": "a4e76e3825da71a6b6825d59cd4589a414584be335b53e41bdfc13dab2d88ea8"
       }
-    ],
-    "entry": {
-      "path": "entry.py",
-      "sha256": "97afdfe7862cf9ef4335036703de3744521c7673c7f9f973a1e6e8cd17e033f8"
-    }
+    ]
   },
   "verification": {
-    "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-29",
+    "activeCaseScope": "template-evidence-only",
+    "dependencyPolicy": "historical-only; do not install from case reuse",
+    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
   },
-  "implementation": {
-    "mode": "iv8",
-    "strategy": null,
-    "profile": null
-  },
+  "implementation": null,
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
@@ -113,5 +104,20 @@
       "role": "delivery",
       "purpose": "delivery"
     }
-  ]
+  ],
+  "historicalReferences": [
+    {
+      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
+      "archivePath": "references/case-live-reference-archive/iv8/douyin-bdms/entry.py",
+      "sha256": "576a2d21742812459d5da8f14dbcf572033de836883f62ad9455993ebb5a5235",
+      "bytes": 5245,
+      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+      "readPolicy": "study-only"
+    }
+  ],
+  "historicalDependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  }
 }

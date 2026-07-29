@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "web-protocol-recovery-case.schema.json",
-  "title": "web-protocol-recovery case v2",
+  "title": "web-protocol-recovery case",
   "type": "object",
-  "required": ["schemaVersion", "caseId", "status", "family", "runtime", "caseKind", "match", "artifacts", "verification"],
+  "required": ["schemaVersion", "caseId", "revision", "status", "family", "runtime", "caseKind", "implementation", "match", "artifacts", "verification", "verificationClass", "requiresFreshVerification", "secretPolicy"],
   "properties": {
     "schemaVersion": {"const": "web-protocol-recovery-case"},
     "caseId": {"type": "string", "minLength": 1},
@@ -20,6 +20,22 @@
         "profile": {"type": ["string", "null"]}
       }
     },
+    "historicalReferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["manifestPath", "archivePath", "sha256", "bytes", "sourceCommit", "readPolicy"],
+        "properties": {
+          "manifestPath": {"const": "references/case-live-reference-archive/MANIFEST.json"},
+          "archivePath": {"type": "string", "pattern": "^references/case-live-reference-archive/"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "sourceCommit": {"type": "string", "minLength": 1},
+          "readPolicy": {"const": "study-only"}
+        },
+        "additionalProperties": false
+      }
+    },
     "sourceStage": {"type": "object"},
     "historicalProviderChain": {"type": "array"},
     "requiredCurrentProviderChain": {"type": "array"},
@@ -34,5 +50,42 @@
     "verificationClass": {"enum": ["freshly-verified", "historical-user-attested"]},
     "requiresFreshVerification": {"type": "boolean"},
     "secretPolicy": {"const": "redacted-pull-live"}
-  }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"caseKind": {"const": "evidence"}}, "required": ["caseKind"]},
+      "then": {
+        "required": ["implementation"],
+        "properties": {
+          "implementation": {"type": "null"},
+          "artifacts": {
+            "not": {"required": ["entry"]}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"caseKind": {"const": "implementation"}}, "required": ["caseKind"]},
+      "then": {
+        "required": ["implementation"],
+        "properties": {
+          "implementation": {"type": "object", "required": ["mode"]},
+          "artifacts": {"required": ["entry"]}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"verificationClass": {"const": "historical-user-attested"}},
+        "required": ["verificationClass"]
+      },
+      "then": {
+        "required": ["requiresFreshVerification"],
+        "properties": {
+          "caseKind": {"const": "evidence"},
+          "requiresFreshVerification": {"const": true}
+        }
+      }
+    }
+  ]
 }

@@ -14,7 +14,9 @@
       "rounds_completed": 1,
       "prompts": 10,
       "comparison": "with_skill_clear_win",
-      "eval_mode": "full_test"
+      "eval_mode": "reported_full_test_summary",
+      "current_acceptance": false,
+      "integrity": "historical-summary-only; raw model and independent grade artifacts were not retained"
     }
   },
   "evals": [

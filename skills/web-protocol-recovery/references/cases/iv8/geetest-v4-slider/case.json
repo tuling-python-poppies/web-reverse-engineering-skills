@@ -1,11 +1,11 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-geetest-v4-slider",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "verifier",
   "runtime": "iv8",
-  "caseKind": "implementation",
+  "caseKind": "evidence",
   "verificationClass": "historical-user-attested",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
@@ -31,14 +31,6 @@
     "version": "v4",
     "subtype": "slider"
   },
-  "dependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "curl_cffi": "installed",
-    "ddddocr": "installed",
-    "opencv": "installed",
-    "pillow": "installed"
-  },
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
@@ -62,21 +54,17 @@
       "path": "pull_live_state.py",
       "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
     },
-    "assets": [],
-    "entry": {
-      "path": "entry.py",
-      "sha256": "7819715799e9a702ecedc93b947349e779ba76f883b242cbcd0af4be8d31ae9a"
-    }
+    "assets": []
   },
   "verification": {
-    "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-29",
+    "activeCaseScope": "template-evidence-only",
+    "dependencyPolicy": "historical-only; do not install from case reuse",
+    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
   },
-  "implementation": {
-    "mode": "iv8",
-    "strategy": null,
-    "profile": null
-  },
+  "implementation": null,
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
@@ -113,5 +101,23 @@
       "role": "delivery",
       "purpose": "delivery"
     }
-  ]
+  ],
+  "historicalReferences": [
+    {
+      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
+      "archivePath": "references/case-live-reference-archive/iv8/geetest-v4-slider/entry.py",
+      "sha256": "c6d499c9bd75a16a5ec238fb4702fabd2624508289e7b4f8dddf0c4241c5db68",
+      "bytes": 10500,
+      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+      "readPolicy": "study-only"
+    }
+  ],
+  "historicalDependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "curl_cffi": "installed",
+    "ddddocr": "installed",
+    "opencv": "installed",
+    "pillow": "installed"
+  }
 }

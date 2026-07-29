@@ -1,11 +1,11 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-chng-ruishu-announcement",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
-  "caseKind": "implementation",
+  "caseKind": "evidence",
   "verificationClass": "historical-user-attested",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
@@ -52,12 +52,6 @@
     "version": "legacy",
     "subtype": "chng-announcement"
   },
-  "dependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "requests": "installed",
-    "loguru": "optional"
-  },
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
@@ -81,21 +75,17 @@
       "path": "pull_live_state.py",
       "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
     },
-    "assets": [],
-    "entry": {
-      "path": "entry.py",
-      "sha256": "eba3f0aee0078c346a461d8df6b0571315c5c8297dda6f3f9c4400212b68c571"
-    }
+    "assets": []
   },
   "verification": {
-    "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-29",
+    "activeCaseScope": "template-evidence-only",
+    "dependencyPolicy": "historical-only; do not install from case reuse",
+    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
   },
-  "implementation": {
-    "mode": "iv8",
-    "strategy": null,
-    "profile": null
-  },
+  "implementation": null,
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
@@ -128,5 +118,21 @@
       "role": "delivery",
       "purpose": "delivery"
     }
-  ]
+  ],
+  "historicalReferences": [
+    {
+      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
+      "archivePath": "references/case-live-reference-archive/iv8/chng-ruishu-announcement/entry.py",
+      "sha256": "d5d69ab0073a381491a765db8a27da803fa12e50791c5febe201d66ae55a9340",
+      "bytes": 10857,
+      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+      "readPolicy": "study-only"
+    }
+  ],
+  "historicalDependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed",
+    "loguru": "optional"
+  }
 }

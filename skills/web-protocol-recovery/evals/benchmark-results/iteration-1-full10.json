@@ -1,13 +1,22 @@
 {
   "skill_name": "web-protocol-recovery",
-  "eval_mode": "full_test",
+  "eval_mode": "reported_full_test_summary",
   "iteration": 1,
   "rounds_executed": 1,
   "note": "evals.json declares rounds=3; this acceptance run executed 1 full round of 10 prompts (with-skill vs baseline) due to cost. Rounds 2-3 optional.",
   "executor": "opencode-task-subagent-with-skill-prompt",
   "baseline_executor": "opencode-task-subagent-generic",
   "reviewer": "orchestrator-independent-grading-pass",
-  "head": "82c1610+",
+  "benchmark_base_commit": "82c1610917b84adfce1eaa9df67d754c6c33ee43",
+  "record_commit": "385b11d019fd9d6d3c432d27c5518754fc2815dc",
+  "prompt_file_sha256": "348dad72d97ea3e469c582390fe5fc97e9fdc22b8aa032fa8c07b2977234ee36",
+  "integrity": {
+    "raw_outputs_available": false,
+    "independent_grade_artifacts_available": false,
+    "current_acceptance": false,
+    "classification": "historical-summary-only",
+    "reason": "The commit retained aggregate case verdicts but not the 20 raw model outputs or independent grading records required for reproducible acceptance."
+  },
   "cases": [
     {
       "id": 1,

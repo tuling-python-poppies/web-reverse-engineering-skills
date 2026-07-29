@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import unittest
@@ -63,7 +64,7 @@ class PurePythonJdH5stTests(unittest.TestCase):
         self.assertEqual(products[0]["price"], "99.00")
         self.assertEqual(products[0]["shopId"], 10001)
 
-    def test_redacted_live_proof_summary(self) -> None:
+    def test_historical_live_proof_requires_fresh_replay(self) -> None:
         proof = json.loads(
             (CASE_ROOT / "fixtures" / "live-proof.summary.json").read_text(encoding="utf-8")
         )
@@ -72,6 +73,28 @@ class PurePythonJdH5stTests(unittest.TestCase):
         self.assertTrue(proof["passed"])
         self.assertGreaterEqual(proof["businessRowsObserved"], 1)
         self.assertIn("no live tk", proof["secretPolicy"])
+        self.assertIn("requires fresh", proof["currentTargetReuse"])
+
+    def test_offline_proof_binds_current_entry_and_test(self) -> None:
+        proof = json.loads(
+            (CASE_ROOT / "fixtures" / "offline-proof.summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(proof["activeScope"], "offline-only")
+        self.assertFalse(proof["historicalLiveProofIsCurrentAcceptance"])
+        self.assertEqual(
+            proof["entrySha256"],
+            hashlib.sha256((CASE_ROOT / "entry.py").read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            proof["testArtifactSha256"],
+            hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        )
+
+    def test_live_run_is_rejected(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "offline-only"):
+            entry.run(live=True)
 
 
 if __name__ == "__main__":

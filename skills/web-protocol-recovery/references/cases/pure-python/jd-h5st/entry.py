@@ -1,6 +1,5 @@
 # Offline-only case entry for unit tests and local proof.
-# Historical full implementation:
-#   references/case-live-reference-archive/pure-python/jd-h5st/entry.py
+# Historical full implementation is declared by case.json.historicalReferences.
 # Final live egress: projectRoot main.py + python-collector work-order.
 
 from __future__ import annotations
@@ -20,7 +19,7 @@ from typing import Any
 def _reject_case_live_egress(action: str = "live HTTP") -> None:
     raise RuntimeError(
         f"case entry refuses {action}: offline-only. "
-        "Historical code: references/case-live-reference-archive/pure-python/jd-h5st/entry.py. "
+        "Historical study references are declared by case.json. "
         "Use project main.py + python-collector for live egress."
     )
 
@@ -278,7 +277,7 @@ def run(*, live: bool = False, page: int = 1, page_count: int = 20) -> dict[str,
         "bodySha256": body_sha256(body),
         "jdSha256Abc": jd_sha256("abc"),
         "jdBase64Abc": jd_base64_encode("abc"),
-        "note": "offline-only; historical live entry in case-live-reference-archive",
+        "note": "offline-only; historical study reference is declared by case.json",
     }
 
 

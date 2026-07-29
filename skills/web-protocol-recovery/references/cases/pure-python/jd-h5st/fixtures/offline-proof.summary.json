@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "web-protocol-recovery-offline-proof-summary",
+  "caseId": "pure-python-jd-h5st",
+  "executedAt": "2026-07-29",
+  "passed": true,
+  "activeScope": "offline-only",
+  "entrySha256": "748c677b0257a86bf0373b87d6f4ec7dfad5db68d283be4798eb2f2504dd8a87",
+  "testArtifactSha256": "1b295b6574a7eba39ef1855a31231530be5dbf6f2efcf98e57cfff8f6068c456",
+  "assertions": [
+    "pure-Python hash/base64/signing vectors pass offline",
+    "product parser matches the fixed response fixture",
+    "live=True, request_algo, and product fetch are rejected by the active case entry"
+  ],
+  "historicalLiveProofIsCurrentAcceptance": false
+}

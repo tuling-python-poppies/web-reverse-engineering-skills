@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "web-protocol-recovery-offline-proof-summary",
+  "caseId": "iv8-jd-h5st",
+  "executedAt": "2026-07-29",
+  "passed": true,
+  "activeScope": "offline-only",
+  "entrySha256": "63d4eeed05d9fa98df130e07a0e2987c0c1405565a2b1b82614147bf0e7d47c0",
+  "testArtifactSha256": "f5552cf9bf86b2a04bb2bba7595a404c0e901556426c2321df0c7deed7f41b96",
+  "assertions": [
+    "offline run parses fixed response fixtures",
+    "body hash and h5st shape metadata match fixed vectors",
+    "live=True and live bundle download are rejected by the active case entry"
+  ],
+  "historicalLiveProofIsCurrentAcceptance": false
+}

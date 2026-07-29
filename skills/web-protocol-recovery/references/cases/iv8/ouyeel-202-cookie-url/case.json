@@ -1,11 +1,11 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-ouyeel-202-cookie-url",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
-  "caseKind": "implementation",
+  "caseKind": "evidence",
   "verificationClass": "historical-user-attested",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
@@ -31,11 +31,6 @@
     "version": "legacy",
     "subtype": "ouyeel-202"
   },
-  "dependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "requests": "installed"
-  },
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
@@ -59,21 +54,17 @@
       "path": "pull_live_state.py",
       "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
     },
-    "assets": [],
-    "entry": {
-      "path": "entry.py",
-      "sha256": "3f5c18dbe175f9b1225bdd84bcac222747b112e29ba7e9a53417718a10217eb6"
-    }
+    "assets": []
   },
   "verification": {
-    "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-29",
+    "activeCaseScope": "template-evidence-only",
+    "dependencyPolicy": "historical-only; do not install from case reuse",
+    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
   },
-  "implementation": {
-    "mode": "iv8",
-    "strategy": null,
-    "profile": null
-  },
+  "implementation": null,
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
@@ -100,5 +91,20 @@
       "role": "delivery",
       "purpose": "delivery"
     }
-  ]
+  ],
+  "historicalReferences": [
+    {
+      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
+      "archivePath": "references/case-live-reference-archive/iv8/ouyeel-202-cookie-url/entry.py",
+      "sha256": "45e3424a02682b16d55aa7fa4bbcd687a255054a2871bdf99274020597b49265",
+      "bytes": 5648,
+      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+      "readPolicy": "study-only"
+    }
+  ],
+  "historicalDependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  }
 }

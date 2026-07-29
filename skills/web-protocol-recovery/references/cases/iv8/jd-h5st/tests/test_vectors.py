@@ -11,7 +11,15 @@ from pathlib import Path
 CASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(CASE_DIR))
 
-from entry import body_sha256, parse_products, run  # noqa: E402
+from entry import (  # noqa: E402
+    APP_ID,
+    DEFAULT_BODY,
+    _load_sign_materials,
+    body_sha256,
+    parse_products,
+    run,
+    sign_h5st,
+)
 
 
 class JdH5stVectorTests(unittest.TestCase):
@@ -55,6 +63,15 @@ class JdH5stVectorTests(unittest.TestCase):
         self.assertEqual(shape["containsAppIdSegment"], "2088b")
         self.assertEqual(shape["segmentSeparator"], ";")
 
+    def test_frozen_bundle_generates_h5st(self) -> None:
+        js_code, index_html, source = _load_sign_materials(prefer_live=False)
+        h5st = sign_h5st(js_code, index_html, DEFAULT_BODY)
+        shape = self.vectors["h5stShape"]
+
+        self.assertEqual(source, "frozen-assets")
+        self.assertGreaterEqual(len(h5st), shape["minLength"])
+        self.assertIn(APP_ID, h5st.split(shape["segmentSeparator"]))
+
     def test_acceptance_matrix_documents_frozen_vs_live(self) -> None:
         matrix = self.vectors["acceptanceMatrix"]
         self.assertGreaterEqual(len(matrix), 2)
@@ -67,6 +84,27 @@ class JdH5stVectorTests(unittest.TestCase):
         self.assertEqual(live_rec["expectHttp"], 200)
         self.assertTrue(live_rec["expectProducts"])
         self.assertTrue(self.vectors["invalidation"]["nonEmptyH5stNotEnough"])
+
+    def test_offline_proof_binds_current_entry_and_test(self) -> None:
+        proof = json.loads(
+            (CASE_DIR / "fixtures" / "offline-proof.summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(proof["activeScope"], "offline-only")
+        self.assertFalse(proof["historicalLiveProofIsCurrentAcceptance"])
+        self.assertEqual(
+            proof["entrySha256"],
+            hashlib.sha256((CASE_DIR / "entry.py").read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            proof["testArtifactSha256"],
+            hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        )
+
+    def test_live_run_is_rejected(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "offline-only"):
+            run(live=True)
 
 
 if __name__ == "__main__":

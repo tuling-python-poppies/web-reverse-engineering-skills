@@ -1,11 +1,11 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-nmpa-md5-cookie",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
-  "caseKind": "implementation",
+  "caseKind": "evidence",
   "verificationClass": "historical-user-attested",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
@@ -30,11 +30,6 @@
     "product": "MD5 cookie signer",
     "version": "legacy",
     "subtype": "challenge-plus-business-sign"
-  },
-  "dependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "requests": "installed"
   },
   "preRead": [
     {
@@ -61,21 +56,17 @@
       "path": "pull_live_state.py",
       "sha256": "7d09ff9b17503b07bb7e6aa2e46167aec0101742d68747bca6458176bd3dc02d"
     },
-    "assets": [],
-    "entry": {
-      "path": "entry.py",
-      "sha256": "856e51bb0ca2c45d12cfdc58b4b9ebfb5924e2991be61b393c6ae90fa2ca96f1"
-    }
+    "assets": []
   },
   "verification": {
-    "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-29",
+    "activeCaseScope": "template-evidence-only",
+    "dependencyPolicy": "historical-only; do not install from case reuse",
+    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
   },
-  "implementation": {
-    "mode": "iv8",
-    "strategy": null,
-    "profile": null
-  },
+  "implementation": null,
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
@@ -108,5 +99,20 @@
       "role": "delivery",
       "purpose": "delivery"
     }
-  ]
+  ],
+  "historicalReferences": [
+    {
+      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
+      "archivePath": "references/case-live-reference-archive/iv8/nmpa-md5-cookie/entry.py",
+      "sha256": "b0bdd339a2eeb310fe172cc92e75433bfb955ac6366ad88d4abaf0edd9a35413",
+      "bytes": 4649,
+      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+      "readPolicy": "study-only"
+    }
+  ],
+  "historicalDependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  }
 }

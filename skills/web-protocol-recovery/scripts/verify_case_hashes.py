@@ -15,11 +15,16 @@ file, or verificationClass contract failure.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path, PurePosixPath
 from typing import Any
+
+from jsonschema import Draft202012Validator
 
 
 ARTIFACT_KEYS = ("process", "entry", "pullLiveState")
@@ -33,6 +38,22 @@ KNOWN_VERIFICATION_CLASSES = {
 }
 FRESH_VERIFICATION_CLASS = "freshly-verified"
 HISTORICAL_VERIFICATION_CLASS = "historical-user-attested"
+ARCHIVE_SCHEMA = "web-protocol-recovery-case-live-reference-archive"
+ARCHIVE_REL = "references/case-live-reference-archive"
+ARCHIVE_DIR_NAME = "case-live-reference-archive"
+ARCHIVE_CONTROL_FILES = {"MANIFEST.json", "README.md"}
+ACTIVE_CODE_SUFFIXES = {".py", ".js", ".mjs", ".cjs"}
+SENSITIVE_NAME_PARTS = (
+    "secret",
+    "password",
+    "passwd",
+    "token",
+    "api_key",
+    "apikey",
+    "authorization",
+    "cookie",
+    "credential",
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -41,6 +62,19 @@ def sha256_file(path: Path) -> str:
 
 def load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def schema_findings(schema_path: Path, instance_path: Path) -> list[str]:
+    schema = load_json(schema_path)
+    instance = load_json(instance_path)
+    validator = Draft202012Validator(schema)
+    findings: list[str] = []
+    for error in sorted(validator.iter_errors(instance), key=lambda item: list(item.path)):
+        location = ".".join(map(str, error.path)) or "<root>"
+        findings.append(
+            f"{instance_path.as_posix()}: schema {location}: {error.message}"
+        )
+    return findings
 
 
 def validate_relative_posix_path(
@@ -170,6 +204,15 @@ def is_true(value: Any) -> bool:
     return value is True or value == "true" or value == 1
 
 
+def requires_current_proof_binding(data: dict[str, Any]) -> bool:
+    verification = data.get("verification") or {}
+    proof = verification.get("proof") or {}
+    return (
+        data.get("verificationClass") == FRESH_VERIFICATION_CLASS
+        and proof.get("activeScope") == "offline-only"
+    )
+
+
 def check_verification_contract(
     *,
     rel: str,
@@ -193,6 +236,22 @@ def check_verification_contract(
         mismatches.append(f"{rel}: verification must be an object")
         return
 
+    case_kind = data.get("caseKind")
+    artifacts = data.get("artifacts") or {}
+    implementation = data.get("implementation")
+    if case_kind == "evidence":
+        if implementation is not None:
+            mismatches.append(f"{rel}: evidence case requires implementation=null")
+        if artifacts.get("entry") is not None:
+            mismatches.append(f"{rel}: evidence case must not declare artifacts.entry")
+    elif case_kind == "implementation":
+        if not isinstance(implementation, dict) or not implementation.get("mode"):
+            mismatches.append(f"{rel}: implementation case requires implementation.mode")
+        if not isinstance(artifacts.get("entry"), dict):
+            mismatches.append(f"{rel}: implementation case requires artifacts.entry")
+    else:
+        mismatches.append(f"{rel}: unknown caseKind {case_kind!r}")
+
     if verification_class == FRESH_VERIFICATION_CLASS:
         for key in VERIFICATION_ARTIFACT_KEYS:
             item = verification.get(key)
@@ -209,6 +268,8 @@ def check_verification_contract(
             mismatches.append(f"{rel}: freshly-verified requires verification.executed=true")
         if not is_true(verification.get("passed")):
             mismatches.append(f"{rel}: freshly-verified requires verification.passed=true")
+        if not isinstance(verification.get("executedAt"), str):
+            mismatches.append(f"{rel}: freshly-verified requires verification.executedAt")
         evidence = verification.get("evidenceArtifact")
         if isinstance(evidence, dict):
             evidence_path = evidence.get("path")
@@ -217,6 +278,21 @@ def check_verification_contract(
                     f"{rel}: freshly-verified evidenceArtifact.path must be JSON: {evidence_path}"
                 )
         ok.append(f"{rel}: verificationClass freshly-verified contract")
+        if data.get("historicalReferences"):
+            proof = verification.get("proof") or {}
+            historical = proof.get("historicalLiveProof") or {}
+            if proof.get("activeScope") != "offline-only":
+                mismatches.append(
+                    f"{rel}: archived live provenance requires proof.activeScope=offline-only"
+                )
+            if historical.get("classification") != "historical-archive-provenance":
+                mismatches.append(
+                    f"{rel}: missing historicalLiveProof archive classification"
+                )
+            if historical.get("currentAcceptance") is not False:
+                mismatches.append(
+                    f"{rel}: historicalLiveProof.currentAcceptance must be false"
+                )
         return
 
     if verification_class == HISTORICAL_VERIFICATION_CLASS:
@@ -225,10 +301,262 @@ def check_verification_contract(
                 f"{rel}: historical-user-attested requires requiresFreshVerification=true"
             )
             return
+        if case_kind != "evidence":
+            mismatches.append(
+                f"{rel}: historical-user-attested active cases must be evidence-only"
+            )
+        if data.get("historicalReferences") and not isinstance(
+            verification.get("metadataMigratedAt"), str
+        ):
+            mismatches.append(
+                f"{rel}: archived historical reference requires verification.metadataMigratedAt"
+            )
         ok.append(f"{rel}: verificationClass historical-user-attested contract")
 
 
-def verify_case(skill_root: Path, case_json: Path, mismatches: list[str], ok: list[str]) -> None:
+def call_name(node: ast.AST) -> str:
+    parts: list[str] = []
+    current = node
+    while isinstance(current, ast.Attribute):
+        parts.append(current.attr)
+        current = current.value
+    if isinstance(current, ast.Name):
+        parts.append(current.id)
+    return ".".join(reversed(parts))
+
+
+def string_constants(node: ast.AST) -> list[str]:
+    return [
+        child.value
+        for child in ast.walk(node)
+        if isinstance(child, ast.Constant) and isinstance(child.value, str)
+    ]
+
+
+def active_archive_load_findings(cases_root: Path) -> list[str]:
+    findings: list[str] = []
+    for path in sorted(cases_root.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in ACTIVE_CODE_SUFFIXES:
+            continue
+        if any(part in IGNORED_CASE_DIR_NAMES for part in path.parts):
+            continue
+        source = path.read_text(encoding="utf-8")
+        if path.suffix.lower() != ".py":
+            for lineno, line in enumerate(source.splitlines(), start=1):
+                if ARCHIVE_DIR_NAME in line:
+                    findings.append(
+                        f"{path.relative_to(cases_root).as_posix()}:{lineno}: "
+                        "active case code must not reference the live-reference archive"
+                    )
+            continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                if ARCHIVE_DIR_NAME not in node.value:
+                    continue
+                findings.append(
+                    f"{path.relative_to(cases_root).as_posix()}:{node.lineno}: "
+                    "active case code must not reference the live-reference archive"
+                )
+    return findings
+
+
+def sensitive_literal_findings(archive_root: Path) -> list[tuple[str, str]]:
+    findings: list[tuple[str, str]] = []
+    for path in sorted(archive_root.glob("**/*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        rel = f"{ARCHIVE_REL}/{path.relative_to(archive_root).as_posix()}"
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                args = node.args.args[-len(node.args.defaults) :] if node.args.defaults else []
+                for arg, default in zip(args, node.args.defaults):
+                    if not any(part in arg.arg.lower() for part in SENSITIVE_NAME_PARTS):
+                        continue
+                    if isinstance(default, ast.Constant) and isinstance(default.value, str) and default.value:
+                        findings.append((rel, f"function-default:{node.name}.{arg.arg}"))
+            elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                value = node.value
+                for target in targets:
+                    if not isinstance(target, ast.Name):
+                        continue
+                    if not any(part in target.id.lower() for part in SENSITIVE_NAME_PARTS):
+                        continue
+                    if not (
+                        isinstance(value, ast.Constant)
+                        and isinstance(value.value, str)
+                        and value.value
+                    ):
+                        continue
+                    if (target.id.startswith("ENV_") or target.id.endswith("_ENV")) and re.fullmatch(
+                        r"[A-Z][A-Z0-9_]+", value.value
+                    ):
+                        continue
+                    findings.append((rel, f"module-constant:{target.id}"))
+            elif isinstance(node, ast.Dict):
+                for key, value in zip(node.keys, node.values):
+                    if not (
+                        isinstance(key, ast.Constant)
+                        and isinstance(key.value, str)
+                        and any(part in key.value.lower() for part in SENSITIVE_NAME_PARTS)
+                    ):
+                        continue
+                    if isinstance(value, ast.Constant) and isinstance(value.value, str) and value.value:
+                        findings.append((rel, f"dict-value:{key.value}"))
+    return findings
+
+
+def git_blob_at_source(skill_root: Path, source_commit: str, case_relative: str) -> bytes | None:
+    try:
+        repo = Path(
+            subprocess.check_output(
+                ["git", "-C", str(skill_root), "rev-parse", "--show-toplevel"],
+                text=True,
+            ).strip()
+        )
+        resolved = subprocess.check_output(
+            ["git", "-C", str(repo), "rev-parse", f"{source_commit}^{{commit}}"],
+            text=True,
+        ).strip()
+        if resolved != source_commit:
+            return None
+        prefix = skill_root.relative_to(repo).as_posix()
+        object_path = f"{prefix}/references/cases/{case_relative}"
+        return subprocess.check_output(
+            ["git", "-C", str(repo), "show", f"{source_commit}:{object_path}"]
+        )
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        return None
+
+
+def verify_archive(skill_root: Path, mismatches: list[str], ok: list[str]) -> None:
+    archive_root = skill_root / ARCHIVE_REL
+    manifest_path = archive_root / "MANIFEST.json"
+    if not manifest_path.is_file():
+        mismatches.append(f"missing archive manifest: {manifest_path}")
+        return
+    manifest = load_json(manifest_path)
+    if manifest.get("schemaVersion") != ARCHIVE_SCHEMA:
+        mismatches.append(f"archive schemaVersion must be {ARCHIVE_SCHEMA}")
+    source_commit = manifest.get("sourceCommit")
+    if not isinstance(source_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        mismatches.append("archive sourceCommit must be a full 40-character commit id")
+    offline_only_commit = manifest.get("offlineOnlyCommit")
+    if not isinstance(offline_only_commit, str) or not re.fullmatch(
+        r"[0-9a-f]{40}", offline_only_commit
+    ):
+        mismatches.append(
+            "archive offlineOnlyCommit must be a full 40-character commit id"
+        )
+
+    declared: set[str] = set()
+    for index, item in enumerate(manifest.get("files") or []):
+        archive_path = item.get("archivePath")
+        resolved = resolve_declared_path(
+            label=f"archive files[{index}]",
+            base=skill_root,
+            allowed_root=archive_root,
+            path_value=archive_path,
+            mismatches=mismatches,
+        )
+        if resolved is None:
+            continue
+        path, normalized = resolved
+        declared.add(path.relative_to(archive_root).as_posix())
+        check_path_hash(
+            label=f"archive files[{index}]={archive_path}",
+            path=path,
+            expected=item.get("sha256"),
+            mismatches=mismatches,
+            ok=ok,
+        )
+        if path.is_file() and path.stat().st_size != item.get("bytes"):
+            mismatches.append(
+                f"archive files[{index}] byte size mismatch: {archive_path}"
+            )
+        if item.get("caseRelative") != normalized.removeprefix(f"{ARCHIVE_REL}/"):
+            mismatches.append(
+                f"archive files[{index}] caseRelative does not match archivePath"
+            )
+        if isinstance(source_commit, str) and re.fullmatch(r"[0-9a-f]{40}", source_commit):
+            source_bytes = git_blob_at_source(
+                skill_root, source_commit, str(item.get("caseRelative", ""))
+            )
+            if source_bytes is None:
+                mismatches.append(
+                    f"archive files[{index}] cannot resolve declared source blob"
+                )
+            elif path.is_file() and path.read_bytes() != source_bytes:
+                mismatches.append(
+                    f"archive files[{index}] differs from declared source blob: {archive_path}"
+                )
+            else:
+                ok.append(f"archive files[{index}] source provenance")
+
+    disk = {
+        path.relative_to(archive_root).as_posix()
+        for path in archive_root.rglob("*")
+        if path.is_file()
+        and path.name not in ARCHIVE_CONTROL_FILES
+        and not set(path.parts) & IGNORED_CASE_DIR_NAMES
+    }
+    for path in sorted(declared - disk):
+        mismatches.append(f"archive manifest path missing on disk: {path}")
+    for path in sorted(disk - declared):
+        mismatches.append(f"undeclared archive file: {path}")
+
+    detected = set(sensitive_literal_findings(archive_root))
+    reviewed = {
+        (item.get("archivePath"), item.get("finding"))
+        for item in manifest.get("reviewedSensitiveLiterals") or []
+        if item.get("classification") and item.get("reason")
+    }
+    for finding in sorted(detected - reviewed):
+        mismatches.append(f"unreviewed archive sensitive literal: {finding[0]} {finding[1]}")
+    for finding in sorted(reviewed - detected):
+        mismatches.append(f"stale archive sensitive-literal review: {finding[0]} {finding[1]}")
+
+
+def verify_historical_references(
+    *,
+    skill_root: Path,
+    rel: str,
+    data: dict[str, Any],
+    archive_index: dict[str, dict[str, Any]],
+    mismatches: list[str],
+    ok: list[str],
+) -> None:
+    refs = data.get("historicalReferences") or []
+    for index, item in enumerate(refs):
+        archive_path = item.get("archivePath")
+        manifest_item = archive_index.get(str(archive_path))
+        if manifest_item is None:
+            mismatches.append(f"{rel}: historicalReferences[{index}] is not in archive manifest")
+            continue
+        for key in ("sha256", "bytes"):
+            if item.get(key) != manifest_item.get(key):
+                mismatches.append(
+                    f"{rel}: historicalReferences[{index}].{key} disagrees with archive manifest"
+                )
+        if item.get("manifestPath") != f"{ARCHIVE_REL}/MANIFEST.json":
+            mismatches.append(f"{rel}: historicalReferences[{index}] has wrong manifestPath")
+        if item.get("readPolicy") != "study-only":
+            mismatches.append(f"{rel}: historicalReferences[{index}] must be study-only")
+        if item.get("sourceCommit") != manifest_item.get("sourceCommit"):
+            mismatches.append(f"{rel}: historicalReferences[{index}] sourceCommit mismatch")
+        ok.append(f"{rel}: historicalReferences[{index}]")
+
+
+def verify_case(
+    skill_root: Path,
+    case_json: Path,
+    archive_index: dict[str, dict[str, Any]],
+    mismatches: list[str],
+    ok: list[str],
+) -> None:
     rel = case_json.relative_to(skill_root).as_posix()
     data = load_json(case_json)
     case_dir = case_json.parent
@@ -236,6 +564,14 @@ def verify_case(skill_root: Path, case_json: Path, mismatches: list[str], ok: li
     declared_case_files = {"case.json"}
 
     check_verification_contract(rel=rel, data=data, mismatches=mismatches, ok=ok)
+    verify_historical_references(
+        skill_root=skill_root,
+        rel=rel,
+        data=data,
+        archive_index=archive_index,
+        mismatches=mismatches,
+        ok=ok,
+    )
 
     for key in ARTIFACT_KEYS:
         item = artifacts.get(key)
@@ -298,6 +634,11 @@ def verify_case(skill_root: Path, case_json: Path, mismatches: list[str], ok: li
         )
 
     verification = data.get("verification") or {}
+    asset_index = {
+        item.get("path"): item.get("sha256")
+        for item in artifacts.get("assets") or []
+        if isinstance(item, dict)
+    }
     for key in VERIFICATION_ARTIFACT_KEYS:
         item = verification.get(key)
         if not item:
@@ -313,6 +654,48 @@ def verify_case(skill_root: Path, case_json: Path, mismatches: list[str], ok: li
         )
         if normalized:
             declared_case_files.add(normalized)
+            if key == "evidenceArtifact" and asset_index.get(normalized) != item.get("sha256"):
+                mismatches.append(
+                    f"{rel}: verification.evidenceArtifact must match artifacts.assets"
+                )
+
+    test_artifact = verification.get("testArtifact") or {}
+    evidence_artifact = verification.get("evidenceArtifact") or {}
+    if (
+        test_artifact.get("path")
+        and test_artifact.get("path") == evidence_artifact.get("path")
+    ):
+        mismatches.append(f"{rel}: testArtifact and evidenceArtifact must be distinct")
+
+    if requires_current_proof_binding(data):
+        proof = verification.get("proof") or {}
+        entry = artifacts.get("entry") or {}
+        test = verification.get("testArtifact") or {}
+        if proof.get("currentEntrySha256") != entry.get("sha256"):
+            mismatches.append(f"{rel}: proof currentEntrySha256 does not bind current entry")
+        if proof.get("currentTestArtifactSha256") != test.get("sha256"):
+            mismatches.append(
+                f"{rel}: proof currentTestArtifactSha256 does not bind current test"
+            )
+        evidence_path = case_dir / str(evidence_artifact.get("path", ""))
+        if evidence_path.is_file():
+            try:
+                evidence_data = load_json(evidence_path)
+            except json.JSONDecodeError as error:
+                mismatches.append(f"{rel}: offline proof is invalid JSON: {error}")
+            else:
+                expected_evidence = {
+                    "caseId": data.get("caseId"),
+                    "activeScope": "offline-only",
+                    "passed": True,
+                    "entrySha256": entry.get("sha256"),
+                    "testArtifactSha256": test.get("sha256"),
+                }
+                for field, expected in expected_evidence.items():
+                    if evidence_data.get(field) != expected:
+                        mismatches.append(
+                            f"{rel}: offline proof {field} does not bind current case"
+                        )
 
     for file_path in iter_case_files(case_dir):
         if file_path not in declared_case_files:
@@ -395,6 +778,76 @@ def verify_registry(
         mismatches.append(f"case.json exists but is not registered: {path}")
 
 
+def git_revision_findings(skill_root: Path) -> list[str]:
+    try:
+        repo = Path(
+            subprocess.check_output(
+                ["git", "-C", str(skill_root), "rev-parse", "--show-toplevel"],
+                text=True,
+            ).strip()
+        )
+        prefix = skill_root.relative_to(repo).as_posix()
+        cases_prefix = f"{prefix}/references/cases/"
+        dirty = subprocess.check_output(
+            ["git", "-C", str(repo), "diff", "--name-only", "HEAD", "--", cases_prefix],
+            text=True,
+        ).splitlines()
+        if dirty:
+            old_ref = "HEAD"
+            changed = dirty
+        else:
+            old_ref = "HEAD^"
+            changed = subprocess.check_output(
+                [
+                    "git",
+                    "-C",
+                    str(repo),
+                    "diff",
+                    "--name-only",
+                    "HEAD^",
+                    "HEAD",
+                    "--",
+                    cases_prefix,
+                ],
+                text=True,
+            ).splitlines()
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        return []
+
+    changed_cases = {
+        "/".join(path.removeprefix(cases_prefix).split("/")[:2])
+        for path in changed
+        if path.startswith(cases_prefix) and path != f"{cases_prefix}registry.json"
+    }
+    findings: list[str] = []
+    for case_rel in sorted(changed_cases):
+        case_path = skill_root / "references" / "cases" / case_rel / "case.json"
+        if not case_path.is_file():
+            continue
+        repo_case_path = f"{cases_prefix}{case_rel}/case.json"
+        try:
+            old_data = json.loads(
+                subprocess.check_output(
+                    ["git", "-C", str(repo), "show", f"{old_ref}:{repo_case_path}"],
+                    text=True,
+                )
+            )
+        except (subprocess.CalledProcessError, json.JSONDecodeError):
+            continue
+        new_data = load_json(case_path)
+        if int(new_data.get("revision", 0)) <= int(old_data.get("revision", 0)):
+            findings.append(
+                f"{case_rel}: changed case must increment revision above {old_data.get('revision')}"
+            )
+        old_verification = old_data.get("verification") or {}
+        new_verification = new_data.get("verification") or {}
+        old_time = old_verification.get("executedAt") or old_verification.get("metadataMigratedAt")
+        new_time = new_verification.get("executedAt") or new_verification.get("metadataMigratedAt")
+        if not new_time or new_time == old_time:
+            findings.append(f"{case_rel}: changed case must refresh verification time")
+    return findings
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -421,6 +874,14 @@ def main(argv: list[str] | None = None) -> int:
 
     mismatches: list[str] = []
     ok: list[str] = []
+    archive_manifest = load_json(skill_root / ARCHIVE_REL / "MANIFEST.json")
+    archive_index = {
+        item["archivePath"]: {
+            **item,
+            "sourceCommit": archive_manifest.get("sourceCommit"),
+        }
+        for item in archive_manifest.get("files") or []
+    }
 
     case_files = sorted(cases_root.glob("**/case.json"))
     if not case_files:
@@ -430,8 +891,18 @@ def main(argv: list[str] | None = None) -> int:
     for case_dir in find_case_dirs_without_manifest(cases_root):
         mismatches.append(f"case directory missing case.json: {case_dir}")
 
+    case_schema = skill_root / "references" / "schemas" / "case.schema.json"
+    registry_schema = skill_root / "references" / "schemas" / "case-registry.schema.json"
     for case_json in case_files:
-        verify_case(skill_root, case_json, mismatches, ok)
+        mismatches.extend(schema_findings(case_schema, case_json))
+    mismatches.extend(schema_findings(registry_schema, cases_root / "registry.json"))
+
+    verify_archive(skill_root, mismatches, ok)
+    mismatches.extend(active_archive_load_findings(cases_root))
+    mismatches.extend(git_revision_findings(skill_root))
+
+    for case_json in case_files:
+        verify_case(skill_root, case_json, archive_index, mismatches, ok)
 
     verify_registry(skill_root, case_files, mismatches, ok)
 

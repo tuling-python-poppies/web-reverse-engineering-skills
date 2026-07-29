@@ -208,8 +208,22 @@ def main() -> int:
             findings.append(f"benchmark results unreadable: {error}")
             print(f"summary: failures={len(findings)}")
             return 1
-        if results.get("eval_mode") != "full_test":
-            findings.append("benchmark results eval_mode must be full_test")
+        if results.get("eval_mode") != "reported_full_test_summary":
+            findings.append(
+                "benchmark results eval_mode must be reported_full_test_summary"
+            )
+        integrity = results.get("integrity") or {}
+        if integrity.get("classification") != "historical-summary-only":
+            findings.append("benchmark results must classify retained evidence integrity")
+        if integrity.get("current_acceptance") is not False:
+            findings.append("summary-only benchmark must not claim current acceptance")
+        if integrity.get("raw_outputs_available") is not False:
+            findings.append("benchmark summary must state raw output availability")
+        for field in ("benchmark_base_commit", "record_commit", "prompt_file_sha256"):
+            value = results.get(field)
+            expected_length = 40 if field.endswith("commit") else 64
+            if not isinstance(value, str) or len(value) != expected_length:
+                findings.append(f"benchmark results {field} is missing or malformed")
         if results.get("summary", {}).get("comparison") != "with_skill_clear_win":
             findings.append("benchmark results must record with_skill_clear_win for acceptance")
         cases_ran = results.get("cases") or []
@@ -223,7 +237,7 @@ def main() -> int:
         print(
             f"PASS route regression evals: cases={len(cases)}; "
             "behavioral_evals=metadata_ok; trigger_evals=metadata_ok; "
-            "full_model_benchmark=executed_round1_full10"
+            "full_model_benchmark=historical_summary_only_round1_full10"
         )
         return 0
     print(

@@ -171,12 +171,8 @@
             "family": "challenge",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [
                 {
                     "scheme": "https",
@@ -234,22 +230,18 @@
             ],
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "da4e850b6498197b8158f1d6206fbc2a1fda9645b7d188982bcecf70920fb6ec"
+                "sha256": "74f207019c639e264ac3a7e152897c33a9bf7f226aa750c697d8cd3e1217d527"
             },
-            "verificationClass": "freshly-verified",
-            "selectableAs": "proof"
+            "verificationClass": "historical-user-attested",
+            "selectableAs": "template"
         },
         {
             "caseId": "iv8-chinatax-ruishu",
             "family": "challenge",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [
                 {
                     "scheme": "http",
@@ -300,7 +292,7 @@
             ],
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
-                "sha256": "d8d59d521cff9a4cdb71c487cbcd75bc436a626b0c035837f0851f32d9516c3d"
+                "sha256": "fa1bdd94e75c1415f0f810cc18f36f620997a6c7f88dd72f140fd92da5b15a11"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -310,12 +302,8 @@
             "family": "challenge",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [
                 {
                     "scheme": "https",
@@ -366,7 +354,7 @@
             ],
             "manifest": {
                 "path": "iv8/chng-ruishu-announcement/case.json",
-                "sha256": "7a5a4d3c2b3d2d55bf1fd356aaedf90829708e700d158096764dfcac5c34c2b7"
+                "sha256": "e49f3b6beff20d58657a5b6b418b647173e68ff5de8cef01fa34aa4834a34bda"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -376,12 +364,8 @@
             "family": "challenge",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [
                 {
                     "scheme": "https",
@@ -437,7 +421,7 @@
             ],
             "manifest": {
                 "path": "iv8/cqvip-journal-search/case.json",
-                "sha256": "1d73b23668e086614f0545b119101d9640ab37fb6c619040cc9e6cad45038f9e"
+                "sha256": "e61ebaba458423bbaca9ed24c603cce7948b09e6ca66fb12416661893c11263f"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -447,12 +431,8 @@
             "family": "challenge",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [
                 {
                     "scheme": "http",
@@ -503,7 +483,7 @@
             ],
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
-                "sha256": "bc5bb049dab2f6d414bdd57e1d7effbfd02f467c771a7cd2eb893074d689dda5"
+                "sha256": "edda7e7f1843f4c30406fd11fb4c49e612693921a58fa2d788c8d613432d0861"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -513,12 +493,8 @@
             "family": "signer",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -544,7 +520,7 @@
             ],
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
-                "sha256": "fbbebb9fe8c2efcb573a0f4b581e0265dbb2fe45e0a208a0276fca8585f9e7a4"
+                "sha256": "0b17206e6e5ebda1d98851ebc5d735903fc09866167d1b1ecbe690639804615b"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -554,12 +530,8 @@
             "family": "verifier",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -591,7 +563,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-slider/case.json",
-                "sha256": "b3cacd292fe7a01b6348b9441b082f906da0e1fc0a41f9fd4a17c0ab1e4a2d96"
+                "sha256": "ce957875fffd232ced31f42c9de580430e79772af6846c321c9033922762e7f2"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -601,12 +573,8 @@
             "family": "verifier",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -638,7 +606,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "56c776c13b2aa8ecf67ad71fe8778db549be09f1b64fde960c379e3bc78cc451"
+                "sha256": "5cd14930f685b04de39d925c404240a8f1c3c29b1eeb7b8e01a808228de4d930"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -712,7 +680,7 @@
             ],
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "0e6047dc212aab5627f9382547eb5ddc47711af669616ebad8101aab0dce8fe4"
+                "sha256": "5ac6a8657376bfe099f93f448ecc3eb7224b50b74534ccd52d7f0b791927d656"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -722,12 +690,8 @@
             "family": "signer",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -759,7 +723,7 @@
             ],
             "manifest": {
                 "path": "iv8/nmpa-md5-cookie/case.json",
-                "sha256": "fa8c3f16c6418e8d284ffeebe4c64c2060914d4436a52ded8d4df36bb331fd20"
+                "sha256": "eadcc1aa4a1cecad7ae2f8a1962ec4ae4935d7bca3955a09f1e289e1638ee578"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -769,12 +733,8 @@
             "family": "challenge",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -800,7 +760,7 @@
             ],
             "manifest": {
                 "path": "iv8/ouyeel-202-cookie-url/case.json",
-                "sha256": "6780091666c08fbb5a5ae5e0b6542f7d1884028150de75b2edd5fb8f1ce9e3dc"
+                "sha256": "ee56fd746d17745e333c925c99d5c0a1cb9e579d4182956e62fd4fde2f2a2eb4"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -810,12 +770,8 @@
             "family": "signer",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -841,7 +797,7 @@
             ],
             "manifest": {
                 "path": "iv8/pdd-anti-content/case.json",
-                "sha256": "e6feb174065bac03c74f32ab051102390aa65148bb93d6581943c6239c0644ef"
+                "sha256": "45f4738bff8b2798d6734066180903d5103e2110eab7af95107d7a9e25fcbc98"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -851,12 +807,8 @@
             "family": "verifier",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -888,7 +840,7 @@
             ],
             "manifest": {
                 "path": "iv8/tencent-tdc-slider/case.json",
-                "sha256": "929ec7d9cd945809bf37d3894c8b957c810879d799bb43fe1cc3661fbd654a56"
+                "sha256": "0e8c0dba747cc4e5a15516d918a43bae2bd981d1ab7ffa58e6b0544f814b7644"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -987,12 +939,8 @@
             "family": "signer",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -1019,7 +967,7 @@
             ],
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
-                "sha256": "8e32a4a95c032377f5e34b609970cb422db854b1e9534931d58853b642f2fb2c"
+                "sha256": "1f73cef70f76eb7c48eceb225979c681b29880fc59d5e83fefd7522076d13e7c"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -1029,12 +977,8 @@
             "family": "session",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "implementation",
-            "implementation": {
-                "mode": "iv8",
-                "strategy": null,
-                "profile": null
-            },
+            "caseKind": "evidence",
+            "implementation": null,
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -1059,7 +1003,7 @@
             ],
             "manifest": {
                 "path": "iv8/zhipin-stoken/case.json",
-                "sha256": "64e545fc493da4a285455c054c6ceee48a9baeb39d1e1ba67480e257809d9f08"
+                "sha256": "ad3b3ab34e4debe249955e9fc40b2cc6a72ca175a56ae66d616f25b9d0330bd8"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -1140,7 +1084,7 @@
             ],
             "manifest": {
                 "path": "pure-python/jd-h5st/case.json",
-                "sha256": "3286007dc97919eec1403a4cf210ecbc03d7d628052e386c04ce58fa867ade35"
+                "sha256": "a59afa6fb21cc80dfc20101e3f16d4a604306704029de01dfaf3a633ce6a5b50"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

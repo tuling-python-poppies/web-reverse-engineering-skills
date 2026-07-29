@@ -13,6 +13,13 @@ assert SPEC is not None
 preflight = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(preflight)
+VERIFY_SPEC = importlib.util.spec_from_file_location(
+    "verify_case_hashes", SCRIPT_DIR / "verify_case_hashes.py"
+)
+assert VERIFY_SPEC is not None
+verify_case_hashes = importlib.util.module_from_spec(VERIFY_SPEC)
+assert VERIFY_SPEC.loader is not None
+VERIFY_SPEC.loader.exec_module(verify_case_hashes)
 
 
 class EntryDisciplineScanTests(unittest.TestCase):
@@ -165,6 +172,46 @@ class ProviderGuardContractTests(unittest.TestCase):
             "    return live_get(session, 'https://example.com')\n"
         )
         self.assertEqual([], preflight.bare_session_get_outside_live_get(text))
+
+
+class CaseArchiveContractTests(unittest.TestCase):
+    def test_active_python_and_javascript_archive_references_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "entry.py").write_text(
+                'ARCHIVE = "case-live-reference-archive"\n', encoding="utf-8"
+            )
+            (root / "helper.js").write_text(
+                'const archive = "case-live-reference-archive";\n', encoding="utf-8"
+            )
+            findings = verify_case_hashes.active_archive_load_findings(root)
+        self.assertEqual(2, len(findings))
+        self.assertTrue(any(item.startswith("entry.py:1:") for item in findings))
+        self.assertTrue(any(item.startswith("helper.js:1:") for item in findings))
+
+    def test_sensitive_dictionary_value_requires_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "entry.py").write_text(
+                'CONFIG = {"access_token": "not-empty"}\n', encoding="utf-8"
+            )
+            findings = verify_case_hashes.sensitive_literal_findings(root)
+        self.assertEqual(
+            [("references/case-live-reference-archive/entry.py", "dict-value:access_token")],
+            findings,
+        )
+
+    def test_only_new_offline_proof_contract_requires_hash_binding(self) -> None:
+        legacy = {
+            "verificationClass": "freshly-verified",
+            "verification": {"proof": {"liveChain": "historical"}},
+        }
+        current = {
+            "verificationClass": "freshly-verified",
+            "verification": {"proof": {"activeScope": "offline-only"}},
+        }
+        self.assertFalse(verify_case_hashes.requires_current_proof_binding(legacy))
+        self.assertTrue(verify_case_hashes.requires_current_proof_binding(current))
 
 class CommitBodyPolicyTests(unittest.TestCase):
     def test_subject_only_message_has_no_body(self) -> None:

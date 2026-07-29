@@ -253,7 +253,6 @@ def read_plan_contract_findings() -> list[str]:
     gt4_case = [
         "references/cases/iv8/geetest-v4-slider/case.json",
         "references/cases/iv8/geetest-v4-slider/PROCESS.md",
-        "references/cases/iv8/geetest-v4-slider/entry.py",
         "references/cases/iv8/geetest-v4-slider/pull_live_state.py",
     ]
 

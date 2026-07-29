@@ -11,7 +11,7 @@ A **dispatch window** begins at a new user request or an accepted Provider resul
 | Initial dispatch | 3 total | First response reads 0-2 paths; one named blocker may add exactly one path once before the next evidence action |
 | Provider handoff | 3 total | `provider-work-order.md`, the selected `PROVIDER.md`, and at most one Provider-local reference |
 | Case selection | 1 | `references/cases/registry.json`; select at most one case |
-| Selected case bundle | 8 total | `case.json` -> `PROCESS.md` -> optional implementation entry / live-state selector -> at most two fixture/test files -> up to four implementation/asset files explicitly listed by the manifest |
+| Selected case bundle | 8 total | `case.json` -> `PROCESS.md` -> optional implementation entry / live-state selector -> at most two fixture/test files -> up to four manifest-declared implementation/asset slots; after naming one concrete blocker, one `historicalReferences` file may replace one such slot |
 | iv8 runtime case | 8 total | accepted API-inventory gate -> manifest/process -> entry -> only declared puller/assets; every historical case requires fresh current-target verification |
 | python-node runtime case | 8 total | manifest/process -> optional verified Node entry -> declared puller/assets; an evidence-only case cannot be presented as executable implementation |
 | Write gate | 1 | `references/methodology/project-layout.md` immediately before first save |
@@ -20,6 +20,8 @@ A **dispatch window** begins at a new user request or an accepted Provider resul
 `SKILL.md` itself is always in context and does not count against the budget.
 
 Sequential Providers start a new handoff window only after web-protocol-recovery accepts the previous result against its acceptance test. A failed case does not authorize a sibling case; return to normal evidence routing.
+
+A historical reference is never a preload or executable asset. Open at most one file declared by the selected case, verify it through `references/case-live-reference-archive/MANIFEST.json`, count both the manifest and source against the same eight-path case window, and use it only to study an implementation fact. Do not import or execute it, install its historical dependencies, copy it into delivery, or use its former live result as current acceptance.
 
 Provider work orders carry a `readPlan` object with `window`, `required`, and `optional` paths. Required paths must fit the active window cap before the handoff is issued. Optional paths are blockers, not preloads: the Provider may open at most one optional path only after naming the missing fact and only if the whole-task cap still has room.
 

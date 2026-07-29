@@ -1,11 +1,11 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-zhipin-stoken",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "session",
   "runtime": "iv8",
-  "caseKind": "implementation",
+  "caseKind": "evidence",
   "verificationClass": "historical-user-attested",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
@@ -28,11 +28,6 @@
     "product": "Zhipin security",
     "version": "legacy",
     "subtype": "browser-token"
-  },
-  "dependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "requests": "installed"
   },
   "preRead": [
     {
@@ -68,21 +63,17 @@
         "path": "assets/zhipin_stoken.txt",
         "sha256": "a5bdc10803f9293c99af3b63153c694f64f64d862fcbcd5946773ab48fb1b6fd"
       }
-    ],
-    "entry": {
-      "path": "entry.py",
-      "sha256": "3d0d20754b120b17166f7ebe60c5a9d882c6f9da26637b39ffe1897604f8d1b3"
-    }
+    ]
   },
   "verification": {
-    "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-29",
+    "activeCaseScope": "template-evidence-only",
+    "dependencyPolicy": "historical-only; do not install from case reuse",
+    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
   },
-  "implementation": {
-    "mode": "iv8",
-    "strategy": null,
-    "profile": null
-  },
+  "implementation": null,
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
@@ -109,5 +100,20 @@
       "role": "delivery",
       "purpose": "delivery"
     }
-  ]
+  ],
+  "historicalReferences": [
+    {
+      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
+      "archivePath": "references/case-live-reference-archive/iv8/zhipin-stoken/entry.py",
+      "sha256": "5d49636131a105e153a9d5adc4a22424ca10c2cc8c76bf391b7fc284391817e4",
+      "bytes": 7532,
+      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+      "readPolicy": "study-only"
+    }
+  ],
+  "historicalDependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed"
+  }
 }

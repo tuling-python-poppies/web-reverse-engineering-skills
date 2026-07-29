@@ -1,6 +1,8 @@
 # CQVIP River Security Journal Search Reverse Process
 
-Read this before using this case's `entry.py`.
+Historical process evidence only. This case has no active implementation; code
+declared by `case.json.historicalReferences` is study-only and requires fresh
+current-target verification.
 
 ## Goal
 

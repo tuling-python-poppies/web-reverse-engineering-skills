@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -120,7 +120,7 @@
       },
       {
         "path": "fixtures/live-proof.summary.json",
-        "sha256": "d403c461756ac5570bc86c0bcbe59fd69a22628ad43c4500a2febf4fdb1e2fdd"
+        "sha256": "2ae5eae1ebdc0e8588d2bd0d84e38b67b6656a10b622a4cc27f30f362e9d342f"
       },
       {
         "path": "assets/data_builder.js",
@@ -141,27 +141,39 @@
       {
         "path": "assets/ad96acb6.wasm",
         "sha256": "c3ee2ed8e0457f3c73d5b705bfeb246353d9ed3d0bed77abc8e8e5ed81a59339"
+      },
+      {
+        "path": "fixtures/offline-proof.summary.json",
+        "sha256": "7feea3534cfd1852ec4732987854c1f9743904c5d3b571e714a9910286306e1f"
       }
     ]
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-26",
+    "executedAt": "2026-07-29",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "dd89c4c15a287df0bbd72c3940cb54ccee2ea5b6b59ae71aab9776f6acd73c01"
+      "sha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330"
     },
     "evidenceArtifact": {
-      "path": "fixtures/live-proof.summary.json",
-      "sha256": "d403c461756ac5570bc86c0bcbe59fd69a22628ad43c4500a2febf4fdb1e2fdd"
+      "path": "fixtures/offline-proof.summary.json",
+      "sha256": "7feea3534cfd1852ec4732987854c1f9743904c5d3b571e714a9910286306e1f"
     },
     "proof": {
-      "offlineVectors": "request body sha256, field21 vectors, RPC signature, device token roundtrip, data_builder output, PZDS WASM sign output, challenge parser",
-      "unitTests": "case-local offline tests passed on 2026-07-26",
-      "liveChain": "page warmup + signed goodsPublic challenge + Aliyun V2 T001 + signed goodsPublic business replay returned JSON SUCCESS with data.records=10 for page 1 and page 2",
-      "caseLocalTests": "python -m unittest discover -s tests -v"
+      "activeScope": "offline-only",
+      "offlineAcceptance": "request, field21, RPC, token, JavaScript, WASM, and challenge-parser vectors pass without live network egress",
+      "caseLocalTests": "python -m unittest discover -s tests -v",
+      "currentEntrySha256": "72bff33ac66faa9c4ccf6b278bb7c9d449a340ce27a6bfd7edd7f560e0ddc16a",
+      "currentTestArtifactSha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330",
+      "historicalLiveProof": {
+        "classification": "historical-project-provenance",
+        "executedAt": "2026-07-26",
+        "currentAcceptance": false,
+        "evidencePath": "fixtures/live-proof.summary.json",
+        "summary": "Source-project PZDS business replay is historical provenance and requires fresh current-target verification."
+      }
     }
   },
   "implementation": {

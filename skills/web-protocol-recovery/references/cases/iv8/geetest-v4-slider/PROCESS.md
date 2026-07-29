@@ -1,6 +1,8 @@
 # Geetest v4 Slider Reverse Process
 
-Read this before using this case's `entry.py`.
+Historical process evidence only. This case has no active implementation; code
+declared by `case.json.historicalReferences` is study-only and requires fresh
+current-target verification.
 
 ## Case Identity
 
@@ -316,11 +318,13 @@ Use the shortest branch:
 5. No trusted entry or same-origin browser artifact: return precise missing
    evidence instead of guessing in iv8.
 
-## Bundled Implementation
+## Historical Implementation Notes
 
-The compact implementation is
-This case's `entry.py` intentionally downloads
-current official scripts into the caller's workspace `js_reverse_cache/` rather
-than freezing versioned Geetest bundles inside the skill. Public demo endpoints
-and the public demo CAPTCHA ID are retained; transient lot numbers, pass tokens,
-verify URLs, and response payloads are not bundled.
+The historical source implementation downloaded current official scripts into
+the caller's `js_reverse_cache/` workspace rather than freezing versioned
+Geetest bundles inside the skill. That implementation is no longer active case
+code. Its hash-bound archive reference is study-only and must not be imported,
+executed, or copied into delivery without fresh current-target reconstruction
+and verification. Public demo endpoints and the public demo CAPTCHA ID remain
+documented; transient lot numbers, pass tokens, verify URLs, and response
+payloads are not bundled.

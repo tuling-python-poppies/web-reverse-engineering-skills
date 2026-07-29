@@ -1,8 +1,14 @@
 # Offline vector tests for the T'way Akamai case.
 # Parser test uses a synthetic availability fragment; no network on import/run.
 
+import hashlib
+import json
 import re
 import unittest
+from pathlib import Path
+
+
+CASE_DIR = Path(__file__).resolve().parents[1]
 
 FARE_NAMES = {
     "EventFare": "event",
@@ -136,11 +142,8 @@ class AvailabilityParserTest(unittest.TestCase):
 
 class OfflineVectorShapeTest(unittest.TestCase):
     def test_vectors_file_shape(self):
-        import json
-        from pathlib import Path
-
         vectors = json.loads(
-            (Path(__file__).resolve().parent.parent / "fixtures" / "vectors.json").read_text(
+            (CASE_DIR / "fixtures" / "vectors.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -153,20 +156,17 @@ class OfflineVectorShapeTest(unittest.TestCase):
 
 class OfflineBridgeProbeTest(unittest.TestCase):
     def test_run_offline_probe(self):
-        import json
         import subprocess
         import sys
-        from pathlib import Path
 
         try:
             import iv8  # noqa: F401
         except ImportError:
             self.skipTest("iv8 runtime not installed")
 
-        case_dir = Path(__file__).resolve().parent.parent
         completed = subprocess.run(
             [sys.executable, "entry.py"],
-            cwd=case_dir,
+            cwd=CASE_DIR,
             check=True,
             capture_output=True,
             text=True,
@@ -178,6 +178,27 @@ class OfflineBridgeProbeTest(unittest.TestCase):
         self.assertEqual(result["signal_count"], 116)
         self.assertEqual(result["worker_message_count"], 1)
         self.assertEqual(result["runtime_error_count"], 0)
+
+
+class OfflineProofBindingTest(unittest.TestCase):
+    def test_offline_proof_binds_current_entry_and_test(self):
+        proof = json.loads(
+            (CASE_DIR / "fixtures" / "offline-proof.summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(proof["caseId"], "iv8-twayair-akamai-availability")
+        self.assertEqual(proof["activeScope"], "offline-only")
+        self.assertTrue(proof["passed"])
+        self.assertFalse(proof["historicalLiveProofIsCurrentAcceptance"])
+        self.assertEqual(
+            proof["entrySha256"],
+            hashlib.sha256((CASE_DIR / "entry.py").read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            proof["testArtifactSha256"],
+            hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        )
 
 
 if __name__ == "__main__":

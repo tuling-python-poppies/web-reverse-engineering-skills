@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "web-protocol-recovery-offline-proof-summary",
+  "caseId": "python-node-pzds-aliyun-v2-goods-public",
+  "executedAt": "2026-07-29",
+  "passed": true,
+  "activeScope": "offline-only",
+  "entrySha256": "72bff33ac66faa9c4ccf6b278bb7c9d449a340ce27a6bfd7edd7f560e0ddc16a",
+  "testArtifactSha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330",
+  "assertions": [
+    "offline request, field21, RPC, token, JavaScript, WASM, and parser vectors pass",
+    "entry import and case-local tests perform no live network egress",
+    "historical live business replay remains provenance rather than current acceptance"
+  ],
+  "historicalLiveProofIsCurrentAcceptance": false
+}

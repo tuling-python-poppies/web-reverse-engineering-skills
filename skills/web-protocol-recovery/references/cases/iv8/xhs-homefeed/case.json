@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-xhs-homefeed",
-  "revision": 2,
+  "revision": 3,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
@@ -63,7 +63,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "a42bccf506597b0f42290405704c1766ab01648208b92ae520082a1497502aa3"
+      "sha256": "a8eda3009fd2a5266db202e038512d06446c988259d4f0ad94b5cf93330cddfe"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -87,10 +87,10 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-29",
+    "metadataMigratedAt": "2026-07-29T14:51:37+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
+    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only."
   },
   "implementation": null,
   "sourceStage": {

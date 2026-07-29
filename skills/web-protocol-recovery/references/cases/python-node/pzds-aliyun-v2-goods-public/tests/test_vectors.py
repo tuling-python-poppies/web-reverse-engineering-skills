@@ -84,6 +84,27 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
         html = "<textarea id=renderData>var requestInfo = " + json.dumps(payload, separators=(",", ":")) + ";</textarea>"
         self.assertEqual(entry.parse_challenge_html(html)["sceneId"], "19x5u7lo")
 
+    def test_offline_proof_binds_current_entry_and_test(self) -> None:
+        proof = json.loads(
+            (CASE_ROOT / "fixtures" / "offline-proof.summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(
+            proof["caseId"], "python-node-pzds-aliyun-v2-goods-public"
+        )
+        self.assertEqual(proof["activeScope"], "offline-only")
+        self.assertTrue(proof["passed"])
+        self.assertFalse(proof["historicalLiveProofIsCurrentAcceptance"])
+        self.assertEqual(
+            proof["entrySha256"],
+            hashlib.sha256((CASE_ROOT / "entry.py").read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            proof["testArtifactSha256"],
+            hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "web-protocol-recovery-offline-proof-summary",
+  "caseId": "iv8-twayair-akamai-availability",
+  "executedAt": "2026-07-29",
+  "passed": true,
+  "activeScope": "offline-only",
+  "entrySha256": "08db55ced9f4a94f0ea8b43d3a75935c568dad2a9919c102d9d4ae125e4d8179",
+  "testArtifactSha256": "3983aee528af765f3ace8a718769b1c76e05fe7fb917634c08b1224a96aed728",
+  "assertions": [
+    "iv8 synthetic sensor bridge emits the expected offline counters",
+    "availability parser and vector shape checks pass without network access",
+    "active case code performs no live T'way delivery egress"
+  ],
+  "historicalLiveProofIsCurrentAcceptance": false
+}

@@ -1,6 +1,7 @@
 # Geetest v4 文字点选逆向过程
 
-使用本案例的 `entry.py` 前先读本文。
+本文仅作为历史过程证据。本案例不包含活跃实现；
+`case.json.historicalReferences` 声明的归档代码仅供研究，针对当前目标重新构建并验证前不得用于交付。
 
 ## 案例身份
 
@@ -382,9 +383,9 @@ data.fail_count=0
 4. `captcha_type` 是 `click`、`icon`、`slide` 或其它值：不是精确匹配，选择独立案例。
 5. 缺少可信入口或同源环境 artifact：返回明确缺失证据，不在 iv8 中猜。
 
-## Bundled 实现与素材策略
+## 历史实现与素材策略
 
-完整实现位于本目录的 `entry.py`。它运行时下载当前官方脚本和公开 challenge 图片到调用方工作目录 `js_reverse_cache/`。
+历史来源实现曾在运行时下载当时的官方脚本和公开 challenge 图片到调用方工作目录 `js_reverse_cache/`。该实现不再作为活跃案例代码；其哈希绑定归档仅供研究，在针对当前目标重新恢复并验证前不得导入、执行或复制到交付代码。
 
 skill 不冻结 Geetest bundle、现场图片或响应，原因是：
 

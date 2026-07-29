@@ -205,12 +205,23 @@ def is_true(value: Any) -> bool:
 
 
 def requires_current_proof_binding(data: dict[str, Any]) -> bool:
-    verification = data.get("verification") or {}
-    proof = verification.get("proof") or {}
     return (
-        data.get("verificationClass") == FRESH_VERIFICATION_CLASS
-        and proof.get("activeScope") == "offline-only"
+        data.get("caseKind") == "implementation"
+        and data.get("verificationClass") == FRESH_VERIFICATION_CLASS
     )
+
+
+def evidence_process_claim_findings(text: str) -> list[str]:
+    markers = (
+        ("entry.py", "references active entry.py"),
+        ("freshly-verified", "claims freshly-verified status"),
+        ("case_live", "contains active live command"),
+        ("bundled implementation", "claims bundled implementation"),
+        ("bundled 实现", "claims bundled implementation"),
+        ("完整实现位于本目录", "claims complete local implementation"),
+    )
+    lowered = text.lower()
+    return [label for marker, label in markers if marker.lower() in lowered]
 
 
 def check_verification_contract(
@@ -589,6 +600,14 @@ def verify_case(
         if normalized:
             declared_case_files.add(normalized)
 
+    if data.get("caseKind") == "evidence":
+        process = artifacts.get("process") or {}
+        process_path = case_dir / str(process.get("path", ""))
+        if process_path.is_file():
+            process_text = process_path.read_text(encoding="utf-8", errors="replace")
+            for finding in evidence_process_claim_findings(process_text):
+                mismatches.append(f"{rel}: evidence PROCESS.md {finding}")
+
     for index, asset in enumerate(artifacts.get("assets") or []):
         normalized = check_declared_hash(
             label=f"{rel}: artifacts.assets[{index}]",
@@ -671,6 +690,8 @@ def verify_case(
         proof = verification.get("proof") or {}
         entry = artifacts.get("entry") or {}
         test = verification.get("testArtifact") or {}
+        if proof.get("activeScope") != "offline-only":
+            mismatches.append(f"{rel}: current implementation proof must be offline-only")
         if proof.get("currentEntrySha256") != entry.get("sha256"):
             mismatches.append(f"{rel}: proof currentEntrySha256 does not bind current entry")
         if proof.get("currentTestArtifactSha256") != test.get("sha256"):
@@ -696,6 +717,19 @@ def verify_case(
                         mismatches.append(
                             f"{rel}: offline proof {field} does not bind current case"
                         )
+
+        historical = proof.get("historicalLiveProof")
+        if historical:
+            allowed = {
+                "historical-archive-provenance",
+                "historical-project-provenance",
+            }
+            if historical.get("classification") not in allowed:
+                mismatches.append(f"{rel}: historicalLiveProof classification is invalid")
+            if historical.get("currentAcceptance") is not False:
+                mismatches.append(
+                    f"{rel}: historicalLiveProof.currentAcceptance must be false"
+                )
 
     for file_path in iter_case_files(case_dir):
         if file_path not in declared_case_files:

@@ -201,17 +201,43 @@ class CaseArchiveContractTests(unittest.TestCase):
             findings,
         )
 
-    def test_only_new_offline_proof_contract_requires_hash_binding(self) -> None:
-        legacy = {
-            "verificationClass": "freshly-verified",
-            "verification": {"proof": {"liveChain": "historical"}},
+    def test_all_fresh_implementations_require_hash_binding(self) -> None:
+        historical = {
+            "caseKind": "implementation",
+            "verificationClass": "historical-user-attested",
         }
-        current = {
+        evidence = {
+            "caseKind": "evidence",
             "verificationClass": "freshly-verified",
-            "verification": {"proof": {"activeScope": "offline-only"}},
         }
-        self.assertFalse(verify_case_hashes.requires_current_proof_binding(legacy))
-        self.assertTrue(verify_case_hashes.requires_current_proof_binding(current))
+        implementation = {
+            "caseKind": "implementation",
+            "verificationClass": "freshly-verified",
+        }
+        self.assertFalse(verify_case_hashes.requires_current_proof_binding(historical))
+        self.assertFalse(verify_case_hashes.requires_current_proof_binding(evidence))
+        self.assertTrue(verify_case_hashes.requires_current_proof_binding(implementation))
+
+    def test_evidence_process_active_implementation_claims_fail(self) -> None:
+        text = (
+            "Read this case's entry.py.\n"
+            "verificationClass freshly-verified\n"
+            "CASE_LIVE=1 python helper.py\n"
+        )
+        self.assertEqual(
+            [
+                "references active entry.py",
+                "claims freshly-verified status",
+                "contains active live command",
+            ],
+            verify_case_hashes.evidence_process_claim_findings(text),
+        )
+        self.assertEqual(
+            [],
+            verify_case_hashes.evidence_process_claim_findings(
+                "Historical process evidence only; archived code is study-only."
+            ),
+        )
 
 class CommitBodyPolicyTests(unittest.TestCase):
     def test_subject_only_message_has_no_body(self) -> None:

@@ -1,6 +1,8 @@
 # Bangkok Air Reese84 Booking Availability Reverse Process
 
-Read this first before using this case's `entry.py`.
+Historical process evidence only. This case has no active implementation; code
+declared by `case.json.historicalReferences` is study-only and requires fresh
+current-target verification.
 
 ## Goal
 
@@ -10,13 +12,13 @@ Reproduce Bangkok Airways public flight availability queries without a browser: 
 
 | Level | Predicate | Notes |
 |---|---|---|
-| **L1 business replay** | Fresh `reese84` present → OAuth 200 → `/v2/search/air-bounds` 200 with parseable `airBoundGroups` + `dictionaries.flight` | Current `entry.py` live path when `REESE84` / pull_live_state supplies cookie |
+| **L1 business replay** | Fresh `reese84` present → OAuth 200 → `/v2/search/air-bounds` 200 with parseable `airBoundGroups` + `dictionaries.flight` | Historical source-project result; no active library implementation is bundled |
 | **L2 challenge generate** | iv8 runs randomized challenge JS (page.load + pyHttp bridge) and obtains a **new** `reese84` without pasting browser cookie values into code | Higher cost; UA/Client-Hints/Canvas coherence required |
 | **L3 two-session** | L2 (or L1 refresh) succeeds on two independent cold sessions | Required before claiming stable collector |
 
-Claimed case-library success is **L1 + L2 + L3 with offline vectors and a redacted live-proof summary**. Repository-local tests remain offline; every current-target reuse still needs fresh authorization and rerun.
+The historical source project recorded **L1 + L2 + L3 with offline vectors and a redacted live-proof summary**. The current case is `historical-user-attested` template evidence, so those results are provenance rather than current acceptance. Every current-target reuse needs fresh authorization, reconstruction, and rerun.
 
-Success predicate (minimum for verificationClass freshly-verified L1): OAuth 200 + air-bounds 200 with flight number, depart/arrive datetime, total price, fare family.
+Historical L1 success predicate: OAuth 200 + air-bounds 200 with flight number, depart/arrive datetime, total price, and fare family. It must be re-established before any current acceptance claim.
 
 ## Match And Exclusion Signals
 
@@ -104,9 +106,12 @@ Moving state (names only; values pulled live, never stored in the case library):
 2. `iv8` (when generating reese84 offline) — run randomized challenge JS with page.load + pyHttp bridge; Python owns real HTTP for gpc/solution.
 3. `python-collector` — OAuth + air-bounds + parse; progress via `utils/logger.py`; evidence only under project `js_reverse_cache/**`.
 
-## Minimal Implementation
+## Historical Implementation Shape
 
-### L1 (what case `entry.py` demonstrates offline/live)
+No active implementation is bundled. The following L1/L2/L3 notes describe the
+historical source-project workflow and are reconstruction guidance only.
+
+### Historical L1 workflow
 
 1. Load live state (reese84) from approved browser export selector (`pull_live_state.py`) — memory only.
 2. Python `curl_cffi` session with Chrome-matching impersonate + Client-Hints.
@@ -115,24 +120,13 @@ Moving state (names only; values pulled live, never stored in the case library):
 5. Parse `airBoundGroups` + `dictionaries.flight` into flight / depart / arrive / total / fare_family rows.
 6. Log via shared logger; do not write secrets to disk.
 
-### L2/L3 pure iv8 delivery (case library + project)
+### Historical L2/L3 source-project workflow
 
-Case library code (import-safe offline by default):
-
-```text
-CASE_LIVE=1 CASE_MODE=l3 python entry.py   # dual cold pure iv8
-CASE_LIVE=1 CASE_MODE=l2 python entry.py   # one pure iv8 session
-CASE_LIVE=1 CASE_MODE=l1 REESE84=... python entry.py
-```
-
-Implementation files under this case:
-
-```text
-lib/http_session.py
-lib/challenge_discover.py
-lib/reese_iv8.py
-entry.py   # run(live=..., mode=l1|l2|l3)
-```
+The former commands and implementation files are not active case assets. Exact
+archived files declared by `case.json.historicalReferences` are study-only: do
+not import, execute, install their dependencies, or copy them into delivery.
+Reconstruct the smallest implementation from current target evidence under the
+normal Provider work-order gates.
 
 Desktop project pattern: bare `python main.py` → **mode=l3, engine=iv8**. Optional `MODE=l2`. **No browser automation harvest.**
 

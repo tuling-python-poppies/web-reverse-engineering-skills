@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-tencent-tdc-slider",
-  "revision": 2,
+  "revision": 3,
   "status": "verified",
   "family": "verifier",
   "runtime": "iv8",
@@ -48,7 +48,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "2511e464494eb991799caa9a6bad84bae40363f7d9d559fdbc024a2786bb654a"
+      "sha256": "b52fe8d972a30e6b89f081ecd3034b9642947752841f513c202c90a8f0c82345"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -59,10 +59,10 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-29",
+    "metadataMigratedAt": "2026-07-29T14:51:37+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry; the original implementation is available only through hash-bound study references."
+    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only."
   },
   "implementation": null,
   "sourceStage": {

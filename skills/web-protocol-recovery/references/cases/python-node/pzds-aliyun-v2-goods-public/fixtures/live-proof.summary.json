@@ -1,5 +1,8 @@
 {
   "schemaVersion": "web-protocol-recovery-live-proof-summary",
+  "classification": "historical-project-provenance",
+  "currentAcceptance": false,
+  "requiresFreshVerification": true,
   "executed": true,
   "passed": true,
   "executedAt": "2026-07-26",

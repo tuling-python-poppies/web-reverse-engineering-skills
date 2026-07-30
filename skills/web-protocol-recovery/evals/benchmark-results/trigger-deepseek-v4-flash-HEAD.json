@@ -1,10 +1,10 @@
 {
   "schemaVersion": "web-protocol-recovery-trigger-fulltest",
   "eval_mode": "full_test",
-  "current_acceptance": true,
+  "current_acceptance": false,
   "integrity": "retained-per-query-grades",
-  "tested_commit": "c193b4edddc50c542abbb4b5bb340cfed3cc9071",
-  "model": "deepseek/deepseek-v4-flash + retry(deepseek/deepseek-v4-pro)",
+  "tested_commit": "11bb8b16fbe20cb5fe05da7a77a4bf264a95f172",
+  "model": "mixed: deepseek/deepseek-v4-flash (first pass) + deepseek/deepseek-v4-pro (retry of 4 failures)",
   "reviewer": "skill-creator/scripts/run_eval-style skill tool_use parser",
   "isolation": {
     "neighbor_skill_stubs": [
@@ -25,13 +25,21 @@
     "total": 22,
     "passed": 22,
     "failed": 0,
-    "score": "22/22",
+    "score": "22/22 (union of two models)",
     "under_trigger": 0,
     "over_trigger": 0,
     "runtime_error": 0,
     "first_pass": "18/22",
     "retry": "4/4",
-    "final": "22/22"
+    "final": "22/22",
+    "first_pass_taxonomy": {
+      "model": "deepseek/deepseek-v4-flash",
+      "score": "18/22",
+      "under_trigger": 0,
+      "over_trigger": 1,
+      "runtime_error": 3
+    },
+    "union_taxonomy_note": "under_trigger/over_trigger/runtime_error above are post-union (all zero). See first_pass_taxonomy for what flash produced on its own."
   },
   "results": [
     {
@@ -462,5 +470,8 @@
       "darwin-skill"
     ],
     "description_hardening": "Camoufox QA/screenshot/click regression without protocol target stays non-trigger"
-  }
+  },
+  "tested_commit_correction": "Previously recorded c193b4edddc50c542abbb4b5bb340cfed3cc9071, whose SKILL.md hashes to d1c273cb..., not the recorded skill_md_sha256. The run was executed against 11bb8b1 (SKILL.md sha256 b915e09c...).",
+  "model_attribution": "22/22 is a two-model union, not a flash-only result. flash alone scored 18/22. The 4 retried queries are the most ambiguous descriptions in the set.",
+  "stale_reason": "SKILL.md changed after this run (Phase 0 vendor criteria sunk to PROVIDER.md, Do Not compressed to pointers, duplicate Camoufox/route rules removed, plain terms table). skill_md_sha256 b915e09c... no longer matches HEAD, so this result is a historical record only. Re-run trigger full_test before treating any score as current acceptance."
 }

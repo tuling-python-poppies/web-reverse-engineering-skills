@@ -24,7 +24,18 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 7. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
 8. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
 
-Plain terms: **gate family** = what blocks replay; **route** = selected Provider or `evidence-reuse`, never a gate family, strategy, profile, or file path; **implementation mode** = `iv8`, `python-node`, or `pure-python`; **canonical mutation point** = where the wire payload is finally changed; **success shape** = smallest deliverable; **engine provenance** = which browser/runtime produced an ID. Cite stable section names, not line numbers; line numbers drift after edits.
+Plain terms:
+
+| Term | Meaning |
+|---|---|
+| gate family | what blocks replay |
+| route | selected Provider or `evidence-reuse` |
+| implementation mode | `iv8`, `python-node`, or `pure-python` |
+| canonical mutation point | where the wire payload is finally changed |
+| success shape | smallest deliverable |
+| engine provenance | which browser/runtime produced an ID |
+
+Cite stable section names, not line numbers; line numbers drift after edits.
 
 Skill self-check after edits: `python scripts/preflight.py` from this skill root.
 
@@ -65,12 +76,9 @@ First-turn routing rules choose only `shape` and `route`; they do not grant brow
 | Explicit offline / local / fixed-vector wording | Use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider. |
 | Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
 | Known implementation boundary or explicit implementation Provider request | Use the named Provider route only when the boundary/artifact is named, such as `route: browser-hooks`, `route: ast`, `route: python-node` with `strategy: env-patch`, `route: iv8`, or `route: pure-python`; otherwise stay evidence first. |
-| Captcha family signals | Treat Geetest GT3/GT4, Tencent TCaptcha/TDC, Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, CSDN point-click, Ctrip captcha/v4, Aliyun Captcha V2/V3, or ByteDance VerifyCenter as verifier-priority evidence. Choose `route: verifier` only when paired with a captcha request sample/image, protocol endpoint/field, semantic verifier failure, or a named active verifier delivery artifact; otherwise stay evidence first. |
-| Captcha protocol fields or semantic failure | Use `route: verifier` when a sampled captcha round contains `/get` / `/load` / `/convert` / `/verify` / `/check`, `challenge`, `token`, `randomKey`, `track`, `cb`, `data`, `w`, `captchaBody`, `cyfreso`, or a verifier response where `w` exists but the semantic result is fail. A lone parameter named `w`, `data`, or `token` without captcha-round evidence is evidence first. IDE typing/image-processing cleanup is outside this skill unless it modifies an active verifier delivery artifact. Generic `403` plus the word captcha is evidence first, not automatic solving. |
-| Strong Akamai signals | Use `route: akamai` only when an Akamai-native marker (`_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `sensor_data`, `/akam/13/pixel_*`, or confirmed random-path collector) has independent network/script/cookie-transition/transport corroboration. Generic `403`, `412`, H2 reset, or one cookie name is not Akamai proof. |
-| Strong River Security signals | Use `route: river-security` only when at least two independent observed markers corroborate the family: HTTP `412`, `$_ts.nsd` / `$_ts.cd`, `<script r="m">`, dynamic `_$...()` entry, server `*S` plus client `*T` cookies, protected XHR URL/header mutation, or a confirmed River Security protection script. Alias tags such as `alias:ruishu` normalize naming and do not count as observed markers; a user guess or generic `412` alone never routes. Fresh URL reconnaissance starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. |
-| Strong Reese84 signals | Use `route: reese84` only when one Reese84-native marker (`reese84` cookie, `x-d-token` projection, `initializeProtection` / `onProtectionInitialized` challenge script, or solution response with `token` + `renewInSec` + `cookieDomain`) has independent network/script/cookie-transition/business-consumer corroboration. Generic `403`, error 15, an Imperva label/interstitial, or one `visid_incap_*` / `incap_ses_*` / `nlbi_*` cookie is not Reese84 proof. Fresh URL reconnaissance starts with Chromium; unknown Imperva products stay evidence first. |
-| Existing Douyin Web BDMS pure-Python maintenance | Use `route: pure-python` with `profile: douyin-abogus-native` only when the user names `douyin.com/aweme/v1/web/*`, `a_bogus`, an existing complete `pure_abogus.py`, and fixed BDMS 1.0.1.19 trace evidence. From-zero recovery, unknown version/entry/field layout, Hook/AST/env/iv8 requests, or non-Douyin `a_bogus` stay on normal recon/implementation routes. |
+| Captcha family signals | Named captcha vendors (Geetest, TCaptcha/TDC, Yidun, Shumei, Yunpian, Tianyu, Dingxiang, Ctrip, Aliyun Captcha, ByteDance VerifyCenter) are verifier-priority evidence. Choose `route: verifier` only when paired with a sampled captcha round, protocol endpoint/field, semantic verifier failure, or a named active verifier delivery artifact. A lone `w` / `data` / `token` param, or generic `403` plus the word captcha, is evidence first. Field-level detail: verifier `PROVIDER.md` `Select When`. |
+| Vendor-family signals (`akamai`, `river-security`, `reese84`) | Route to a protocol owner only when a vendor-native marker has independent corroboration from a second surface (network, script, cookie transition, transport, or business consumer); River Security needs two independent observed markers. Generic `403` / `412` / H2 reset, one cookie name, an Imperva label or error 15, an alias tag such as `alias:ruishu`, and a user guess ("怀疑瑞数") are never sufficient. Otherwise stay evidence first. Fresh URL recon starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. Marker lists and negative signals: each Provider's `Select When` / `Do Not Select When`. |
+| Existing Douyin Web BDMS pure-Python maintenance | Use `route: pure-python` with `profile: douyin-abogus-native` only when the named target, existing complete implementation, and fixed BDMS trace all hold; from-zero recovery or unknown version/entry/layout stays on normal routes. Conditions: `profiles/douyin-abogus-native.md` `Select When`. |
 
 Fallback rules:
 
@@ -198,27 +206,19 @@ Gate mapping: account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, sca
 
 ## Do Not
 
-- Do not launch a browser before recording gates required for that navigation.
-- Do not put a gate family (`signer`, `challenge`, etc.), strategy, profile, or file path in `route`.
+- Do not act before recording the gate for that action: browser navigation, live egress, account/session use, target-code execution, dependency install, or writes. Public reachability is not account, mutation, or collection permission.
+- Do not put a gate family, strategy, profile, or file path in `route` (Non-Negotiables owns this).
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
-- Do not open Camoufox on ordinary Web without explicit Camoufox wording or recorded second-engine criteria.
-- Do not treat fingerprint-browser permission, Cloak wording, stealth wording, or busy Chrome as a Camoufox criterion.
-- Do not route River Security/RuiShu to Camoufox from the vendor name, `412`, or historical case provenance alone.
-- Do not route generic Imperva/interstitial/error-15 evidence to Reese84; require one Reese84-native marker plus independent corroboration, and do not use Reese84 wording alone to select Camoufox.
-- Do not open both Chromium and Camoufox recon without a Camoufox selection criterion.
+- Do not select `camoufox` or open a second recon engine without explicit Camoufox/SpiderMonkey/engine-level wording or recorded criteria. Fingerprint/Cloak/stealth wording, busy Chrome, a vendor name, `412`, Reese84 wording, and historical case provenance are all non-criteria (Phase 2 owns this).
+- Do not route a vendor family on one marker, a label, or a guess; require independent corroboration (Phase 0 owns this).
 - Do not load a sibling case after one registry match failed current evidence.
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.
-- Do not store raw cookies/tokens/HAR/private bodies or absolute local paths in the case library.
-- Do not treat public reachability as account, mutation, or collection permission.
-- Do not write task evidence under `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, or any non-project path when `projectRoot` is known.
-- Do not treat OS temp as primary storage; if a tool forces an absolute path outside the project, copy the artifact into `js_reverse_cache/**` immediately and stop depending on the external copy.
-- Do not deliver iv8/collector scripts with only bare `print` for progress when `utils/logger.py` is the project standard.
-- Do not pre-create empty `js_reverse_cache/recon|source|ast|env|iv8|akamai|samples|private` trees "for completeness".
-- Do not treat non-empty sign/token, one HTTP 200, or an expired cookie/session export as semantic success.
-- Do not mix case-library edits and darwin `results.tsv` score rows in the same commit when avoidable.
+- Do not write task evidence outside `<projectRoot>/js_reverse_cache/**` when `projectRoot` is known, and do not treat OS temp as primary storage; if a tool forces an external absolute path, copy the artifact in immediately.
+- Do not treat non-empty sign/token, one HTTP `200`, or an expired cookie/session export as semantic success.
+- Do not store raw cookies/tokens/HAR/private bodies or absolute local paths in the case library, and do not mix case-library edits with darwin `results.tsv` score rows in one commit when avoidable.
 
-Full anti-pattern detail: `references/anti-patterns-playbook.md`.
+Also enforced in `references/anti-patterns-playbook.md` (read it for the temptation / false-progress / self-check form): bare `print` instead of `utils/logger.py` in iv8/collector delivery; pre-created empty `js_reverse_cache/**` trees; hardcoded rotating cookies; broad hooks before a clean baseline; reversing the visible helper instead of the wire mutation point; rung-skipping escalation.
 
 ## Completion
 

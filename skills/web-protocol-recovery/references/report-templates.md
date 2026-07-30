@@ -157,6 +157,22 @@ caseWriteback: <not-eligible|offer-pending|declined|accepted>
 residualRisks: <bounded list or none>
 ```
 
+## Language convention (CN / EN split)
+
+The skill mixes Chinese and English on purpose. The split is by audience, not by preference:
+
+| Surface | Language | Why |
+|---|---|---|
+| Skill-internal instruction text: `SKILL.md`, `PROVIDER.md`, playbooks, `references/**` prose | English | Read by the model on every route decision; keeps token cost and phrasing drift down. |
+| Machine keys and enum values: `route`, `shape`, `gateFamily`, `family`, `selectableAs`, `verificationClass`, JSON field names | English, lowercase, stable | Asserted verbatim by `evals/route-regression.json` and `scripts/validate_architecture.py`. Never translate or alias these. |
+| User-facing deliverables: `分析报告.md` and its section headings, status prose reported back in-session | Chinese | Written for the operator, matching how the task arrives. |
+| Trigger corpus: `evals/trigger-evals.json` queries | Whichever the user would actually type, including mixed CN/EN | The trigger surface must match real phrasing, e.g. `怀疑瑞数`, `Reese84 412`. |
+
+Two rules that follow from this:
+
+- Do not translate an enum value to make a report read better. `route: reese84` stays `reese84` in every artifact; describe it in Chinese in surrounding prose if needed.
+- Do not rewrite an existing Chinese heading in `分析报告.md` to English. `validate_architecture.py` asserts the literal `分析报告.md`, and the operator reads those headings.
+
 ## 分析报告.md
 
 Required at `<projectRoot>/分析报告.md` for Full completion of `compact-replay` or `collector` after stable delivery files are written. Not required for pure read-only `evidence`. Never place under `js_reverse_cache/`.

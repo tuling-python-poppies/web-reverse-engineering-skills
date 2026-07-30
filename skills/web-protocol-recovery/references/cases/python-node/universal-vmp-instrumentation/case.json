@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "camoufox-universal-vmp-instrumentation",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "signer",
   "runtime": "python-node",
@@ -45,7 +45,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "ffdfaf5e2bd634745d4094f6782a05bc4d4956ae1b671a80be1f5acc528da1b1"
+      "sha256": "359a902f975d0fde778112a8bee72f6721cc7eb5cf0eaaaae05e09cc21592ed6"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -55,7 +55,9 @@
   },
   "verification": {
     "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
+    "lineEndingCorrection": "rev2: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

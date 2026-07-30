@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-xhs-homefeed",
-  "revision": 4,
+  "revision": 5,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
@@ -36,7 +36,7 @@
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
-      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+      "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"
     }
   ],
   "liveState": {
@@ -63,7 +63,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "a8eda3009fd2a5266db202e038512d06446c988259d4f0ad94b5cf93330cddfe"
+      "sha256": "f6b49b1bc29a8bc2e1b5b1866c0deb42b885ae344976988c20997d6725ed0d06"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -72,13 +72,13 @@
     "assets": [
       {
         "path": "assets/signV2Init_function.json",
-        "sha256": "fc33e17ed2f2a112afdabf5a854b28633586e4cf2b1a0487acb7939cd140db06",
+        "sha256": "1d9c3f3c104779060c08f730836a4ae71ba8ce18736eb0caaa3e3a7abadbe2c5",
         "bytes": 577352,
         "readHint": "Large single-line artifact (~564 KB). Do not read whole-file into context. Grep for the symbol you need, or slice by offset; treat it as study-only archived source."
       },
       {
         "path": "assets/xhs_header_sign.js",
-        "sha256": "a5059251cca41d953c0f3a0974d54aed0356d598899741ef895bf28c4db33bd5"
+        "sha256": "dddcad548c35a5100326c8ac6c2696c53fda7ed8419a640ed2d9c9f689e9faba"
       },
       {
         "path": "fixtures/runtime_seed.sample.json",
@@ -89,10 +89,11 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-30T16:20:00+08:00",
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only. rev4: metadata only, added bytes + readHint to the 564 KB signV2Init_function.json asset so reuse does not whole-file read it; no evidence or verification claim changed."
+    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only. rev4: metadata only, added bytes + readHint to the 564 KB signV2Init_function.json asset so reuse does not whole-file read it; no evidence or verification claim changed.",
+    "lineEndingCorrection": "rev5: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

@@ -147,7 +147,12 @@ def main() -> int:
             return 1
         print("registry.json matches generated v2 projection")
         return 0
-    REGISTRY_PATH.write_text(payload, encoding="utf-8")
+    # newline="\n" is required. The Windows default translates to CRLF, and
+    # verify_case_hashes hashes these bytes, so a CRLF registry hashes
+    # differently from the committed LF blob: the gate then passes locally and
+    # fails in every clean clone. --check reads with universal newlines and is
+    # blind to this, which is how it stayed hidden.
+    REGISTRY_PATH.write_text(payload, encoding="utf-8", newline="\n")
     print(f"wrote {REGISTRY_PATH}")
     return 0
 

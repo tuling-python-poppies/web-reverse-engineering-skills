@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-zhipin-stoken",
-  "revision": 3,
+  "revision": 4,
   "status": "verified",
   "family": "session",
   "runtime": "iv8",
@@ -32,7 +32,7 @@
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
-      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+      "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"
     }
   ],
   "liveState": {
@@ -48,7 +48,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "5d20a466ad5883ba91762dcb36218658dcfd2b65ed65e6a0ece26d7d4f201d2d"
+      "sha256": "771af67ca5d7d8b5df4a570d19e002544e5271ff904f1d186ee3522d05ccc111"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -57,7 +57,7 @@
     "assets": [
       {
         "path": "assets/challenge.html",
-        "sha256": "6007c962122d364e24375c79a40b2f60dc428ac7790bb86db17d27bd5edb019b"
+        "sha256": "28ecd63fa639a2a5f390e9f479b1571328dccc9aa91f55e274eabc5e5bd54767"
       },
       {
         "path": "assets/zhipin_stoken.txt",
@@ -68,10 +68,11 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-29T14:51:37+08:00",
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only."
+    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only.",
+    "lineEndingCorrection": "rev4: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

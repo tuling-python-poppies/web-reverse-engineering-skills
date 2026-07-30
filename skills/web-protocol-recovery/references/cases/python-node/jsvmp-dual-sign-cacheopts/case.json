@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "camoufox-jsvmp-dual-sign-cacheopts",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "signer",
   "runtime": "python-node",
@@ -51,7 +51,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "fc92fb48e50ae22c1d4bc5c43a54e76e1d01182da5622e4c36c621445f94089e"
+      "sha256": "e47fc84934fcc2fd861fad0596fbc53771b5b89f91bd32d8bb744a31bf21da44"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -61,7 +61,9 @@
   },
   "verification": {
     "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
+    "lineEndingCorrection": "rev2: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

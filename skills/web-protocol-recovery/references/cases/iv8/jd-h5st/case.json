@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-jd-h5st",
-  "revision": 3,
+  "revision": 4,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
@@ -75,7 +75,7 @@
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
-      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+      "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"
     }
   ],
   "liveState": {
@@ -106,11 +106,11 @@
     "assets": [
       {
         "path": "assets/jd_index.html",
-        "sha256": "854715a902f10a4283427a6647212f45fe2c2103763eff66315a0fafabae65d7"
+        "sha256": "c88dd37ae285f5c77fde06b03a7e73dc99e65939bf551ad8fea13e2eb8a38a2c"
       },
       {
         "path": "assets/js_security_v3_main.js",
-        "sha256": "047572354d08d792724293c3bc2e6a2884560bedcc2274cfbc9b198e57ee1a37"
+        "sha256": "ad1af4f1a2475f9e7c92e988e3e5a9626129d66de82d8f4aaaef43a7c9ed611a"
       },
       {
         "path": "fixtures/vectors.json",
@@ -133,7 +133,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-29",
+    "executedAt": "2026-07-30T20:11:59+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -159,7 +159,8 @@
         "summary": "chromium-recon on m.jd.com + live js_security_v3_main.js: iv8 h5st then recommend_like_m HTTP 200 with data.feeds.content product rows (~20 items, id/name/price)",
         "currentAcceptance": false
       }
-    }
+    },
+    "lineEndingCorrection": "rev4: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": {
     "mode": "iv8",

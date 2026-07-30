@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-cqvip-journal-search",
-  "revision": 3,
+  "revision": 4,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
@@ -63,7 +63,7 @@
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
-      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+      "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"
     }
   ],
   "liveState": {
@@ -77,7 +77,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "902785b387b3e2b08fbfeb79450a6fc9eac1bd179dcab9b64e2bdcb57ff8e6f8"
+      "sha256": "f95988a688196c09d79802e075c4879276d74ed4f660a80762bb382c34eae939"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -88,10 +88,11 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-29T14:51:37+08:00",
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only."
+    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only.",
+    "lineEndingCorrection": "rev4: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

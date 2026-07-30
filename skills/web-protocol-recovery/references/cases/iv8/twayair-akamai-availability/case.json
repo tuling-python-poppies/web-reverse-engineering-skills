@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-twayair-akamai-availability",
-  "revision": 3,
+  "revision": 4,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
@@ -98,7 +98,7 @@
   "preRead": [
     {
       "path": "references/providers/implementation/iv8/references/api-inventory.md",
-      "sha256": "a8b810a26030e03b722e88fd6ef33befd2f6a816197214c2934e729305dd2f40"
+      "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"
     }
   ],
   "liveState": {
@@ -159,7 +159,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-29",
+    "executedAt": "2026-07-30T20:11:59+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -182,7 +182,8 @@
         "evidencePath": "fixtures/vectors.json",
         "summary": "Source-project T'way availability replay is historical provenance and requires fresh current-target verification."
       }
-    }
+    },
+    "lineEndingCorrection": "rev4: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": {
     "mode": "iv8",

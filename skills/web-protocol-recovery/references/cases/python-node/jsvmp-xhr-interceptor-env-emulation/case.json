@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "camoufox-jsvmp-xhr-interceptor-env-emulation",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "signer",
   "runtime": "python-node",
@@ -57,7 +57,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "b33082f0caa54c3fa9e4c91073e9abea534bcd02c23c33a20a9dfe36fe4931d6"
+      "sha256": "e38f10df751418e8a8a5053af4f6b30180ac8e10c2713aa00b956f625089596a"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -67,7 +67,9 @@
   },
   "verification": {
     "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
+    "lineEndingCorrection": "rev2: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

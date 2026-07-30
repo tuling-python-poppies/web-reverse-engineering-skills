@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "camoufox-jsvmp-ruishu6-cookie-412-sdenv",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "challenge",
   "runtime": "python-node",
@@ -63,7 +63,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "fa89fb185a9bf771f01c1f066ae17b57af71a965f91a0ea1eb4b37665ae9aa57"
+      "sha256": "d8b9dee7595173e4ec413e8c21f661676cb922d359e191b38ac0a971bcb9b6be"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -73,7 +73,9 @@
   },
   "verification": {
     "sourceCommit": "95be929~1",
-    "requiresFreshVerification": true
+    "requiresFreshVerification": true,
+    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
+    "lineEndingCorrection": "rev2: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,
   "sourceStage": {

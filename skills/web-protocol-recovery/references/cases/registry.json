@@ -35,7 +35,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-dual-sign-cacheopts/case.json",
-                "sha256": "52f6226655512efecbeee6ef9c3e2b234498bb9b5eeac81ffab9716155cf828c"
+                "sha256": "7ca84d73df3362d8bb03c00ad00605e77f0f475dea590a489549a1c8cc9e0d64"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -81,7 +81,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
-                "sha256": "7d0e156fe6685b3ad94c3e23b5fe717d92e8adb204aaed8c2811ff7023de5024"
+                "sha256": "2efcbec6a3be202358591ab5f2626df278ce65893d55b11ccda845a42fe349c8"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -123,7 +123,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-xhr-interceptor-env-emulation/case.json",
-                "sha256": "45bb741d49cc2f02cfe26ea91478f04f363782938c0bc8cc81a69775e734e8a1"
+                "sha256": "f1b59225a9a39b3f3c2fd3782643647b28715b5a32564dbfd387b2de7fff3b97"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -161,7 +161,7 @@
             ],
             "manifest": {
                 "path": "python-node/universal-vmp-instrumentation/case.json",
-                "sha256": "936c777830d5124fe0c8c312dd8db15ab95865045739c9e07a478ad84fbc420c"
+                "sha256": "7c4bb6595c987266633359a6968447885466211eeb2a5dc0e684c437528a24f6"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -257,7 +257,7 @@
             ],
             "manifest": {
                 "path": "iv8/bangkokair-reese84-booking/case.json",
-                "sha256": "d20b219aa43f30c7083186c0f7d32edb052d8d93270f62ce9a6ac85ad2c62a8a"
+                "sha256": "591736366e5b4987f15c086782fab2b8a86f5f1fb96a0e9c36062a97d3261f50"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -319,7 +319,7 @@
             ],
             "manifest": {
                 "path": "iv8/chinatax-ruishu/case.json",
-                "sha256": "be67198c43211aa164ea90e2a6b02d6a7741c289e7b1f8da13b9539cf0ea48b6"
+                "sha256": "db59329a7e79a3dcaf25c54c266095c7b2bb0dea02421b6c502ff511e099d1ff"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -381,7 +381,7 @@
             ],
             "manifest": {
                 "path": "iv8/chng-ruishu-announcement/case.json",
-                "sha256": "ab335cbf6dfcb9a8efaefc849b0d8e14fb11c3a78529c9d27db39b8ddd26c4f6"
+                "sha256": "078f8b6b62783b9bcb907819f64730255a39658e1885011867cd414722ba9248"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -448,7 +448,7 @@
             ],
             "manifest": {
                 "path": "iv8/cqvip-journal-search/case.json",
-                "sha256": "312d81c7e586b934771aee5030e5af19d78e42b9c1ff751cfe7b1174c8340fe0"
+                "sha256": "2e1714ae5086e46eb4b79c6260810053908443b1ff842863379b43033cc17efa"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -510,7 +510,7 @@
             ],
             "manifest": {
                 "path": "iv8/customs-ruishu/case.json",
-                "sha256": "ac1d5229c384f183abee4cf7e223d619bfa0622326ea6627ba63cfe2862949a6"
+                "sha256": "a1c9458ba25d6e5b92f1a092b62df80ac06b39a304f63ae9a0de8014d0604fd6"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -547,7 +547,7 @@
             ],
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
-                "sha256": "7d5865009e3da3dcb4e4e9c0d6a0525c02632e2002ecc6a4d38a5e7ad1d39698"
+                "sha256": "b161223c96b2e47c67fe4e6cfdc522fc410409cd38bb59c4251bbc0d21685848"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -590,7 +590,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-slider/case.json",
-                "sha256": "d37bfbd8e712ed5332dac7bdfb599fee29dc3890f97ac7dd5db405459ebe6333"
+                "sha256": "037854b9cccb9ed69b4d0f04bc5da55feb574b1ca8b27cb8508d8a3ef1204f62"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -633,7 +633,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "504e0fe0997ad74cefc7c4d87256ed1350d7d04baf32bbf5d13b78840835d307"
+                "sha256": "93f701dedf45c48ae9a32692c34619f10d46289d1ab9977bbc6b11572406ba8b"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -707,7 +707,7 @@
             ],
             "manifest": {
                 "path": "iv8/jd-h5st/case.json",
-                "sha256": "5ac6a8657376bfe099f93f448ecc3eb7224b50b74534ccd52d7f0b791927d656"
+                "sha256": "474f47f495c01e9a7628583ac73a6483ca3d6c0936dd0a6e3ad23de60170260b"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -750,7 +750,7 @@
             ],
             "manifest": {
                 "path": "iv8/nmpa-md5-cookie/case.json",
-                "sha256": "73d7525d24c37791f75f3f43770d3f9c6380e9a427db23aff872ef5f9dc04aab"
+                "sha256": "072e6b5e683c7b4fc6a2b6a94d8b13989308c7dd156794cf81f0742f634208f8"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -787,7 +787,7 @@
             ],
             "manifest": {
                 "path": "iv8/ouyeel-202-cookie-url/case.json",
-                "sha256": "c2e198bbfc0bdb8268f010efed1d4a1cb0724db7c5ecfb7d6618d3a0263b772f"
+                "sha256": "f66d0a70c64d53fafabf27ce40553a7e53fc3f1a01f2229cf95d2591970c1325"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -824,7 +824,7 @@
             ],
             "manifest": {
                 "path": "iv8/pdd-anti-content/case.json",
-                "sha256": "eee57a5c79fcc60bdd1bcb40f410d96a418f4b35273aa88478f6cdbb9d588fa3"
+                "sha256": "05f7519eab120ec2ec728f0355d702b11e9355ec22d0664dd71858ef2970cd98"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -867,7 +867,7 @@
             ],
             "manifest": {
                 "path": "iv8/tencent-tdc-slider/case.json",
-                "sha256": "91cc815d4763aaf4e009445eb888ba76f9f58c30e8382d12b5787abb159ec490"
+                "sha256": "a6ae905c1ac626ece70f519f324f6559540ed9139df9a581a15de03144afe099"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -956,7 +956,7 @@
             ],
             "manifest": {
                 "path": "iv8/twayair-akamai-availability/case.json",
-                "sha256": "1ee83f6f9262068aa8109c8d3bcdc8a7efa25232f2cb98e511d4564f9e5cb2bf"
+                "sha256": "9c9c3a9c12d1b96e72e4fef23a5d8b79d787ace2d9fe7187645d7541c3405045"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -994,7 +994,7 @@
             ],
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
-                "sha256": "0894dcf69fb511f609003bd99f487cee9851cb616661b538327d6e268b73cb71"
+                "sha256": "af4661beea80227162102ccfc176347ac3b8867f4da4f080dec0d9f314c6d454"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -1030,7 +1030,7 @@
             ],
             "manifest": {
                 "path": "iv8/zhipin-stoken/case.json",
-                "sha256": "700509ff16ce684c33d050c401364fb595cdb8ee98dfa2a640e1f96ac85be2ea"
+                "sha256": "ae8065e9a4ca2976726a4e221f427ff459bb735d443b02c873e449498d4c013a"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

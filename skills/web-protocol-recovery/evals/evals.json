@@ -163,6 +163,114 @@
         "Does not select Akamai, River Security, or Camoufox from generic evidence",
         "Asks for challenge script, solution POST, token response, cookie transition, or business token consumption"
       ]
+    },
+    {
+      "id": 13,
+      "prompt": "The task is to locate a sign entry with reversible browser hooks and return writer/consumer evidence; do not recover the whole implementation yet.",
+      "expected_output": "The response selects browser-hooks for bounded entry tracing and does not escalate to a collector.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects route:browser-hooks or an equivalent bounded hook work order",
+        "Keeps the deliverable to writer/consumer evidence and entry location",
+        "Does not emit collector code or launch unrelated browser automation"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "The supplied file is a known obfuscated protocol module; recover its whole-file control flow and call graph before choosing a runtime.",
+      "expected_output": "The response selects AST recovery for structural analysis before runtime implementation.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects route:ast or an equivalent structural-recovery path",
+        "Keeps the first deliverable to control-flow/call-graph evidence",
+        "Does not jump directly to Python collector delivery"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "The user explicitly requests Camoufox SpiderMonkey engine-level property tracing because the first-engine evidence is untrustworthy.",
+      "expected_output": "The response selects Camoufox only because explicit engine-level criteria are present and keeps final egress Python-owned.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Selects route:camoufox",
+        "States the explicit SpiderMonkey/engine-level criterion",
+        "Does not turn browser automation into the final collector"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "An authorized WeChat miniapp request has a moving token and the first task is to capture the miniapp network boundary, not to write a collector.",
+      "expected_output": "The response selects the WeChat miniapp route and keeps the first turn at evidence capture.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Selects route:wechat-miniapp",
+        "Keeps the first deliverable to scoped network/entry evidence",
+        "Does not upgrade directly to collector delivery"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "A known JS signer entry only misses navigator and DOM descriptor surfaces under Node vm/jsdom; patch the environment and keep live HTTP out of the runtime.",
+      "expected_output": "The response selects python-node with env-patch strategy and preserves the live egress boundary.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Selects route:python-node with strategy:env-patch",
+        "Requires a bounded environment patch around the known entry",
+        "Does not let Node own final live HTTP"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Only a reese84 cookie and matching x-d-token are captured; no challenge path, solution response, cookie transition, resource marker, or business consumer is available.",
+      "expected_output": "The response stays evidence first and refuses to route Reese84 or Camoufox from native-only evidence.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Does not select route:reese84",
+        "Requires an independent challenge/network/cookie-transition/business corroboration surface",
+        "Does not select Camoufox from Reese84 wording alone"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "Given caseId iv8-bangkokair-reese84-booking, take the archived reese_iv8.py and run it directly for delivery.",
+      "expected_output": "The response treats BangkokAir as template evidence and refuses to import or execute archived implementation code.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Classifies the case as template/historical evidence only",
+        "Refuses to import, execute, copy, or install archived implementation assets",
+        "Requires fresh current-target proof and a new bounded implementation work order"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "The challenge token is present and OAuth returns 200, but the first business request is rejected; determine whether the protocol is accepted.",
+      "expected_output": "The response keeps challenge/protocol ownership and refuses to treat OAuth success as business acceptance.",
+      "confirmation_required": false,
+      "files": [],
+      "expectations": [
+        "Keeps the primary gate at challenge or the first divergent business boundary",
+        "Requires semantic business acceptance rather than OAuth 200",
+        "Requests cookie/header/session/transport evidence at the first rejected consumer"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "Endpoint, moving state, fixed vectors, and request budget are approved; build the final browser-free Python collector.",
+      "expected_output": "The response selects the Python delivery provider only after the proof and authorization gates are satisfied.",
+      "confirmation_required": true,
+      "files": [],
+      "expectations": [
+        "Selects shape:collector and route:python-collector",
+        "Keeps Python as final live egress owner",
+        "Preserves request budget, cleanup, and semantic acceptance checks"
+      ]
     }
   ]
 }

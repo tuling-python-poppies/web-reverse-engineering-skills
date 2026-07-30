@@ -11,5 +11,14 @@
   {"query": "把这个 workflow 做成一个 OpenCode skill", "should_trigger": false},
   {"query": "修改 opencode.jsonc 的 MCP 配置", "should_trigger": false},
   {"query": "前端按钮 hover 样式不对，帮我改 CSS", "should_trigger": false},
-  {"query": "写一段 Imperva 公司和产品线的市场介绍", "should_trigger": false}
+  {"query": "写一段 Imperva 公司和产品线的市场介绍", "should_trigger": false},
+  {"query": "已知 sign 入口，只需要可逆浏览器 hook 定位 writer 和 consumer", "should_trigger": true},
+  {"query": "整文件混淆协议源码恢复控制流和调用图", "should_trigger": true},
+  {"query": "明确用 Camoufox SpiderMonkey 做引擎级属性追踪，普通 Chrome 证据不可信", "should_trigger": true},
+  {"query": "已知 JS signer 只缺 navigator 和 DOM descriptor，帮我做 Node 环境补丁", "should_trigger": true},
+  {"query": "已知入口用 iv8 生成窄 sign 工件，再交给 Python，不做业务请求", "should_trigger": true},
+  {"query": "端点、moving state、固定向量和预算都已批准，交付 browser-free Python collector", "should_trigger": true},
+  {"query": "帮我把本地 TypeScript 工具做 AST 格式化和重命名，不涉及协议、请求或 token", "should_trigger": false},
+  {"query": "帮我写 Camoufox 截图回归和页面点击测试，不涉及协议逆向", "should_trigger": false},
+  {"query": "普通公开 GraphQL API client 没有 sign、token、cookie 或 challenge", "should_trigger": false}
 ]

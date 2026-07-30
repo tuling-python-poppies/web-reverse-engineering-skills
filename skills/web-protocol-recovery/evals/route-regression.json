@@ -65,6 +65,54 @@
         "route": "python-collector",
         "deliveryProvider": "python-collector"
       }
+    },
+    {
+      "id": "browser-hooks-reversible-entry",
+      "prompt": "The task is to locate a sign entry with reversible browser hooks and return writer/consumer evidence; do not recover the whole implementation yet.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "browser-hooks"
+      }
+    },
+    {
+      "id": "ast-control-flow-recovery",
+      "prompt": "The supplied file is a known obfuscated protocol module; recover its whole-file control flow and call graph before choosing a runtime.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "ast"
+      }
+    },
+    {
+      "id": "explicit-camoufox-engine-trace",
+      "prompt": "The user explicitly requests Camoufox SpiderMonkey engine-level property tracing because the first-engine evidence is untrustworthy.",
+      "expect": {
+        "shape": "evidence",
+        "route": "camoufox"
+      }
+    },
+    {
+      "id": "wechat-miniapp-protocol",
+      "prompt": "An authorized WeChat miniapp request has a moving token and the first task is to capture the miniapp network boundary, not to write a collector.",
+      "expect": {
+        "shape": "evidence",
+        "route": "wechat-miniapp"
+      }
+    },
+    {
+      "id": "known-iv8-artifact-boundary",
+      "prompt": "The JavaScript challenge entry is known and iv8 must produce one narrow local artifact for Python; no live business HTTP belongs inside iv8.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "iv8"
+      }
+    },
+    {
+      "id": "reese84-native-without-corroboration",
+      "prompt": "Only a reese84 cookie and matching x-d-token are captured; no challenge path, solution response, cookie transition, resource marker, or business consumer is available.",
+      "expect": {
+        "shape": "evidence",
+        "route": "evidence-reuse"
+      }
     }
   ]
 }

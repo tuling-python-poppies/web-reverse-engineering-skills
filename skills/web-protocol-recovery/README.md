@@ -16,6 +16,7 @@
 - Case selector: `references/cases/registry.json`
 - Route regression evals: `evals/route-regression.json`
 - Historical behavioral benchmark summary (not current acceptance; raw outputs were not retained): `evals/benchmark-results/ACCEPTANCE.md`
+- Line-ending gate status: `evals/benchmark-results/line-ending-status.md`
 
 ## Provider Architecture
 
@@ -73,10 +74,12 @@ entry point after any edit. Each one is fail-closed; none of them are advisory.
 | entry discipline scan | No import-time network, mkdir, or engine start in case entries |
 
 Two invariants exist because both were violated silently for a long time. Every
-script that writes text passes `newline="\n"`, since `build_case_registry.py`
-wrote CRLF on Windows while its own `--check` read back with universal newlines,
-so every case hash was wrong in a clean clone while all gates reported PASS. And
-an accepted trigger run is bound to the SKILL.md bytes it evaluated, so editing
+hash-bound text surface is pinned to LF by `.gitattributes`, and
+`validate_architecture.py` scans raw bytes for CRLF. Scripts that generate
+checked-in hash-bound text must also write LF explicitly; `build_case_registry.py`
+is covered by `test_eval_integrity.py` because that writer previously emitted
+CRLF on Windows while its own `--check` read back with universal newlines. And an
+accepted trigger run is bound to the SKILL.md bytes it evaluated, so editing
 `SKILL.md` fails `validate_evals.py` until the eval is re-run or
 `current_acceptance` is withdrawn.
 

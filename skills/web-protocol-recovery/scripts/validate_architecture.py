@@ -42,6 +42,8 @@ TEXT_SUFFIXES = {".md", ".json", ".py", ".js", ".mjs", ".cjs"}
 CODE_SUFFIXES = {".py", ".js", ".mjs", ".cjs"}
 RESIDUE_NAMES = {"__pycache__", ".pytest_cache"}
 RESIDUE_SUFFIXES = {".pyc", ".pyo"}
+EOL_CHECKED_SUFFIXES = {".md", ".json", ".py", ".js", ".mjs", ".cjs", ".html", ".txt", ".tsv"}
+EOL_SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv"}
 OBSOLETE_PROVIDER_PATHS = (
     "providers/implementation/env-patch/PROVIDER.md",
     "providers/implementation/verifier/PROVIDER.md",
@@ -627,6 +629,27 @@ def case_manifest_findings() -> list[str]:
     return findings
 
 
+def line_ending_findings() -> list[str]:
+    """No tracked text file may carry CRLF.
+
+    Case manifests hash file bytes, so a CRLF worktree hashes differently from the
+    committed LF blob. That defect passed every gate for the life of the hash
+    system because the generator wrote CRLF on Windows and the checker read back
+    with universal newlines, leaving both blind to the same byte. This check reads
+    raw bytes so it cannot inherit that blindness, and `.gitattributes` pins
+    `text eol=lf` so a compliant checkout is CRLF-free on every platform.
+    """
+    findings: list[str] = []
+    for path in sorted(SKILL_ROOT.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in EOL_CHECKED_SUFFIXES:
+            continue
+        if any(part in EOL_SKIP_DIRS for part in path.parts):
+            continue
+        if b"\r\n" in path.read_bytes():
+            findings.append(f"CRLF in tracked text file: {rel(path)}")
+    return findings
+
+
 def residue_findings() -> list[str]:
     findings: list[str] = []
     for path in SKILL_ROOT.rglob("*"):
@@ -734,6 +757,7 @@ def main() -> int:
         ("case manifests", case_manifest_findings),
         ("live egress", live_egress_findings),
         ("residue", residue_findings),
+        ("line endings", line_ending_findings),
     ]
     failures: list[str] = []
     for name, func in checks:

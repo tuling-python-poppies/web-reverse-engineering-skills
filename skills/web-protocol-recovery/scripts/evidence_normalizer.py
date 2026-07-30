@@ -346,7 +346,12 @@ def run_self_test() -> None:
         root = Path(tmp)
         input_path = root / "input.json"
         output_path = root / "output.json"
-        input_path.write_text(json.dumps(sample), encoding="utf-8")
+        # newline="\n" everywhere a script writes text, without exception. This
+        # particular file is scratch input for the self-test and would survive a
+        # CRLF translation, but the same call in build_case_registry.py silently
+        # broke every case hash on non-Windows checkouts. The rule is cheaper to
+        # keep than to reason about case by case.
+        input_path.write_text(json.dumps(sample), encoding="utf-8", newline="\n")
         loaded = load_json(input_path, root)
         write_new(output_path, normalize_document(loaded, b"0123456789abcdef0123456789abcdef"), root)
         assert output_path.is_file()

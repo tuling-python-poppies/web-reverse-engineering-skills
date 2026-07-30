@@ -22,6 +22,12 @@ skills/web-protocol-recovery/**/*.mjs  text eol=lf
 skills/web-protocol-recovery/**/*.html text eol=lf
 skills/web-protocol-recovery/**/*.txt  text eol=lf
 skills/web-protocol-recovery/**/*.tsv  text eol=lf
+skills/web-protocol-recovery/**/*.cjs  text eol=lf
+
+# Extensionless text files are not covered by the rules above and were checking
+# out as CRLF. LICENSE is not hash-bound today, but leaving one CRLF file in the
+# tree keeps a mixed-EOL worktree that the next hash-bound surface can inherit.
+skills/web-protocol-recovery/LICENSE   text eol=lf
 
 # Binary asset: never line-ending convert.
 skills/web-protocol-recovery/**/*.wasm binary

@@ -19,6 +19,17 @@
       "integrity": "historical-summary-only; raw model and independent grade artifacts were not retained"
     }
   },
+  "trigger_benchmark": {
+    "prompt_file": "evals/trigger-evals.json",
+    "artifact": "evals/benchmark-results/trigger-deepseek-v4-pro-current.json",
+    "status_ledger": "evals/benchmark-results/trigger-status.md",
+    "threshold": 1.0,
+    "runs_per_query": 3,
+    "timeout_seconds": 180,
+    "single_model_required": true,
+    "retry_policy": "at most one bounded retry per failed query; a raised retry timeout must be recorded as retry_timeout_seconds, and first-pass and retry grades must be retained separately",
+    "standard_note": "runs_per_query 3 is the acceptance standard: a single run cannot separate a real routing decision from wall-clock noise. A run below the standard may still be recorded, but the artifact must then carry statistical_caveat naming the shortfall."
+  },
   "evals": [
     {
       "id": 1,

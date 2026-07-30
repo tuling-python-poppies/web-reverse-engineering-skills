@@ -55,6 +55,31 @@ Internal skills are Providers under this tree (not peer top-level skills). Roles
 
 The root registry indexes 22 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 5 `python-node`, and 1 `pure-python`. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
 
+## Gates
+
+`python scripts/preflight.py --strict` runs every check below and is the single
+entry point after any edit. Each one is fail-closed; none of them are advisory.
+
+| Gate | Asserts |
+|---|---|
+| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 22 cases |
+| `build_case_registry.py --check` | `registry.json` is exactly the generated projection |
+| `validate_architecture.py` | Provider registry, route literals, doc contract, case manifests, live-egress boundary, build residue, and LF-only line endings |
+| `validate_schemas.py` | Work-order and result schemas |
+| `validate_markdown.py` | Markdown contract |
+| `validate_evals.py` | Route-regression metadata, provider route coverage, behavioral and trigger corpora, and the accepted trigger artifact's provenance, arithmetic, and bookkeeping |
+| case unit tests | Per-case offline behaviour |
+| `test_preflight.py`, `test_architecture_contract.py`, `test_scaffold_project.py`, `test_eval_integrity.py` | The gates themselves fail in the failing direction |
+| entry discipline scan | No import-time network, mkdir, or engine start in case entries |
+
+Two invariants exist because both were violated silently for a long time. Every
+script that writes text passes `newline="\n"`, since `build_case_registry.py`
+wrote CRLF on Windows while its own `--check` read back with universal newlines,
+so every case hash was wrong in a clean clone while all gates reported PASS. And
+an accepted trigger run is bound to the SKILL.md bytes it evaluated, so editing
+`SKILL.md` fails `validate_evals.py` until the eval is re-run or
+`current_acceptance` is withdrawn.
+
 ## Runtime Helpers
 
 Reverse-engineering helpers under `scripts/` are optional aids, not gates:
@@ -63,7 +88,6 @@ Reverse-engineering helpers under `scripts/` are optional aids, not gates:
 python scripts\check_reverse_env.py
 python scripts\crypto_fingerprint.py <sample>
 python scripts\protocol_diff.py <capture-a> <capture-b>
-python scripts\validate_evals.py
 python scripts\providers\delivery\python-collector\scaffold_project.py <project-root> --entry --cache
 ```
 

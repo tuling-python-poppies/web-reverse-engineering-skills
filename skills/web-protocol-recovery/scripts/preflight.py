@@ -371,6 +371,7 @@ def check_acceptance_unit_tests() -> tuple[bool, str]:
     tests = [
         SKILL_ROOT / "scripts" / "test_architecture_contract.py",
         SKILL_ROOT / "scripts" / "test_scaffold_project.py",
+        SKILL_ROOT / "scripts" / "test_eval_integrity.py",
     ]
     missing = [str(path.relative_to(SKILL_ROOT)) for path in tests if not path.is_file()]
     if missing:

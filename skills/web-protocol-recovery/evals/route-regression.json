@@ -107,6 +107,34 @@
       }
     },
     {
+      "id": "akamai-sensor-state-machine",
+      "prompt": "The first hop sets _abck and bm_sz, the page POSTs sensor_data, and the business API only answers after two rounds; recover the protocol before any browser-free Python request.",
+      "expect": {
+        "shape": "evidence",
+        "route": "akamai",
+        "gateFamily": "challenge",
+        "protocolOwner": "akamai"
+      }
+    },
+    {
+      "id": "river-security-412-challenge",
+      "prompt": "The site answers 412 with $_ts.nsd, $_ts.cd, a script tag carrying r=\"m\", and XxxS/XxxT cookies; classify the subtype and recover the challenge.",
+      "expect": {
+        "shape": "evidence",
+        "route": "river-security",
+        "gateFamily": "challenge",
+        "protocolOwner": "river-security"
+      }
+    },
+    {
+      "id": "default-reconnaissance-without-engine-criteria",
+      "prompt": "An unknown target needs first-turn network and entry evidence; nothing in the capture is untrustworthy at the engine level and no SpiderMonkey property tracing was requested.",
+      "expect": {
+        "shape": "evidence",
+        "route": "chromium-recon"
+      }
+    },
+    {
       "id": "reese84-native-without-corroboration",
       "prompt": "Only a reese84 cookie and matching x-d-token are captured; no challenge path, solution response, cookie transition, resource marker, or business consumer is available.",
       "expect": {

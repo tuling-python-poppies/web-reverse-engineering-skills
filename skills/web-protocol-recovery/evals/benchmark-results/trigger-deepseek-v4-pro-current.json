@@ -18,7 +18,20 @@
   },
   "workers": 3,
   "timeout_seconds": 180,
+  "timeout_accounting": {
+    "first_pass": {
+      "over_declared_ids": [
+        2
+      ],
+      "explanation": "id 2 was recorded with duration_ms 329767 against a declared 180s timeout, so 180 is not the limit the runner enforced on that query. The per-query kill was not bounded at the declared value and the raw first-pass transcript was not retained, so the effective limit cannot be reconstructed after the fact. Read id 2's first-pass error=timeout as 'the runner gave up at ~330s', not as 'the query exceeded 180s'."
+    },
+    "retry": {
+      "over_declared_ids": [],
+      "explanation": "The single retry ran 30.7s against the raised 600s limit, well inside the declared bound."
+    }
+  },
   "runs_per_query": 1,
+  "statistical_caveat": "runs_per_query is 1, below the declared standard of 3 in evals/evals.json trigger_benchmark. This score is a single observation per query, not a stable rate. id 2 is the direct evidence: it failed the first pass on wall-clock alone and passed the retry unchanged in 30.7s, so at n=1 a pass and a fail are separated by scheduling noise rather than by routing behaviour. Treat 22/22 as 'no routing defect observed in one pass', and re-run at n=3 before treating it as a rate.",
   "trigger_threshold": 1.0,
   "prompt_file": "evals/trigger-evals.json",
   "prompt_file_sha256": "18d1f4d4df13bbc1ece8aea86cd3dfc5df0333bec946838ec0b2209ec145b633",

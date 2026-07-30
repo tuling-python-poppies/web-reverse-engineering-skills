@@ -1,2 +1,31 @@
+# web-protocol-recovery pins LF for every hash-bound text surface.
+#
+# Why: the skill's own gates hash worktree bytes, not git blobs.
+# scripts/verify_case_hashes.py compares sha256 of the checked-out file against
+# registry.json / case.json manifests, and the trigger eval ledger records
+# evaluated_skill_md_sha256 for SKILL.md. On Windows with core.autocrlf=true a
+# plain checkout materializes CRLF, which changes those hashes and fails the
+# gates on line endings alone - indistinguishable from real tampering.
+# Verified: CRLF checkout of one case.json produced e87142de instead of the
+# recorded 0894dcf6, and verify_case_hashes reported mismatches=1.
+#
+# The two case dirs at the bottom were pinned earlier for the same reason; this
+# widens the pin to the whole skill instead of fixing it one directory at a
+# time. Blobs are already LF, so this changes no committed bytes - only what
+# checkout writes to disk.
+
+skills/web-protocol-recovery/**/*.md   text eol=lf
+skills/web-protocol-recovery/**/*.json text eol=lf
+skills/web-protocol-recovery/**/*.py   text eol=lf
+skills/web-protocol-recovery/**/*.js   text eol=lf
+skills/web-protocol-recovery/**/*.mjs  text eol=lf
+skills/web-protocol-recovery/**/*.html text eol=lf
+skills/web-protocol-recovery/**/*.txt  text eol=lf
+skills/web-protocol-recovery/**/*.tsv  text eol=lf
+
+# Binary asset: never line-ending convert.
+skills/web-protocol-recovery/**/*.wasm binary
+
+# Retained for clarity; covered by the extension rules above.
 skills/web-protocol-recovery/references/cases/iv8/bangkokair-reese84-booking/** text eol=lf
 skills/web-protocol-recovery/references/cases/iv8/jd-h5st/** text eol=lf

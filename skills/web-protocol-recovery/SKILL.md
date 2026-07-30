@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  仅在用户明确要恢复、定位、验证、交付、逆向、还原、抓入口或协议复现 Web/小程序协议行为时触发；协议信号包括 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/Reese84/Imperva/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议，或 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、verifier、akamai、river-security、reese84、iv8、python-node、pure-python 或 Python delivery Provider。单点 hook/入口定位/已知 AST、Node/jsdom 补环境、iv8 工件、纯 Python signer、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机、Reese84 challenge/cookie/x-d-token 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。仅提到 AST、Camoufox、GraphQL、WebSocket、protobuf、Imperva 或浏览器而没有协议恢复目标时不触发。不触发：skill 本身的描述/评测/优化/打分（改走 skill-creator 或 darwin-skill）、普通 HTTP/API 故障排查、静态抓取或公开文档 API client、普通源码格式化/重命名、浏览器 QA/截图/点击测试、MCP/OpenCode 配置、仅安全头审计、纯 UI/CSS/组件开发，以及与协议无关的通用编程。
+  仅在用户明确要恢复、定位、验证、交付、逆向、还原、抓入口或协议复现 Web/小程序协议行为时触发；协议信号包括 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/Reese84/Imperva/响应解码/WebSocket/GraphQL/protobuf/字体映射/会话协议，或 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、verifier、akamai、river-security、reese84、iv8、python-node、pure-python 或 Python delivery Provider。单点 hook/入口定位/已知 AST、Node/jsdom 补环境、iv8 工件、纯 Python signer、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机、Reese84 challenge/cookie/x-d-token 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。仅提到 AST、Camoufox、GraphQL、WebSocket、protobuf、Imperva 或浏览器而没有协议恢复目标时不触发。不触发：skill 本身的描述/评测/优化/打分（改走 skill-creator 或 darwin-skill）、普通 HTTP/API 故障排查、静态抓取或公开文档 API client、普通源码格式化/重命名、浏览器或 Camoufox QA/截图/点击回归（无协议目标）、MCP/OpenCode 配置、仅安全头审计、纯 UI/CSS/组件开发，以及与协议无关的通用编程。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -76,7 +76,7 @@ Fallback rules:
 
 1. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
 2. Mixed signals resolve to the smallest offline step. Put missing approvals in `nextAsk`; do not paste a full intake form, launch a browser, send live egress, or scaffold a collector on the first turn.
-3. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA, UI/CSS work, or skill editing are non-triggers; return the boundary instead of forcing a route.
+3. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA/screenshot/click tests, ordinary AST format/rename, Camoufox regression without protocol recovery, MCP/OpenCode config, UI/CSS work, or skill create/optimize/score are non-triggers; return the boundary instead of forcing a route.
 
 Read-Only Evidence Fast Path:
 

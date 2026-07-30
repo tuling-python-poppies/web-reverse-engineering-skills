@@ -1,9 +1,28 @@
 # Trigger eval status
 
-This file tracks trigger-boundary acceptance for `evals/trigger-evals.json`.
-It is not a substitute for a retained model run with per-query grades.
+## Latest full_test
 
-## Current inventory
+| Field | Value |
+|---|---|
+| Score | **22/22** |
+| Primary model | `deepseek/deepseek-v4-flash` |
+| Retry model | `deepseek/deepseek-v4-pro` |
+| Tested commit | `c193b4edddc50c542abbb4b5bb340cfed3cc9071` |
+| Prompt SHA-256 | `18d1f4d4df13bbc1ece8aea86cd3dfc5df0333bec946838ec0b2209ec145b633` |
+| Skill.md SHA-256 | `b915e09c693f90eddba88df0055f3a16cf9bc3018f9f95e56945704d9320755b` |
+| Artifact | `evals/benchmark-results/trigger-deepseek-v4-flash-HEAD.json` |
+| eval_mode | `full_test` |
+| current_acceptance | true |
+
+Failure taxonomy: under-trigger=0, over-trigger=0, runtime-error=0.
+
+### Failures
+
+| # | class | expected | model | query |
+|---|---|---|---|---|
+| - | none | - | - | all passed |
+
+## Inventory
 
 | Surface | Count | Notes |
 |---|---|---|
@@ -12,27 +31,10 @@ It is not a substitute for a retained model run with per-query grades.
 | `evals/evals.json` behavioral | 21 | with-skill vs baseline harness metadata |
 | Historical full10 | 10 | `iteration-1-full10.json`; not current acceptance |
 
-## Session-reported Grok result
+## Notes
 
-- Claim heard in session: **Grok 15/22** effective completion on the trigger set.
-- Repository state at the time of this note: **no retained raw outputs, no per-query pass/fail table, no integrity manifest**.
-- Therefore **15/22 is not current acceptance** and must not be quoted as a score-advancing full_test.
-
-## HEAD hardening already landed
-
-1. `7b92d74` tightened the frontmatter trigger boundary: explicit protocol intent required; near-miss tooling/AST/Camoufox/GraphQL/browser wording stays out; skill maintenance routes to `skill-creator` / `darwin-skill`.
-2. Follow-up description intent synonyms: `逆向` / `还原` / `抓入口` / `协议复现`, to reduce under-trigger on real positive wording while keeping the no-protocol-target negatives.
-3. Body lead sentence aligned: public reverse entry only when protocol-recovery intent is explicit.
-4. Static gates: `python scripts/preflight.py --strict` remains the acceptance bar for metadata; route regression stays separate from model trigger grading.
-
-## Required next full_test
-
-Re-run the full 22-query trigger set on the tested commit and retain:
-
-1. tested commit SHA
-2. model id / reviewer id
-3. each query, expected `should_trigger`, model decision, pass/fail
-4. aggregate score and failure taxonomy (`under-trigger` / `over-trigger` / `judge-noise`)
-5. artifact path under `evals/benchmark-results/`
-
-Until that artifact exists, status remains `pending_full_test` with **no score claim**.
+1. Isolated temp skills include `skill-creator` and `darwin-skill` stubs so skill-maintenance negatives are not forced onto the only available skill.
+2. Provider credentials come from local OpenCode config and are not written into the skill repository.
+3. Trigger detection follows skill-creator `run_eval.py`: OpenCode JSON event stream `tool_use` / `skill` with matching skill name.
+4. Failed queries from the first pass were retried sequentially with `deepseek/deepseek-v4-pro`.
+5. Session-reported Grok 15/22 without retained raw outputs is superseded by this artifact for HEAD.

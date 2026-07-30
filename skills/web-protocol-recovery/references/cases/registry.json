@@ -994,7 +994,7 @@
             ],
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
-                "sha256": "3d1decc007ddb4cff2e6d5a5d5573ffb1403718e9796b2ecc51d688f7e29dbee"
+                "sha256": "0894dcf69fb511f609003bd99f487cee9851cb616661b538327d6e268b73cb71"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

@@ -12,9 +12,10 @@
 |---|---|
 | Score | **22/22 — union of two models**, not a single-model result |
 | Primary model | `deepseek/deepseek-v4-flash`, **18/22 alone** |
-| First-pass taxonomy (flash only) | under-trigger=0, over-trigger=1, runtime-error=3 |
+| First-pass taxonomy (flash only) | under-trigger=0, over-trigger=1, runtime-error=3; first-pass failure raw previews were not retained |
 | Retry model | `deepseek/deepseek-v4-pro`, 4/4 on the 4 flash failures |
-| Tested commit | `11bb8b16fbe20cb5fe05da7a77a4bf264a95f172` |
+| Run base commit | `c193b4edddc50c542abbb4b5bb340cfed3cc9071` (dirty worktree) |
+| Materialized commit | `11bb8b16fbe20cb5fe05da7a77a4bf264a95f172` |
 | Prompt SHA-256 | `18d1f4d4df13bbc1ece8aea86cd3dfc5df0333bec946838ec0b2209ec145b633` |
 | Skill.md SHA-256 | `b915e09c693f90eddba88df0055f3a16cf9bc3018f9f95e56945704d9320755b` |
 | Artifact | `evals/benchmark-results/trigger-deepseek-v4-flash-HEAD.json` |
@@ -23,19 +24,20 @@
 
 Post-union failure taxonomy: under-trigger=0, over-trigger=0, runtime-error=0.
 That taxonomy is what remains *after* the stronger retry model absorbed the
-first-pass failures; read it together with the first-pass row above.
+first-pass failures; read it together with `first_pass_results` in the JSON.
 
 ### First-pass failures (deepseek-v4-flash), all cleared on retry
 
-| # | class | query |
-|---|---|---|
-| 1 | runtime-error | River Security positive |
-| 2 | runtime-error | Reese84 positive |
-| 3 | runtime-error | Imperva → Reese84 triage positive |
-| 4 | over-trigger | Camoufox QA negative |
+| # | class | query | raw preview |
+|---|---|---|---|
+| 4 | runtime-error | River Security positive | not retained |
+| 5 | runtime-error | Reese84 positive | not retained |
+| 6 | runtime-error | Imperva -> Reese84 triage positive | not retained |
+| 21 | over-trigger | Camoufox QA negative | not retained |
 
-These four are the most ambiguous descriptions in the set. A flash-only
-acceptance claim is not supported by this artifact.
+These four are represented in `first_pass_results`; their raw first-pass event
+streams were not retained before the retry merge. A flash-only acceptance claim
+is not supported by this artifact.
 
 ## Inventory
 
@@ -48,12 +50,10 @@ acceptance claim is not supported by this artifact.
 
 ## Notes
 
-1. Isolated temp skills include `skill-creator` and `darwin-skill` stubs so skill-maintenance negatives are not forced onto the only available skill.
+1. Isolated temp skills include `skill-creator` and `darwin-skill` stubs so skill-maintenance negatives are not forced onto web-protocol-recovery.
 2. Provider credentials come from local OpenCode config and are not written into the skill repository.
 3. Trigger detection follows skill-creator `run_eval.py`: OpenCode JSON event stream `tool_use` / `skill` with matching skill name.
 4. Failed queries from the first pass were retried sequentially with `deepseek/deepseek-v4-pro`.
 5. Session-reported Grok 15/22 without retained raw outputs is superseded by this artifact.
-6. `Tested commit` was originally recorded as `c193b4e`, whose SKILL.md hashes to
-   `d1c273cb...` and therefore was never the tested version. Corrected to `11bb8b1`,
-   which reproduces the recorded `Skill.md SHA-256`. A regression baseline checked
-   out at `c193b4e` would have compared against untested content.
+6. `materialized_commit` records where the evaluated SKILL.md bytes and artifact were first preserved. It is not a claim that the run-time HEAD was already that commit.
+7. Compression audit note: Git blob size changed from 28,936 bytes to 27,329 bytes, a 1,607-byte / 5.55% reduction; line count stayed 231.

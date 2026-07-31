@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "web-protocol-recovery-case",
+  "caseId": "pure-python-geetest-v4-nine-grid",
+  "revision": 1,
+  "status": "verified",
+  "family": "verifier",
+  "runtime": "pure-python",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:geetest",
+      "version:v4",
+      "captcha-type:nine-grid",
+      "risk_type:nine",
+      "response:imgs-ques-nine_nums",
+      "verify:data.result-success"
+    ],
+    "minimumIndependentSignals": 3,
+    "negativeSignals": [
+      "captcha-type:slide",
+      "captcha-type:word-click",
+      "captcha-type:icon-click",
+      "vendor:akamai",
+      "vendor:river-security",
+      "alias:ruishu"
+    ]
+  },
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "gcaptcha4.geetest.com",
+      "port": 443,
+      "routePrefix": "/load"
+    },
+    {
+      "scheme": "https",
+      "host": "gcaptcha4.geetest.com",
+      "port": 443,
+      "routePrefix": "/verify"
+    },
+    {
+      "scheme": "https",
+      "host": "static.geetest.com",
+      "port": 443,
+      "routePrefix": "/v4"
+    },
+    {
+      "scheme": "https",
+      "host": "static.geetest.com",
+      "port": 443,
+      "routePrefix": "/captcha_v4"
+    }
+  ],
+  "protocolPatterns": [
+    "vendor:geetest",
+    "version:v4",
+    "risk_type:nine",
+    "captcha_type:nine",
+    "imgs:composite-grid",
+    "ques:line-art-prompt",
+    "userresponse:one-based-row-col",
+    "answer-cardinality:3",
+    "w:aes-cbc-rsa-pkcs1"
+  ],
+  "product": {
+    "vendor": "Geetest",
+    "product": "CAPTCHA",
+    "version": "v4",
+    "subtype": "nine-grid"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "requests": "live collector only",
+    "pillow": "required",
+    "pycryptodome": "required",
+    "torch": "required for bundled model",
+    "ultralytics": "required for bundled model",
+    "modelAsset": "assets/geetest_nine_model.pt; hash-bound; no network download"
+  },
+  "liveState": {
+    "mode": "none-required-for-offline-proof",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "4b47048f6861b036798109d4dd6d1b3d36a04756068e29e0990c1334613b9f60"
+    },
+    "entry": {
+      "path": "entry.py",
+      "sha256": "035908914122f828a02ab01f4f1db5e16f7ddcaeeddbbee7f5fa3f16bcb739c4"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "449c01deca075ee786167b744b36bb31d5781fb8ace9e9036436e15ab490e081"
+    },
+    "assets": [
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "8cb164f7ed73946127b0d878838698bde8f1eff6a16926de2420d5dfd167c9bb"
+      },
+      {
+        "path": "assets/geetest_nine_model.pt",
+        "sha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f",
+        "bytes": 10483069,
+        "classification": "user-supplied-model-asset"
+      },
+      {
+        "path": "assets/labels.txt",
+        "sha256": "50c63e94155fe9760c992e867ae6392494072b72a95b6854cc4ece03292ebb69",
+        "bytes": 648,
+        "classification": "model-label-asset"
+      },
+      {
+        "path": "assets/MODEL.json",
+        "sha256": "344d6161fa05c507d7ad8a4f79a7e17c8a0663d8cfe3883f1f8b342000603099"
+      }
+    ]
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-07-31T17:00:00+08:00",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "a7176a6befc4de3f6fa67c7fe1a7963dfef29432733faa450dd3653a48b24c75"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/vectors.json",
+      "sha256": "8cb164f7ed73946127b0d878838698bde8f1eff6a16926de2420d5dfd167c9bb"
+    },
+    "proof": {
+      "activeScope": "offline-only",
+      "offlineAcceptance": "Nine offline tests pass: model and labels hashes, one-based userresponse mapping, inclusive lot slices, decodeURI reserved-byte behavior, djb2/JS int32, synthetic GCT biht, ASCII-zero-IV AES vector, PoW target verification, and offline scope marker.",
+      "caseLocalTests": "python -m unittest discover -s tests -v",
+      "currentEntrySha256": "035908914122f828a02ab01f4f1db5e16f7ddcaeeddbbee7f5fa3f16bcb739c4",
+      "currentTestArtifactSha256": "a7176a6befc4de3f6fa67c7fe1a7963dfef29432733faa450dd3653a48b24c75",
+      "historicalLiveProof": {
+        "classification": "historical-archive-provenance",
+        "executedAt": "2026-07-31",
+        "currentAcceptance": false,
+        "summary": "Fresh current-target Geetest GT4 nine-grid rounds produced semantic result=success with fail_count=0 using Python-owned egress and the bundled model. Live tokens, cookies, payloads, w, challenge images, and absolute paths were not retained. Fresh work-order authorization remains required for future live replay."
+      }
+    }
+  },
+  "implementation": {
+    "mode": "pure-python",
+    "strategy": "model-assisted-tile-consensus",
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "chromium-recon",
+    "role": "reconnaissance",
+    "purpose": "current-target nine-grid evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "verifier",
+      "role": "protocol-recovery"
+    },
+    {
+      "provider": "pure-python",
+      "role": "implementation",
+      "purpose": "model and protocol artifact"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "verifier",
+      "role": "protocol-recovery",
+      "purpose": "current subtype and verifier acceptance"
+    },
+    {
+      "provider": "pure-python",
+      "role": "implementation",
+      "purpose": "offline model and protocol artifact",
+      "ownerProvider": "verifier"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "gated live egress"
+    }
+  ]
+}

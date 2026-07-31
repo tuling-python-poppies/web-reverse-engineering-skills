@@ -30,6 +30,7 @@ Read only the selected family reference after the work order names one matching 
 | Aliyun Captcha V3 / `InitCaptchaV3` / `VerifyCaptchaV3` / `PUZZLE` / `pe.xxx` / `run_v3_fast` / FeiLin daily update | `references/aliyun-captcha-v3-workflow.md` |
 | Geetest GT3 / `register-slide` / `gettype.php` / `fullpage.9.x` / `slide.7.x` / `ajax.php` | `references/geetest-gt3-workflow.md` |
 | Geetest GT4 / `/load` / `lot_number` / `pow_detail` / `payload` / `w` / `/verify` | `references/geetest-gt4-workflow.md` |
+| Geetest GT4 nine-grid / `risk_type=nine` / `captcha_type=nine` / `imgs` / `ques` / `nine_nums` | `references/geetest-gt4-nine-grid-workflow.md` |
 | Generic slider family selection: Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, GT3/GT4 | `references/slide-captcha-overview.md` |
 | Netease Yidun / `NECaptcha` / `api/v3/get` / `api/v3/check` / `cb` / `data` | `references/yidun-workflow.md` |
 | Shumei / `captcha1.fengkongcloud.cn` / `register` / `fverify` / `rid` / DES params | `references/shumei-workflow.md` |

@@ -1,0 +1,83 @@
+{
+  "indices": {
+    "input": [
+      1,
+      5,
+      6
+    ],
+    "count": 3,
+    "expected": [
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        1
+      ]
+    ]
+  },
+  "lot": {
+    "lotNumber": "0123456789abcdef0123456789abcdef",
+    "rules": {
+      "n[1:4]": "n[24:27]"
+    },
+    "expected": {
+      "1234": "89ab"
+    }
+  },
+  "decodeUri": {
+    "input": "%2F%41",
+    "expectedAscii": "%2FA"
+  },
+  "djb2": {
+    "input": "abc",
+    "expected": 193485963
+  },
+  "gct": {
+    "source": "function Fmhz(t){var e=5381;for(var n=t.length,o=0;n--;){e=(e<<5)+e+t.charCodeAt(o++)}return e&=~(1<<31),e}function GErG(t){return t&&t.prototype?Fmhz(t.toString()):Fmhz(Fmhz.toString())}decodeURI(\"%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%15%14\");x}(\"K\")",
+    "expectedBiht": "1108431064_"
+  },
+  "aes": {
+    "payload": {
+      "passtime": 0,
+      "userresponse": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    "keyAscii": "0123456789abcdef",
+    "expectedCiphertextHex": "9a61fd3e2733daf933a93a2aa5071d7ca54de35074bd2397080fdea563e7fc7bf8f8635fd1b71c7720bacfa00762b3e95039f75921d83c7a7e93c1beb3527b4a"
+  },
+  "pow": {
+    "message": "1|4|sha256|2026-07-31T00:00:00+08:00|captcha|0123456789abcdef0123456789abcdef||5",
+    "digest": "03e3e1254d3bedead5576e001bd2cd9fa53deb3a23b76d9e9f45da532ee33c26",
+    "bits": 4
+  },
+  "model": {
+    "modelId": "geetest-v4-nine-grid-yolov8-cls-v1",
+    "modelSha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f",
+    "modelBytes": 10483069,
+    "labelsSha256": "50c63e94155fe9760c992e867ae6392494072b72a95b6854cc4ece03292ebb69",
+    "classes": 90
+  },
+  "caseId": "pure-python-geetest-v4-nine-grid",
+  "entrySha256": "035908914122f828a02ab01f4f1db5e16f7ddcaeeddbbee7f5fa3f16bcb739c4",
+  "testArtifactSha256": "a7176a6befc4de3f6fa67c7fe1a7963dfef29432733faa450dd3653a48b24c75",
+  "activeScope": "offline-only",
+  "passed": true
+}

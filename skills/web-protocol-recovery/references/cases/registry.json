@@ -1036,6 +1036,87 @@
             "selectableAs": "template"
         },
         {
+            "caseId": "pure-python-geetest-v4-nine-grid",
+            "family": "verifier",
+            "status": "verified",
+            "runtime": "pure-python",
+            "caseKind": "implementation",
+            "implementation": {
+                "mode": "pure-python",
+                "strategy": "model-assisted-tile-consensus",
+                "profile": null
+            },
+            "exactScopes": [
+                {
+                    "scheme": "https",
+                    "host": "gcaptcha4.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/load"
+                },
+                {
+                    "scheme": "https",
+                    "host": "gcaptcha4.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/verify"
+                },
+                {
+                    "scheme": "https",
+                    "host": "static.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/v4"
+                },
+                {
+                    "scheme": "https",
+                    "host": "static.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/captcha_v4"
+                }
+            ],
+            "match": {
+                "signals": [
+                    "vendor:geetest",
+                    "version:v4",
+                    "captcha-type:nine-grid",
+                    "risk_type:nine",
+                    "response:imgs-ques-nine_nums",
+                    "verify:data.result-success"
+                ],
+                "minimumIndependentSignals": 3,
+                "negativeSignals": [
+                    "captcha-type:slide",
+                    "captcha-type:word-click",
+                    "captcha-type:icon-click",
+                    "vendor:akamai",
+                    "vendor:river-security",
+                    "alias:ruishu"
+                ]
+            },
+            "providerPlan": [
+                {
+                    "provider": "verifier",
+                    "role": "protocol-recovery",
+                    "purpose": "current subtype and verifier acceptance"
+                },
+                {
+                    "provider": "pure-python",
+                    "role": "implementation",
+                    "purpose": "offline model and protocol artifact",
+                    "ownerProvider": "verifier"
+                },
+                {
+                    "provider": "python-collector",
+                    "role": "delivery",
+                    "purpose": "gated live egress"
+                }
+            ],
+            "manifest": {
+                "path": "pure-python/geetest-v4-nine-grid/case.json",
+                "sha256": "9d122a4b9e84a7d05a715b39ae3bf771dec522a856c19e9884ea08de758f393a"
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
+        },
+        {
             "caseId": "pure-python-jd-h5st",
             "family": "signer",
             "status": "verified",

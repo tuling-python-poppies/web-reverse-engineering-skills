@@ -31,6 +31,33 @@ first-pass stability.
 |---|---|---|---|
 | - | none | - | all query aggregates passed |
 
+### Auxiliary current-local integration run (2026-07-31)
+
+| Field | Value |
+|---|---|
+| Artifact | `evals/benchmark-results/trigger-deepseek-v4-pro-integration-20260731.json` |
+| Model | `deepseek/deepseek-v4-pro` |
+| Eval mode | `integrated-current-opencode-selection` |
+| Runs | `22 queries × 3 attempts = 66/66` collected |
+| Strict query aggregates | `18/22` |
+| Nominal attempt agreement | `60/66` (`6` positive under-trigger attempts) |
+| Execution failures | `9/66`, all `Insufficient Balance` on negative queries 20–22 |
+| Current acceptance | **false** |
+
+This run used the active local OpenCode provider configuration and per-attempt
+state/cache directories. It retained event summaries, selected skill names,
+bounded previews, and output hashes, but not complete raw transcripts. It is a
+diagnostic integration rerun and does not supersede the isolated,
+retry-backed `full_test` artifact above or make a score claim.
+
+### Auxiliary failure taxonomy
+
+| class | query IDs | result |
+|---|---|---|
+| positive under-trigger | `trigger-06`, `trigger-07`, `trigger-16`, `trigger-18` | 6 attempts did not load `web-protocol-recovery` |
+| provider execution failure | `trigger-20`–`trigger-22` | 9 attempts returned `Insufficient Balance` before selection |
+| negative over-trigger | none observed | all completed negative attempts kept WPR unloaded |
+
 ## Historical artifact
 
 `trigger-deepseek-v4-flash-HEAD.json` remains a historical two-model union with

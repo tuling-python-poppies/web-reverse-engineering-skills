@@ -1043,45 +1043,43 @@
             "caseKind": "implementation",
             "implementation": {
                 "mode": "pure-python",
-                "strategy": "model-assisted-tile-consensus",
+                "strategy": "execution-gated-model-assisted-tile-consensus",
                 "profile": null
             },
-            "exactScopes": [
-                {
-                    "scheme": "https",
-                    "host": "gcaptcha4.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/load"
-                },
-                {
-                    "scheme": "https",
-                    "host": "gcaptcha4.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/verify"
-                },
-                {
-                    "scheme": "https",
-                    "host": "static.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/v4"
-                },
-                {
-                    "scheme": "https",
-                    "host": "static.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/captcha_v4"
-                }
-            ],
+            "exactScopes": [],
             "match": {
                 "signals": [
                     "vendor:geetest",
                     "version:v4",
                     "captcha-type:nine-grid",
-                    "risk_type:nine",
+                    "request:risk_type-nine",
+                    "response:captcha_type-nine",
                     "response:imgs-ques-nine_nums",
+                    "wire:userresponse-one-based-row-col",
                     "verify:data.result-success"
                 ],
                 "minimumIndependentSignals": 3,
+                "requiredSignalGroups": [
+                    {
+                        "name": "gt4-request-subtype",
+                        "anyOf": [
+                            "request:risk_type-nine"
+                        ]
+                    },
+                    {
+                        "name": "gt4-response-subtype",
+                        "anyOf": [
+                            "response:captcha_type-nine"
+                        ]
+                    },
+                    {
+                        "name": "nine-grid-shape",
+                        "anyOf": [
+                            "response:imgs-ques-nine_nums",
+                            "wire:userresponse-one-based-row-col"
+                        ]
+                    }
+                ],
                 "negativeSignals": [
                     "captcha-type:slide",
                     "captcha-type:word-click",
@@ -1111,7 +1109,7 @@
             ],
             "manifest": {
                 "path": "pure-python/geetest-v4-nine-grid/case.json",
-                "sha256": "9d122a4b9e84a7d05a715b39ae3bf771dec522a856c19e9884ea08de758f393a"
+                "sha256": "60656a0134475e56eaab96f7f6a63f3bc564f1894fb8d12d3fd59a412eb06b56"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

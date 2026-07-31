@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "pure-python-geetest-v4-nine-grid",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "verifier",
   "runtime": "pure-python",
@@ -14,11 +14,34 @@
       "vendor:geetest",
       "version:v4",
       "captcha-type:nine-grid",
-      "risk_type:nine",
+      "request:risk_type-nine",
+      "response:captcha_type-nine",
       "response:imgs-ques-nine_nums",
+      "wire:userresponse-one-based-row-col",
       "verify:data.result-success"
     ],
     "minimumIndependentSignals": 3,
+    "requiredSignalGroups": [
+      {
+        "name": "gt4-request-subtype",
+        "anyOf": [
+          "request:risk_type-nine"
+        ]
+      },
+      {
+        "name": "gt4-response-subtype",
+        "anyOf": [
+          "response:captcha_type-nine"
+        ]
+      },
+      {
+        "name": "nine-grid-shape",
+        "anyOf": [
+          "response:imgs-ques-nine_nums",
+          "wire:userresponse-one-based-row-col"
+        ]
+      }
+    ],
     "negativeSignals": [
       "captcha-type:slide",
       "captcha-type:word-click",
@@ -28,32 +51,7 @@
       "alias:ruishu"
     ]
   },
-  "exactScopes": [
-    {
-      "scheme": "https",
-      "host": "gcaptcha4.geetest.com",
-      "port": 443,
-      "routePrefix": "/load"
-    },
-    {
-      "scheme": "https",
-      "host": "gcaptcha4.geetest.com",
-      "port": 443,
-      "routePrefix": "/verify"
-    },
-    {
-      "scheme": "https",
-      "host": "static.geetest.com",
-      "port": 443,
-      "routePrefix": "/v4"
-    },
-    {
-      "scheme": "https",
-      "host": "static.geetest.com",
-      "port": 443,
-      "routePrefix": "/captcha_v4"
-    }
-  ],
+  "exactScopes": [],
   "protocolPatterns": [
     "vendor:geetest",
     "version:v4",
@@ -76,9 +74,9 @@
     "requests": "live collector only",
     "pillow": "required",
     "pycryptodome": "required",
-    "torch": "required for bundled model",
-    "ultralytics": "required for bundled model",
-    "modelAsset": "assets/geetest_nine_model.pt; hash-bound; no network download"
+    "torch": "required only for explicitly approved checkpoint execution",
+    "ultralytics": "required only for explicitly approved checkpoint execution",
+    "modelAsset": "assets/geetest_nine_model.pt; hash-bound PyTorch pickle; no network download; explicit per-run execution approval required"
   },
   "liveState": {
     "mode": "none-required-for-offline-proof",
@@ -90,11 +88,11 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "4b47048f6861b036798109d4dd6d1b3d36a04756068e29e0990c1334613b9f60"
+      "sha256": "36c55d676fda5b85af3b697c3ab03eb9ef224410197e2133e3b4f86c8f9fafc3"
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "035908914122f828a02ab01f4f1db5e16f7ddcaeeddbbee7f5fa3f16bcb739c4"
+      "sha256": "5de7d633c82d033c893a5968bd9a184508fb3550ecd8b16294aef1abd6c28c4f"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -103,13 +101,17 @@
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "8cb164f7ed73946127b0d878838698bde8f1eff6a16926de2420d5dfd167c9bb"
+        "sha256": "80217b9b4afb0ad0eda445d5075626e58a014f48f5609a5c4c610d59d01e4421"
       },
       {
         "path": "assets/geetest_nine_model.pt",
         "sha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f",
         "bytes": 10483069,
-        "classification": "user-supplied-model-asset"
+        "classification": "user-supplied-model-asset",
+        "serializationRisk": "executable-pickle",
+        "executionPolicy": "explicit-opt-in-after-hash-verification",
+        "storagePolicy": "regular-git-self-contained",
+        "readHint": "10.0 MiB binary PyTorch checkpoint. Do not read it into model context or deserialize it during inspection. Verify SHA-256 first; execute only with explicit per-run work-order approval."
       },
       {
         "path": "assets/labels.txt",
@@ -119,29 +121,34 @@
       },
       {
         "path": "assets/MODEL.json",
-        "sha256": "344d6161fa05c507d7ad8a4f79a7e17c8a0663d8cfe3883f1f8b342000603099"
+        "sha256": "55475e9cdf0b5e16e1079f8ae241d447a19260441dbcfbd43c8ec8e67bcd9c1a"
       }
     ]
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-31T17:00:00+08:00",
+    "executedAt": "2026-07-31T20:01:51+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "a7176a6befc4de3f6fa67c7fe1a7963dfef29432733faa450dd3653a48b24c75"
+      "sha256": "056fd59f93727b71ef5584c9feae768a8a6d7ab1a7a8072bf33050bea9e41541"
     },
     "evidenceArtifact": {
       "path": "fixtures/vectors.json",
-      "sha256": "8cb164f7ed73946127b0d878838698bde8f1eff6a16926de2420d5dfd167c9bb"
+      "sha256": "80217b9b4afb0ad0eda445d5075626e58a014f48f5609a5c4c610d59d01e4421"
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "Nine offline tests pass: model and labels hashes, one-based userresponse mapping, inclusive lot slices, decodeURI reserved-byte behavior, djb2/JS int32, synthetic GCT biht, ASCII-zero-IV AES vector, PoW target verification, and offline scope marker.",
+      "offlineAcceptance": "Twenty-four offline tests pass: entry/test/vector proof binding, model-pack and labels integrity, installed-pack selection and partial-pack rejection, checkpoint execution gating, invalid-round rejection before model loading, embedded-label contract, all four tile-selection branches plus ambiguity rejection, injected recognize_cache flow, cache containment, bounded PoW, one-based userresponse mapping, lot slices, decodeURI behavior, djb2/JS int32, synthetic GCT biht, AES fixed vector, and offline scope marker.",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "035908914122f828a02ab01f4f1db5e16f7ddcaeeddbbee7f5fa3f16bcb739c4",
-      "currentTestArtifactSha256": "a7176a6befc4de3f6fa67c7fe1a7963dfef29432733faa450dd3653a48b24c75",
+      "currentEntrySha256": "5de7d633c82d033c893a5968bd9a184508fb3550ecd8b16294aef1abd6c28c4f",
+      "currentTestArtifactSha256": "056fd59f93727b71ef5584c9feae768a8a6d7ab1a7a8072bf33050bea9e41541",
+      "modelExecution": {
+        "currentAcceptance": false,
+        "checkpointLoadedByOfflineSuite": false,
+        "reason": "The offline suite verifies checkpoint identity, execution gating, class-map validation logic, and recognition strategy with injected predictions; it does not deserialize the PyTorch checkpoint or claim real-image inference acceptance."
+      },
       "historicalLiveProof": {
         "classification": "historical-archive-provenance",
         "executedAt": "2026-07-31",
@@ -152,7 +159,7 @@
   },
   "implementation": {
     "mode": "pure-python",
-    "strategy": "model-assisted-tile-consensus",
+    "strategy": "execution-gated-model-assisted-tile-consensus",
     "profile": null
   },
   "sourceStage": {

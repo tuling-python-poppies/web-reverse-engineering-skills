@@ -44,6 +44,8 @@ RESIDUE_NAMES = {"__pycache__", ".pytest_cache"}
 RESIDUE_SUFFIXES = {".pyc", ".pyo"}
 EOL_CHECKED_SUFFIXES = {".md", ".json", ".py", ".js", ".mjs", ".cjs", ".html", ".txt", ".tsv"}
 EOL_SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv"}
+LARGE_ASSET_READ_HINT_BYTES = 512 * 1024
+LARGE_ASSET_STORAGE_POLICY_BYTES = 5 * 1024 * 1024
 OBSOLETE_PROVIDER_PATHS = (
     "providers/implementation/env-patch/PROVIDER.md",
     "providers/implementation/verifier/PROVIDER.md",
@@ -582,6 +584,43 @@ def required_signal_group_findings(
     return findings
 
 
+def case_asset_contract_findings(case_id: str, artifacts: dict) -> list[str]:
+    findings: list[str] = []
+    assets = artifacts.get("assets", [])
+    if not isinstance(assets, list):
+        return [f"{case_id}: artifacts.assets must be an array"]
+    for asset in assets:
+        if not isinstance(asset, dict):
+            continue
+        path = str(asset.get("path", ""))
+        size = asset.get("bytes")
+        if isinstance(size, int) and size >= LARGE_ASSET_READ_HINT_BYTES:
+            if not isinstance(asset.get("readHint"), str) or not asset["readHint"].strip():
+                findings.append(
+                    f"{case_id}: large asset {path!r} requires a non-empty readHint"
+                )
+        if isinstance(size, int) and size >= LARGE_ASSET_STORAGE_POLICY_BYTES:
+            if asset.get("storagePolicy") not in {
+                "regular-git-self-contained",
+                "git-lfs",
+            }:
+                findings.append(
+                    f"{case_id}: large asset {path!r} requires an explicit storagePolicy"
+                )
+        if path.lower().endswith(".pt"):
+            if asset.get("serializationRisk") != "executable-pickle":
+                findings.append(
+                    f"{case_id}: PyTorch checkpoint {path!r} must declare "
+                    "serializationRisk=executable-pickle"
+                )
+            if asset.get("executionPolicy") != "explicit-opt-in-after-hash-verification":
+                findings.append(
+                    f"{case_id}: PyTorch checkpoint {path!r} must declare "
+                    "executionPolicy=explicit-opt-in-after-hash-verification"
+                )
+    return findings
+
+
 def case_manifest_findings() -> list[str]:
     findings: list[str] = []
     for path in sorted(CASES_ROOT.glob("**/case.json")):
@@ -606,13 +645,23 @@ def case_manifest_findings() -> list[str]:
                 findings.append(f"{case_id}: env-patch strategy requires mode=python-node")
             if profile == "douyin-abogus-native" and mode != "pure-python":
                 findings.append(f"{case_id}: douyin-abogus-native profile requires mode=pure-python")
+        product = data.get("product") or {}
         required_group_names: set[str] = set()
-        if (data.get("product") or {}).get("product") == "Reese84":
+        if product.get("product") == "Reese84":
             required_group_names = {"reese84-native", "independent-corroboration"}
+        elif product.get("vendor") == "Geetest" and product.get("subtype") == "nine-grid":
+            required_group_names = {
+                "gt4-request-subtype",
+                "gt4-response-subtype",
+                "nine-grid-shape",
+            }
         findings.extend(
             required_signal_group_findings(
                 str(case_id), data.get("match") or {}, required_group_names
             )
+        )
+        findings.extend(
+            case_asset_contract_findings(str(case_id), data.get("artifacts") or {})
         )
         for field in ("historicalProviderChain", "requiredCurrentProviderChain"):
             for index, stage in enumerate(data.get(field, [])):

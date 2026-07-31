@@ -189,6 +189,74 @@ class ArchitectureContractTests(unittest.TestCase):
         )
         self.assertTrue(any("labels cannot satisfy" in finding for finding in findings))
 
+    def test_gt4_nine_grid_requires_native_subtype_groups(self) -> None:
+        match = {
+            "signals": [
+                "request:risk_type-nine",
+                "response:captcha_type-nine",
+                "response:imgs-ques-nine_nums",
+            ],
+            "minimumIndependentSignals": 3,
+            "requiredSignalGroups": [
+                {
+                    "name": "gt4-request-subtype",
+                    "anyOf": ["request:risk_type-nine"],
+                },
+                {
+                    "name": "gt4-response-subtype",
+                    "anyOf": ["response:captcha_type-nine"],
+                },
+                {
+                    "name": "nine-grid-shape",
+                    "anyOf": ["response:imgs-ques-nine_nums"],
+                },
+            ],
+        }
+        self.assertEqual(
+            validate_architecture.required_signal_group_findings(
+                "gt4-nine-grid",
+                match,
+                {
+                    "gt4-request-subtype",
+                    "gt4-response-subtype",
+                    "nine-grid-shape",
+                },
+            ),
+            [],
+        )
+
+    def test_large_pytorch_asset_requires_read_and_execution_contracts(self) -> None:
+        good = {
+            "assets": [
+                {
+                    "path": "assets/model.pt",
+                    "bytes": validate_architecture.LARGE_ASSET_STORAGE_POLICY_BYTES,
+                    "readHint": "Do not deserialize during inspection.",
+                    "storagePolicy": "regular-git-self-contained",
+                    "serializationRisk": "executable-pickle",
+                    "executionPolicy": "explicit-opt-in-after-hash-verification",
+                }
+            ]
+        }
+        self.assertEqual(
+            validate_architecture.case_asset_contract_findings("model-case", good),
+            [],
+        )
+        bad = {
+            "assets": [
+                {
+                    "path": "assets/model.pt",
+                    "bytes": validate_architecture.LARGE_ASSET_STORAGE_POLICY_BYTES,
+                }
+            ]
+        }
+        findings = validate_architecture.case_asset_contract_findings("model-case", bad)
+        self.assertEqual(len(findings), 4)
+        self.assertTrue(any("readHint" in finding for finding in findings))
+        self.assertTrue(any("storagePolicy" in finding for finding in findings))
+        self.assertTrue(any("serializationRisk" in finding for finding in findings))
+        self.assertTrue(any("executionPolicy" in finding for finding in findings))
+
 
 if __name__ == "__main__":
     unittest.main()

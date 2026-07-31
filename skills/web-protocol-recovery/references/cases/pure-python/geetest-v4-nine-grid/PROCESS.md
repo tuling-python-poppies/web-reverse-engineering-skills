@@ -4,19 +4,17 @@
 
 Recover and reuse the Geetest GT4 `risk_type=nine` verifier boundary without a browser-backed final runtime. The protocol result is accepted only when a fresh same-round `/verify` response has `status=success`, `data.result=success`, and `data.fail_count=0`.
 
-The checked-in active proof is offline-only: it binds the current entry, tests, protocol vectors, model, labels, and model manifest. Historical live proof records current-target provenance but is not reusable live authorization.
+The checked-in active proof is offline-only: it binds the current entry, tests, protocol vectors, model, labels, and model manifest. It proves model-pack identity, the execution gate, and recognition decision logic with injected predictions; it does not deserialize the PyTorch checkpoint or accept real-image inference. Historical live proof records current-target provenance but is not reusable live authorization.
 
 ## Match Signals
 
-Select this case only when at least three independent signals agree:
+The shared Geetest hosts and `/load` or `/verify` paths never select this subtype. Select this case only when all three native signal groups are present:
 
-- `vendor:geetest`
-- `version:v4`
-- `captcha-type:nine-grid`
-- request `risk_type=nine`
-- response `captcha_type=nine`
-- response fields `imgs`, `ques`, and `nine_nums`
-- `/verify` with `lot_number/payload/process_token/payload_protocol/pt/w`
+1. request subtype: `risk_type=nine`;
+2. response subtype: `captcha_type=nine`;
+3. nine-grid shape: response fields `imgs`, `ques`, and `nine_nums`, or a recovered one-based row/column `userresponse` wire shape.
+
+`vendor:geetest`, `version:v4`, and `/verify` success are supporting labels/evidence; they cannot replace any required group.
 
 Do not select for GT3, slider (`bg/slice`), word/icon point-click coordinates, `svg_seed`, or generic nine-image UIs without the GT4 `/load` markers.
 
@@ -76,7 +74,7 @@ The prompt is line-art while tiles are photo-like. Direct prompt classification 
 3. no exact group -> rank tile probabilities for the prompt class;
 4. prompt class absent from all tiles -> use the largest tile group as a bounded fallback.
 
-The model may still miss an individual round. A live collector must use a fresh lot for any approved retry and may not enumerate combinations on one challenge. Retry count remains governed by the work-order request budget.
+The four selection branches, ambiguity rejection, and the `recognize_cache` flow are tested with injected prediction tables, so the decision policy is covered without executing the bundled checkpoint. The model may still miss an individual round. A live collector must use a fresh lot for any approved retry and may not enumerate combinations on one challenge. Retry count remains governed by the work-order request budget.
 
 ## Model Asset And Offline Reuse
 
@@ -86,7 +84,13 @@ The case contains:
 - `assets/labels.txt` (90 classes)
 - `assets/MODEL.json` (hash, size, provenance, and cache policy)
 
-`entry.verify_model_assets()` fails closed before model loading. `entry.install_model_pack(project_root)` can copy the pack into a new project without network access. `entry.configure_runtime_cache(project_root)` must be called explicitly before importing Ultralytics and pins all ML runtime caches under `<projectRoot>/js_reverse_cache/_runtime/**`.
+The 10.0 MiB checkpoint uses `storagePolicy=regular-git-self-contained` so an offline clone contains the complete pack without an external LFS object store. `.gitattributes` marks `.pt` files as binary, and the case `readHint` forbids whole-file context loading during inspection.
+
+The `.pt` file is a PyTorch pickle checkpoint and is therefore an executable-deserialization boundary. Its SHA-256 proves identity, not safety. `entry.verify_model_assets()` fails closed on pack, label, hash, size, or class-count mismatch. `entry.install_model_pack(project_root)` copies the pack without network access, and recognition then prefers that complete installed pack; a partial installed pack fails closed instead of silently falling back. `entry.configure_runtime_cache(project_root)` runs before importing Ultralytics and pins all ML runtime caches under `<projectRoot>/js_reverse_cache/_runtime/**`.
+
+Checkpoint loading is disabled by default. A specifically authorized run must pass `--allow-checkpoint-execution`; distribution approval in `MODEL.json` is not execution approval. After loading, the embedded class map must exactly match the hash-bound `labels.txt` before inference. Recognition cache input and output must stay under `<projectRoot>/js_reverse_cache/**`.
+
+Before any checkpoint load, recognition validates `nine_nums=3`, the question image, and all nine tile files. A changed grid shape returns to fresh recovery, while missing files fail before the executable-deserialization boundary.
 
 The entry performs no network traffic and creates no files on import.
 
@@ -116,6 +120,7 @@ Current reuse must start from `verifier`, then use this `pure-python` artifact, 
 
 Offline acceptance covers:
 
+- entry/test/vector proof binding;
 - model bytes and SHA-256;
 - labels bytes, SHA-256, and class count;
 - index-to-wire mapping;
@@ -123,8 +128,16 @@ Offline acceptance covers:
 - decodeURI reserved-byte behavior;
 - djb2/JS int32 behavior;
 - PoW shape and target verification;
+- PoW difficulty validation and bounded-attempt failure;
 - ASCII-zero AES IV fixed vector;
+- installed model-pack selection and partial-pack failure behavior;
+- explicit checkpoint-execution gate and embedded-label validation logic;
+- invalid grid shape and missing-tile rejection before model loading;
+- all four recognition selection branches using injected prediction tables;
+- recognition-cache containment under the project cache root;
 - import discipline and blocked implicit live egress.
+
+The offline suite does not load `geetest_nine_model.pt`, run real-image inference, or claim current model accuracy. Those require explicit checkpoint-execution approval and a separate sanitized fixture or authorized live acceptance run.
 
 Historical current-target evidence observed repeated fresh challenges ending in semantic success. The retained summary contains no cookies, tokens, payloads, `w`, raw challenge images, or absolute paths and is explicitly not current reuse authorization.
 
@@ -133,8 +146,8 @@ Historical current-target evidence observed repeated fresh challenges ending in 
 - Python 3.9+
 - Pillow
 - pycryptodome
-- torch
-- ultralytics
+- torch (only for an explicitly approved checkpoint run)
+- ultralytics (only for an explicitly approved checkpoint run)
 
 No Node, iv8, ExecJS, jsdom, browser, or model download is required for the implementation artifact.
 

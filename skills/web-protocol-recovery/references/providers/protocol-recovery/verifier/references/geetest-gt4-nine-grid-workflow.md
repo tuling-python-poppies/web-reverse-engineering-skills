@@ -9,7 +9,7 @@
 - 当前公开 Demo 的 `nine_nums=3`，答案固定为三格。
 - `/verify` 仍复用同轮 `lot_number/payload/process_token/payload_protocol/pt`，并提交动态 `w`。
 
-以下不是九宫格的充分信号：只有 `imgs/ques`、泛称“点选”、页面出现九个视觉元素，或用户仅猜测“可能是九宫格”。必须以 `/load` 的 `risk_type/captcha_type/nine_nums` 共同确认。
+以下不是九宫格的充分信号：共享的 Geetest host、`/load` 或 `/verify` 路径，只有 `imgs/ques`、泛称“点选”、页面出现九个视觉元素，或用户仅猜测“可能是九宫格”。路由必须同时具备 request `risk_type=nine`、response `captcha_type=nine`，以及 `imgs/ques/nine_nums` 或已恢复的九宫格 wire shape；厂商和版本标签不能替代这三组原生信号。
 
 ## Demo 侦察
 
@@ -52,21 +52,24 @@ def indices_to_userresponse(indices, count=3):
 4. 无三格组时，用 `ques` 目标类别在各瓦片上的置信度排序；若最高仍低于明确阈值，视为提示图误判并使用最大瓦片组。
 5. 单轮识别失败不能证明协议错误；新建 fresh lot 做一次受预算约束的重试。禁止在同一 lot 上枚举组合。
 
-模型是实现资产，不是协议字段。case 自带模型和 labels，可离线恢复；加载前必须校验 `MODEL.json` 中的 SHA-256、字节数和类别数。模型更新必须递增 case revision 并重新做 hash cascade、离线测试和新 challenge 语义验证。
+模型是实现资产，不是协议字段。case 自带模型和 labels，可离线恢复；加载前必须校验 `MODEL.json` 中的 SHA-256、字节数和类别数。`.pt` 是可执行的 PyTorch pickle 反序列化边界，hash 只证明身份，不证明安全，因此默认禁止加载，只有当前 work order 明确批准并传入执行开关时才能运行。加载后还必须确认 checkpoint 内嵌 class map 与 hash-bound `labels.txt` 完全一致。模型更新必须递增 case revision 并重新做 hash cascade、离线策略测试和新 challenge 语义验证。
 
 ## 缓存与离线复用
 
 - case 的 `assets/geetest_nine_model.pt` 与 `assets/labels.txt` 是稳定、hash-bound 资产。
-- 项目首次安装时可从 case 离线复制到 `<projectRoot>/models/geetest-v4-nine-grid/`。
+- 项目首次安装时可从 case 离线复制到 `<projectRoot>/models/geetest-v4-nine-grid/`；识别优先使用该完整安装包，安装不完整则 fail closed，仅在完全未安装时回退到 bundled pack。
 - challenge JSONP、bundle、GCT、图片、切片、推理摘要和 verify 响应只写入 `<projectRoot>/js_reverse_cache/**`。
 - `torch`、Hugging Face、Ultralytics 和 Matplotlib 的运行缓存必须在显式函数中重定向到 `<projectRoot>/js_reverse_cache/_runtime/**`，不得在 import 时创建目录或修改用户缓存。
 - 不允许模型加载器静默访问 `%USERPROFILE%/.cache`、`AppData` 或网络。模型缺失或 hash 不匹配时 fail closed。
+- challenge cache 必须位于 `<projectRoot>/js_reverse_cache/**`；checkpoint 加载必须显式传入 `--allow-checkpoint-execution`。
+- `nine_nums`、question 和全部 tile 文件必须在 checkpoint 加载前验完；网格变化回 verifier，文件缺失直接失败。
 
 ## 共享 GT4 Shell
 
 九宫格沿用 `geetest-gt4-workflow.md` 已验证的下列规则，不在此重复硬编码版本样本：
 
 - `pow_msg = version|bits|hashfunc|datetime|captcha_id|lot_number||nonce`
+- PoW `bits` 必须在 `1..255`，单次求解最多 1,000,000 次尝试；耗尽即失败，不允许无限循环。
 - `_lib` 固定字段和 `lib._abo` lot rule 必须从当前完整 bundle 提取。
 - raw GCT 中以 `=5381;` 定位函数并按 JS int32、UTF-16 code unit 语义计算 `biht`。
 - `pt=1` 的 AES IV 是 16 个 ASCII 字符 `0`：`b"0000000000000000"`，不是 16 个 NUL 字节。
@@ -86,7 +89,7 @@ def indices_to_userresponse(indices, count=3):
 ## 验收
 
 1. `/load` 明确确认 nine subtype，且图片、提示图、bundle、GCT、tokens 全部同轮。
-2. 离线测试通过：模型/labels SHA-256、90 类、格号映射、lot rule、PoW 验证、GCT hash 和 AES 固定向量。
-3. 模型推理输出恰好三个合法格号，低置信或歧义必须 fail closed 或只做受预算约束的 fresh-lot 重试。
+2. 离线测试通过：模型/labels SHA-256、90 类、安装包选择、执行 gate、class-map 校验逻辑、四种识别分支、格号映射、bounded PoW、GCT hash 和 AES 固定向量。该测试不加载 checkpoint，也不声明真实图片推理通过。
+3. 经明确 checkpoint 执行批准后，模型推理输出恰好三个合法格号；低置信或歧义必须 fail closed 或只做受预算约束的 fresh-lot 重试。
 4. live proof 至少一轮 fresh challenge 返回 `status=success`、`data.result=success`、`fail_count=0`；正式 collector 扩大重试前仍需 request-budget 确认。
 5. Python 拥有 `/load`、静态资源和 `/verify` 的最终 live egress；模型与本地 helper 无浏览器依赖。

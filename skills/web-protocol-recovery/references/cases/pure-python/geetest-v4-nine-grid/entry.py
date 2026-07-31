@@ -17,7 +17,7 @@ import re
 import secrets
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -29,6 +29,8 @@ ASSETS_ROOT = CASE_ROOT / "assets"
 MODEL_PATH = ASSETS_ROOT / "geetest_nine_model.pt"
 LABELS_PATH = ASSETS_ROOT / "labels.txt"
 MODEL_MANIFEST_PATH = ASSETS_ROOT / "MODEL.json"
+MODEL_PACK_NAME = "geetest-v4-nine-grid"
+MAX_POW_ATTEMPTS = 1_000_000
 
 AES_IV = b"0000000000000000"
 RSA_N_HEX = (
@@ -39,6 +41,7 @@ RSA_N_HEX = (
 )
 RSA_E = 65537
 NEED = 3
+GRID_COUNT = 3
 
 
 def sha256_file(path: Path) -> str:
@@ -49,8 +52,24 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def load_model_manifest() -> Dict[str, Any]:
-    return json.loads(MODEL_MANIFEST_PATH.read_text(encoding="utf-8"))
+def _model_pack_paths(model_root: Path) -> Tuple[Path, Path, Path]:
+    root = model_root.resolve()
+    manifest_path = root / "MODEL.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    def declared_path(field: str) -> Path:
+        candidate = (root / str(manifest[field]["path"])).resolve()
+        try:
+            candidate.relative_to(root)
+        except ValueError as exc:
+            raise RuntimeError(f"{field} path escapes model pack") from exc
+        return candidate
+
+    return declared_path("model"), declared_path("labels"), manifest_path
+
+
+def load_model_manifest(model_root: Path = ASSETS_ROOT) -> Dict[str, Any]:
+    return json.loads((model_root.resolve() / "MODEL.json").read_text(encoding="utf-8"))
 
 
 def load_labels(path: Path = LABELS_PATH) -> List[str]:
@@ -58,14 +77,15 @@ def load_labels(path: Path = LABELS_PATH) -> List[str]:
     return [label for label in labels if label and not label.startswith("#")]
 
 
-def verify_model_assets() -> Dict[str, Any]:
-    manifest = load_model_manifest()
+def verify_model_assets(model_root: Path = ASSETS_ROOT) -> Dict[str, Any]:
+    model_path, labels_path, _ = _model_pack_paths(model_root)
+    manifest = load_model_manifest(model_root)
     expected_model = manifest["model"]
     expected_labels = manifest["labels"]
-    actual_model_sha = sha256_file(MODEL_PATH)
-    actual_labels_sha = sha256_file(LABELS_PATH)
-    actual_bytes = MODEL_PATH.stat().st_size
-    labels = load_labels()
+    actual_model_sha = sha256_file(model_path)
+    actual_labels_sha = sha256_file(labels_path)
+    actual_bytes = model_path.stat().st_size
+    labels = load_labels(labels_path)
 
     if actual_model_sha != expected_model["sha256"]:
         raise RuntimeError("model SHA-256 mismatch")
@@ -131,35 +151,52 @@ def configure_runtime_cache(project_root: Path) -> Path:
 def install_model_pack(project_root: Path) -> Dict[str, str]:
     """Copy the hash-verified model pack into a project without network use."""
 
-    verify_model_assets()
-    destination = project_root.resolve() / "models" / "geetest-v4-nine-grid"
+    verify_model_assets(ASSETS_ROOT)
+    source_model, source_labels, source_manifest = _model_pack_paths(ASSETS_ROOT)
+    destination = project_root.resolve() / "models" / MODEL_PACK_NAME
     destination.mkdir(parents=True, exist_ok=True)
     targets = {
-        MODEL_PATH: destination / "geetest_nine_model.pt",
-        LABELS_PATH: destination / "labels.txt",
-        MODEL_MANIFEST_PATH: destination / "MODEL.json",
+        source_model: destination / source_model.name,
+        source_labels: destination / source_labels.name,
+        source_manifest: destination / source_manifest.name,
     }
     for source, target in targets.items():
         shutil.copy2(source, target)
 
-    copied_model_sha = sha256_file(targets[MODEL_PATH])
-    copied_labels_sha = sha256_file(targets[LABELS_PATH])
-    manifest = load_model_manifest()
+    copied_model_sha = sha256_file(targets[source_model])
+    copied_labels_sha = sha256_file(targets[source_labels])
+    manifest = load_model_manifest(ASSETS_ROOT)
     if copied_model_sha != manifest["model"]["sha256"]:
         raise RuntimeError("installed model SHA-256 mismatch")
     if copied_labels_sha != manifest["labels"]["sha256"]:
         raise RuntimeError("installed labels SHA-256 mismatch")
 
     return {
-        "model": str(targets[MODEL_PATH]),
-        "labels": str(targets[LABELS_PATH]),
-        "manifest": str(targets[MODEL_MANIFEST_PATH]),
+        "model": str(targets[source_model]),
+        "labels": str(targets[source_labels]),
+        "manifest": str(targets[source_manifest]),
     }
+
+
+def select_model_pack(project_root: Path) -> Path:
+    """Prefer a complete installed pack; fail closed on a partial install."""
+
+    installed = project_root.resolve() / "models" / MODEL_PACK_NAME
+    required = [installed / "MODEL.json", installed / "geetest_nine_model.pt", installed / "labels.txt"]
+    present = [path.exists() for path in required]
+    if all(present):
+        return installed
+    if any(present):
+        missing = ", ".join(path.name for path, exists in zip(required, present) if not exists)
+        raise RuntimeError(f"installed model pack is incomplete; missing: {missing}")
+    return ASSETS_ROOT
 
 
 def indices_to_userresponse(indices: List[int], count: int = 3) -> List[List[int]]:
     if len(indices) != NEED:
         raise ValueError("nine-grid requires exactly three indices")
+    if len(set(indices)) != len(indices):
+        raise ValueError("nine-grid indices must be unique")
     if count <= 0 or any(index < 0 or index >= count * count for index in indices):
         raise ValueError("grid index outside valid range")
     return [[index // count + 1, index % count + 1] for index in indices]
@@ -300,9 +337,19 @@ def calculate_biht(gct_source: str) -> str:
     return str(djb2_5381(guard_source + str(djb2_5381(hash_source)))) + suffix
 
 
+def _pow_target(bits: Any) -> Tuple[int, int]:
+    try:
+        value = int(bits)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("PoW bits must be an integer") from exc
+    if value < 1 or value > 255:
+        raise ValueError("PoW bits must be between 1 and 255")
+    return value, 1 << (256 - value)
+
+
 def verify_pow_message(message: str, digest: str, bits: int) -> bool:
     computed = hashlib.sha256(message.encode("utf-8")).hexdigest()
-    target = 1 << (256 - bits)
+    _, target = _pow_target(bits)
     return computed == digest and int(digest, 16) < target
 
 
@@ -311,20 +358,25 @@ def solve_pow(
     lot_number: str,
     detail: Dict[str, Any],
     nonce_factory: Optional[Any] = None,
+    max_attempts: int = MAX_POW_ATTEMPTS,
 ) -> Dict[str, str]:
     hashfunc = str(detail["hashfunc"]).lower()
     if hashfunc != "sha256":
         raise ValueError(f"unsupported PoW hash: {hashfunc}")
+    _, target = _pow_target(detail["bits"])
+    if not isinstance(max_attempts, int) or max_attempts < 1 or max_attempts > MAX_POW_ATTEMPTS:
+        raise ValueError(f"max_attempts must be between 1 and {MAX_POW_ATTEMPTS}")
     prefix = (
         f"{detail['version']}|{detail['bits']}|{hashfunc}|{detail['datetime']}|"
         f"{captcha_id}|{lot_number}||"
     )
     create_nonce = nonce_factory or (lambda: secrets.token_hex(8))
-    while True:
+    for _ in range(max_attempts):
         message = prefix + str(create_nonce())
         digest = hashlib.sha256(message.encode("utf-8")).hexdigest()
-        if int(digest, 16) < 1 << (256 - int(detail["bits"])):
+        if int(digest, 16) < target:
             return {"pow_msg": message, "pow_sign": digest}
+    raise TimeoutError(f"PoW target not found within {max_attempts} attempts")
 
 
 def encrypt_aes(payload: Dict[str, Any], aes_key: bytes) -> Tuple[str, str]:
@@ -345,56 +397,74 @@ def encrypt_w(payload: Dict[str, Any], aes_key: Optional[bytes] = None) -> Tuple
     return aes_hex + rsa_hex, compact
 
 
-def _load_model(project_root: Path) -> Any:
-    verify_model_assets()
+def _embedded_labels(model: Any) -> List[str]:
+    names = getattr(model, "names", None)
+    if isinstance(names, dict):
+        try:
+            return [str(names[index]) for index in range(len(names))]
+        except KeyError as exc:
+            raise RuntimeError("model class map must use contiguous integer keys") from exc
+    if isinstance(names, (list, tuple)):
+        return [str(name) for name in names]
+    raise RuntimeError("model does not expose a class-name map")
+
+
+def validate_model_class_names(model: Any, labels: List[str]) -> None:
+    if _embedded_labels(model) != labels:
+        raise RuntimeError("embedded model class map does not match labels.txt")
+
+
+def _load_model(project_root: Path, allow_checkpoint_execution: bool = False) -> Tuple[Any, List[str]]:
+    if not allow_checkpoint_execution:
+        raise PermissionError(
+            "PyTorch .pt checkpoints may execute serialized code; explicit per-run approval is required"
+        )
+    model_root = select_model_pack(project_root)
+    model_path, labels_path, _ = _model_pack_paths(model_root)
+    verify_model_assets(model_root)
     configure_runtime_cache(project_root)
     from ultralytics import YOLO
 
-    return YOLO(str(MODEL_PATH), task="classify")
+    model = YOLO(str(model_path), task="classify")
+    labels = load_labels(labels_path)
+    validate_model_class_names(model, labels)
+    return model, labels
 
 
-def _classify(model: Any, path: Path) -> Tuple[Dict[str, float], str]:
+def _classify(model: Any, path: Path, labels: List[str]) -> Tuple[Dict[str, float], str]:
     result = next(iter(model.predict(source=str(path), imgsz=96, device="cpu", verbose=False)))
-    names = result.names
     probabilities = result.probs.data.tolist()
-    table = {names[index]: float(probabilities[index]) for index in range(len(probabilities))}
-    return table, names[int(result.probs.top1)]
+    if len(probabilities) != len(labels):
+        raise RuntimeError("model probability count does not match labels.txt")
+    top1 = int(result.probs.top1)
+    if top1 < 0 or top1 >= len(labels):
+        raise RuntimeError("model top1 index is outside labels.txt")
+    table = {labels[index]: float(probabilities[index]) for index in range(len(probabilities))}
+    return table, labels[top1]
 
 
-def recognize_cache(
-    cache_dir: Path,
-    project_root: Path,
-    save_output: bool = True,
+def select_nine_grid_tiles(
+    question_probabilities: Dict[str, float],
+    question_top1: str,
+    tiles: List[Dict[str, Any]],
+    count: int,
 ) -> Dict[str, Any]:
-    cache = cache_dir.resolve()
-    manifest_path = cache / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
-    count = int(manifest.get("image_meta", {}).get("count", 3))
-    question_paths = sorted(cache.glob("ques_*_white.jpg")) or sorted(cache.glob("ques_*.png"))
-    if not question_paths:
-        raise FileNotFoundError("question image not found")
-
-    model = _load_model(project_root)
-    question_probabilities, question_top1 = _classify(model, question_paths[0])
-
-    tiles: List[Dict[str, Any]] = []
-    for index in range(count * count):
-        path = cache / f"tile_{index}.jpg"
-        if not path.exists():
-            raise FileNotFoundError(f"tile missing: {path.name}")
-        probabilities, top1 = _classify(model, path)
-        tiles.append(
-            {
-                "index": index,
-                "top1": top1,
-                "top1Confidence": probabilities[top1],
-                "probabilities": probabilities,
-            }
-        )
+    if count <= 0 or count * count < NEED:
+        raise ValueError("grid size cannot supply three answers")
+    if len(tiles) != count * count:
+        raise ValueError("tile count does not match grid dimensions")
+    indices = [int(tile["index"]) for tile in tiles]
+    if len(set(indices)) != len(indices) or set(indices) != set(range(count * count)):
+        raise ValueError("tiles must contain every grid index exactly once")
+    for tile in tiles:
+        top1 = str(tile["top1"])
+        probabilities = tile.get("probabilities")
+        if not isinstance(probabilities, dict) or top1 not in probabilities:
+            raise ValueError("each tile must include its top1 probability")
 
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     for tile in tiles:
-        grouped.setdefault(tile["top1"], []).append(tile)
+        grouped.setdefault(str(tile["top1"]), []).append(tile)
     exact_groups = {label: members for label, members in grouped.items() if len(members) == NEED}
 
     if len(exact_groups) == 1:
@@ -402,7 +472,16 @@ def recognize_cache(
         selected = exact_groups[target]
         strategy = "tile-consensus"
     elif len(exact_groups) > 1:
-        target = max(exact_groups, key=lambda label: question_probabilities.get(label, 0.0))
+        ranked_groups = sorted(
+            exact_groups,
+            key=lambda label: question_probabilities.get(label, 0.0),
+            reverse=True,
+        )
+        best_score = question_probabilities.get(ranked_groups[0], 0.0)
+        next_score = question_probabilities.get(ranked_groups[1], 0.0)
+        if best_score < 0.05 or best_score == next_score:
+            raise RuntimeError("question signal cannot disambiguate exact three-tile groups")
+        target = ranked_groups[0]
         selected = exact_groups[target]
         strategy = "tile-consensus-question-tiebreak"
     else:
@@ -413,8 +492,14 @@ def recognize_cache(
             reverse=True,
         )
         if ranked[0]["probabilities"].get(target, 0.0) < 0.05:
-            largest = max(grouped.values(), key=len)
-            target = largest[0]["top1"]
+            largest_size = max(map(len, grouped.values()))
+            largest_groups = [members for members in grouped.values() if len(members) == largest_size]
+            if len(largest_groups) != 1:
+                raise RuntimeError("largest tile group is ambiguous")
+            largest = largest_groups[0]
+            if len(largest) < NEED:
+                raise RuntimeError("no class supplies three candidate tiles")
+            target = str(largest[0]["top1"])
             selected = sorted(
                 largest,
                 key=lambda tile: tile["top1Confidence"],
@@ -422,18 +507,70 @@ def recognize_cache(
             )[:NEED]
             strategy = "largest-tile-group-fallback"
         else:
+            if len(ranked) > NEED:
+                accepted_score = ranked[NEED - 1]["probabilities"].get(target, 0.0)
+                rejected_score = ranked[NEED]["probabilities"].get(target, 0.0)
+                if accepted_score == rejected_score:
+                    raise RuntimeError("question-target ranking is ambiguous at the answer boundary")
             selected = ranked[:NEED]
             strategy = "question-target-confidence"
 
-    indices = sorted(tile["index"] for tile in selected)
-    result = {
+    selected_indices = sorted(int(tile["index"]) for tile in selected)
+    return {
         "target": target,
-        "indices": indices,
-        "userresponse": indices_to_userresponse(indices, count),
+        "indices": selected_indices,
+        "userresponse": indices_to_userresponse(selected_indices, count),
         "strategy": strategy,
         "questionTop1": question_top1,
         "groupSizes": {label: len(members) for label, members in grouped.items()},
     }
+
+
+def recognize_cache(
+    cache_dir: Path,
+    project_root: Path,
+    save_output: bool = True,
+    allow_checkpoint_execution: bool = False,
+    model_loader: Optional[Callable[[Path, bool], Tuple[Any, List[str]]]] = None,
+    classifier: Optional[Callable[[Any, Path, List[str]], Tuple[Dict[str, float], str]]] = None,
+) -> Dict[str, Any]:
+    cache = cache_dir.resolve()
+    allowed_cache_root = (project_root.resolve() / "js_reverse_cache").resolve()
+    try:
+        cache.relative_to(allowed_cache_root)
+    except ValueError as exc:
+        raise ValueError("cache_dir must be inside <projectRoot>/js_reverse_cache") from exc
+    manifest_path = cache / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    count = int(manifest.get("image_meta", {}).get("count", GRID_COUNT))
+    if count != GRID_COUNT:
+        raise ValueError(f"this case requires nine_nums={GRID_COUNT}; fresh recovery is required")
+    question_paths = sorted(cache.glob("ques_*_white.jpg")) or sorted(cache.glob("ques_*.png"))
+    if not question_paths:
+        raise FileNotFoundError("question image not found")
+    tile_paths = [cache / f"tile_{index}.jpg" for index in range(count * count)]
+    missing_tiles = [path.name for path in tile_paths if not path.exists()]
+    if missing_tiles:
+        raise FileNotFoundError("tile files missing: " + ", ".join(missing_tiles))
+
+    load = model_loader or _load_model
+    classify = classifier or _classify
+    model, labels = load(project_root, allow_checkpoint_execution)
+    question_probabilities, question_top1 = classify(model, question_paths[0], labels)
+
+    tiles: List[Dict[str, Any]] = []
+    for index, path in enumerate(tile_paths):
+        probabilities, top1 = classify(model, path, labels)
+        tiles.append(
+            {
+                "index": index,
+                "top1": top1,
+                "top1Confidence": probabilities[top1],
+                "probabilities": probabilities,
+            }
+        )
+
+    result = select_nine_grid_tiles(question_probabilities, question_top1, tiles, count)
     if save_output:
         (cache / "recognize.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2),
@@ -454,6 +591,11 @@ def main(argv: Optional[List[str]] = None) -> int:
     recognize_parser = subparsers.add_parser("recognize", help="recognize an already collected cache")
     recognize_parser.add_argument("cache_dir", type=Path)
     recognize_parser.add_argument("project_root", type=Path)
+    recognize_parser.add_argument(
+        "--allow-checkpoint-execution",
+        action="store_true",
+        help="explicitly approve loading the hash-verified PyTorch pickle checkpoint",
+    )
 
     args = parser.parse_args(argv)
     if args.command == "info":
@@ -463,7 +605,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(json.dumps(install_model_pack(args.project_root), indent=2))
         return 0
     if args.command == "recognize":
-        print(json.dumps(recognize_cache(args.cache_dir, args.project_root), ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                recognize_cache(
+                    args.cache_dir,
+                    args.project_root,
+                    allow_checkpoint_execution=args.allow_checkpoint_execution,
+                ),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return 0
     raise RuntimeError("unknown command")
 

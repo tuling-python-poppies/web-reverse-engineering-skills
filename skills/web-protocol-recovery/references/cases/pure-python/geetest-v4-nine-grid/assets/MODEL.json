@@ -3,12 +3,14 @@
   "modelId": "geetest-v4-nine-grid-yolov8-cls-v1",
   "task": "image-classification",
   "framework": "ultralytics-yolo-classify",
+  "serializationFormat": "pytorch-pickle-checkpoint",
   "inputSize": 96,
   "classes": 90,
   "model": {
     "path": "geetest_nine_model.pt",
     "bytes": 10483069,
-    "sha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f"
+    "sha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f",
+    "storagePolicy": "regular-git-self-contained"
   },
   "labels": {
     "path": "labels.txt",
@@ -18,11 +20,15 @@
   "provenance": {
     "classification": "user-supplied-model-asset",
     "distributionApproval": "User explicitly approved bundling and redistribution with this skill on 2026-07-31.",
+    "executionApproval": "Distribution approval does not authorize checkpoint deserialization; each run requires explicit work-order approval.",
     "sourcePathStored": false
   },
   "runtimePolicy": {
     "networkDownload": "forbidden",
     "hashVerification": "required-before-load",
+    "checkpointDeserialization": "explicit-per-run-opt-in",
+    "classMapVerification": "embedded names must exactly match labels.txt before inference",
+    "modelPackSelection": "complete project-installed pack first; bundled pack fallback; partial install fails closed",
     "cacheRoot": "<projectRoot>/js_reverse_cache/_runtime"
   }
 }

@@ -1,4 +1,5 @@
 # web-protocol-recovery pins LF for every hash-bound text surface.
+.gitattributes text eol=lf
 #
 # Why: the skill's own gates hash worktree bytes, not git blobs.
 # scripts/verify_case_hashes.py compares sha256 of the checked-out file against
@@ -31,6 +32,7 @@ skills/web-protocol-recovery/LICENSE   text eol=lf
 
 # Binary asset: never line-ending convert.
 skills/web-protocol-recovery/**/*.wasm binary
+skills/web-protocol-recovery/**/*.pt   binary
 
 # Retained for clarity; covered by the extension rules above.
 skills/web-protocol-recovery/references/cases/iv8/bangkokair-reese84-booking/** text eol=lf

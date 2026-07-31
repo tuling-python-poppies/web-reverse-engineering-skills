@@ -213,6 +213,7 @@ class TriggerBookkeepingTests(unittest.TestCase):
 
     def test_below_standard_runs_require_a_caveat(self) -> None:
         artifact = copy.deepcopy(self.artifact)
+        artifact["runs_per_query"] = 1
         artifact.pop("statistical_caveat", None)
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
         self.assertTrue(any("must carry statistical_caveat" in item for item in findings))

@@ -17,4 +17,6 @@ All cases use `web-protocol-recovery-case`. Historical restorations use `verific
 
 Some cases declare `historicalReferences` into `../case-live-reference-archive/MANIFEST.json`. These hash-bound files preserve implementation provenance from an exact Git commit. They may be opened one at a time only after the selected active case identifies a concrete blocker; they are study-only and must never be imported, executed, installed from, copied into delivery, or accepted as current live proof.
 
+`verification.sourceCommit` always means a resolvable full 40-character commit id. If retained provenance text cannot resolve in this repository, record it as `sourceReference` plus `sourceReferenceResolution.status=unresolvable-in-current-repository`; it remains descriptive evidence and cannot satisfy current proof or writeback eligibility.
+
 Every case uses `secretPolicy=redacted-pull-live`: retain cookie/token names, shapes, provenance, and transport positions, but never persisted values. When current state is required, web-protocol-recovery obtains it from one explicitly authorized browser session, runs the case's `pull_live_state.py`, passes the selected JSON in memory, and does not write it back to the case library.

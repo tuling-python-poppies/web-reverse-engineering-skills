@@ -15,6 +15,7 @@
 - Tool-family selection/escalation: `references/tool-playbook.md`
 - Case selector: `references/cases/registry.json`
 - Route regression evals: `evals/route-regression.json`
+- Current trigger routing and first-pass stability status: `evals/benchmark-results/trigger-status.md`
 - Historical behavioral benchmark summary (not current acceptance; raw outputs were not retained): `evals/benchmark-results/ACCEPTANCE.md`
 - Line-ending gate status: `evals/benchmark-results/line-ending-status.md`
 - Recovery acceptance status: `evals/benchmark-results/recovery-acceptance-status.md`

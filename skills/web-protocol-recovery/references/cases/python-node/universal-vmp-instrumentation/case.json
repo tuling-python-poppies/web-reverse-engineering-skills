@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "camoufox-universal-vmp-instrumentation",
-  "revision": 2,
+  "revision": 3,
   "status": "verified",
   "family": "signer",
   "runtime": "python-node",
@@ -54,9 +54,14 @@
     "assets": []
   },
   "verification": {
-    "sourceCommit": "95be929~1",
+    "sourceReference": "95be929~1",
+    "sourceReferenceResolution": {
+      "status": "unresolvable-in-current-repository",
+      "checkedAt": "2026-07-31T14:34:34+08:00",
+      "reason": "The reference is not a full object id and cannot be resolved by the current repository; it is provenance text only."
+    },
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
+    "metadataMigratedAt": "2026-07-31T14:34:34+08:00",
     "lineEndingCorrection": "rev2: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,

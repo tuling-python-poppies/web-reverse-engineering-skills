@@ -2,7 +2,9 @@
   "schemaVersion": "web-protocol-recovery-trigger-fulltest",
   "eval_mode": "full_test",
   "current_acceptance": true,
+  "acceptance_scope": "bounded-recovery-routing",
   "integrity": "retained-n3-first-pass-and-retry-attempt-grades",
+  "raw_preview_scope": "first-pass-compatibility-alias",
   "run_base_commit": "c7889ae32e7cf82e41eee9b8ad758ddcb16fe69f",
   "run_worktree_dirty": false,
   "evaluated_skill_md_sha256": "c9c6102dc8dc7478e26edd452cf6f79ce6953e00e095e859c923d9dbda1be8b0",
@@ -18,19 +20,45 @@
   },
   "workers": 3,
   "timeout_seconds": 180,
+  "timeout_semantics": "requested-worker-soft-limit-with-exact-overrun-accounting",
   "timeout_accounting": {
     "first_pass": {
-      "over_declared_ids": [
-        2,
-        5,
-        14,
-        15,
-        17
+      "over_declared_attempts": [
+        {
+          "attempt": 1,
+          "id": 2,
+          "duration_ms": 202264
+        },
+        {
+          "attempt": 1,
+          "id": 14,
+          "duration_ms": 225946
+        },
+        {
+          "attempt": 1,
+          "id": 15,
+          "duration_ms": 239315
+        },
+        {
+          "attempt": 1,
+          "id": 17,
+          "duration_ms": 282006
+        },
+        {
+          "attempt": 2,
+          "id": 2,
+          "duration_ms": 327881
+        },
+        {
+          "attempt": 2,
+          "id": 5,
+          "duration_ms": 323955
+        }
       ],
-      "explanation": "Some first-pass rows ran longer than the declared timeout as observed by the outer harness; these are recorded so timeout accounting is not inferred from the declared limit alone."
+      "explanation": "The declared timeout is a requested worker soft limit. The outer harness observed these exact attempt overruns before each worker returned timeout; they are retained as measured behavior rather than treated as compliant 180-second runs."
     },
     "retry": {
-      "over_declared_ids": [],
+      "over_declared_attempts": [],
       "explanation": ""
     }
   },
@@ -124,6 +152,14 @@
       "over_trigger": 0,
       "runtime_error": 0
     }
+  },
+  "first_pass_stability": {
+    "accepted": false,
+    "semantic": "54/60",
+    "semantic_threshold": 1.0,
+    "runtime_errors": "6/66",
+    "maximum_runtime_error_rate": 0.1,
+    "reason": "Six completed first-pass attempts made semantic routing errors, so bounded-recovery acceptance does not imply first-pass stability."
   },
   "first_pass_results": [
     {
@@ -4193,5 +4229,5 @@
       "stderr_preview": ""
     }
   ],
-  "current_run_note": "Current HEAD was evaluated with deepseek-v4-pro only; DeepSeek Flash, GPT-5.6, and Grok were not used for this accepted run."
+  "current_run_note": "Current SKILL.md was evaluated with deepseek-v4-pro only; DeepSeek Flash, GPT-5.6, and Grok were not used. The artifact accepts bounded-recovery routing and explicitly does not accept first-pass stability."
 }

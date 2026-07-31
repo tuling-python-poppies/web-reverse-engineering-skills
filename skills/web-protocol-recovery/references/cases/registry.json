@@ -35,7 +35,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-dual-sign-cacheopts/case.json",
-                "sha256": "7ca84d73df3362d8bb03c00ad00605e77f0f475dea590a489549a1c8cc9e0d64"
+                "sha256": "6f655d7e3c4b819189c1bc2fff4ac347559395cbee3924a66a7f7ae811600519"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -81,7 +81,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
-                "sha256": "2efcbec6a3be202358591ab5f2626df278ce65893d55b11ccda845a42fe349c8"
+                "sha256": "8d43b344f0c95088783260c8026463265e22043fccf6d8871e17c8eaa9f4b4c6"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -123,7 +123,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-xhr-interceptor-env-emulation/case.json",
-                "sha256": "f1b59225a9a39b3f3c2fd3782643647b28715b5a32564dbfd387b2de7fff3b97"
+                "sha256": "8579b00290bb3408b16d8274a613b30d59ac3f52cdbfac270d0a6cc67f4a31cf"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -161,7 +161,7 @@
             ],
             "manifest": {
                 "path": "python-node/universal-vmp-instrumentation/case.json",
-                "sha256": "7c4bb6595c987266633359a6968447885466211eeb2a5dc0e684c437528a24f6"
+                "sha256": "4044024b33a1f108495b34cd1d77c1360d183d3c49f996d1b7808a701e87a92e"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

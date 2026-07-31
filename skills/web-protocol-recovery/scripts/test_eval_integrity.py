@@ -147,7 +147,14 @@ class TriggerArithmeticTests(unittest.TestCase):
         artifact = copy.deepcopy(self.artifact)
         artifact["union_results"] = artifact["union_results"][:-1]
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
-        self.assertTrue(any("but the corpus has" in item for item in findings))
+        self.assertTrue(any("union_results key coverage mismatch" in item for item in findings))
+
+    def test_duplicate_union_id_cannot_hide_missing_query(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["union_results"][1] = copy.deepcopy(artifact["union_results"][0])
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("union_results contains duplicate keys" in item for item in findings))
+        self.assertTrue(any("union_results key coverage mismatch" in item for item in findings))
 
     def test_query_drift_from_corpus_is_detected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
@@ -171,19 +178,19 @@ class TriggerArithmeticTests(unittest.TestCase):
             copy.deepcopy(artifact["attempt_retry_results"][0])
         )
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
-        self.assertTrue(any("must not duplicate attempt/id" in item for item in findings))
+        self.assertTrue(any("attempt_retry_results contains duplicate keys" in item for item in findings))
 
     def test_retried_attempt_declaration_must_match_rows(self) -> None:
         artifact = copy.deepcopy(self.artifact)
         artifact["retried_attempts"] = artifact["retried_attempts"][:-1]
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
-        self.assertTrue(any("retried_attempts must match" in item for item in findings))
+        self.assertTrue(any("attempt_retry_results key coverage mismatch" in item for item in findings))
 
     def test_attempt_retries_require_retried_ids(self) -> None:
         artifact = copy.deepcopy(self.artifact)
         artifact["retried_ids"] = []
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
-        self.assertTrue(any("requires non-empty retried_ids" in item for item in findings))
+        self.assertTrue(any("retried_ids must match retried_attempts" in item for item in findings))
 
     def test_retry_query_aggregates_must_be_unique(self) -> None:
         artifact = copy.deepcopy(self.artifact)
@@ -191,13 +198,52 @@ class TriggerArithmeticTests(unittest.TestCase):
         artifact["retried_ids"].append(artifact["retried_ids"][0])
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
         self.assertTrue(any("retried_ids must contain unique" in item for item in findings))
-        self.assertTrue(any("retry_results must contain unique" in item for item in findings))
+        self.assertTrue(any("retry_results contains duplicate keys" in item for item in findings))
 
     def test_dropped_first_pass_grades_are_rejected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
         artifact["first_pass_results"] = []
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
-        self.assertTrue(any("must retain first_pass_results" in item for item in findings))
+        self.assertTrue(any("first_pass_results key coverage mismatch" in item for item in findings))
+
+    def test_duplicate_final_attempt_cannot_hide_missing_attempt(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["attempt_results"][1] = copy.deepcopy(artifact["attempt_results"][0])
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("attempt_results contains duplicate keys" in item for item in findings))
+        self.assertTrue(any("attempt_results key coverage mismatch" in item for item in findings))
+
+    def test_dropped_attempt_retry_rows_are_rejected(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["attempt_retry_results"] = []
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("attempt_retry_results key coverage mismatch" in item for item in findings))
+
+    def test_secondary_summary_is_recomputed(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["summary"]["first_pass"] = "66/66"
+        artifact["summary"]["retry"] = "0/0"
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("summary.first_pass must equal" in item for item in findings))
+        self.assertTrue(any("summary.retry must equal" in item for item in findings))
+
+    def test_raw_preview_coverage_is_required(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["attempt_retry_raw_previews"] = []
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(
+            any("attempt_retry_raw_previews key coverage mismatch" in item for item in findings)
+        )
+
+    def test_final_attempts_are_exact_retry_projection(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        retry = artifact["attempt_retry_results"][0]
+        for row in artifact["attempt_results"]:
+            if (row["attempt"], row["id"]) == (retry["attempt"], retry["id"]):
+                row["duration_ms"] += 1
+                break
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("is not the first-pass/retry projection" in item for item in findings))
 
     def test_acceptance_below_threshold_is_rejected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
@@ -219,25 +265,27 @@ class TriggerBookkeepingTests(unittest.TestCase):
         artifact = copy.deepcopy(self.artifact)
         artifact.pop("timeout_accounting", None)
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
-        self.assertTrue(any("without a timeout_accounting entry" in item for item in findings))
+        self.assertTrue(any("must exactly match observed overruns" in item for item in findings))
 
     def test_accounting_without_explanation_is_rejected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
         artifact["timeout_accounting"]["first_pass"]["explanation"] = ""
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
-        self.assertTrue(any("gives no explanation" in item for item in findings))
+        self.assertTrue(any("lists attempts but gives no explanation" in item for item in findings))
 
     def test_accounting_does_not_excuse_other_ids(self) -> None:
         artifact = copy.deepcopy(self.artifact)
-        artifact["timeout_accounting"]["first_pass"]["over_declared_ids"] = [99]
+        artifact["timeout_accounting"]["first_pass"]["over_declared_attempts"] = [
+            {"attempt": 1, "id": 99, "duration_ms": 200000}
+        ]
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
-        self.assertTrue(any("without a timeout_accounting entry" in item for item in findings))
+        self.assertTrue(any("must exactly match observed overruns" in item for item in findings))
 
     def test_retry_over_its_raised_limit_is_detected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
         artifact["attempt_retry_results"][0]["duration_ms"] = 900000
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
-        self.assertTrue(any("trigger retry id" in item for item in findings))
+        self.assertTrue(any("timeout_accounting.retry" in item for item in findings))
 
     def test_below_standard_runs_require_a_caveat(self) -> None:
         artifact = copy.deepcopy(self.artifact)
@@ -259,6 +307,28 @@ class TriggerBookkeepingTests(unittest.TestCase):
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
         self.assertTrue(any("retry_granularity must match" in item for item in findings))
 
+    def test_first_pass_stability_is_recomputed(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["first_pass_stability"]["accepted"] = True
+        findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
+        self.assertTrue(any("first_pass_stability.accepted" in item for item in findings))
+
+    def test_timeout_overrun_is_bound_to_exact_attempt(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["timeout_accounting"]["first_pass"]["over_declared_attempts"][0][
+            "attempt"
+        ] = 3
+        findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
+        self.assertTrue(any("must exactly match observed overruns" in item for item in findings))
+
+    def test_artifact_cannot_raise_declared_timeouts(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["timeout_seconds"] = 600
+        artifact["retry_timeout_seconds"] = 900
+        findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
+        self.assertTrue(any("timeout_seconds must match" in item for item in findings))
+        self.assertTrue(any("retry_timeout_seconds must match" in item for item in findings))
+
     def test_every_provider_has_a_route_regression_case(self) -> None:
         """A provider nobody asserts a route for is a provider nobody tests."""
         registry = json.loads(validate_evals.REGISTRY_PATH.read_text(encoding="utf-8"))
@@ -276,6 +346,16 @@ class TriggerBookkeepingTests(unittest.TestCase):
         self.assertEqual(
             data["trigger_benchmark"]["retry_granularity"], "failed-attempt"
         )
+        self.assertEqual(
+            data["trigger_benchmark"]["acceptance_scope"],
+            "bounded-recovery-routing",
+        )
+        self.assertEqual(
+            data["trigger_benchmark"]["first_pass_stability"]["semantic_threshold"],
+            1.0,
+        )
+        self.assertEqual(data["trigger_benchmark"]["timeout_seconds"], 180)
+        self.assertEqual(data["trigger_benchmark"]["retry_timeout_seconds"], 600)
 
 
 if __name__ == "__main__":

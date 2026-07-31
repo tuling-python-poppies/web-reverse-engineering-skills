@@ -211,6 +211,91 @@ def requires_current_proof_binding(data: dict[str, Any]) -> bool:
     )
 
 
+def source_provenance_findings(
+    skill_root: Path, rel: str, data: dict[str, Any]
+) -> list[str]:
+    """Keep resolvable commits distinct from provenance text that cannot resolve."""
+    findings: list[str] = []
+    verification = data.get("verification") or {}
+    source_commit = verification.get("sourceCommit")
+    source_reference = verification.get("sourceReference")
+    resolution = verification.get("sourceReferenceResolution")
+
+    if source_commit and source_reference:
+        return [f"{rel}: verification cannot declare both sourceCommit and sourceReference"]
+    if data.get("verificationClass") == HISTORICAL_VERIFICATION_CLASS and not (
+        source_commit or source_reference
+    ):
+        findings.append(
+            f"{rel}: historical verification requires sourceCommit or sourceReference"
+        )
+
+    if source_commit:
+        if not isinstance(source_commit, str) or not re.fullmatch(
+            r"[0-9a-f]{40}", source_commit
+        ):
+            findings.append(f"{rel}: verification.sourceCommit must be a full commit id")
+        else:
+            resolved = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(skill_root),
+                    "cat-file",
+                    "-e",
+                    f"{source_commit}^{{commit}}",
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            if resolved.returncode != 0:
+                findings.append(
+                    f"{rel}: verification.sourceCommit does not resolve in the current repository"
+                )
+        if resolution is not None:
+            findings.append(
+                f"{rel}: resolvable sourceCommit must not carry sourceReferenceResolution"
+            )
+
+    if source_reference:
+        if not isinstance(source_reference, str):
+            findings.append(f"{rel}: verification.sourceReference must be text")
+        if not isinstance(resolution, dict):
+            findings.append(
+                f"{rel}: sourceReference requires sourceReferenceResolution"
+            )
+        else:
+            if resolution.get("status") != "unresolvable-in-current-repository":
+                findings.append(
+                    f"{rel}: sourceReferenceResolution.status must be unresolvable-in-current-repository"
+                )
+            for field in ("checkedAt", "reason"):
+                if not isinstance(resolution.get(field), str) or not resolution.get(field):
+                    findings.append(
+                        f"{rel}: sourceReferenceResolution.{field} is required"
+                    )
+        if isinstance(source_reference, str):
+            resolved = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(skill_root),
+                    "rev-parse",
+                    "--verify",
+                    f"{source_reference}^{{commit}}",
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            if resolved.returncode == 0:
+                findings.append(
+                    f"{rel}: sourceReference resolves and must be recorded as sourceCommit"
+                )
+    return findings
+
+
 def evidence_process_claim_findings(text: str) -> list[str]:
     markers = (
         ("entry.py", "references active entry.py"),
@@ -574,6 +659,7 @@ def verify_case(
     artifacts = data.get("artifacts") or {}
     declared_case_files = {"case.json"}
 
+    mismatches.extend(source_provenance_findings(skill_root, rel, data))
     check_verification_contract(rel=rel, data=data, mismatches=mismatches, ok=ok)
     verify_historical_references(
         skill_root=skill_root,

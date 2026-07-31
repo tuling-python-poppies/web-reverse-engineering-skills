@@ -26,10 +26,25 @@
     "threshold": 1.0,
     "runs_per_query": 3,
     "timeout_seconds": 180,
+    "retry_timeout_seconds": 600,
     "single_model_required": true,
+    "acceptance_scope": "bounded-recovery-routing",
     "retry_granularity": "failed-attempt",
     "retry_policy": "at most one bounded retry per failed (query_id, attempt) pair; one query may have multiple retries only when multiple n-run attempts failed independently; a raised retry timeout must be recorded as retry_timeout_seconds, and first-pass and retry grades must be retained separately",
-    "standard_note": "runs_per_query 3 is the acceptance standard: a single run cannot separate a real routing decision from wall-clock noise. A run below the standard may still be recorded, but the artifact must then carry statistical_caveat naming the shortfall."
+    "timeout_semantics": "requested-worker-soft-limit-with-exact-overrun-accounting",
+    "first_pass_stability": {
+      "semantic_threshold": 1.0,
+      "maximum_runtime_error_rate": 0.1
+    },
+    "standard_note": "runs_per_query 3 is the bounded-recovery routing standard: a single run cannot separate a real routing decision from wall-clock noise. Current acceptance requires every final attempt to pass after the declared bounded retry. First-pass stability is reported independently and requires perfect semantic routing among completed attempts plus no more than 10% runtime errors. A run below n=3 must carry statistical_caveat naming the shortfall."
+  },
+  "recovery_acceptance": {
+    "trigger_routing": "bounded-recovery-accepted",
+    "first_pass_stability": "not-accepted",
+    "behavioral_with_skill_vs_baseline": "historical-summary-only",
+    "offline_implementation": "current-local-proof",
+    "historical_cases": "template-only",
+    "live_current_target": "not-claimed"
   },
   "evals": [
     {

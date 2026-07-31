@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
 import build_case_registry
 import validate_architecture
+import verify_case_hashes
 
 
 def row(case_id: str, signals: list[str], negatives: list[str]) -> dict:
@@ -21,6 +23,50 @@ def row(case_id: str, signals: list[str], negatives: list[str]) -> dict:
 
 
 class ArchitectureContractTests(unittest.TestCase):
+    def test_unresolvable_source_reference_is_explicitly_bounded(self) -> None:
+        path = (
+            validate_architecture.SKILL_ROOT
+            / "references"
+            / "cases"
+            / "python-node"
+            / "universal-vmp-instrumentation"
+            / "case.json"
+        )
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            verify_case_hashes.source_provenance_findings(
+                validate_architecture.SKILL_ROOT, "fixture", data
+            ),
+            [],
+        )
+
+    def test_short_source_reference_cannot_claim_source_commit(self) -> None:
+        data = {
+            "verificationClass": "historical-user-attested",
+            "verification": {"sourceCommit": "95be929~1"},
+        }
+        findings = verify_case_hashes.source_provenance_findings(
+            validate_architecture.SKILL_ROOT, "fixture", data
+        )
+        self.assertTrue(any("full commit id" in finding for finding in findings))
+
+    def test_resolvable_reference_must_be_recorded_as_commit(self) -> None:
+        data = {
+            "verificationClass": "historical-user-attested",
+            "verification": {
+                "sourceReference": "HEAD",
+                "sourceReferenceResolution": {
+                    "status": "unresolvable-in-current-repository",
+                    "checkedAt": "2026-07-31T14:34:34+08:00",
+                    "reason": "fixture",
+                },
+            },
+        }
+        findings = verify_case_hashes.source_provenance_findings(
+            validate_architecture.SKILL_ROOT, "fixture", data
+        )
+        self.assertTrue(any("resolves and must be recorded" in finding for finding in findings))
+
     def test_case_ambiguity_requires_negative_discriminator(self) -> None:
         left = row("left", ["parameter:s"], [])
         right = row("right", ["parameter:s"], [])

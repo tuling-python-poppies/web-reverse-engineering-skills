@@ -81,7 +81,36 @@
     "dependencies": {"type": "object"},
     "liveState": {"type": "object"},
     "artifacts": {"type": "object"},
-    "verification": {"type": "object"},
+    "verification": {
+      "type": "object",
+      "properties": {
+        "sourceCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "sourceReference": {"type": "string", "minLength": 1},
+        "sourceReferenceResolution": {
+          "type": "object",
+          "required": ["status", "checkedAt", "reason"],
+          "properties": {
+            "status": {"const": "unresolvable-in-current-repository"},
+            "checkedAt": {"type": "string", "format": "date-time"},
+            "reason": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {"required": ["sourceReference"]},
+          "then": {
+            "required": ["sourceReferenceResolution"],
+            "not": {"required": ["sourceCommit"]}
+          }
+        },
+        {
+          "if": {"required": ["sourceCommit"]},
+          "then": {"not": {"required": ["sourceReference"]}}
+        }
+      ]
+    },
     "verificationClass": {"enum": ["freshly-verified", "historical-user-attested"]},
     "requiresFreshVerification": {"type": "boolean"},
     "secretPolicy": {"const": "redacted-pull-live"}

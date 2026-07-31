@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "web-protocol-recovery-model-execution-proof-v1",
+  "caseId": "pure-python-geetest-v4-nine-grid",
+  "executedAt": "2026-07-31T21:14:59+08:00",
+  "activeScope": "local-checkpoint-smoke-only",
+  "currentAcceptance": true,
+  "checkpoint": {
+    "sha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f",
+    "bytes": 10483069,
+    "explicitExecutionApproval": true,
+    "load": "pass"
+  },
+  "labels": {
+    "sha256": "9cda82baee968c94051466ffeac23f00983cd2a34294723da3db1c21af5bd0ba",
+    "classes": 86,
+    "embeddedNamesMatch": true
+  },
+  "runtime": {
+    "torch": "2.13.0+cpu",
+    "ultralytics": "8.4.112",
+    "pillow": "12.2.0",
+    "device": "cpu"
+  },
+  "runtimePolicy": {
+    "cachePathsPinned": true,
+    "supportedIntegrationsDisabled": true,
+    "liveEgressInvokedByCase": false
+  },
+  "syntheticInference": {
+    "status": "pass",
+    "fixtureCount": 3,
+    "top1Labels": [
+      "键盘",
+      "气球",
+      "交通信号灯"
+    ]
+  },
+  "externalArtifactSha256": "0fc3d7bf48c801dd13d8a9fd7fec05b614a38fe2aa13bd582499b45b9e315464",
+  "realChallengeInference": {
+    "currentAcceptance": false,
+    "reason": "No sanitized ques/tile fixture was available in the case, workspace, or Downloads search scope."
+  },
+  "liveAcceptance": {
+    "currentAcceptance": false,
+    "reason": "No live target, request budget, or verifier submission was authorized."
+  }
+}

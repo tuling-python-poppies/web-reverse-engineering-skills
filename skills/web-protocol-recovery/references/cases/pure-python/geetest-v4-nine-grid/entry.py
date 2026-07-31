@@ -125,14 +125,21 @@ def configure_runtime_cache(project_root: Path) -> Path:
     os.environ["XDG_CACHE_HOME"] = str(runtime / "xdg")
     os.environ["ULTRALYTICS_OFFLINE"] = "1"
 
-    config_dir = runtime / "ultralytics" / "Ultralytics"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    settings_path = config_dir / "settings.json"
-    settings = {
-        "settings_version": "0.0.6",
+    return runtime
+
+
+def apply_ultralytics_runtime_settings(settings: Any, runtime: Path) -> Dict[str, Any]:
+    """Update only settings supported by the installed Ultralytics release."""
+
+    paths = {
         "datasets_dir": str(runtime / "datasets"),
         "weights_dir": str(runtime / "weights"),
         "runs_dir": str(runtime / "runs"),
+    }
+    missing_paths = sorted(set(paths) - set(settings))
+    if missing_paths:
+        raise RuntimeError("Ultralytics settings missing path keys: " + ", ".join(missing_paths))
+    disabled_integrations = {
         "sync": False,
         "hub": False,
         "clearml": False,
@@ -143,9 +150,19 @@ def configure_runtime_cache(project_root: Path) -> Path:
         "raytune": False,
         "tensorboard": False,
         "wandb": False,
+        "vscode_msg": False,
+        "openvino_msg": False,
     }
-    settings_path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
-    return runtime
+    desired = {**paths, **{key: value for key, value in disabled_integrations.items() if key in settings}}
+    settings.update(desired)
+
+    for key, expected in paths.items():
+        if Path(str(settings[key])).resolve() != Path(expected).resolve():
+            raise RuntimeError(f"Ultralytics setting {key} escaped the project runtime cache")
+    enabled = [key for key in disabled_integrations if key in settings and settings[key] is not False]
+    if enabled:
+        raise RuntimeError("Ultralytics integrations remain enabled: " + ", ".join(enabled))
+    return desired
 
 
 def install_model_pack(project_root: Path) -> Dict[str, str]:
@@ -422,9 +439,10 @@ def _load_model(project_root: Path, allow_checkpoint_execution: bool = False) ->
     model_root = select_model_pack(project_root)
     model_path, labels_path, _ = _model_pack_paths(model_root)
     verify_model_assets(model_root)
-    configure_runtime_cache(project_root)
-    from ultralytics import YOLO
+    runtime = configure_runtime_cache(project_root)
+    from ultralytics import YOLO, settings
 
+    apply_ultralytics_runtime_settings(settings, runtime)
     model = YOLO(str(model_path), task="classify")
     labels = load_labels(labels_path)
     validate_model_class_names(model, labels)

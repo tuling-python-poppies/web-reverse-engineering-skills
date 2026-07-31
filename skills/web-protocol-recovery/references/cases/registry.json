@@ -1109,7 +1109,7 @@
             ],
             "manifest": {
                 "path": "pure-python/geetest-v4-nine-grid/case.json",
-                "sha256": "60656a0134475e56eaab96f7f6a63f3bc564f1894fb8d12d3fd59a412eb06b56"
+                "sha256": "2d091bbd58a78616c868169931ebd34fc16c53ccf7cabcbd1b9120d09c58bdc1"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

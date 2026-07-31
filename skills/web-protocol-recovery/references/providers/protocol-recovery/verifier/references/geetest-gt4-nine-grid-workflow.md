@@ -89,7 +89,7 @@ def indices_to_userresponse(indices, count=3):
 ## 验收
 
 1. `/load` 明确确认 nine subtype，且图片、提示图、bundle、GCT、tokens 全部同轮。
-2. 离线测试通过：模型/labels SHA-256、90 类、安装包选择、执行 gate、class-map 校验逻辑、四种识别分支、格号映射、bounded PoW、GCT hash 和 AES 固定向量。该测试不加载 checkpoint，也不声明真实图片推理通过。
+2. 离线测试通过：模型/labels SHA-256、86 类、安装包选择、执行 gate、Ultralytics settings 固定、class-map 校验逻辑、四种识别分支、格号映射、bounded PoW、GCT hash 和 AES 固定向量。该测试不加载 checkpoint，也不声明真实图片推理通过。
 3. 经明确 checkpoint 执行批准后，模型推理输出恰好三个合法格号；低置信或歧义必须 fail closed 或只做受预算约束的 fresh-lot 重试。
 4. live proof 至少一轮 fresh challenge 返回 `status=success`、`data.result=success`、`fail_count=0`；正式 collector 扩大重试前仍需 request-budget 确认。
 5. Python 拥有 `/load`、静态资源和 `/verify` 的最终 live egress；模型与本地 helper 无浏览器依赖。

@@ -25,6 +25,23 @@ class GeetestNineGridTests(unittest.TestCase):
         actual = entry.verify_model_assets()
         self.assertEqual(actual, self.vectors["model"])
 
+    def test_model_execution_proof_is_narrow_and_path_free(self) -> None:
+        proof = json.loads(
+            (CASE_ROOT / "fixtures" / "model-execution-proof.summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(proof["activeScope"], "local-checkpoint-smoke-only")
+        self.assertTrue(proof["currentAcceptance"])
+        self.assertEqual(proof["checkpoint"]["sha256"], self.vectors["model"]["modelSha256"])
+        self.assertEqual(proof["labels"]["sha256"], self.vectors["model"]["labelsSha256"])
+        self.assertEqual(proof["labels"]["classes"], self.vectors["model"]["classes"])
+        self.assertFalse(proof["realChallengeInference"]["currentAcceptance"])
+        self.assertFalse(proof["liveAcceptance"]["currentAcceptance"])
+        serialized = json.dumps(proof, ensure_ascii=False)
+        self.assertNotIn("C:\\", serialized)
+        self.assertNotIn("D:\\", serialized)
+
     def test_offline_proof_binds_current_entry_and_test(self) -> None:
         entry_sha = hashlib.sha256((CASE_ROOT / "entry.py").read_bytes()).hexdigest()
         test_sha = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -103,6 +120,40 @@ class GeetestNineGridTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(PermissionError, "explicit per-run approval"):
                 entry._load_model(Path(tmp))
+
+    def test_runtime_cache_defers_settings_to_installed_ultralytics(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            runtime = entry.configure_runtime_cache(Path(tmp))
+            self.assertTrue((runtime / "datasets").is_dir())
+            self.assertFalse(
+                (runtime / "ultralytics" / "Ultralytics" / "settings.json").exists()
+            )
+
+    def test_ultralytics_settings_are_project_pinned_and_offline(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            runtime = Path(tmp) / "js_reverse_cache" / "_runtime"
+            fake_settings = {
+                "datasets_dir": "old-datasets",
+                "weights_dir": "old-weights",
+                "runs_dir": "old-runs",
+                "sync": True,
+                "hub": True,
+                "clearml": True,
+                "comet": True,
+                "dvc": True,
+                "mlflow": True,
+                "neptune": True,
+                "raytune": True,
+                "tensorboard": True,
+                "wandb": True,
+                "vscode_msg": True,
+                "openvino_msg": True,
+            }
+            entry.apply_ultralytics_runtime_settings(fake_settings, runtime)
+            self.assertEqual(fake_settings["datasets_dir"], str(runtime / "datasets"))
+            self.assertEqual(fake_settings["weights_dir"], str(runtime / "weights"))
+            self.assertEqual(fake_settings["runs_dir"], str(runtime / "runs"))
+            self.assertFalse(any(value is True for value in fake_settings.values()))
 
     def test_installed_model_pack_is_selected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

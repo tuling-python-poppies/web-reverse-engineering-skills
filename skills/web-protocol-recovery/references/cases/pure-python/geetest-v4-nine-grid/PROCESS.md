@@ -4,7 +4,7 @@
 
 Recover and reuse the Geetest GT4 `risk_type=nine` verifier boundary without a browser-backed final runtime. The protocol result is accepted only when a fresh same-round `/verify` response has `status=success`, `data.result=success`, and `data.fail_count=0`.
 
-The checked-in active proof is offline-only: it binds the current entry, tests, protocol vectors, model, labels, and model manifest. It proves model-pack identity, the execution gate, and recognition decision logic with injected predictions; it does not deserialize the PyTorch checkpoint or accept real-image inference. Historical live proof records current-target provenance but is not reusable live authorization.
+The checked-in active proof is offline-only: it binds the current entry, tests, protocol vectors, model, labels, model manifest, and a narrow execution summary. An explicitly approved local run loaded the hash-bound checkpoint, matched all 86 embedded class names, pinned the runtime settings, and completed three synthetic CPU inferences. This does not accept real-challenge inference or live verifier behavior. Historical live proof records current-target provenance but is not reusable live authorization.
 
 ## Match Signals
 
@@ -81,12 +81,12 @@ The four selection branches, ambiguity rejection, and the `recognize_cache` flow
 The case contains:
 
 - `assets/geetest_nine_model.pt` (10,483,069 bytes)
-- `assets/labels.txt` (90 classes)
+- `assets/labels.txt` (86 checkpoint-embedded classes)
 - `assets/MODEL.json` (hash, size, provenance, and cache policy)
 
 The 10.0 MiB checkpoint uses `storagePolicy=regular-git-self-contained` so an offline clone contains the complete pack without an external LFS object store. `.gitattributes` marks `.pt` files as binary, and the case `readHint` forbids whole-file context loading during inspection.
 
-The `.pt` file is a PyTorch pickle checkpoint and is therefore an executable-deserialization boundary. Its SHA-256 proves identity, not safety. `entry.verify_model_assets()` fails closed on pack, label, hash, size, or class-count mismatch. `entry.install_model_pack(project_root)` copies the pack without network access, and recognition then prefers that complete installed pack; a partial installed pack fails closed instead of silently falling back. `entry.configure_runtime_cache(project_root)` runs before importing Ultralytics and pins all ML runtime caches under `<projectRoot>/js_reverse_cache/_runtime/**`.
+The `.pt` file is a PyTorch pickle checkpoint and is therefore an executable-deserialization boundary. Its SHA-256 proves identity, not safety. `entry.verify_model_assets()` fails closed on pack, label, hash, size, or class-count mismatch. `entry.install_model_pack(project_root)` copies the pack without network access, and recognition then prefers that complete installed pack; a partial installed pack fails closed instead of silently falling back. `entry.configure_runtime_cache(project_root)` sets cache environment paths before importing Ultralytics; after import, `entry.apply_ultralytics_runtime_settings()` updates the installed settings schema, pins datasets/weights/runs under `<projectRoot>/js_reverse_cache/_runtime/**`, and disables supported network integrations.
 
 Checkpoint loading is disabled by default. A specifically authorized run must pass `--allow-checkpoint-execution`; distribution approval in `MODEL.json` is not execution approval. After loading, the embedded class map must exactly match the hash-bound `labels.txt` before inference. Recognition cache input and output must stay under `<projectRoot>/js_reverse_cache/**`.
 
@@ -137,7 +137,7 @@ Offline acceptance covers:
 - recognition-cache containment under the project cache root;
 - import discipline and blocked implicit live egress.
 
-The offline suite does not load `geetest_nine_model.pt`, run real-image inference, or claim current model accuracy. Those require explicit checkpoint-execution approval and a separate sanitized fixture or authorized live acceptance run.
+The ordinary offline suite does not load `geetest_nine_model.pt`. The hash-bound `fixtures/model-execution-proof.summary.json` records a separately approved checkpoint smoke run; it proves loadability, class-map consistency, cache policy, and synthetic inference only. Real-image accuracy still requires a sanitized challenge fixture, while live verifier acceptance requires a separately authorized target and request budget.
 
 Historical current-target evidence observed repeated fresh challenges ending in semantic success. The retained summary contains no cookies, tokens, payloads, `w`, raw challenge images, or absolute paths and is explicitly not current reuse authorization.
 
@@ -162,7 +162,7 @@ Stop reuse and return to verifier evidence when any of these change:
 - GCT no longer exposes the 5381 hash shape;
 - AES/RSA shell changes or server returns repeated decrypt errors;
 - model class names or model SHA-256 differ;
-- current evidence needs labels outside the bundled 90 classes.
+- current evidence needs labels outside the bundled 86 classes.
 
 ## Sensitive Materials Excluded
 

@@ -5,7 +5,7 @@
   "framework": "ultralytics-yolo-classify",
   "serializationFormat": "pytorch-pickle-checkpoint",
   "inputSize": 96,
-  "classes": 90,
+  "classes": 86,
   "model": {
     "path": "geetest_nine_model.pt",
     "bytes": 10483069,
@@ -14,21 +14,23 @@
   },
   "labels": {
     "path": "labels.txt",
-    "bytes": 648,
-    "sha256": "50c63e94155fe9760c992e867ae6392494072b72a95b6854cc4ece03292ebb69"
+    "bytes": 617,
+    "sha256": "9cda82baee968c94051466ffeac23f00983cd2a34294723da3db1c21af5bd0ba"
   },
   "provenance": {
     "classification": "user-supplied-model-asset",
     "distributionApproval": "User explicitly approved bundling and redistribution with this skill on 2026-07-31.",
     "executionApproval": "Distribution approval does not authorize checkpoint deserialization; each run requires explicit work-order approval.",
+    "classMapSource": "86 checkpoint-embedded class names verified against labels.txt after an explicitly approved local load on 2026-07-31.",
     "sourcePathStored": false
   },
   "runtimePolicy": {
     "networkDownload": "forbidden",
     "hashVerification": "required-before-load",
     "checkpointDeserialization": "explicit-per-run-opt-in",
-    "classMapVerification": "embedded names must exactly match labels.txt before inference",
+    "classMapVerification": "86 embedded names must exactly match labels.txt before inference",
     "modelPackSelection": "complete project-installed pack first; bundled pack fallback; partial install fails closed",
+    "ultralyticsSettings": "installed schema updated after import; paths pinned under cacheRoot; network integrations disabled",
     "cacheRoot": "<projectRoot>/js_reverse_cache/_runtime"
   }
 }

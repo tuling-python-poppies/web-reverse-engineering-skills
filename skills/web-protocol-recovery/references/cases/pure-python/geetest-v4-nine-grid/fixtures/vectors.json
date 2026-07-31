@@ -72,12 +72,12 @@
     "modelId": "geetest-v4-nine-grid-yolov8-cls-v1",
     "modelSha256": "3d8c5d99f788438e23855b75e508b1b3238e9dde67800f27369a3bd8c05b053f",
     "modelBytes": 10483069,
-    "labelsSha256": "50c63e94155fe9760c992e867ae6392494072b72a95b6854cc4ece03292ebb69",
-    "classes": 90
+    "labelsSha256": "9cda82baee968c94051466ffeac23f00983cd2a34294723da3db1c21af5bd0ba",
+    "classes": 86
   },
   "caseId": "pure-python-geetest-v4-nine-grid",
-  "entrySha256": "5de7d633c82d033c893a5968bd9a184508fb3550ecd8b16294aef1abd6c28c4f",
-  "testArtifactSha256": "056fd59f93727b71ef5584c9feae768a8a6d7ab1a7a8072bf33050bea9e41541",
+  "entrySha256": "85b4ba2023cc65d772b41b8285fa39f1ef9ce5bf2492efa9638aa91649fa22a6",
+  "testArtifactSha256": "986ab3a62f9922933ffed13aa9f18fe08d19848d4419f1542c5bd3135140de55",
   "activeScope": "offline-only",
   "passed": true
 }

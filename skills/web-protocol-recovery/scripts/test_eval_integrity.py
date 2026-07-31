@@ -158,8 +158,9 @@ class TriggerArithmeticTests(unittest.TestCase):
     def test_retry_of_a_passing_query_is_rejected(self) -> None:
         """A retry is only legitimate where the first pass actually failed."""
         artifact = copy.deepcopy(self.artifact)
-        for row in artifact["first_pass_results"]:
-            if row["id"] == artifact["retried_ids"][0]:
+        target = artifact["attempt_retry_results"][0]
+        for row in artifact["attempt_first_pass_results"]:
+            if row["attempt"] == target["attempt"] and row["id"] == target["id"]:
                 row["pass"] = True
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
         self.assertTrue(any("already passed the first pass" in item for item in findings))
@@ -206,7 +207,7 @@ class TriggerBookkeepingTests(unittest.TestCase):
 
     def test_retry_over_its_raised_limit_is_detected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
-        artifact["retry_results"][0]["duration_ms"] = 900000
+        artifact["attempt_retry_results"][0]["duration_ms"] = 900000
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
         self.assertTrue(any("trigger retry id" in item for item in findings))
 

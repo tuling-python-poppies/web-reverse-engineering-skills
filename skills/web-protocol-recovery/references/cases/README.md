@@ -3,7 +3,7 @@
 `registry.json` is the only selector. Read it first, select one `status=verified` entry, verify its manifest hash, then load the declared `case.json`. Each registry row also carries:
 
 - `verificationClass`: `freshly-verified` or `historical-user-attested` (must match the case manifest)
-- `selectableAs`: `proof` (freshly-verified current-target proof after offline vectors) or `template` (historical shape/process evidence only)
+- `selectableAs`: `proof` (freshly-verified offline artifact proof from current checked-in vectors/tests, not live-current target acceptance) or `template` (historical shape/process evidence only)
 
 If a row declares `match.requiredSignalGroups`, non-scope selection must match at least one observed signal from every disjoint group in addition to the minimum signal count. If multiple verified entries match the same exact scope or minimum signal set, stop and require a discriminator (runtime, algorithm, product subtype, or negative signal) instead of choosing by registry order. The manifest is the complete source of metadata and hash-binds every file in that case directory.
 

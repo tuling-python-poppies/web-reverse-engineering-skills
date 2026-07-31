@@ -141,6 +141,23 @@ def expect_invalid(validator: Draft202012Validator, value: dict, label: str) -> 
     return [f"{label}: expected invalid but passed"]
 
 
+def work_order_semantic_findings(value: dict, label: str) -> list[str]:
+    findings: list[str] = []
+    budget = ((value.get("authorization") or {}).get("requestBudget") or {})
+    total = budget.get("total")
+    remaining = budget.get("remaining")
+    if isinstance(total, int) and isinstance(remaining, int) and remaining > total:
+        findings.append(f"{label}: requestBudget.remaining cannot exceed total")
+    observed = budget.get("observedAutomatic") or {}
+    by_kind = observed.get("byKind") or {}
+    observed_total = observed.get("total")
+    if isinstance(observed_total, int) and isinstance(by_kind, dict):
+        kind_sum = sum(value for value in by_kind.values() if isinstance(value, int))
+        if observed_total != kind_sum:
+            findings.append(f"{label}: observedAutomatic.total must equal sum(byKind)")
+    return findings
+
+
 def doc_example_findings(work_order: Draft202012Validator) -> list[str]:
     text = WORK_ORDER_DOC.read_text(encoding="utf-8")
     start = text.find("```json")
@@ -151,7 +168,9 @@ def doc_example_findings(work_order: Draft202012Validator) -> list[str]:
         example = json.loads(text[start + 7 : end])
     except json.JSONDecodeError as error:
         return [f"provider-work-order.md example is not valid JSON: {error}"]
-    return expect_valid(work_order, example, "provider-work-order.md example")
+    findings = expect_valid(work_order, example, "provider-work-order.md example")
+    findings.extend(work_order_semantic_findings(example, "provider-work-order.md example"))
+    return findings
 
 
 def main() -> int:
@@ -162,6 +181,7 @@ def main() -> int:
     Draft202012Validator.check_schema(load_schema("case-registry.schema.json"))
 
     failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid offline work order"))
+    failures.extend(work_order_semantic_findings(VALID_WORK_ORDER, "valid offline work order"))
     failures.extend(doc_example_findings(work_order))
 
     missing_query_policy = copy.deepcopy(VALID_WORK_ORDER)
@@ -178,8 +198,9 @@ def main() -> int:
 
     remaining_gt_total = copy.deepcopy(VALID_WORK_ORDER)
     remaining_gt_total["authorization"]["requestBudget"] = {"total": 1, "remaining": 2}
-    # schema alone cannot enforce remaining<=total; fixture still validates shape
     failures.extend(expect_valid(work_order, remaining_gt_total, "budget shape still valid"))
+    if not work_order_semantic_findings(remaining_gt_total, "budget semantic guard"):
+        failures.append("budget semantic guard: expected remaining>total to fail")
 
     bad_hash = copy.deepcopy(VALID_WORK_ORDER)
     bad_hash["authorization"]["executionPolicy"] = {

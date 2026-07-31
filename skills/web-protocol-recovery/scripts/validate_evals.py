@@ -227,19 +227,70 @@ def _validate_trigger_arithmetic(artifact: dict, corpus: list) -> list[str]:
     first_pass = artifact.get("first_pass_results")
     retries = artifact.get("retry_results")
     retried_ids = artifact.get("retried_ids")
+    attempt_first_pass = artifact.get("attempt_first_pass_results")
+    attempt_retries = artifact.get("attempt_retry_results")
+    attempt_results = artifact.get("attempt_results")
+
+    runs_per_query = artifact.get("runs_per_query")
+    if isinstance(attempt_results, list) and isinstance(runs_per_query, int) and corpus:
+        expected_attempts = len(corpus) * runs_per_query
+        if len(attempt_results) != expected_attempts:
+            findings.append(
+                f"trigger artifact attempt_results must cover {expected_attempts} attempts"
+            )
+        attempt_passed = sum(1 for row in attempt_results if row.get("pass") is True)
+        if summary.get("attempts_final") != f"{attempt_passed}/{len(attempt_results)}":
+            findings.append(
+                f"trigger summary.attempts_final must equal {attempt_passed}/{len(attempt_results)}"
+            )
+        attempts_by_id: dict = {}
+        for row in attempt_results:
+            attempts_by_id.setdefault(row.get("id"), []).append(row)
+        for row in union:
+            group = attempts_by_id.get(row.get("id"), [])
+            if group and row.get("pass") is not all(item.get("pass") is True for item in group):
+                findings.append(
+                    f"trigger union result id {row.get('id')} does not match retained attempt grades"
+                )
+
+    if isinstance(attempt_first_pass, list) and isinstance(runs_per_query, int) and corpus:
+        expected_first_pass = len(corpus) * runs_per_query
+        if len(attempt_first_pass) != expected_first_pass:
+            findings.append(
+                f"trigger artifact attempt_first_pass_results must cover {expected_first_pass} attempts"
+            )
+
     if isinstance(retried_ids, list) and retried_ids:
         if not isinstance(first_pass, list) or not first_pass:
             findings.append("trigger artifact must retain first_pass_results when a retry ran")
-        if not isinstance(retries, list) or len(retries) != len(retried_ids):
+        if isinstance(attempt_retries, list) and attempt_retries:
+            retry_keys = {(row.get("attempt"), row.get("id")) for row in attempt_retries}
+            if len(retry_keys) != len(attempt_retries):
+                findings.append("trigger artifact attempt_retry_results must not duplicate attempt/id rows")
+        elif not isinstance(retries, list) or len(retries) != len(retried_ids):
             findings.append("trigger artifact retry_results must have one row per retried id")
-        elif isinstance(first_pass, list):
+        if isinstance(first_pass, list):
             first_by_id = {row.get("id"): row for row in first_pass}
             for retry_id in retried_ids:
                 original = first_by_id.get(retry_id)
                 if original is None:
                     findings.append(f"retried id {retry_id} has no first_pass_results row")
-                elif original.get("pass") is True:
+                elif not isinstance(attempt_retries, list) and original.get("pass") is True:
                     findings.append(f"retried id {retry_id} already passed the first pass")
+
+        if isinstance(attempt_retries, list) and attempt_retries:
+            first_by_attempt = {
+                (row.get("attempt"), row.get("id")): row for row in (attempt_first_pass or [])
+            }
+            for retry in attempt_retries:
+                key = (retry.get("attempt"), retry.get("id"))
+                original = first_by_attempt.get(key)
+                if original is None:
+                    findings.append(
+                        f"retried attempt {key!r} has no attempt_first_pass_results row"
+                    )
+                elif original.get("pass") is True:
+                    findings.append(f"retried attempt {key!r} already passed the first pass")
 
     if corpus and isinstance(union, list):
         by_index = {index + 1: item for index, item in enumerate(corpus)}
@@ -288,9 +339,11 @@ def _validate_trigger_bookkeeping(artifact: dict, standard: dict) -> list[str]:
                         f"timeout_accounting.{phase} lists ids but gives no explanation"
                     )
 
+    first_pass_rows = artifact.get("attempt_first_pass_results") or artifact.get("first_pass_results")
+    retry_rows = artifact.get("attempt_retry_results") or artifact.get("retry_results")
     phases = (
-        ("first_pass", artifact.get("first_pass_results"), artifact.get("timeout_seconds")),
-        ("retry", artifact.get("retry_results"), artifact.get("retry_timeout_seconds")),
+        ("first_pass", first_pass_rows, artifact.get("timeout_seconds")),
+        ("retry", retry_rows, artifact.get("retry_timeout_seconds")),
     )
     for phase, rows, limit in phases:
         if not isinstance(rows, list) or not isinstance(limit, (int, float)):

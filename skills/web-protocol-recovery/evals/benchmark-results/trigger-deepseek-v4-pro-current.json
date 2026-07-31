@@ -42,6 +42,7 @@
   "started_at": "2026-07-31T05:02:41.083074+00:00",
   "completed_at": "2026-07-31T05:33:56.466124+00:00",
   "retry_timeout_seconds": 600,
+  "retry_granularity": "failed-attempt",
   "retried_ids": [
     2,
     5,
@@ -1606,23 +1607,6 @@
   ],
   "retry_results": [
     {
-      "id": 2,
-      "query": "微信小程序接口加密，接口关键词是 /api/order",
-      "should_trigger": true,
-      "model_triggered": true,
-      "pass": true,
-      "failure_class": null,
-      "returncode": 0,
-      "duration_ms": 137971,
-      "error": null,
-      "attempts_passed": 2,
-      "attempts_total": 2,
-      "attempt_model_triggered": [
-        true,
-        true
-      ]
-    },
-    {
       "id": 14,
       "query": "已知 sign 入口，只需要可逆浏览器 hook 定位 writer 和 consumer",
       "should_trigger": true,
@@ -1684,23 +1668,6 @@
       "attempts_total": 1,
       "attempt_model_triggered": [
         true
-      ]
-    },
-    {
-      "id": 21,
-      "query": "帮我写 Camoufox 截图回归和页面点击测试，不涉及协议逆向",
-      "should_trigger": false,
-      "model_triggered": false,
-      "pass": true,
-      "failure_class": null,
-      "returncode": 0,
-      "duration_ms": 78968,
-      "error": null,
-      "attempts_passed": 2,
-      "attempts_total": 2,
-      "attempt_model_triggered": [
-        false,
-        false
       ]
     },
     {

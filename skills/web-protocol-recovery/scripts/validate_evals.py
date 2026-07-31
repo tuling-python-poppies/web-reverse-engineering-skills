@@ -87,7 +87,14 @@ def validate_skill_creator_evals() -> list[str]:
     if not isinstance(trigger, dict):
         findings.append("evals/evals.json must declare trigger_benchmark")
     else:
-        for field in ("prompt_file", "artifact", "status_ledger", "retry_policy", "standard_note"):
+        for field in (
+            "prompt_file",
+            "artifact",
+            "status_ledger",
+            "retry_granularity",
+            "retry_policy",
+            "standard_note",
+        ):
             if not isinstance(trigger.get(field), str) or not trigger.get(field):
                 findings.append(f"evals/evals.json trigger_benchmark.{field} is required")
         runs = trigger.get("runs_per_query")
@@ -100,6 +107,10 @@ def validate_skill_creator_evals() -> list[str]:
             findings.append("evals/evals.json trigger_benchmark.threshold must be 1.0")
         if trigger.get("single_model_required") is not True:
             findings.append("evals/evals.json trigger_benchmark.single_model_required must be true")
+        if trigger.get("retry_granularity") != "failed-attempt":
+            findings.append(
+                "evals/evals.json trigger_benchmark.retry_granularity must be failed-attempt"
+            )
         if trigger.get("prompt_file") != "evals/trigger-evals.json":
             findings.append("evals/evals.json trigger_benchmark.prompt_file must be the trigger corpus")
     return findings
@@ -223,13 +234,20 @@ def _validate_trigger_arithmetic(artifact: dict, corpus: list) -> list[str]:
         )
 
     # Retained-grade discipline: first pass and retry must stay separable, and a
-    # retry is only legitimate for a query that actually failed the first pass.
+    # retry is legitimate only for the exact n-run attempt that failed first pass.
     first_pass = artifact.get("first_pass_results")
     retries = artifact.get("retry_results")
     retried_ids = artifact.get("retried_ids")
+    retried_attempts = artifact.get("retried_attempts")
     attempt_first_pass = artifact.get("attempt_first_pass_results")
     attempt_retries = artifact.get("attempt_retry_results")
     attempt_results = artifact.get("attempt_results")
+    has_attempt_retries = isinstance(attempt_retries, list) and bool(attempt_retries)
+
+    if has_attempt_retries and (not isinstance(retried_ids, list) or not retried_ids):
+        findings.append(
+            "trigger artifact attempt_retry_results requires non-empty retried_ids"
+        )
 
     runs_per_query = artifact.get("runs_per_query")
     if isinstance(attempt_results, list) and isinstance(runs_per_query, int) and corpus:
@@ -263,12 +281,41 @@ def _validate_trigger_arithmetic(artifact: dict, corpus: list) -> list[str]:
     if isinstance(retried_ids, list) and retried_ids:
         if not isinstance(first_pass, list) or not first_pass:
             findings.append("trigger artifact must retain first_pass_results when a retry ran")
+        if len(set(retried_ids)) != len(retried_ids):
+            findings.append("trigger artifact retried_ids must contain unique query ids")
+        if not isinstance(retries, list) or len(retries) != len(retried_ids):
+            findings.append("trigger artifact retry_results must have one row per retried id")
+        else:
+            retry_result_ids = [row.get("id") for row in retries]
+            if len(set(retry_result_ids)) != len(retry_result_ids):
+                findings.append("trigger artifact retry_results must contain unique query ids")
+            if set(retry_result_ids) != set(retried_ids):
+                findings.append("trigger artifact retry_results must match retried_ids")
         if isinstance(attempt_retries, list) and attempt_retries:
             retry_keys = {(row.get("attempt"), row.get("id")) for row in attempt_retries}
             if len(retry_keys) != len(attempt_retries):
                 findings.append("trigger artifact attempt_retry_results must not duplicate attempt/id rows")
-        elif not isinstance(retries, list) or len(retries) != len(retried_ids):
-            findings.append("trigger artifact retry_results must have one row per retried id")
+            if not isinstance(retried_attempts, list):
+                findings.append("trigger artifact retried_attempts must be an array")
+            else:
+                declared_retry_keys = {
+                    (row.get("attempt"), row.get("id"))
+                    for row in retried_attempts
+                    if isinstance(row, dict)
+                }
+                if len(declared_retry_keys) != len(retried_attempts):
+                    findings.append(
+                        "trigger artifact retried_attempts must contain unique attempt/id rows"
+                    )
+                if declared_retry_keys != retry_keys:
+                    findings.append(
+                        "trigger artifact retried_attempts must match attempt_retry_results"
+                    )
+            actual_retry_ids = {row.get("id") for row in attempt_retries}
+            if not isinstance(retried_ids, list) or set(retried_ids) != actual_retry_ids:
+                findings.append(
+                    "trigger artifact retried_ids must match attempt_retry_results query ids"
+                )
         if isinstance(first_pass, list):
             first_by_id = {row.get("id"): row for row in first_pass}
             for retry_id in retried_ids:
@@ -317,6 +364,15 @@ def _validate_trigger_bookkeeping(artifact: dict, standard: dict) -> list[str]:
     timeout_accounting entry that says what really happened.
     """
     findings: list[str] = []
+    required_granularity = standard.get("retry_granularity")
+    actual_granularity = artifact.get("retry_granularity")
+    if required_granularity != "failed-attempt":
+        findings.append("trigger standard retry_granularity must be failed-attempt")
+    if actual_granularity != required_granularity:
+        findings.append(
+            "trigger artifact retry_granularity must match the declared standard "
+            f"({required_granularity!r})"
+        )
     accounting = artifact.get("timeout_accounting")
     explained: set = set()
     if accounting is not None:

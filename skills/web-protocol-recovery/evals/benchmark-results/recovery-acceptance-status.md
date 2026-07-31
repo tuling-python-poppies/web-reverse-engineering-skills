@@ -7,7 +7,7 @@ selection is not the same as protocol recovery success.
 
 | Surface | Status | Evidence |
 |---|---|---|
-| Trigger routing | Current n=3 artifact; see `trigger-deepseek-v4-pro-current.json` | 22 query aggregates, 66/66 final attempts after bounded retry |
+| Trigger routing | Current n=3 artifact; see `trigger-deepseek-v4-pro-current.json` | 22 query aggregates, 66/66 final attempts after at most one bounded retry per failed `(query_id, attempt)` |
 | Offline implementation cases | Current local proof only | `preflight.py --strict` runs the four checked case unit-test suites |
 | Historical cases | Template/process evidence only | 18 `historical-user-attested` case manifests require fresh target proof |
 | Live current-target recovery | Not claimed | No authorized live target, current cookies/tokens, request budget, or business success predicate is present in this repo |

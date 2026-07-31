@@ -155,8 +155,8 @@ class TriggerArithmeticTests(unittest.TestCase):
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
         self.assertTrue(any("query drifted from the corpus" in item for item in findings))
 
-    def test_retry_of_a_passing_query_is_rejected(self) -> None:
-        """A retry is only legitimate where the first pass actually failed."""
+    def test_retry_of_a_passing_attempt_is_rejected(self) -> None:
+        """A retry is legitimate only where that exact n-run attempt failed."""
         artifact = copy.deepcopy(self.artifact)
         target = artifact["attempt_retry_results"][0]
         for row in artifact["attempt_first_pass_results"]:
@@ -164,6 +164,34 @@ class TriggerArithmeticTests(unittest.TestCase):
                 row["pass"] = True
         findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
         self.assertTrue(any("already passed the first pass" in item for item in findings))
+
+    def test_duplicate_retry_for_one_attempt_is_rejected(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["attempt_retry_results"].append(
+            copy.deepcopy(artifact["attempt_retry_results"][0])
+        )
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("must not duplicate attempt/id" in item for item in findings))
+
+    def test_retried_attempt_declaration_must_match_rows(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["retried_attempts"] = artifact["retried_attempts"][:-1]
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("retried_attempts must match" in item for item in findings))
+
+    def test_attempt_retries_require_retried_ids(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["retried_ids"] = []
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("requires non-empty retried_ids" in item for item in findings))
+
+    def test_retry_query_aggregates_must_be_unique(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["retry_results"].append(copy.deepcopy(artifact["retry_results"][0]))
+        artifact["retried_ids"].append(artifact["retried_ids"][0])
+        findings = validate_evals._validate_trigger_arithmetic(artifact, self.corpus)
+        self.assertTrue(any("retried_ids must contain unique" in item for item in findings))
+        self.assertTrue(any("retry_results must contain unique" in item for item in findings))
 
     def test_dropped_first_pass_grades_are_rejected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
@@ -225,6 +253,12 @@ class TriggerBookkeepingTests(unittest.TestCase):
         findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
         self.assertFalse(any("statistical_caveat" in item for item in findings))
 
+    def test_retry_granularity_must_match_standard(self) -> None:
+        artifact = copy.deepcopy(self.artifact)
+        artifact["retry_granularity"] = "failed-query"
+        findings = validate_evals._validate_trigger_bookkeeping(artifact, self.standard)
+        self.assertTrue(any("retry_granularity must match" in item for item in findings))
+
     def test_every_provider_has_a_route_regression_case(self) -> None:
         """A provider nobody asserts a route for is a provider nobody tests."""
         registry = json.loads(validate_evals.REGISTRY_PATH.read_text(encoding="utf-8"))
@@ -239,6 +273,9 @@ class TriggerBookkeepingTests(unittest.TestCase):
         self.assertGreaterEqual(data["trigger_benchmark"]["runs_per_query"], 3)
         self.assertEqual(data["trigger_benchmark"]["threshold"], 1.0)
         self.assertIs(data["trigger_benchmark"]["single_model_required"], True)
+        self.assertEqual(
+            data["trigger_benchmark"]["retry_granularity"], "failed-attempt"
+        )
 
 
 if __name__ == "__main__":

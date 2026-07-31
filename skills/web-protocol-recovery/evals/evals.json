@@ -27,7 +27,8 @@
     "runs_per_query": 3,
     "timeout_seconds": 180,
     "single_model_required": true,
-    "retry_policy": "at most one bounded retry per failed query; a raised retry timeout must be recorded as retry_timeout_seconds, and first-pass and retry grades must be retained separately",
+    "retry_granularity": "failed-attempt",
+    "retry_policy": "at most one bounded retry per failed (query_id, attempt) pair; one query may have multiple retries only when multiple n-run attempts failed independently; a raised retry timeout must be recorded as retry_timeout_seconds, and first-pass and retry grades must be retained separately",
     "standard_note": "runs_per_query 3 is the acceptance standard: a single run cannot separate a real routing decision from wall-clock noise. A run below the standard may still be recorded, but the artifact must then carry statistical_caveat naming the shortfall."
   },
   "evals": [

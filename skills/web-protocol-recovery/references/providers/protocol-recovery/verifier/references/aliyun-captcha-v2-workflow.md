@@ -1,4 +1,8 @@
-# 阿里云 Captcha V2 协议恢复工作流
+# 阿里云 Captcha V2 协议参考
+
+> 状态：本文件是协议族与历史证据参考，不是当前目标的可运行实现。skill 不包含 `run_t001.py`、`verifier/aliyun_v2.py`、`vm_codec.js`、`t001_profile.json` 或更新器；文中这些名称仅指用户明确提供并授权的外部项目文件。
+>
+> 本文件中的 51job / FeiLin 观察、固定值、版本记录和在线结果均属于历史样本，不能作为当前目标验收、当前 cookie/profile 或 live replay 授权。当前案例以注册表和对应 `case.json` 的离线向量为准；最终 live egress 仍须走 `python-collector` work order。
 
 ## 适用信号
 
@@ -54,13 +58,13 @@ Python 3.9 特例：`curl_cffi 0.13.x` 不支持原生 `chrome146`，而
 
 | 分支 | 何时进入 | 核心输入 | 做什么 | 不做 |
 |------|----------|----------|--------|------|
-| **极速分支（固化定值）** | 用户说「走极速分支」等 | **本 Provider 已验证常量/公式** + 本目录动态 capture | 把定值写进目标 runner；capture 只补动态画像；跑 T001 | 默认去翻参考项目、从零重解已固化层、jsdom、拖滑块主路径 |
+| **离线候选分支** | 用户要求先复用已知协议事实 | 历史常量/公式 + 当前目标 capture | 形成待验证的窄 helper；不能据此声称目标 runner 或 T001 已可用 | 把历史定值直接当作当前 profile、cookie、runner 或验收结果 |
 | **完整分支（协议恢复）** | 用户说「走完整分支/从零」；或极速定值与 capture 冲突 | 网络/脚本证据 | 请求图、差分、算法换代 | 在定值仍有效时假装从零 |
 
 **原则（极速）：**
 固定不变、已 T001 验证过的层 → **写进 skill，直接用**。
-随浏览器/会话变化的层（133 画像、IP、UA、FeiLin 资源 URL、combat 时间）→ **本目录 capture 生成 profile**。
-参考项目 **不是** 极速前提；仅当 skill 未内嵌大体量 `vm_codec` 字节码、且用户给出可读路径时，才允许只读拷贝 `vm_codec.js` 等大文件。
+随浏览器/会话变化的层（133 画像、IP、UA、FeiLin 资源 URL、combat 时间）→ **当前目标 capture 生成动态状态**。
+外部参考项目不是前提。优先使用当前选中 case manifest 声明的资产；用户另给的历史项目只可按 read budget 读取，不能把旧实现直接复制进当前交付。
 
 用户提示词含下列**任一**时，**必须进入极速分支**，不得先开完整分析：
 
@@ -69,7 +73,7 @@ Python 3.9 特例：`curl_cffi 0.13.x` 不支持原生 `chrome146`，而
 极速实现
 极速固化
 fast path
-用 skill 定值实现
+用历史候选事实形成待验证的窄 helper
 ```
 
 用户提示词含下列**任一**时，进入完整分支：
@@ -81,7 +85,7 @@ fast path
 不要用固化定值
 ```
 
-未指定时：若任务是 51job/阿里 V2 且 skill 定值覆盖当前信号，默认极速；否则完整。
+未指定时：根据当前目标证据选择离线证明或完整恢复；历史样本不自动升级为极速实现路线。
 
 ## 极速分支（固化定值）
 
@@ -89,7 +93,7 @@ fast path
 
 **A. 固定定值（写入 skill，禁止每轮重解）**
 
-下列材料已在 51job / Captcha V2 / FeiLin 1.4.2 族上验证；极速时直接写入目标 `verifier/aliyun_v2.py`（或等价），并用**本目录一轮 capture** 做签名/解密回归，不要重新“找密钥”。
+下列材料来自历史的 51job / Captcha V2 / FeiLin 1.4.2 样本；只能作为候选假设，必须由当前目标的同轮 capture 和离线向量重新验证，不能直接写入不存在或未授权的目标实现。
 
 ```text
 # 主验证码 RPC（InitCaptchaV2 / VerifyCaptchaV2）
@@ -178,11 +182,11 @@ field21 = Base64(8 bytes)
 回归：对本目录 ≥3 个 session suffix 全命中 Log2/token 的 field21。
 ```
 
-**51job 目标常见定值（随站点，capture 复核 scene/host）：**
+**历史目标样式示例（不得视为当前端点或定值）：**
 
 ```text
 # 业务挑战页（用户 URL 优先）
-DEFAULT 可含 we.51job.com/api/job/search-pc?...
+DEFAULT 仅表示旧样本中可能出现的业务端点形态；当前 URL 必须来自当前目标证据。
 # Init/Verify host 模式
 Init:   https://{prefix}.captcha-pro-open.aliyuncs.com/
 Verify: https://{prefix}-verify.captcha-pro-open.aliyuncs.com/
@@ -194,7 +198,7 @@ Mode=embed, Language=cn
 # 需要: sceneId, traceid, token, userId, userUserId
 ```
 
-**B. 动态层（禁止当定值写死，必须本目录 capture）**
+**B. 动态层（禁止当定值写死，必须由当前目标 capture 生成）**
 
 ```text
 DeviceConfig.session_id / session AES key / ip / timestamp / feilinVersion 路径
@@ -207,26 +211,23 @@ UserCertifyId/traceid 当轮值
 
 ### 1. 触发后立即执行（禁止插队）
 
-1. **写目录硬锁。** 只写用户目标目录。任何参考路径只读；默认**不打开**参考项目，除非需要拷贝 skill 未内嵌的 `vm_codec` 大文件且用户给了路径。
-2. **落盘固定层到目标目录（用 skill 定值生成/覆写契约，不是去“研究”）：**
-   - `verifier/aliyun_v2.py`：RPC 签名、DeviceConfig AES、token、Log2/Log3、field21（classic 表 + feilin113）、`build_data`/`build_arg`（调本地 `data_builder`）
-   - `verifier/data_builder.js`：stdin JSON `{input,key}` → stream codec（key 默认 `3e627e1b4c63f913`）
-   - `verifier/vm_codec.js`：无 DOM stream VM（字节码大体量：优先目标目录已有 → 用户指定参考只读复制 → 否则硬停索取/完整分支提取）
-   - `run_t001.py`：challenge → Init → Log2 → 等待 → Log3 → data → Verify；TLS 用 `curl_cffi` 与 UA 一致
+1. **写目录硬锁。** 只写用户目标目录。任何外部参考路径只读；默认不打开历史项目，当前 case bundle 之外的材料必须先满足 read budget 和授权边界。
+2. **在授权目标目录中记录候选固定层（先证明，不把历史定值当成当前实现）：**
+   - 外部目标项目可能包含 RPC/helper/stream codec/profile/runner；这些文件不由本 skill 提供，必须先确认路径、授权和当前目标范围。
 3. **本目录同轮 capture（只采动态层）：**
    - 至少一轮人工或已有 T001：Init + Log2 + Log3 + Verify；或 Init + Log2 + token + Log3
    - 解析 `DeviceConfig.version`、133 字段、combat511/504、sceneId、region/verify host、UA
-4. **生成本地 `verifier/t001_profile.json`（动态 only）：**
+4. **生成当前目标的动态状态快照：**
    - `feilinVersion` / `userAgent` / `fullDeviceFields` / `combat511` / `combat504`
    - `field21`: version 含 `feilin113` → `{"algorithm":"feilin113"}`；否则 classic 的 sourceKey+xorMaskHex（来自 skill 表，**不要**重拟合除非回归失败）
-5. **固定向量（极速最低集，用 skill 定值 + 本目录 capture）：**
+5. **固定向量（离线最低集，用候选事实 + 当前目标 capture）：**
    - 主 RPC / 设备 RPC：用 MAIN_SECRET / DEVICE_SECRET 对 capture 重算 Signature 一致
    - DeviceConfig 解密字段数与 session key 长度
    - deviceToken decrypt/rebuild/checksum
    - field21：≥3 suffix 命中
    - data_builder 对固定 compressed+key 有稳定输出（若有历史 data 向量则比对）
 6. **验收：**
-   `python run_t001.py --timeout 60 --transport-attempts 4`
+   不在本 skill 内执行 runner；若需要 live replay，必须另行通过 `python-collector` work order 交付并验收。
    唯一成功：`T001 && VerifyResult true`；Log2/Log3 `200/true`。
 
 ### 2. 极速硬停（转完整或日更）
@@ -237,13 +238,13 @@ UserCertifyId/traceid 当轮值
 - stream 固定输入输出或运行时 key ≠ `3e627e1b4c63f913` 且旧 vm 输出变 → 完整分支更新 VM
 - token 非 133 字段或 envelope 变 → 完整分支
 - 仅 `F025` 且 version 与 profile 不一致 → **日更分支**（换画像，不重解定值层）
-- 缺少 `vm_codec.js` 且无来源可只读复制 → 向用户索取路径或转完整提取，不假装跑通
+- 缺少已确认的 stream codec 工件 → 停止并索取当前目标材料，或在批准的执行策略下重新提取；不得从旧项目复制后假装跑通
 
 ### 3. 极速 field21 顺序（禁止开局 AES/affine 漫搜）
 
 ```text
 DeviceConfig.version 含 feilin113
-  → 直接 algorithm=feilin113（skill 固化规则）
+  → 仅作为历史候选 `algorithm=feilin113`，须由当前样本确认
 else 试 skill 内 classic 106–112 表（固定向量 + 当前 suffix）
   → 写入 sourceKey + xorMaskHex
 else
@@ -257,14 +258,14 @@ else
 3. 禁止 jsdom/`Window`/`document`/`canvas` 补环境。
 4. 禁止以自动拖滑块为交付主路径。
 5. 禁止 `sg.xxx` 文件名变化就重提 VM。
-6. 禁止把他机/参考 `t001_profile.json` 当正式画像。
+6. 禁止把其他机器或历史项目的 profile 当作当前目标正式状态。
 7. 禁止在参考项目写 artifact 或跑 updater。
 
 ### 5. 极速完成标准
 
 ```text
-目标目录 runner 使用 skill 固化定值（可在源码中核对 AK/AES/stream/field21）
-t001_profile 来自本目录 capture 且 feilinVersion 对齐
+当前目标的窄 helper 只能使用已由当前证据确认的 AK/AES/stream/field21 候选
+动态状态来自当前目标 capture 且 FeiLin 版本对齐
 Log2 == 200 / true
 Log3 == 200 / true
 VerifyCode == T001 && VerifyResult == true
@@ -275,34 +276,33 @@ VerifyCode == T001 && VerifyResult == true
 ## 执行前硬门（完整分支与共用；极速以固化定值为先）
 
 1. **确认写入目录。** 用户给出目标复现目录时，所有新文件、profile、runner、artifact 和验证命令都必须落在目标目录。用户另给的历史项目或文档路径只读；不得在参考项目运行 updater、替换 profile、改测试或留下新的采集目录。
-2. **先搜同平台实现。** 在目标目录和用户授权的参考目录只读定位 `run_t001.py`、`verifier/aliyun_v2.py`、`verifier/vm_codec.js`、`verifier/data_builder.js`、`t001_profile.json`、`update_t001_profile.py`。已有纯算实现时，优先移植 runner/helper 契约，不重写 RPC/AES/token/Log2/Log3。
-3. **禁止补浏览器环境。** 一旦开始给 Node/JS VM 补 `Window`、`Element`、`Range`、`navigator`、`document`、`canvas`、`localStorage` 等环境，立即停止。这不是阿里 V2 交付路径；回到完整 profile、field21 和无 DOM `vm_codec`。
-4. **profile 不能跨项目直接复制。** 新目录复现必须用目标目录自己的 Init/Log2/Log3/Verify T001 capture 生成 `verifier/t001_profile.json`。参考项目 profile 只可用于理解字段结构，不能直接作为目标 profile。
-5. **最短验收命令链应在目标目录执行。** 若已具备 T001 capture 和纯算 helper，目标目录优先形成：`build:profile` -> 固定向量测试 -> `run_t001.py --timeout 60 --transport-attempts 4`，以 fresh `T001 / true` 为唯一成功条件。
+2. **先搜同平台实现。** 仅在用户明确提供并授权的当前目标或参考目录中只读定位 runner/helper/profile；这些文件不属于本 skill，不能因文档提及其名称就假设它们存在。
+3. **禁止无证据补浏览器环境。** 一旦开始给 Node/JS VM 广泛补 `Window`、`Element`、`Range`、`navigator`、`document`、`canvas`、`localStorage` 等环境，立即停止并回到当前目标的状态向量与已确认 helper 边界。
+4. **profile 不能跨项目直接复制。** 当前目标必须用自己的 Init/Log2/Log3/Verify capture 生成动态状态；历史 profile 只可用于理解字段结构，不能直接进入交付。
+5. **最短验收链由当前交付 Provider 定义。** 先通过固定向量和同轮状态证明 helper 边界；任何 live `T001 / true` 都必须在批准的 Python collector 中重新验证。
 
 ## 目标目录复现模式
 
-### 默认：skill 定值极速（推荐）
+### 默认：当前证据的离线证明
 
 用户说「走极速分支」或未指定但任务为阿里 V2 复现时：
 
 ```text
-skill 固化定值写入目标 verifier/run_t001
-  -> 本目录 capture 只采动态画像 / combat / host / scene
-  -> 生成目标 t001_profile.json
-  -> 定值回归 + run_t001.py
-  -> T001 / true
+历史候选定值仅进入受控的窄 helper 草稿
+  -> 当前目标 capture 只采动态状态 / combat / host / scene
+  -> 生成当前目标动态状态
+  -> 固定向量回归 + 语义检查
 ```
 
-### 可选：用户点名参考项目
+### 可选：用户提供受控参考材料
 
-仅当用户给出参考路径且需要大体量 `vm_codec.js` 或轨迹 fixture 时：
+仅当用户给出参考路径且当前阻塞点需要一个具体工件时：
 
 ```text
 参考只读
-  -> 只复制 skill 未内嵌的大文件（vm_codec.js、track fixture）
-  -> 密钥/field21/AES 仍以 skill 定值为准并做 capture 回归
-  -> 禁止复制参考 t001_profile 当正式画像
+  -> 只读检查一个与阻塞点直接相关的工件；不得复制历史实现到交付
+  -> 密钥/field21/AES 只能作为候选，并以当前 capture 回归
+  -> 禁止把历史 profile 当作当前目标正式状态
   -> 禁止在参考目录写文件
 ```
 
@@ -356,12 +356,12 @@ DeviceConfig.version
 
 若主流 `DeviceConfig.version == profile.feilinVersion`，画像仍是当前主流；此时偶发的 minority stale 不能触发覆盖。若主流版本不同，再把本地 profile 判为过期并进入更新。只有已有独立证据时才手工指定目标版本，不要为了追新强行选择少数 cohort。
 
-### 3. 项目内自动更新器优先
+### 3. 用户项目已有更新器时的审计边界
 
-先在当前项目搜索 `update_t001_profile.py` 或等价入口。已有更新器时，先审计它是否满足以下安全契约，再优先运行它；日常命令为：
+如果用户明确提供当前项目更新器，先审计它是否满足以下安全契约；本 skill 不提供更新器，也不在 skill 目录内运行外部脚本：
 
 ```powershell
-python .\update_t001_profile.py
+# 仅在用户明确授权的目标项目目录中执行其更新器。
 ```
 
 安全契约：
@@ -400,7 +400,7 @@ python scripts/aliyun_v2_profile_diff.py `
   --init current_init.json `
   --log2 current_log2.json `
   --token current_token.json `
-  --old-profile verifier/t001_profile.json
+  --old-profile <projectRoot>/profile.json
 ```
 
 脚本输出：
@@ -537,9 +537,9 @@ VerifyResult == true
 
 更新器负责已知算法家族内的画像与参数轮换，不是通用算法逆向器。field21 骨架断裂时停在更新器外做分析，把可跑实现写回项目后再纳入已知家族。灰度期间，仍只支持单 profile 的纯协议 runner 偶尔命中 minority cohort 时会按设计 stale；要同时支持多个 cohort，必须明确修改 runner 的版本到 profile 映射，不能靠更新器覆盖同一个文件解决。
 
-### 12. 2026-07-19 FeiLin109/110 灰度实证
+### 12. 历史实证（2026-07-19，非当前验收）
 
-已验证案例：
+历史样本摘要（不构成当前验收）：
 
 ```text
 预检             = FeiLin109 7/7
@@ -551,7 +551,7 @@ field21 mask     = 072e8290
 独立磁盘 runner  = T001 / true
 ```
 
-正式 profile 只在更新器在线验收后原子替换；当次画像更新未修改 `run_t001.py`。独立 runner 首轮曾命中 FeiLin110 而安全 stale，另有一轮遇到 TLS EOF；随后命中 FeiLin109 得到 T001。这三类结果必须分别归类为 rollout mismatch、传输错误和目标 cohort 成功。
+历史记录中，候选状态只在在线验收后替换；不同轮次分别出现 rollout mismatch、TLS EOF 和目标 cohort 成功。这三类结果只能用于说明分类方法，不能证明当前目标状态仍然有效。
 
 ### 13. TLS EOF 传输层处理
 
@@ -847,7 +847,7 @@ event_data = Base64(combat)
 
 ## 第十步：错误码分层
 
-以下结论来自已验证案例，应作为诊断优先级而不是全局文档定义：
+以下结论来自历史样本，应作为诊断候选而不是当前目标或全局文档定义：
 
 - `F025`：优先检查 DeviceConfig、session、token envelope、checksum、完整画像/增量一致性。
 - `F001`：结构通过后的风险拒绝；先确认 sidecar，再检查轨迹和时序。
@@ -892,7 +892,7 @@ challenge/Init
 
 ## 错误分支与反模式（必须避开）
 
-以下来自真实失败执行：目标被正确识别为阿里 V2，但执行路径偏离本参考的“FeiLin/sg 日更快速分支”，把**日更/画像更新**做成了**从零协议恢复**。以后遇到 51job / `InitCaptchaV2` / FeiLin 版本号上升（如 111→112）时，禁止再走该错误分支。
+以下来自历史失败记录：目标被正确识别为阿里 V2，但执行路径把画像更新误做成了从零协议恢复。它只说明应先定位变化层，不能替代当前目标证据或授权。
 
 ### 错误分支长什么样
 
@@ -901,14 +901,14 @@ challenge/Init
   从零拼 RPC / DeviceConfig / token / Log2 / Log3
   → 大量浏览器自动化拖滑块、CDP 重放轨迹
   → StaticPath/sg 文件名一变就重猜 data 算法（RC4/AES/手写 stream）
-  → 几小时后才发现旁边已有昨天 T001 的 run_t001 + vm_codec + update_t001_profile
+  → 几小时后才发现用户项目已有前一轮可用实现与状态材料
 
-正确分支（默认 = 极速固化或日更，不是从零、不是抄参考）:
+正确分支（默认 = 当前证据驱动，不是从零猜测、不是抄历史参考）:
   用户说「走极速分支」
-  → skill 定值落盘 + 本目录动态 profile + run_t001 → T001
-  昨日 T001 今日 F025 且项目内已有实现
+  → 候选事实 + 当前目标动态状态 + 当前交付实现 → fresh 语义验收
+   当前目标出现上一轮成功与本轮失败，且用户已提供实现
   → 先比 DeviceConfig.version 与 profile.feilinVersion
-  → 有更新器则审计后跑更新器；只整套换 FeiLin 画像 + field21
+  → 有用户提供的更新器则先审计；只在当前证据支持时更新动态状态与 field21
   → 固定输入核对 sg codec/key 是否真变
   → 纯协议 runner 验收 T001
   仅当极速定值冲突或用户要从零
@@ -917,11 +917,11 @@ challenge/Init
 
 ### 禁止事项
 
-1. **禁止在已有可跑通 V2 项目时从零重写协议。** 用户指出已有可跑通 V2 项目，或工作区/邻目录已有 `run_t001.py`、`verifier/aliyun_v2.py`、`verifier/vm_codec.js`、`update_t001_profile.py` 时，只读参考并复用其 runner/codec/更新器契约；新交付目录可以复制，但**不得修改用户指定的参考路径内文件**。先站在已通实现上做日更，不要重解 HMAC、DeviceConfig AES、token envelope。
-2. **禁止把 FeiLin 版本号上升当成“整条链失效”。** `DeviceConfig.version` / FeiLin112 与昨日 T001 并存时，默认是画像/field21/资源自证层更新，不是 RPC、Log 封装或 sg 算法全量重做。先走本文件“FeiLin/sg 日更快速分支”的分层顺序，最后才动轨迹。
-3. **禁止 `StaticPath` / `sg.xxx` 文件名轮换就重提 VM。** 多个 `sg.015`、`sg.003`、`sg.044` 可能共享同一 stream codec 与 key。先对旧 `vm_codec` / `data_builder` 做固定输入输出比较；只有输出或运行时 key 真变才更新 helper。已验证常见 stream key 仍为 `3e627e1b4c63f913` 时，不要先猜 RC4/AES-CBC 去解 `data`。
+1. **禁止在用户已提供可跑通 V2 项目时从零重写协议。** 先只读确认其 runner/helper/profile 契约，再决定当前目标需要适配还是重建；历史项目代码不得直接复制进交付，也不得修改用户指定的参考路径。
+2. **禁止把 FeiLin 版本号上升当成“整条链失效”。** `DeviceConfig.version` 与历史成功样本并存时，先判断画像/field21/资源自证层是否变化，不要直接重做 RPC、Log 封装或 sg 算法；当前目标仍需重新取证。
+3. **禁止 `StaticPath` / `sg.xxx` 文件名轮换就重提 VM。** 多个脚本路径可能共享同一 stream codec 与 key。先对当前已确认 helper 做固定输入输出比较；只有输出或运行时 key 真变才更新实现。
 4. **禁止用长时间滑块 UI 自动化替代协议日更。** 浏览器只用于取证、人工 T001 正样本、更新器采集。合成 PointerEvent、CDP 拖滑块、反复“帮用户拖到底”不是交付主路径；用户已提供人工 T001 或已有更新器时，应立刻回到 profile/field21/data codec 对齐。
-5. **禁止忽略 skill 核心规则第 8 条。** 动手重写前必须先搜同平台实现和已验证常量：`run_t001.py`、`update_t001_profile.py`、`vm_codec.js`、`RSA` 无关但 V2 侧是 `DEVICE_CONFIG_KEY`、`DEVICE_UPLOAD_KEY`、`3e627e1b4c63f913`、`field21` source/mask 家族。复用后仍须用当前 Init/Log2/Verify 服务端结果复核，不能盲信旧 profile 版本号。
+5. **禁止忽略 skill 核心规则第 8 条。** 动手重写前必须先搜用户授权的同平台实现、当前 case bundle 和候选事实；复用后仍须用当前 Init/Log2/Verify 结果复核，不能盲信历史 profile、key 或 field21 家族。
 6. **禁止只改 field21 或只抄单个新字段进旧画像。** 必须整套更新完整 Log2 133 字段、稀疏 token 拓扑、UA/能力位/FeiLin URL 与 `feilinVersion`；候选须先内存验收 Log2/Log3 `200/true` 且 Verify `T001/true`，再原子替换。
 7. **禁止把 `F017`/`F001`/`F025` 一上来归因轨迹。** 分层：`F025` 先查 session/画像/token 一致性；sidecar 缺失先查 Log2/Log3；`data`/arg 固定向量失败再动 codec；结构都通仍风险拒绝才调轨迹。错误分支里在 sidecar 与 data codec 未对齐前烧时间拖滑块，属于诊断顺序反了。
 8. **禁止用户只要验证层时把业务接口回放写进成功条件。** 成功证据停在 `T001 + VerifyResult=true`。
@@ -932,14 +932,14 @@ challenge/Init
 
 - 用户说“昨天还能 T001 / 版本到了 FeiLin11x / 更新进去”
 - 用户给出已成功项目路径或邻目录存在同类结构
-- 本地已有 `update_t001_profile.py` 或 `run_t001.py`
+- 用户明确提供当前项目实现或更新器
 
 自检清单：
 
 ```text
-[ ] 是否已只读定位同平台 run_t001 / aliyun_v2 / vm_codec / t001_profile / update_t001_profile
+[ ] 是否已只读定位用户授权的同平台 runner / helper / profile / updater 契约
 [ ] 是否已用多样本看 DeviceConfig.version 分布，而不是单次 Init 定案
-[ ] 是否优先审计并运行更新器，而不是手搓 runner
+[ ] 是否先审计用户提供的更新器，而不是假设 skill 内存在 runner
 [ ] 是否确认 sg codec 固定输入输出与 stream key 未变，才考虑重提 VM
 [ ] 浏览器是否仅用于取证/更新器采集，而不是交付依赖
 [ ] 是否整套 profile 验收 T001 后再替换，而不是只改 field21

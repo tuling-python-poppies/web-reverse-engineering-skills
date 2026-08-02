@@ -26,7 +26,6 @@ Read only the selected family reference after the work order names one matching 
 | Baidu Passport spin/rotate V2 / `passport.baidu.com/cap/init` / `/cap/style` / `/cap/img` / `/cap/log` / `spin-0` / `backstr` / `ext.p` / `en_conf` / `cv=submit` | `references/baidu-passport-spin-v2-workflow.md` |
 | ByteDance VerifyCenter / `/captcha/get` / `/captcha/verify` / `captchaBody` / `cyfreso` / BDMS+mssdk slider | `references/bytedance-verifycenter-workflow.md` |
 | Aliyun Captcha V2 / `InitCaptchaV2` / `VerifyCaptchaV2` / `DeviceConfig` / `Log2` / `Log3` / `T001` / FeiLin daily update | `references/aliyun-captcha-v2-workflow.md` |
-| Aliyun Captcha V3 / `InitCaptchaV3` / `VerifyCaptchaV3` / `PUZZLE` / `pe.xxx` / `run_v3_fast` / FeiLin daily update | `references/aliyun-captcha-v3-workflow.md` |
 | Geetest GT3 / `register-slide` / `gettype.php` / `fullpage.9.x` / `slide.7.x` / `ajax.php` | `references/geetest-gt3-workflow.md` |
 | Geetest GT4 / `/load` / `lot_number` / `pow_detail` / `payload` / `w` / `/verify` | `references/geetest-gt4-workflow.md` |
 | Geetest GT4 nine-grid / `risk_type=nine` / `captcha_type=nine` / `imgs` / `ques` / `nine_nums` | `references/geetest-gt4-nine-grid-workflow.md` |

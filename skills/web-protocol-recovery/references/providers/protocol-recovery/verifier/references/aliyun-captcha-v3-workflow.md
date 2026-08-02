@@ -233,7 +233,7 @@ VerifyResult == true
 
 现象：
 
-- 本地 profile 仍是 `feilin107...`
+- 历史目标状态仍记录 `feilin107...`
 - 在线 Init 已发 `1.4.2/feilin108.b0a219fc409ae510a9be611c1df1851904f862374a3c7f1b4e977da9d38fc2d3`
 - Log2/Log3 仍 200，但 Verify 固定 `F001`
 

@@ -60,7 +60,7 @@ Python 3.9 特例：`curl_cffi 0.13.x` 不支持原生 `chrome146`，而
 | **完整分支（协议恢复）** | 用户说「走完整分支/从零」；或极速定值与 capture 冲突 | 网络/脚本证据 | 请求图、差分、算法换代 | 在定值仍有效时假装从零 |
 
 **原则（极速）：**
-固定不变、已 T001 验证过的层 → **写进 skill，直接用**。
+固定协议层 → 以本参考中的历史候选为起点；只有经当前目标同轮 capture、离线向量和语义验收后，才复用到授权目标实现。**不得运行时修改已安装 skill，也不得把历史 T001 当作当前验收**。
 随浏览器/会话变化的层（133 画像、IP、UA、FeiLin 资源 URL、combat 时间）→ **当前目标 capture 生成动态状态**。
 外部参考项目不是前提。优先使用当前选中 case manifest 声明的资产；用户另给的历史项目只可按 read budget 读取，不能把旧实现直接复制进当前交付。
 
@@ -89,19 +89,19 @@ fast path
 
 ### 0. 分层：什么算“固定定值”，什么必须现采
 
-**A. 固定定值（写入 skill，禁止每轮重解）**
+**A. 历史固定候选（当前目标复验后再复用）**
 
-下列材料来自历史的 51job / Captcha V2 / FeiLin 1.4.2 样本；只能作为候选假设，必须由当前目标的同轮 capture 和离线向量重新验证，不能直接写入不存在或未授权的目标实现。
+下列材料来自历史的 51job / Captcha V2 / FeiLin 1.4.2 样本；协议结构与非凭据算法常量只能作为候选假设，必须由当前目标的同轮 capture 和离线向量重新验证，不能直接写入不存在或未授权的目标实现。RPC AK/签名 secret 是当前目标输入，不是协议族固定常量；只从用户授权的同轮请求或脚本提取并按最小暴露处理，不在 skill、case 或日志中持久化。
 
 ```text
 # 主验证码 RPC（InitCaptchaV2 / VerifyCaptchaV2）
-MAIN_AK     = REDACTED_ALIYUN_AK
-MAIN_SECRET = REDACTED_ALIYUN_SK
+MAIN_AK     = <CURRENT_TARGET_MAIN_AK>
+MAIN_SECRET = <CURRENT_TARGET_MAIN_SIGNING_SECRET>
 MAIN_VER    = 2023-03-05
 
 # 设备侧 RPC（Log2 / Log3）
-DEVICE_AK     = REDACTED_ALIYUN_AK
-DEVICE_SECRET = REDACTED_ALIYUN_SK
+DEVICE_AK     = <CURRENT_TARGET_DEVICE_AK>
+DEVICE_SECRET = <CURRENT_TARGET_DEVICE_SIGNING_SECRET>
 DEVICE_VER    = 2020-10-15
 DEVICE_HOST   = https://device.captcha-open.aliyuncs.com/
 
@@ -217,9 +217,9 @@ UserCertifyId/traceid 当轮值
    - 解析 `DeviceConfig.version`、133 字段、combat511/504、sceneId、region/verify host、UA
 4. **生成当前目标的动态状态快照：**
    - `feilinVersion` / `userAgent` / `fullDeviceFields` / `combat511` / `combat504`
-   - `field21`: version 含 `feilin113` → `{"algorithm":"feilin113"}`；否则 classic 的 sourceKey+xorMaskHex（来自 skill 表，**不要**重拟合除非回归失败）
+   - `field21`: version 含 `feilin113` → `{"algorithm":"feilin113"}`；否则 classic 的 sourceKey+xorMaskHex（来自本参考候选表，**不要**重拟合除非回归失败）
 5. **固定向量（离线最低集，用候选事实 + 当前目标 capture）：**
-   - 主 RPC / 设备 RPC：用 MAIN_SECRET / DEVICE_SECRET 对 capture 重算 Signature 一致
+   - 主 RPC / 设备 RPC：用当前目标同轮授权材料提取的 MAIN_SECRET / DEVICE_SECRET 在内存中对 capture 重算 Signature 一致；不得从本参考取历史字面量
    - DeviceConfig 解密字段数与 session key 长度
    - deviceToken decrypt/rebuild/checksum
    - field21：≥3 suffix 命中
@@ -533,7 +533,7 @@ VerifyResult == true
 - 动态 sg VM 固定输入输出或运行时 key 真正变化。
 - 候选在目标 cohort 上不能同时得到 Log2/Log3 `200 / true` 和 Verify `T001 / true`。
 
-更新器负责已知算法家族内的画像与参数轮换，不是通用算法逆向器。field21 骨架断裂时停在更新器外做分析，把可跑实现写回项目后再纳入已知家族。灰度期间，仍只支持单 profile 的纯协议 runner 偶尔命中 minority cohort 时会按设计 stale；要同时支持多个 cohort，必须明确修改 runner 的版本到 profile 映射，不能靠更新器覆盖同一个文件解决。
+更新器负责已知算法家族内的画像与参数轮换，不是通用算法逆向器。field21 骨架断裂时停在更新器外做分析，把可跑实现写回用户授权的目标项目后再纳入已知家族。灰度期间，若当前目标交付实现明确只支持单一 FeiLin 状态，命中 minority cohort 时会按设计 stale；要同时支持多个 cohort，必须在该目标实现中增加版本到状态的映射，不能让更新器覆盖同一状态文件。这里描述的是条件性架构约束，不代表 skill 内置 runner、profile 或更新器。
 
 ### 12. 历史实证（2026-07-19，非当前验收）
 

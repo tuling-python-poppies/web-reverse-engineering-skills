@@ -240,9 +240,29 @@ class AliyunV2ReferenceContractTests(unittest.TestCase):
             "本目录同轮 capture",
             "profile.feilinVersion",
             "纯协议 runner 验收 T001",
+            "写进 skill，直接用",
+            "写入 skill，禁止每轮重解",
+            "单 profile 的纯协议 runner",
         ):
             with self.subTest(obsolete=obsolete):
                 self.assertNotIn(obsolete, text)
+
+    def test_rpc_credentials_are_current_target_inputs(self) -> None:
+        text = self.REFERENCE.read_text(encoding="utf-8")
+        for token in (
+            "RPC AK/签名 secret 是当前目标输入，不是协议族固定常量",
+            "不在 skill、case 或日志中持久化",
+            "MAIN_AK     = <CURRENT_TARGET_MAIN_AK>",
+            "MAIN_SECRET = <CURRENT_TARGET_MAIN_SIGNING_SECRET>",
+            "DEVICE_AK     = <CURRENT_TARGET_DEVICE_AK>",
+            "DEVICE_SECRET = <CURRENT_TARGET_DEVICE_SIGNING_SECRET>",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, text)
+        self.assertNotRegex(
+            text,
+            r"(?m)^(?:MAIN|DEVICE)_(?:AK|SECRET)\s*=\s*[A-Za-z0-9]",
+        )
 
 
 class AliyunV3ReferenceContractTests(unittest.TestCase):
@@ -306,6 +326,11 @@ class AliyunV3ReferenceContractTests(unittest.TestCase):
         ):
             with self.subTest(token=token):
                 self.assertIn(token, text)
+
+    def test_historical_sample_uses_target_state_language(self) -> None:
+        text = self.REFERENCE.read_text(encoding="utf-8")
+        self.assertIn("历史目标状态仍记录 `feilin107...`", text)
+        self.assertNotIn("本地 profile 仍是 `feilin107...`", text)
 
 
 class CaseArchiveContractTests(unittest.TestCase):

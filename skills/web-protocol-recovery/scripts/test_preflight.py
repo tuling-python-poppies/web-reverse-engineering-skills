@@ -1,3 +1,4 @@
+import base64
 import importlib.util
 import io
 import tempfile
@@ -208,6 +209,69 @@ class ProviderGuardContractTests(unittest.TestCase):
             "    return live_get(session, 'https://example.com')\n"
         )
         self.assertEqual([], preflight.bare_session_get_outside_live_get(text))
+
+
+class AliyunV3ReferenceContractTests(unittest.TestCase):
+    REFERENCE = (
+        preflight.SKILL_ROOT
+        / "references"
+        / "providers"
+        / "protocol-recovery"
+        / "verifier"
+        / "references"
+        / "aliyun-captcha-v3-workflow.md"
+    )
+
+    @staticmethod
+    def build_field21(suffix: str, source_key: str, xor_mask: bytes) -> str:
+        if len(suffix) != 8 or len(source_key) != 8 or len(xor_mask) != 8:
+            raise ValueError("field21 inputs must all be 8 bytes or characters")
+        mixed = bytes(
+            32 + ((ord(source) - 32 + ord(local) - 32) % 95)
+            for source, local in zip(source_key, suffix)
+        )
+        return base64.b64encode(
+            bytes(value ^ mask for value, mask in zip(mixed, xor_mask))
+        ).decode("ascii")
+
+    def test_documented_field21_vectors(self) -> None:
+        vectors = (
+            ("983c7551", "68fded68", bytes.fromhex("3331663739646463"), "fGEff0UdLyo="),
+            ("e7f61587", "cccccccc", bytes(8), "SXpKeXR4e3o="),
+            ("2f894218", "cccccccc", bytes(8), "dUp7fHd1dHs="),
+            ("58c88084", "========", bytes.fromhex("3037326538323930"), "YmITMG1/bGE="),
+            ("554f0616", "========", bytes.fromhex("3037326538323930"), "YmVjQXVhd2M="),
+        )
+        for suffix, source_key, xor_mask, expected in vectors:
+            with self.subTest(suffix=suffix, source_key=source_key):
+                self.assertEqual(
+                    expected,
+                    self.build_field21(suffix, source_key, xor_mask),
+                )
+
+    def test_reference_binds_mask_encodings_and_vectors(self) -> None:
+        text = self.REFERENCE.read_text(encoding="utf-8")
+        for token in (
+            "xorMaskHex  = 3331663739646463",
+            "xorMaskHex  = 0000000000000000",
+            "xorMaskHex  = 3037326538323930",
+            "983c7551 -> fGEff0UdLyo=",
+            "e7f61587 -> SXpKeXR4e3o=",
+            "58c88084 -> YmITMG1/bGE=",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, text)
+
+    def test_reference_documents_log2_envelope_layers(self) -> None:
+        text = self.REFERENCE.read_text(encoding="utf-8")
+        for token in (
+            'event_data = "#".join(outer_fields[-2:])',
+            'event_type, record_b64 = event_data.split("#", 1)',
+            'assert event_type == "501"',
+            "record_fields = Base64Decode(record_b64).decode().split(\"#\")",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, text)
 
 
 class CaseArchiveContractTests(unittest.TestCase):

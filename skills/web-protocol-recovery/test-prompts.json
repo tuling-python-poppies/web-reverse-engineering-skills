@@ -285,5 +285,26 @@
     "expected": "shape:evidence; Reese84/Imperva wording alone selects neither route:reese84 nor Camoufox; fresh URL starts Chromium after gates; require Reese84-native and independent evidence before owner route",
     "type": "should-trigger",
     "confirmation_required": true
+  },
+  {
+    "id": 42,
+    "prompt": "阿里云 Captcha V3 抓包里有 InitCaptchaV3、VerifyCaptchaV3、PUZZLE 和 pe.032；昨天 T001，今天 F001。先判断从 FeiLin 还是 pe 层排查，不要上线或写文件",
+    "expected": "shape:evidence; route:verifier; read only aliyun-captcha-v3 workflow; distinguish FeiLin cohort/profile drift from pe arg/data rotation; do not assume a runner, local page, updater, or target profile filename; no live replay or writes",
+    "type": "should-trigger",
+    "confirmation_required": false
+  },
+  {
+    "id": 43,
+    "prompt": "只看到 DeviceConfig、Log2、Log3、FeiLin 更新和 T001/F001，不知道是 InitCaptchaV2 还是 V3，也没有 sg/pe StaticPath；现在应该读哪份阿里云参考",
+    "expected": "shape:evidence; route:verifier; shared FeiLin signals do not distinguish V2/V3; ask for InitCaptchaV2/V3, VerifyCaptchaV2/V3, or sg.xxx/pe.xxx; do not read both family references and do not select by table order",
+    "type": "should-trigger",
+    "confirmation_required": false
+  },
+  {
+    "id": 44,
+    "prompt": "普通阿里云 RPC 接口的 Signature 算错了，页面还有 acw_sc__v2 Cookie；直接按 Captcha V3 的 FeiLin、Log2、Log3 流程修复",
+    "expected": "protocol task but not verifier-owned; ordinary Aliyun RPC signing and acw_sc__v2 without captcha evidence must not load Aliyun Captcha V2/V3 references; use the smallest evidence route for the actual signer or cookie challenge",
+    "type": "anti-pattern",
+    "confirmation_required": false
   }
 ]

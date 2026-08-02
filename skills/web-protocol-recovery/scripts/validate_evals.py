@@ -19,11 +19,29 @@ TEST_PROMPTS_PATH = SKILL_ROOT / "test-prompts.json"
 REGISTRY_PATH = SKILL_ROOT / "references" / "providers" / "registry.json"
 SCHEMA_VERSION = "web-protocol-recovery-route-regression"
 REQUIRED_CASE_IDS = {
+    "aliyun-feilin-generation-ambiguous",
+    "aliyun-rpc-not-verifier",
+    "aliyun-v3-verifier-family",
     "douyin-abogus-native-profile",
     "jd-h5st-pure-python-case",
     "node-env-patch-strategy",
     "gt4-verifier-owner",
     "proved-protocol-python-delivery",
+}
+REQUIRED_TEST_PROMPT_IDS = {42, 43, 44}
+REQUIRED_CASE_EXPECTATIONS = {
+    "aliyun-feilin-generation-ambiguous": {
+        "route": "verifier",
+        "familyDecision": "clarify-before-reference-read",
+    },
+    "aliyun-rpc-not-verifier": {
+        "route": "evidence-reuse",
+        "notProtocolOwner": "verifier",
+    },
+    "aliyun-v3-verifier-family": {
+        "route": "verifier",
+        "familyReference": "aliyun-captcha-v3-workflow.md",
+    },
 }
 OBSOLETE_ROUTES = {"env-patch", "douyin-abogus-native"}
 PROMPT_TYPES = {"should-trigger", "near-miss", "anti-pattern"}
@@ -796,6 +814,12 @@ def validate_test_prompts() -> list[str]:
         findings.append("test-prompts.json missing type coverage: " + ", ".join(missing_types))
     if confirmation_count == 0:
         findings.append("test-prompts.json must mark tool/write/live prompts confirmation_required")
+    missing_ids = sorted(REQUIRED_TEST_PROMPT_IDS - seen_ids)
+    if missing_ids:
+        findings.append(
+            "test-prompts.json missing required Aliyun V3 prompt ids: "
+            + ", ".join(str(item_id) for item_id in missing_ids)
+        )
     return findings
 
 
@@ -831,6 +855,11 @@ def main() -> int:
         route = expect.get("route")
         if route not in valid_routes:
             findings.append(f"{case_id}: invalid expected route {route!r}")
+        for field, required_value in REQUIRED_CASE_EXPECTATIONS.get(case_id, {}).items():
+            if expect.get(field) != required_value:
+                findings.append(
+                    f"{case_id}: expect.{field} must be {required_value!r}"
+                )
         if route in OBSOLETE_ROUTES:
             findings.append(f"{case_id}: obsolete route {route!r}")
         if expect.get("strategy") == "env-patch" and route != "python-node":

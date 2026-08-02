@@ -141,6 +141,34 @@
         "shape": "evidence",
         "route": "evidence-reuse"
       }
+    },
+    {
+      "id": "aliyun-v3-verifier-family",
+      "prompt": "An Aliyun captcha round contains InitCaptchaV3, VerifyCaptchaV3, CaptchaType PUZZLE, and a 3.28.0 pe.032 StaticPath; yesterday it returned T001 and today it returns F001. Classify the family before any live replay.",
+      "expect": {
+        "shape": "evidence",
+        "route": "verifier",
+        "gateFamily": "verifier",
+        "familyReference": "aliyun-captcha-v3-workflow.md"
+      }
+    },
+    {
+      "id": "aliyun-feilin-generation-ambiguous",
+      "prompt": "The capture only shows DeviceConfig, Log2, Log3, FeiLin state, and T001/F001; InitCaptcha and the sg/pe StaticPath are missing. Choose the Aliyun captcha generation.",
+      "expect": {
+        "shape": "evidence",
+        "route": "verifier",
+        "familyDecision": "clarify-before-reference-read"
+      }
+    },
+    {
+      "id": "aliyun-rpc-not-verifier",
+      "prompt": "A supplied ordinary Aliyun RPC request has a bad Signature and an acw_sc__v2 cookie, but no captcha Init, Verify, image, or verifier response. Recover the request evidence without forcing Captcha V3.",
+      "expect": {
+        "shape": "evidence",
+        "route": "evidence-reuse",
+        "notProtocolOwner": "verifier"
+      }
     }
   ]
 }

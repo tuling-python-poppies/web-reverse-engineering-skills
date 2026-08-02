@@ -6,14 +6,12 @@
 
 ## 适用信号
 
-看到以下任一组信号时使用本参考：
+至少看到一个 V3 代际信号时才使用本参考：
 
-- `InitCaptchaV3`、`VerifyCaptchaV3`
-- `5xyk05.captcha-open.aliyuncs.com` / `*-verify.captcha-open.aliyuncs.com`
-- `CaptchaType == "PUZZLE"`
-- `StaticPath` 形如 `3.28.0/pe.015.xxx` / `3.28.0/pe.032.xxx`
-- FeiLin `DeviceConfig`、`deviceToken`、`Log2`、`Log3`
-- 最终码 `T001`、`F001`、`F025`
+- `InitCaptchaV3`、`VerifyCaptchaV3`（可出现在 `5xyk05.captcha-open.aliyuncs.com` / `*-verify.captcha-open.aliyuncs.com`）
+- 同一阿里云 Init 响应同时出现 `CaptchaType == "PUZZLE"` 和 `StaticPath` `3.28.0/pe.015.xxx` / `3.28.0/pe.032.xxx`
+
+FeiLin `DeviceConfig`、`deviceToken`、`Log2`、`Log3`、`T001/F001/F025` 是 V2/V3 共享信号，只能先选 `route: verifier`，不能单独决定读取哪一代参考。缺少代际信号时先索要 Init/Verify action 或 `sg.xxx/pe.xxx`，不要同时预读 V2/V3。
 
 与 V2 的关键区别：
 
@@ -70,8 +68,9 @@ DeviceConfig.version          # FeiLin 版本，日更最常见
   -> 轨迹 / 时钟
 ```
 
-若 `DeviceConfig.version != profile.feilinVersion`，立即把本地 profile 判为过期。
-不要继续发送混合版本 Verify 来调轨迹。
+不要用单次 Init 立即判定本地状态过期。FeiLin 可能灰度下发相邻版本；在已批准的请求预算内，默认收集 7 个成功 Init 的版本样本，按出现次数选择主流 cohort，计数相同时选较新的 FeiLin 代数，并保存版本分布。预算不足且没有更强的当前目标证据时 fail closed，不能用少数样本覆盖状态。只有主流 `DeviceConfig.version` 与当前目标保存的 FeiLin 版本不同时，才进入画像更新。
+
+版本未判定前，不要继续发送混合版本 Verify 来调轨迹。
 
 ### 3. 已验证的 FeiLin field21 家族
 
@@ -83,43 +82,57 @@ field21  = Base64(mixed XOR mask)
 session_suffix = session_id[-8:]   # 8 位小写 hex
 ```
 
+`sourceKey` 是 8 个 ASCII 字节。非零 mask 也按 8 个 ASCII 字节参与 XOR；`xorMaskHex` 保存这 8 个字节的十六进制表示。零 mask 是 8 个原始 `0x00` 字节。不要把 8 字符的 mask 文本直接当 4 字节 hex 解码。
+
 已验证 classic 参数（示例）：
 
 ```text
 FeiLin106:
-  source = 68fded68
-  mask   = 31f79ddc
+  sourceKey   = 68fded68
+  maskAscii   = 31f79ddc
+  xorMaskHex  = 3331663739646463
 
 FeiLin107:
-  source = cccccccc
-  mask   = 0000000000000000   # 8 个零字节，等价于只 Base64(mixed)
+  sourceKey   = cccccccc
+  maskBytes   = 00 00 00 00 00 00 00 00
+  xorMaskHex  = 0000000000000000
 
 FeiLin108:
-  source = ========
-  mask   = 072e8290           # hex: 3037326538323930
+  sourceKey   = ========
+  maskAscii   = 072e8290
+  xorMaskHex  = 3037326538323930
 ```
 
-FeiLin108 固定向量：
+固定向量：
 
 ```text
+FeiLin106:
+983c7551 -> fGEff0UdLyo=
+
+FeiLin107:
+e7f61587 -> SXpKeXR4e3o=
+2f894218 -> dUp7fHd1dHs=
+
+FeiLin108:
 58c88084 -> YmITMG1/bGE=
 554f0616 -> YmVjQXVhd2M=
 ```
 
 恢复方法（不要只靠一个样本猜常量）：
 
-1. 连续抓至少 2～5 个当前版本 session 的 field21。
-2. 先试 classic：对每个字节位枚举可打印 source，要求 mask 在多样本间恒定。
-3. 先命中已知家族，再通用 classic 拟合。
-4. classic 穷举无解 = 算法换代：停更新器硬拟合；profile 可写 `field21.algorithm`，实现落项目 `verifier`。
-5. 新参数/算法必须同时用于 Log2 完整画像和 Verify 稀疏 token。
+1. 从已确认的同一主流 cohort 连续采集样本；2 个只是起点，不设“最多 5 个”的停止条件。
+2. 先试 classic：逐字节枚举可打印 source，要求 mask 在多样本间恒定，且 8 个位置都只剩唯一候选。
+3. 把至少一个未参与拟合的新 session 留作 holdout；holdout 不命中就继续采样，不写回状态。
+4. 先命中已知家族，再通用 classic 拟合；十六进制 suffix 覆盖不足导致多个等价候选时继续采样。
+5. classic 穷举无解或 holdout 失败 = 算法换代：停止硬拟合；当前目标可保存 `field21.algorithm`，实现落在其 verifier 模块。
+6. 新参数/算法必须同时用于 Log2 完整画像和 Verify 稀疏 token；获批 live verify 时以在线 `T001 + VerifyResult=true` 收口，否则停在离线 holdout 并明确未做在线验收。
 
 ### 4. profile 必须整套更新
 
-禁止只替换 `field21` 或 FeiLin URL。正确最小更新集：
+禁止只替换 `field21` 或 FeiLin URL。下面是概念字段名，必须映射到当前目标自己的状态 schema，不能假设存在同名 profile 文件：
 
 ```text
-feilinVersion
+storedFeilinVersion
 field21.sourceKey / field21.xorMaskHex   # classic
   或 field21.algorithm                   # 非 classic
 fullDeviceFields   # 133，来自当前浏览器 Log2 501
@@ -146,11 +159,11 @@ userAgent          # 与请求头 USER_AGENT / sec-ch-ua 一致
 
 脚本行为：
 
-1. InitCaptchaV3 读取在线 `DeviceConfig.version`。
-2. 与当前目标自己的动态状态版本比较。
-3. 版本一致：不抓包、不改文件。
-4. 版本不一致时，在批准的浏览器取证流程中监听页面网络拿到 Init + Log2；不依赖历史本机页面或系统代理。
-5. 解密 Log2 完整 133 字段，多样本恢复 field21。
+1. InitCaptchaV3 收集在线 `DeviceConfig.version` 分布，按本节的主流 cohort 规则判定目标版本。
+2. 与当前目标保存的 FeiLin 状态版本比较。
+3. 主流版本一致：不抓包、不改文件；少数灰度版本不能触发覆盖。
+4. 主流版本不一致时，在批准的浏览器取证流程中监听页面网络拿到同 cohort 的 Init + Log2；不依赖历史本机页面或系统代理。
+5. 解密 Log2 完整 133 字段，持续采样到 field21 唯一解并通过独立 holdout。
 6. 只在用户授权的当前目标目录写回动态状态，并同步请求 UA / sec-ch-ua。
 7. 备份和证据材料遵守当前 projectRoot 与 artifactPolicy。
 
@@ -166,28 +179,33 @@ userAgent          # 与请求头 USER_AGENT / sec-ch-ua 一致
 解密 Log2：
 
 ```text
-outer = AES_CBC_decrypt(Data, upload_key=a549a55c60a39aa0, iv=0123456789ABCDEF)
-# outer: session_prefix#W#...#GatherCost#501#Base64(record)
-record = Base64Decode(event)
+outer = AES_CBC_decrypt_base64(Data, key=a549a55c60a39aa0, iv=0123456789ABCDEF)
+outer_fields = outer.split("#")
+# outer: session_prefix#W#...#GatherCost#event_data
+event_data = "#".join(outer_fields[-2:])
+event_type, record_b64 = event_data.split("#", 1)
+assert event_type == "501"
+record_fields = Base64Decode(record_b64).decode().split("#")
 # record: session_id#AES(payload)#...
-full_133 = AES_CBC_decrypt(record[1], DeviceConfig.session_key).split("#")
+payload_ciphertext = record_fields[1]
+full_133 = AES_CBC_decrypt(payload_ciphertext, DeviceConfig.session_key).split("#")
 ```
 
 ### 7. pe / arg / data 不要和 FeiLin 混为一谈
 
 `StaticPath` 从 `pe.015` 轮到 `pe.032` 不等于 FeiLin 画像过期。
 
-- FeiLin 日更：动 `t001_profile.json` + field21。
+- FeiLin 日更：更新当前目标自己的完整 FeiLin 状态与 field21，不假设文件名。
 - pe 轮换：动 arg key 表 / data stream codec。
 - 历史实现曾支持 `3.28.0` 多 pe 的 arg key 映射；当前目标应先看 FeiLin 版本和同轮证据，不要直接重写 pe VM。
 
-data 侧已验证 stream key 可长期稳定为：
+历史样本中 data stream key 曾跨多个版本保持为：
 
 ```text
 3e627e1b4c63f913
 ```
 
-路径变了仍应做固定输入输出回归；只有 VM 输出或 key 真变才更新 helper。
+它不是协议不变量。路径变了仍应做固定输入输出回归；只有当前 bundle 的 VM 输出或运行时 key 真变才更新 helper。
 
 ### 8. 错误码分层（V3 实战）
 
@@ -202,8 +220,8 @@ Log2/Log3 返回 `Code=200` 只能说明 sidecar 接收成功，不能当作 Ver
 必须同时满足：
 
 ```text
-当前 DeviceConfig.version == 本地 profile.feilinVersion
-field21 多样本向量命中
+主流 DeviceConfig.version == 当前目标保存的 FeiLin 版本
+field21 唯一解 + 独立 holdout 命中
 Log2 == 200 / true
 Log3 == 200 / true
 VerifyCode == T001
@@ -300,24 +318,24 @@ a549a55c60a39aa0
 - V3 缺口滑块存在非线性 pointer→puzzle 映射，不要直接把自然缺口 x 当 drag。
 - 历史实现使用过压缩前置历史时钟；当前目标必须从同轮证据确认时钟模型。
 - 声明耗时、真实 sleep、Log3/Verify 发送时刻必须一致。
-- sparse token 的 field43 需要 `93`（及相邻 `92/94`）供时钟 rebase；缺失会在 `prepare_track` 处直接异常。
+- 历史实现中，sparse token 的 field43 时钟 rebase 依赖 `92/93/94`；当前目标若采用同一模型，必须在自己的轨迹准备阶段显式校验这些输入，不能假设任何历史函数名或调用层级仍存在。
 
 ## 固定向量要求
 
 至少建立：
 
-- field21：106 / 107 / 108 各至少一组
-- arg 固定输入输出（或 pe key 映射回归）
-- data stream 固定输入输出
-- profile 版本 pin：`feilinVersion` 不一致 fail fast
+- field21：本参考中的 106 / 107 / 108 向量必须通过；当前版本另做唯一解与 holdout
+- arg：为当前 pe 建立固定输入输出（或 pe key 映射回归）
+- data stream：为当前 bundle 建立固定输入输出；不能只断言历史 key 未变
+- 状态版本 pin：主流 FeiLin 版本不一致时 fail closed
 - 在线 Verify 返回 `T001`
 
 ## 交付检查
 
 - [ ] 未改 V2 或其它无关项目
 - [ ] 主入口来自用户授权的当前目标实现，并已通过当前 work order 验收
-- [ ] `DeviceConfig.version == profile.feilinVersion`
-- [ ] field21 参数来自 profile 或已验证版本分支，且多样本命中
+- [ ] 主流 `DeviceConfig.version` 等于当前目标保存的 FeiLin 版本
+- [ ] field21 参数来自当前目标状态或已验证版本分支，且唯一解与独立 holdout 命中
 - [ ] full/sparse 画像整套更新，不是单字段拼接
 - [ ] UA / sec-ch-ua 与画像一致
 - [ ] Log2/Log3/Verify 同一轮 session

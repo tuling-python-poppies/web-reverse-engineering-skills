@@ -274,7 +274,7 @@ VerifyCode == T001 && VerifyResult == true
 
 ## 执行前硬门（完整分支与共用；极速以固化定值为先）
 
-1. **确认写入目录。** 用户给出目标复现目录时，所有新文件、profile、runner、artifact 和验证命令都必须落在目标目录。用户另给的 `038-阿里v2`、历史项目或文档路径只读；不得在参考项目运行 updater、替换 profile、改测试或留下新的采集目录。
+1. **确认写入目录。** 用户给出目标复现目录时，所有新文件、profile、runner、artifact 和验证命令都必须落在目标目录。用户另给的历史项目或文档路径只读；不得在参考项目运行 updater、替换 profile、改测试或留下新的采集目录。
 2. **先搜同平台实现。** 在目标目录和用户授权的参考目录只读定位 `run_t001.py`、`verifier/aliyun_v2.py`、`verifier/vm_codec.js`、`verifier/data_builder.js`、`t001_profile.json`、`update_t001_profile.py`。已有纯算实现时，优先移植 runner/helper 契约，不重写 RPC/AES/token/Log2/Log3。
 3. **禁止补浏览器环境。** 一旦开始给 Node/JS VM 补 `Window`、`Element`、`Range`、`navigator`、`document`、`canvas`、`localStorage` 等环境，立即停止。这不是阿里 V2 交付路径；回到完整 profile、field21 和无 DOM `vm_codec`。
 4. **profile 不能跨项目直接复制。** 新目录复现必须用目标目录自己的 Init/Log2/Log3/Verify T001 capture 生成 `verifier/t001_profile.json`。参考项目 profile 只可用于理解字段结构，不能直接作为目标 profile。
@@ -358,7 +358,7 @@ DeviceConfig.version
 
 ### 3. 项目内自动更新器优先
 
-先在当前项目搜索 `update_t001_profile.py` 或等价入口。已有更新器时，先审计它是否满足以下安全契约，再优先运行它；`038-阿里v2` 的日常命令为：
+先在当前项目搜索 `update_t001_profile.py` 或等价入口。已有更新器时，先审计它是否满足以下安全契约，再优先运行它；日常命令为：
 
 ```powershell
 python .\update_t001_profile.py
@@ -564,8 +564,6 @@ field21 mask     = 072e8290
 3. 传输失败后丢弃整个 challenge/session，重新开始一轮；不要重放可能已经到达服务端的同一个 Verify。
 4. profile stale、HTTP 业务响应、F001/F025 和非 T001 结果不得被传输重试吞掉。
 5. 保留有限重试预算；预算耗尽后输出最后一个传输异常。
-
-2026-07-19 将 `038-阿里v2` 改为 `curl_cffi` Chrome TLS session 并加入默认 4 次全轮重试后，FeiLin109 以 CertifyId `ac11000117844407106587964e00a4` 再次得到 T001。该修复不修改验证码算法或 profile，只修复传输实现。
 
 ### 14. FeiLin110 稳定画像变化与失败续跑
 
@@ -919,7 +917,7 @@ challenge/Init
 
 ### 禁止事项
 
-1. **禁止在已有可跑通 V2 项目时从零重写协议。** 用户指出参考路径（如 `038-阿里v2`）或工作区/邻目录已有 `run_t001.py`、`verifier/aliyun_v2.py`、`verifier/vm_codec.js`、`update_t001_profile.py` 时，只读参考并复用其 runner/codec/更新器契约；新交付目录可以复制，但**不得修改用户指定的参考路径内文件**。先站在已通实现上做日更，不要重解 HMAC、DeviceConfig AES、token envelope。
+1. **禁止在已有可跑通 V2 项目时从零重写协议。** 用户指出已有可跑通 V2 项目，或工作区/邻目录已有 `run_t001.py`、`verifier/aliyun_v2.py`、`verifier/vm_codec.js`、`update_t001_profile.py` 时，只读参考并复用其 runner/codec/更新器契约；新交付目录可以复制，但**不得修改用户指定的参考路径内文件**。先站在已通实现上做日更，不要重解 HMAC、DeviceConfig AES、token envelope。
 2. **禁止把 FeiLin 版本号上升当成“整条链失效”。** `DeviceConfig.version` / FeiLin112 与昨日 T001 并存时，默认是画像/field21/资源自证层更新，不是 RPC、Log 封装或 sg 算法全量重做。先走本文件“FeiLin/sg 日更快速分支”的分层顺序，最后才动轨迹。
 3. **禁止 `StaticPath` / `sg.xxx` 文件名轮换就重提 VM。** 多个 `sg.015`、`sg.003`、`sg.044` 可能共享同一 stream codec 与 key。先对旧 `vm_codec` / `data_builder` 做固定输入输出比较；只有输出或运行时 key 真变才更新 helper。已验证常见 stream key 仍为 `3e627e1b4c63f913` 时，不要先猜 RC4/AES-CBC 去解 `data`。
 4. **禁止用长时间滑块 UI 自动化替代协议日更。** 浏览器只用于取证、人工 T001 正样本、更新器采集。合成 PointerEvent、CDP 拖滑块、反复“帮用户拖到底”不是交付主路径；用户已提供人工 T001 或已有更新器时，应立刻回到 profile/field21/data codec 对齐。
@@ -933,7 +931,7 @@ challenge/Init
 进入阿里 V2 任务且存在任一条件时，必须先做本自检，再写新代码：
 
 - 用户说“昨天还能 T001 / 版本到了 FeiLin11x / 更新进去”
-- 用户给出已成功项目路径或邻目录存在 `038-阿里v2` 同类结构
+- 用户给出已成功项目路径或邻目录存在同类结构
 - 本地已有 `update_t001_profile.py` 或 `run_t001.py`
 
 自检清单：

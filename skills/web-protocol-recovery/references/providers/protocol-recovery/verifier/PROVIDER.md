@@ -22,7 +22,6 @@ Read only the selected family reference after the work order names one matching 
 | Signals | Reference |
 |---|---|
 | Tencent EdgeOne / TCaptcha / `cap_union_prehandle` / dynamic `tdc.js` / `TDC.getData(true)` / `cap_union_new_verify` / `errorCode=12` | `references/tencent-edgeone-tdc-workflow.md` |
-| CSDN text point-click / `embedded_captcha` / `click_v2` / `cdn_cgi_bs_captcha` | `references/csdn-point-click-workflow.md` |
 | Ctrip `captcha/v4` / `risk_inspect` / `verify_jigsaw` / `verify_icon` | `references/ctrip-captcha-v4-workflow.md` |
 | Baidu Passport spin/rotate V2 / `passport.baidu.com/cap/init` / `/cap/style` / `/cap/img` / `/cap/log` / `spin-0` / `backstr` / `ext.p` / `en_conf` / `cv=submit` | `references/baidu-passport-spin-v2-workflow.md` |
 | ByteDance VerifyCenter / `/captcha/get` / `/captcha/verify` / `captchaBody` / `cyfreso` / BDMS+mssdk slider | `references/bytedance-verifycenter-workflow.md` |

@@ -7,7 +7,7 @@
 案例项目路径：
 
 ```text
-e:\ai_project\csdn文字点选
+目标项目根目录：`<projectRoot>`
 ```
 
 主脚本：

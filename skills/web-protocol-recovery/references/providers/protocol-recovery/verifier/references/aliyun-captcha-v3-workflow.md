@@ -34,7 +34,7 @@
 - 浏览器只用于取证与日更画像采集，不是运行依赖。
 - 用户只做验证层时，停止在 `VerifyCaptchaV3`，不要回放业务接口。
 
-已验证主入口（项目 `039-阿里v3`）：
+已验证主入口：
 
 ```powershell
 python run_v3_fast.py
@@ -48,7 +48,7 @@ python run_v3_fast.py --auto-update
 
 ### 1. 固定边界
 
-1. 工作目录固定为 V3 项目本身，例如 `E:\ai_project\039-阿里v3` 或 `039-阿里v3修复`。
+1. 工作目录固定为用户指定的 V3 项目本身。
 2. V2 项目与本 Provider 的 V2 日更逻辑**只作参考**，禁止改其它项目文件。
 3. 取证页优先用项目本地页：`http://127.0.0.1:8765/ai_studio_code.html`。
 4. 主运行入口是 `run_v3_fast.py`；`run_v3.py` 是被它 import 的协议基线。

@@ -6,14 +6,12 @@
 
 ## 适用信号
 
-看到以下任一组信号时使用本参考：
+至少看到一个 V2 代际信号时才使用本参考：
 
 - `InitCaptchaV2`、`VerifyCaptchaV2`
-- `captcha-pro-open.aliyuncs.com`
-- `DeviceConfig`、`deviceToken`、`CaptchaVerifyParam`
-- FeiLin、动态 `sg.xxx` 脚本
-- `device.captcha-open.aliyuncs.com` 的 `Log2`、`Log3`
-- 最终码 `T001`、`F001`、`F025`
+- 同一阿里云验证码轮次的 `StaticPath` 指向动态 `sg.xxx` 脚本
+
+`captcha-pro-open.aliyuncs.com`、`DeviceConfig`、`deviceToken`、`CaptchaVerifyParam`、FeiLin、`Log2/Log3` 和 `T001/F001/F025` 只能作为阿里云 verifier/sidecar 佐证，不能单独区分 V2/V3。只有这些共享信号时先选 `route: verifier`，索要 Init/Verify action 或 `sg.xxx/pe.xxx` 后再读一个 family reference；不要按表格顺序选 V2，也不要同时预读 V2/V3。
 
 普通阿里云 RPC 签名、`acw_sc__v2` WAF cookie 或非验证码接口不属于本分支。
 
@@ -179,7 +177,7 @@ for each pos, char in suffix:
   pos7: (103 + (int(char,16)^1)) & 255
 field21 = Base64(8 bytes)
 
-回归：对本目录 ≥3 个 session suffix 全命中 Log2/token 的 field21。
+回归：对当前目标同一主流 cohort 的 ≥3 个 session suffix，全命中 Log2/token 的 field21。
 ```
 
 **历史目标样式示例（不得视为当前端点或定值）：**
@@ -214,7 +212,7 @@ UserCertifyId/traceid 当轮值
 1. **写目录硬锁。** 只写用户目标目录。任何外部参考路径只读；默认不打开历史项目，当前 case bundle 之外的材料必须先满足 read budget 和授权边界。
 2. **在授权目标目录中记录候选固定层（先证明，不把历史定值当成当前实现）：**
    - 外部目标项目可能包含 RPC/helper/stream codec/profile/runner；这些文件不由本 skill 提供，必须先确认路径、授权和当前目标范围。
-3. **本目录同轮 capture（只采动态层）：**
+3. **当前目标同轮 capture（只采动态层）：**
    - 至少一轮人工或已有 T001：Init + Log2 + Log3 + Verify；或 Init + Log2 + token + Log3
    - 解析 `DeviceConfig.version`、133 字段、combat511/504、sceneId、region/verify host、UA
 4. **生成当前目标的动态状态快照：**
@@ -342,7 +340,7 @@ DeviceConfig.version
   -> 轨迹
 ```
 
-不要用单次 Init 的版本与本地 profile 比较后立即定案。FeiLin 可能同时灰度下发相邻版本；单次命中新版本只说明该 cohort 存在，不代表它已经成为主流。
+不要用单次 Init 的版本与当前目标保存的 FeiLin 状态比较后立即定案。FeiLin 可能同时灰度下发相邻版本；单次命中新版本只说明该 cohort 存在，不代表它已经成为主流。
 
 默认预检策略：
 
@@ -354,7 +352,7 @@ DeviceConfig.version
   -> 保存完整版本分布作为证据
 ```
 
-若主流 `DeviceConfig.version == profile.feilinVersion`，画像仍是当前主流；此时偶发的 minority stale 不能触发覆盖。若主流版本不同，再把本地 profile 判为过期并进入更新。只有已有独立证据时才手工指定目标版本，不要为了追新强行选择少数 cohort。
+若主流 `DeviceConfig.version` 等于当前目标保存的 FeiLin 版本，画像仍是当前主流；此时偶发的 minority stale 不能触发覆盖。若主流版本不同，再把当前目标状态判为过期并进入更新。只有已有独立证据时才手工指定目标版本，不要为了追新强行选择少数 cohort。
 
 ### 3. 用户项目已有更新器时的审计边界
 
@@ -504,8 +502,8 @@ e7f61587 -> SXpKeXR4e3o=
 
 1. 保存当前浏览器完整 Log2 画像。
 2. 保存同一浏览器的稀疏 token，或从完整画像按当前非空索引生成稀疏模板。
-3. profile 写入精确 `feilinVersion`、UA、field21 参数和 133 字段。
-4. 程序收到未知 version 时 fail fast，提示刷新 profile，不发送猜测 Verify。
+3. 当前目标状态写入精确 `feilinVersion`、UA、field21 参数和 133 字段；这些是概念字段，映射到目标自己的 schema。
+4. 当前实现收到未知 version 时 fail fast，提示刷新 FeiLin 状态，不发送猜测 Verify。
 5. 先跑离线 profile/field21/token 测试，再做在线 Verify。
 
 ### 10. 日更完成标准
@@ -513,7 +511,7 @@ e7f61587 -> SXpKeXR4e3o=
 必须同时满足：
 
 ```text
-当前 DeviceConfig.version == 本地 profile.feilinVersion
+主流 DeviceConfig.version == 当前目标保存的 FeiLin 版本
 Log2 == 200 / true
 Log3 == 200 / true
 VerifyCode == T001
@@ -907,10 +905,10 @@ challenge/Init
   用户说「走极速分支」
   → 候选事实 + 当前目标动态状态 + 当前交付实现 → fresh 语义验收
    当前目标出现上一轮成功与本轮失败，且用户已提供实现
-  → 先比 DeviceConfig.version 与 profile.feilinVersion
+  → 先比 DeviceConfig.version 与当前目标保存的 FeiLin 版本
   → 有用户提供的更新器则先审计；只在当前证据支持时更新动态状态与 field21
   → 固定输入核对 sg codec/key 是否真变
-  → 纯协议 runner 验收 T001
+  → 当前目标交付入口完成 T001 语义验收
   仅当极速定值冲突或用户要从零
   → 进入完整分支做协议恢复
 ```

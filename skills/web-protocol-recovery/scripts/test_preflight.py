@@ -211,6 +211,40 @@ class ProviderGuardContractTests(unittest.TestCase):
         self.assertEqual([], preflight.bare_session_get_outside_live_get(text))
 
 
+class AliyunV2ReferenceContractTests(unittest.TestCase):
+    REFERENCE = (
+        preflight.SKILL_ROOT
+        / "references"
+        / "providers"
+        / "protocol-recovery"
+        / "verifier"
+        / "references"
+        / "aliyun-captcha-v2-workflow.md"
+    )
+
+    def test_generation_signals_precede_shared_sidecar_evidence(self) -> None:
+        text = self.REFERENCE.read_text(encoding="utf-8")
+        for token in (
+            "至少看到一个 V2 代际信号时才使用本参考",
+            "只能作为阿里云 verifier/sidecar 佐证，不能单独区分 V2/V3",
+            "不要按表格顺序选 V2，也不要同时预读 V2/V3",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, text)
+
+    def test_active_guidance_has_no_local_project_schema_assumptions(self) -> None:
+        text = self.REFERENCE.read_text(encoding="utf-8")
+        for obsolete in (
+            "看到以下任一组信号时使用本参考",
+            "本目录 ≥3 个 session suffix",
+            "本目录同轮 capture",
+            "profile.feilinVersion",
+            "纯协议 runner 验收 T001",
+        ):
+            with self.subTest(obsolete=obsolete):
+                self.assertNotIn(obsolete, text)
+
+
 class AliyunV3ReferenceContractTests(unittest.TestCase):
     REFERENCE = (
         preflight.SKILL_ROOT

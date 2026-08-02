@@ -759,14 +759,14 @@ FeiLin 1.4.2 样本：
 
 ```text
 endpoint    = https://device.captcha-open.aliyuncs.com/
-AccessKeyId = REDACTED_ALIYUN_AK
-secret      = REDACTED_ALIYUN_SK
+AccessKeyId = <CURRENT_TARGET_DEVICE_AK>
+secret      = <CURRENT_TARGET_DEVICE_SIGNING_SECRET>
 Version     = 2020-10-15
 upload key  = a549a55c60a39aa0
 iv          = 0123456789ABCDEF
 ```
 
-这些值来自客户端公开 bundle，但仍必须视为版本相关并用捕获签名复核。
+endpoint、Version、upload key 与 iv 是历史样本候选；AK/签名 secret 只从当前目标授权材料提取。所有值仍必须视为版本相关并用当前捕获签名复核。
 
 ### 公共 record
 

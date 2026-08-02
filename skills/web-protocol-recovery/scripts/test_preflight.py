@@ -256,12 +256,15 @@ class AliyunV2ReferenceContractTests(unittest.TestCase):
             "MAIN_SECRET = <CURRENT_TARGET_MAIN_SIGNING_SECRET>",
             "DEVICE_AK     = <CURRENT_TARGET_DEVICE_AK>",
             "DEVICE_SECRET = <CURRENT_TARGET_DEVICE_SIGNING_SECRET>",
+            "AccessKeyId = <CURRENT_TARGET_DEVICE_AK>",
+            "secret      = <CURRENT_TARGET_DEVICE_SIGNING_SECRET>",
         ):
             with self.subTest(token=token):
                 self.assertIn(token, text)
         self.assertNotRegex(
             text,
-            r"(?m)^(?:MAIN|DEVICE)_(?:AK|SECRET)\s*=\s*[A-Za-z0-9]",
+            r"(?im)^\s*(?:(?:MAIN|DEVICE)_(?:AK|SECRET)|AccessKeyId|secret)"
+            r"\s*=\s*(?!<CURRENT_TARGET_)[^\s#]{8,}",
         )
 
 

@@ -47,7 +47,7 @@ Observe the redirect/status behaviour before any hook, then branch:
 Recover the signature by combining, not by full devirtualization. Each technique is a generic capability; the selected Provider maps it to concrete tools.
 
 1. **Hook the I/O boundary.** Ignore VM internals; capture only what enters and what leaves. Intercept request egress (XHR/fetch), cookie writes, and crypto primitives (`btoa`/`atob`/hash/HMAC), plus `String.fromCharCode` (high-frequency in JSVMP string building). Extract: signature parameter name, value shape (length/charset/encoding), and its wire position (query/body/header/cookie).
-2. **Instrument the interpreter.** When I/O alone cannot be correlated (e.g. a self-implemented MD5), trace the dispatch function coarse→medium→fine: dispatcher-level call trace → hot sub-functions → string primitives (`charAt`/`charCodeAt`/`substring`/`concat`/`join`). `join('')` is often the final concatenation point.
+2. **Instrument the interpreter.** When I/O alone cannot be correlated (e.g. a self-implemented MD5), trace the dispatch function coarse→medium→fine: dispatcher-level call trace → hot sub-functions → string primitives (`charAt`/`charCodeAt`/`substring`/`concat`/`join`). `join('')` is often the final concatenation point. For accumulator-based challenge formulas, add bounded arithmetic-handler traces and correlate them with seed, timestamp, and wire-body checkpoints.
 3. **Analyse the logs.** From hundreds of trace records, isolate the signature chain by keyword (signature prefix), time window (1–2s before the request), type (string args over numeric VM scheduling), length (>8 chars), and cross-request variance. Use **reverse-tracing** (from the signature value back to its input plaintext, hop by hop) and **multi-request diffing** (fixed factors = keys, changing factors = timestamp/nonce/business params).
 4. **Source-level instrumentation.** For self-contained VMs (Ruishu 5/6, Akamai sensor_data, webmssdk, obfuscator.io) where the algorithm lives entirely inside `switch/case`, rewrite the VMP source at the transport layer to tap every `obj[key]` read and `fn(args)` call, exposing the hottest environment keys, methods, and functions the VM actually touches. This is the general weapon when the first three techniques are blocked or too noisy.
 
@@ -98,6 +98,8 @@ Prefer isolating the one helper output the request needs over heroic full recove
 - missing side inputs passed into the VM entry point
 - treating failure under Node, jsdom, or a thin shim as proof the VM cannot run locally
 - installing broad hooks on a signature-type challenge before a clean baseline (observer effect can change the challenge)
+- hoisting `POP()` calls without preserving JavaScript's left-to-right evaluation order; subtraction, remainder, and shift results can diverge
+- copying VM array indexes from another version instead of extracting the current PC, stack, opcode, and accumulator locations
 
 ## Delivery rule
 

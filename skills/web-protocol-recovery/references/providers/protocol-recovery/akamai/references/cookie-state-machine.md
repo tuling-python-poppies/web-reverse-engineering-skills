@@ -8,9 +8,12 @@
 | `bm_sz` | Classic sensor/challenge seed and key material | Server-issued; preserve exact value and trailing fields |
 | `ak_bmsc` | Akamai Pixel/session state | Often HttpOnly and updated by Pixel or early document responses |
 | `bm_s` | Modern main sensor/session state on some sites | Server-issued and rotated by collector POSTs; treat like the primary trust cookie when `_abck` is absent |
+| `bm_sc` | Second-verification result on some deployments | Server-issued; capture the writer and transition, do not infer acceptance from shape |
 | `bm_sv` | Short-lived validation/session value | Server-issued on auxiliary or business responses |
 | `bm_so` / `bm_ss` / `bm_mi` | Auxiliary sensor/session markers | Capture transitions; do not invent values |
 | `bm_lso` | Often JS-visible companion to sensor state | May be written from `document.cookie`; do not treat as HttpOnly server authority |
+| `sbsd_o` | Seed-state alias on some second-verification deployments | Capture the response writer and the next request consumer |
+| `sbsd_c` | Compatibility result Cookie on some deployments | Server-issued; require business validation |
 
 Names indicate likely roles, not proof. Always capture the writer. Some modern targets never expose `_abck`/`bm_sz` and still are Akamai via random-path collectors + `bm_*` rotation.
 
@@ -51,3 +54,5 @@ Do not store only final values. The transition order is the protocol.
 - Business refresh 403 with valid sensor chain: missing route context, application-session initialization, Referer, or XHR header.
 - Homepage/main/sensor 200 but business document POST Access Denied: incomplete multi-stage sensor settle or low-confidence `bm_s` trust, not necessarily missing CSRF.
 - Local run reuses foreign canvas/WebGL cache: sensor may still 200 while business gate rejects; recapture host fingerprints.
+- `429` with `cpr_chlge`: classify as a second-verification challenge and preserve the CPR, collector, and response-Cookie chain.
+- A `~`-segmented Cookie shape is a triage clue only; acceptance still requires the business replay and response contract.

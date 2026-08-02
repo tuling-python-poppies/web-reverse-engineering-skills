@@ -2,7 +2,7 @@
 
 ## Select When
 
-- Evidence includes at least one Akamai-native marker: `_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `bm_so`, `bm_ss`, `bm_mi`, `bm_lso`, `sensor_data`, `/akam/13/pixel_*`, or a confirmed random-path collector.
+- Evidence includes at least one Akamai-native marker: `_abck`, `bm_sz`, `ak_bmsc`, `bm_s`, `bm_sv`, `bm_so`, `bm_ss`, `bm_mi`, `bm_lso`, `bm_sc`, `sbsd_o`, `sbsd_c`, `cpr_chlge`, `sensor_data`, `/akam/13/pixel_*`, or a confirmed random-path collector.
 - A second independent surface corroborates the family: network collector POST, script marker, cookie transition, Pixel branch, `Server-Timing: ak_p`, or transport behavior tied to an Akamai edge.
 - The desired result is browser-free Python protocol replay, with a narrow local JS/iv8 collector executor only when pure Python is not the smallest faithful path.
 
@@ -10,7 +10,7 @@
 
 - The only evidence is a generic `403`, `412`, H2 reset, or one cookie name with no network/script/cookie-transition corroboration.
 - The user only wants a browser hook, generic signer entry trace, AST deobfuscation, CAPTCHA solving, or final browser automation.
-- The task is maintaining a legacy Akamai 1.7/1.75 generator without current live replay proof.
+- The task is maintaining an Akamai 1.7/1.75 generator without current live replay proof.
 - Live business replay is requested without exact authorization, scope, and request budget.
 
 web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, case selection, and final delivery status. This Provider owns Akamai family proof, cookie transition modeling, collector/Pixel separation, transport coherence, host-local fingerprint policy, local collector execution constraints, and Akamai-specific report shape.
@@ -25,6 +25,7 @@ Read only the selected reference after a work order names the current blocker.
 | `_abck` / `bm_*` / `ak_bmsc` writer and transition order | `references/cookie-state-machine.md` |
 | TLS/UA/Client-Hints/proxy/egress coherence | `references/transport-coherence.md` |
 | Host-bound current collector in local iv8 with Python XHR bridge | `references/iv8-live-collector.md` |
+| SBSD/CPR second-verification body variants and integrity analysis | `references/sbsd-second-verification.md` |
 | T'way modern `bm_s` / `ak_bmsc` field case | `references/case-twayair-iv8.md` |
 | Public Akamai repo or old generator evaluation | `references/public-project-triage.md` |
 | Final report format | `references/report-template.md` |
@@ -77,7 +78,7 @@ All applicable checks must pass:
 | Collector 200 but route/business 403 | Compare multi-stage count, Pixel, transport, route context, and egress | Do not claim sensor success |
 | Browser on same exit also Access Denied | Change node/exit and rerun full chain | Report egress-gated residual risk |
 | Foreign fingerprint cache in use | Recapture host-local fingerprint surfaces | Reject cache reuse |
-| Business body is SBSD/privacy shell | Treat as soft challenge, not business success | Route blocker to challenge/verifier as needed |
+| Business body is a privacy shell or collector verification is incomplete | Separate challenge page, collector POST, and business response; use the SBSD reference to classify the body variant | Do not claim protocol success from a shell or generated body |
 | Current workflow needs host JS semantics | Return internal `iv8` work-order blocker | Do not deliver browser automation |
 
 ## Exit

@@ -349,6 +349,28 @@ Self-check:
 
 - would `dir /s` show any empty evidence folder that never received a file?
 
+## Anti-pattern: Treat a Fixed Signal Count or VM Constant as a Protocol Invariant
+
+Temptation:
+
+- copy one observed signal count, accumulator constant, or VM index into a reusable implementation
+- assume one body layout or one Cookie shape covers every collector stage
+
+Why it is false progress:
+
+- collector versions and stages can change field counts, key names, body wrappers, and execution indexes
+- an implementation can generate a plausible body while the server rejects the Cookie chain or business request
+
+Smallest honest next move:
+
+- label every count, constant, and index as observed or unverified
+- require a same-version fixed vector and one wire-boundary checkpoint before promoting it
+- validate the application response instead of accepting body shape alone
+
+Self-check:
+
+- can a second same-target run or the target's own body shape falsify this number or constant?
+
 ## Entry format for new anti-patterns
 
 When a shortcut recurs across more than one job, add it in this shape:

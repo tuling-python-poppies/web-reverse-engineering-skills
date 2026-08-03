@@ -97,6 +97,59 @@ Use `pull_live_state.py inspect <projectRoot>` to report missing gates. Missing
 session => ask user for username/password. Missing or stale profile => refresh
 the full FeiLin profile package; do not only rewrite the version string.
 
+## Login Landing
+
+When the project has no usable session token, ask the user for username and
+password, then run the login inside the project only:
+
+1. `POST https://api.pzds.com/api/auth/oauth2/token`
+   - body: `username`, `password` (MD5), `scope=openid`,
+     `grant_type=password`
+   - header: `Authorization: basic <clientSecret>` where `clientSecret` is a
+     project-local constant, never stored in the case library
+   - keep v18 signed PC headers (`Sign` / `PZTimestamp` / `Random`)
+2. `POST https://api.pzds.com/api/web-client/v2/user/public/login/idtoken`
+   - body: `{"action":{"idToken":...,"registerWay":"PASSWORD"}}`
+   - response `data.token` becomes the business token
+3. Write project-local `js_reverse_cache/pzds_session.json`:
+   `token` (required), `pzId`, `deviceId`, `globalId`
+4. Persist username/password only in project `config.local.json`
+   (gitignored). Never write them into the case library, fixtures, tests, or
+   reports.
+
+Login failure handling:
+
+- `HTTP 460` on `/auth/oauth2/token`: report it as a wind-control blocker;
+  do not treat browser manual captcha as the default recovery path.
+- `NOT_LOGGED_IN` on the business API: re-run login and refresh the session
+  file before retrying captcha rounds.
+
+## Profile Refresh Runbook
+
+When `DeviceConfig.version` diverges from `verifier/t001_profile.json`
+("FeiLin device profile is stale"), refresh the full profile package with the
+project-local updater. Do not edit the version string only.
+
+```text
+python update_t001_profile.py --preflight-only --version-samples 3 --preflight-attempts 5 --timeout 30
+python update_t001_profile.py --fast --rounds 3 --version-samples 3 --preflight-attempts 5 --timeout 45 --headless
+```
+
+Requirements:
+
+- The updater's challenge trigger must carry the project login `token` plus
+  v18 signed PC headers; otherwise it gets `HTTP 401 NOT_LOGGED_IN`.
+- A fresh FeiLin generation must extend
+  `GENERATION_SIGNATURE_IGNORED_FIELDS` in the updater with the observed
+  varying fields before the stability check passes. Observed generations:
+  - feilin123: `{52, 86, 136, 137}`
+  - feilin124: `{52, 86, 136, 137}`
+  - feilin125: `{52, 86, 136, 137}`
+- Success is only an online `T001 / true` verification before atomic write of
+  the new profile.
+- The updater needs CloakBrowser + Playwright; they are project tools, not
+  case assets.
+
 ## Gate Family
 
 Primary: **verifier** (`T001/true`).

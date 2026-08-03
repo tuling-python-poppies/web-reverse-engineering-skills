@@ -11,8 +11,10 @@ import base64
 import hashlib
 import hmac
 import json
+import secrets
 import subprocess
 import uuid
+import zlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -26,6 +28,12 @@ PZDS_SIGN_VERSION = "v18"
 PZDS_CHANNEL_INFO = '{"channelCode":null,"tag":null,"channelType":null,"searchWord":"null","adExtras":"","urlParam":""}'
 DEVICE_AES_IV = b"0123456789ABCDEF"
 DEVICE_TOKEN_SALT = "daye,raolewoba!"
+DEVICE_CONFIG_KEY = "87f879f135f27da7"
+DEVICE_UPLOAD_KEY = "a549a55c60a39aa0"
+DEVICE_APP_NAME = "saf-captcha-waf"
+DEVICE_APP_VERSION = "W20220202"
+DEVICE_API_VERSION = "2020-10-15"
+STREAM_KEY_DEFAULT = "3e627e1b4c63f913"
 ASSETS = Path(__file__).resolve().parent / "assets"
 
 
@@ -282,6 +290,273 @@ def classify_business_response(status_code: int, content_type: str, body: bytes)
             if isinstance(payload, dict) and isinstance(payload.get("data"), dict)
             else None
         ),
+    }
+
+
+@dataclass(frozen=True)
+class DeviceConfig:
+    encryption_key: str
+    switch: int
+    session_id: str
+    version: str
+    plugin_elements: str
+    plugin_resource: str
+    global_variable: str
+    timestamp: int
+    ip: str
+
+
+def parse_device_config(blob: str) -> DeviceConfig:
+    """Decrypt the server-issued FeiLin DeviceConfig envelope."""
+    try:
+        plaintext = _aes_cbc_decrypt(blob, DEVICE_CONFIG_KEY).decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("DeviceConfig plaintext is not UTF-8") from exc
+    fields = plaintext.split("#")
+    if len(fields) < 9:
+        raise ValueError("DeviceConfig must contain at least nine fields")
+
+    def decode_field(index: int) -> str:
+        if not fields[index]:
+            return ""
+        try:
+            return base64.b64decode(fields[index], validate=True).decode("utf-8")
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise ValueError(f"DeviceConfig field {index} is not UTF-8 Base64") from exc
+
+    key = decode_field(0)
+    if len(key.encode("utf-8")) != 16:
+        raise ValueError("DeviceConfig encryption key must be 16 bytes")
+    try:
+        switch = int(decode_field(1))
+        timestamp = int(fields[7])
+    except ValueError as exc:
+        raise ValueError("DeviceConfig switch/timestamp is not decimal") from exc
+    return DeviceConfig(
+        encryption_key=key,
+        switch=switch,
+        session_id=fields[2],
+        version=fields[3],
+        plugin_elements=decode_field(4),
+        plugin_resource=decode_field(5),
+        global_variable=decode_field(6),
+        timestamp=timestamp,
+        ip=fields[8],
+    )
+
+
+def build_device_config_blob(config: DeviceConfig) -> str:
+    fields = [
+        base64.b64encode(config.encryption_key.encode("utf-8")).decode(),
+        base64.b64encode(str(config.switch).encode("ascii")).decode(),
+        config.session_id,
+        config.version,
+        base64.b64encode(config.plugin_elements.encode("utf-8")).decode(),
+        base64.b64encode(config.plugin_resource.encode("utf-8")).decode(),
+        base64.b64encode(config.global_variable.encode("utf-8")).decode(),
+        str(config.timestamp),
+        config.ip,
+    ]
+    return _aes_cbc_encrypt("#".join(fields).encode("utf-8"), DEVICE_CONFIG_KEY)
+
+
+def build_device_log_record(
+    config: DeviceConfig,
+    payload_plaintext: str,
+    *,
+    timestamp_ms: int,
+    device_platform: str,
+) -> str:
+    """Build one FeiLin 501/504/511 telemetry record envelope."""
+    if timestamp_ms < 0:
+        raise ValueError("timestamp_ms must be non-negative")
+    fields = [
+        config.session_id,
+        _aes_cbc_encrypt(payload_plaintext.encode("utf-8"), config.encryption_key),
+        _aes_cbc_encrypt(DEVICE_APP_NAME.encode("utf-8"), config.encryption_key),
+        _aes_cbc_encrypt(device_platform.encode("utf-8"), config.encryption_key),
+        "",
+        _aes_cbc_encrypt(str(timestamp_ms).encode("ascii"), config.encryption_key),
+    ]
+    return base64.b64encode("#".join(fields).encode("utf-8")).decode()
+
+
+def build_device_log_data(
+    config: DeviceConfig,
+    scene_id: str,
+    event_data: str,
+    *,
+    gather_cost_ms: int,
+    device_platform: str,
+) -> str:
+    """Wrap telemetry records in the FeiLin Log2/Log3 upload cipher."""
+    if not scene_id:
+        raise ValueError("scene_id must not be empty")
+    if gather_cost_ms < 0:
+        raise ValueError("gather_cost_ms must be non-negative")
+    session_prefix = config.session_id.split("-", 1)[0]
+    if len(session_prefix) != 32:
+        raise ValueError("DeviceConfig session prefix must be 32 characters")
+    scene_binding = _aes_cbc_encrypt(
+        f"{device_platform}#{DEVICE_APP_NAME}#{scene_id}".encode("utf-8"),
+        config.encryption_key,
+    )
+    plaintext = "#".join([
+        session_prefix,
+        "W",
+        scene_binding,
+        DEVICE_APP_VERSION,
+        "CLOUD",
+        str(gather_cost_ms),
+        event_data,
+    ])
+    return _aes_cbc_encrypt(plaintext.encode("utf-8"), DEVICE_UPLOAD_KEY)
+
+
+def build_log2_data(
+    config: DeviceConfig,
+    scene_id: str,
+    full_device_fields: list[str],
+    *,
+    gather_cost_ms: int,
+    timestamp_ms: int,
+    device_platform: str,
+) -> str:
+    if len(full_device_fields) < 133:
+        raise ValueError("Log2 device profile must contain at least 133 fields")
+    record = build_device_log_record(
+        config,
+        "#".join(full_device_fields),
+        timestamp_ms=timestamp_ms,
+        device_platform=device_platform,
+    )
+    return build_device_log_data(
+        config,
+        scene_id,
+        f"501#{record}",
+        gather_cost_ms=gather_cost_ms,
+        device_platform=device_platform,
+    )
+
+
+def build_log3_data(
+    config: DeviceConfig,
+    scene_id: str,
+    combat_511: str,
+    combat_504: dict[str, Any],
+    *,
+    gather_cost_ms: int,
+    timestamp_ms: int,
+    device_platform: str,
+) -> str:
+    record_511 = build_device_log_record(
+        config,
+        combat_511,
+        timestamp_ms=timestamp_ms,
+        device_platform=device_platform,
+    )
+    record_504 = build_device_log_record(
+        config,
+        json.dumps(combat_504, ensure_ascii=False, separators=(",", ":")),
+        timestamp_ms=timestamp_ms + 1,
+        device_platform=device_platform,
+    )
+    combat_data = base64.b64encode(
+        f"511#{record_511}-504#{record_504}".encode("utf-8")
+    ).decode()
+    return build_device_log_data(
+        config,
+        scene_id,
+        combat_data,
+        gather_cost_ms=gather_cost_ms,
+        device_platform=device_platform,
+    )
+
+
+def make_verify_params(
+    *,
+    scene_id: str,
+    certify_id: str,
+    device_token: str,
+    data: str,
+    user_user_id: str,
+    access_key_id: str,
+    version: str = "2023-03-05",
+    signature_nonce: str | None = None,
+    secret: str | None = None,
+) -> dict[str, str]:
+    params = rpc_base_params("VerifyCaptchaV2", access_key_id, version)
+    if signature_nonce:
+        params["SignatureNonce"] = signature_nonce
+    params.update({
+        "SceneId": scene_id,
+        "CertifyId": certify_id,
+        "CaptchaVerifyParam": json.dumps(
+            {
+                "sceneId": scene_id,
+                "certifyId": certify_id,
+                "deviceToken": device_token,
+                "data": data,
+            },
+            separators=(",", ":"),
+        ),
+        "UserUserId": user_user_id,
+    })
+    if secret:
+        params["Signature"] = sign_rpc(params, secret)
+    return params
+
+
+def _run_data_builder(payload: dict[str, str]) -> str:
+    process = subprocess.run(
+        ["node", str(ASSETS / "data_builder.js")],
+        input=json.dumps(payload, separators=(",", ":")),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if process.returncode:
+        raise RuntimeError(process.stderr.strip() or "data_builder.js failed")
+    return json.loads(process.stdout)["output"]
+
+
+def build_arg(certify_id: str, *, key: str | None = None) -> dict[str, str]:
+    """Build the dynamic-script ``arg`` with the shared FeiLin stream VM."""
+    if not certify_id or any(char not in "0123456789abcdef" for char in certify_id):
+        raise ValueError("certify_id must be lowercase hexadecimal")
+    key = key or "".join(
+        secrets.choice("abcdefghijklmnopqrstuvwxyz0123456789") for _ in range(16)
+    )
+    if len(key) != 16 or any(
+        char not in "abcdefghijklmnopqrstuvwxyz0123456789" for char in key
+    ):
+        raise ValueError("key must be 16 lowercase alphanumeric chars")
+    return {"arg": _run_data_builder({"input": certify_id, "key": key}), "key": key}
+
+
+def build_data(
+    track_state: Mapping[str, Any],
+    *,
+    nonce: str | None = None,
+    stream_key: str = STREAM_KEY_DEFAULT,
+) -> dict[str, str]:
+    required = {"TrackList", "TrackStartTime", "VerifyTime", "arg"}
+    missing = required.difference(track_state)
+    if missing:
+        raise ValueError(f"track_state is missing: {', '.join(sorted(missing))}")
+    nonce = nonce or secrets.token_hex(16)
+    if len(nonce) != 32 or any(char not in "0123456789abcdef" for char in nonce):
+        raise ValueError("nonce must be 32 lowercase hexadecimal chars")
+    track_json = json.dumps(track_state, ensure_ascii=False, separators=(",", ":"))
+    compressed = base64.b64encode(
+        zlib.compress((nonce + track_json).encode("utf-8"), level=6)
+    ).decode()
+    return {
+        "data": _run_data_builder({"input": compressed, "key": stream_key}),
+        "nonce": nonce,
+        "streamKey": stream_key,
+        "trackJson": track_json,
+        "compressed": compressed,
     }
 
 

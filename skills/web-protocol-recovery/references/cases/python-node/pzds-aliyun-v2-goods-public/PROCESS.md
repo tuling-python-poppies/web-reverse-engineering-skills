@@ -235,6 +235,58 @@ Vectors cover:
 - Verify no longer returns `T001/true` on a coherent same-round state
 - business success leaves `success=true`, `code=SUCCESS`, and `data.records`
 
+## Fresh Machine Shortest Path
+
+When the project has no existing runner, profile, or updater (a new machine or a
+new target directory), assemble the full chain from case assets and one live
+browser capture round. This is the supported path when no project-local
+`update_t001_profile.py` exists.
+
+Prerequisites (ask before starting):
+
+- browser recon allowed (chromium-recon) and one visible browser session
+- account credentials for one project-local protocol login
+- live replay + verifier submission approval
+- a project root under which `js_reverse_cache/` and `verifier/` exist
+
+Order:
+
+1. **Login** - protocol login (`oauth2/token` MD5 + `idtoken`) and persist
+   `js_reverse_cache/pzds_session.json` (`token`, optional `pzId`,
+   `deviceId`, `globalId`).
+2. **Trigger and capture one round** - warm up the goods page, then capture
+   from the same round: challenge HTML, `InitCaptchaV2` request/response,
+   the browser-sent `Log2` request, and `window.um.getToken()` output. Keep
+   full request/response bodies.
+3. **Decrypt and diff** - run the offline helper:
+   `python scripts/aliyun_v2_profile_diff.py --init init.json --log2 log2.json
+   --token token.json`. It prints version, session, IP, Log2 GatherCost, the
+   full 142-field profile, sparse token state and checksum status, and the
+   per-index diff with known field roles.
+4. **Field21** - try the candidate table (classic source/mask families,
+   including feilin124/125 rows) against the captured suffix -> field21 pair;
+   infer new parameters only with >=3 samples plus holdout, matching both
+   Log2 and sparse token field 21.
+5. **Assemble the profile** - write `verifier/t001_profile.json` with
+   `feilinVersion`, `userAgent`, `fullDeviceFields`, `tokenFields`, `field21`
+   (sourceKey + xorMaskHex), `combat511`, and `combat504` from the captured
+   round. Keep the whole package consistent; never merge fields from
+   different rounds or cohorts.
+6. **Track** - synthesize a fresh track per `fixtures/track-template.json`
+   generation rules (event counts, time scale, offsets, screen ratio, time
+   ordering). Do not replay a captured track verbatim.
+7. **Runner** - build the Python collector from `entry.py` primitives and the
+   flow above: trigger -> parse `requestInfo` -> InitCaptchaV2 -> Log2 ->
+   Log3 -> VerifyCaptchaV2 (`T001/true`) -> business replay with `u_atoken`
+   and `u_asig`. Python owns final HTTP egress.
+8. **Accept** - only `T001/true` with Log2/Log3 `200/true` on a coherent
+   same-round state counts; then business `success=true`,
+   `code=SUCCESS`, `data.records` as a list.
+
+Failure routing: `NOT_LOGGED_IN` -> re-login and keep root referer;
+`F025` -> session/profile/token consistency; `F001` -> sidecar order first,
+trajectory last; `T001` is the only pass.
+
 ## Sensitive Materials Intentionally Excluded
 
 - username, password, raw token values, cookie values

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 4,
+  "revision": 5,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -101,20 +101,24 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "4cd2d38963fedd3035194c350f35e2002c5035be59fb172f10029ad7dd5a255a"
+      "sha256": "247e5976251acccec6f8c3caebfad913d9451e4ed1b6673c1166149a8ef5a095"
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "cb604b9569b3f812cd700acb079f0925d970c2c7a79d96bf46e95a2791608755"
+      "sha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
-      "sha256": "4c8ee1d977fa951074c88b2fb028090e8c38924ed87085bb2898b1cb94ad81b5"
+      "sha256": "c8cd197f6d08a45ac8e29101a1b3c3e1be2325e2e8f74e396a1facd4cab7d9ce"
     },
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "951b17671204c535a921f61bd340d5c14d33cf059fe7bf04e2197b60078ceb95"
+        "sha256": "1d16266801dccf1a81cd1e2d23ab10b8068375ab69b05950ae0117f46a5cafbb"
+      },
+      {
+        "path": "fixtures/track-template.json",
+        "sha256": "7e2f7e5dded1c87721ccae1d421b425d35ebd0a5a5cb25e23195671d8f304a76"
       },
       {
         "path": "fixtures/request.sample.json",
@@ -130,7 +134,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "231b0ca9ffdf537603dd620e3234d3990085dc2edfe6696c284951382291afd8"
+        "sha256": "cce79af88c481b8f61314e45fbbdb8dd06c3650726652574554a63c09903e666"
       },
       {
         "path": "assets/data_builder.js",
@@ -142,7 +146,7 @@
       },
       {
         "path": "assets/pzds_wasm_sign.mjs",
-        "sha256": "4c7db7263e3563dc4d4120f94c8ede776d6bf5cc2282aa084eac5eb7dfb1f723"
+        "sha256": "c001cde155e4c4b98cdb0dd779b615f32fde01a9e659034c5677b1a9ba980fe1"
       },
       {
         "path": "assets/pzds_wasm_glue_64c90705.mjs",
@@ -157,22 +161,22 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-03T19:30:00+08:00",
+    "executedAt": "2026-08-03T19:44:14+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330"
+      "sha256": "1b1df3a1b1b9c17e5f2ed2a9632a17b0ce819707cd3f8fe987e996b827059fc1"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "231b0ca9ffdf537603dd620e3234d3990085dc2edfe6696c284951382291afd8"
+      "sha256": "cce79af88c481b8f61314e45fbbdb8dd06c3650726652574554a63c09903e666"
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "request, field21, RPC, token, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
+      "offlineAcceptance": "request, field21, RPC, token, DeviceConfig, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "cb604b9569b3f812cd700acb079f0925d970c2c7a79d96bf46e95a2791608755",
-      "currentTestArtifactSha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330",
+      "currentEntrySha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42",
+      "currentTestArtifactSha256": "1b1df3a1b1b9c17e5f2ed2a9632a17b0ce819707cd3f8fe987e996b827059fc1",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-08-03",

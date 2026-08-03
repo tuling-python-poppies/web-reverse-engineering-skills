@@ -4,10 +4,10 @@
   "executedAt": "2026-08-03",
   "passed": true,
   "activeScope": "offline-only",
-  "entrySha256": "cb604b9569b3f812cd700acb079f0925d970c2c7a79d96bf46e95a2791608755",
-  "testArtifactSha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330",
+  "entrySha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42",
+  "testArtifactSha256": "1b1df3a1b1b9c17e5f2ed2a9632a17b0ce819707cd3f8fe987e996b827059fc1",
   "assertions": [
-    "offline request, field21, RPC, token, JavaScript, v18 WASM, and parser vectors pass",
+    "offline request, field21, RPC, token, DeviceConfig, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
     "entry import and case-local tests perform no live network egress",
     "login credentials and FeiLin profile bodies remain project-local live state"
   ],

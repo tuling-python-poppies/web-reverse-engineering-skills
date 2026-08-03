@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "pzds-aliyun-v2-track-template/v1",
+  "purpose": "Offline structural template for synthesizing a fresh slider track. All values are synthetic placeholders; mutate them per the generation rules below for each round. Do not replay this template verbatim and do not copy any captured session track.",
+  "track": {
+    "TrackList": {
+      "mc": "720,332,168808, ,1|683,314,170685, ,1",
+      "tc": "",
+      "mu": "907,324,169968, ,1",
+      "te": "",
+      "mp": "422,104,168459,1|423,105,168467,1|423,106,168500,1|426,108,168521,1|430,109,168555,1|433,111,168589,1|437,112,168610,1|440,114,168645,1|444,115,168680,1|448,117,168702,1|452,118,168734,1|456,120,168769,1",
+      "tmv": "",
+      "mm": "683,314,170685,1|687,312,170766,1|694,311,170782,1|700,310,170801,1|707,308,170820,1|713,307,170839,1",
+      "ks": "",
+      "fi": "",
+      "startTime": 0,
+      "si": "1536,1920,695,1536,695,28,1080,0.9839517470062727,160"
+    },
+    "TrackStartTime": 0,
+    "VerifyTime": 0,
+    "arg": ""
+  },
+  "generation": {
+    "eventShape": "x,y,timeMs[,flag]  (pipe-separated; click/up events carry a fifth empty field as in mc/mu)",
+    "timestampFields": ["mc", "mu", "mp", "mm"],
+    "timeScaleRange": [0.92, 1.10],
+    "offsetXRange": [-35, 35],
+    "offsetYRange": [-12, 12],
+    "eventCountRange": {
+      "mp": [60, 160],
+      "mm": [10, 40],
+      "mc": [0, 3],
+      "mu": [1, 3]
+    },
+    "eventTimeWindowMs": [0, 999999],
+    "durationMsRange": [1800, 4200],
+    "screenInfo": {
+      "parts": 9,
+      "ratioPosition": -2,
+      "ratioRange": [0.94, 0.99],
+      "example": "1536,1920,695,1536,695,28,1080,<ratio>,160"
+    },
+    "orderingRules": [
+      "TrackStartTime and TrackList.startTime must be equal and chosen fresh per round",
+      "event times are relative ms within 0..999999 and must stay monotonically increasing per field",
+      "the last event must not be later than the real Log3/Verify send time",
+      "VerifyTime = TrackStartTime + declared duration + settle margin",
+      "generate a fresh arg per round (CertifyId-bound 16-char key through the shared VM helper)"
+    ],
+    "diagnosisOrder": [
+      "structure is accepted only after sidecar (Log2/Log3 200/true) and full profile/sparse token consistency are aligned",
+      "tune trajectory last: first vary counts and pace, then offsets, then screen ratio"
+    ]
+  }
+}

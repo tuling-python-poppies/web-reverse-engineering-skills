@@ -51,6 +51,28 @@
       "xorMaskHex": "0000000000000000",
       "expected": "LVpZLF5gLF4=",
       "family": "feilin117"
+    },
+    {
+      "suffix": "ec172610",
+      "sourceKey": "0fda6a92",
+      "xorMaskAscii": "6070d095",
+      "expected": "Q3pCSCxHc3c=",
+      "family": "feilin124",
+      "note": "this vector is also matched by sourceKey |}DN}IvH with xorMaskHex 211b172d1c185b2f; multiple samples and holdout are required to discriminate equivalent classic parameter pairs"
+    },
+    {
+      "suffix": "64f03822",
+      "sourceKey": "UUUUUUUU",
+      "xorMaskHex": "0000000000000000",
+      "expected": "a2k8ZWhtZ2c=",
+      "family": "feilin125"
+    },
+    {
+      "suffix": "9f831948",
+      "sourceKey": "UUUUUUUU",
+      "xorMaskHex": "0000000000000000",
+      "expected": "bjxtaGZuaW0=",
+      "family": "feilin125"
     }
   ],
   "rpcSignature": {
@@ -72,6 +94,56 @@
     "input": "hello-world",
     "key": "3e627e1b4c63f913",
     "expected": "KAgxRwhJXCBLRyE="
+  },
+  "deviceConfig": {
+    "blob": "I5u0cA19Q4SRXQFi8hggulSxomFA75NN6FB1cr2Pow/kWOP4CWC/u9p/1lU7J7G2Nrg3Z4lYlQom/kfQHjW2/F2/JOPNaBnTy3j8ZLQSk3mYejrCvOQy/qb39SA6CErN5GOPk99Noc0pQPWt6vBAlSiAVoq9QR++1bl7G8Lk+VSL5NJJkrnT8tvOV2LCv5c1fEE7rlSC23lSfpbOWu+A2Xn6yVomwQDdRR6WQrUZ+GWqe4Dti56aidUUfUB4qrn7XF+kl5Ex6zvzpfNgEI0Dut4DHqjzrnbbhNBVSk1xxTQEl78iIupJxmEmowcZpRLf",
+    "parsed": {
+      "encryption_key": "0123456789abcdef",
+      "switch": 1,
+      "session_id": "11111111111111111111111111111111-abcd-1785065900000-8009310304000000000000",
+      "version": "1.5.1/feilin125.dc51ebf25c8c7baa7699c4a0fdf759bb532de8ef062dfacc36b0248bf2944e0c",
+      "plugin_elements": "elem",
+      "plugin_resource": "res",
+      "global_variable": "global",
+      "timestamp": 1785065900000,
+      "ip": "192.0.2.1"
+    }
+  },
+  "logEnvelope": {
+    "log2": "+Ef5aTeyEPyn2n3FarXvFmouRKZdeAG4MjHSoCaRizy+/FvFnuZ7ARNE9gYEHZERPfOSZHwmKv+UjzS7+dY42So24hOQW+SB2Xs1ly/5Bv95h3Tozym3ZJGH0Fl58+8vp0RKzP9NQjbaDu48P9qOPY94/lybTzt7UEsMP40Pzaud6jnItOhLrYO3WYqwTBc2tDkcZ50arG4uSmXWh0Q3cekvOGNTIyPrl3MkZOFm8GKcZpvqiwr/CoV+uHZ5eHo7ICYv/x5bhORpKxiIcpN646P1NaawDSMSTOGSDBdetVwheKLagl4QYNuYuWQIgtBK/k4hDol6+Yw6RvpChG7fTjYdAwvFnHDfpf9QFq9pbsDOURqNO+g5htssPYF870qpr7uf3N3SI7FyHiPH2zoYXYEB0I+9ryw+izKrEhEoz3ZIQ1yDL/5lR6Ry7lZrsGk+a9aaeDLhLBfJXk9CNh8/8vGb62uSb7QaNdQGmGiBdF7Vq9v9+KrF8xJ31fKDvFbBU//9AZiGTa5z5JCyFa6b6T2gpEyeeCepvpCT/JQ79CWgTBc5lgSVsBjGVhzhGlOY3RA/HjmB7i7Kv5EsLjymArOldTFHVyBeT7K5iI5dnWmhp+vV2uDBUeHtopH+9ZEDAwIrRHRBAVHlDaE4Ut66xEBqb2rAwTPM9fwvpRY1Pr08+Sy3McLMPuQyKUaUyaZcEQ+mKp/XQd+r6vbJVqlJJnNScBFMQzJPhC/2ZrkkHTjh8/Jl1OIAusoiTQ9A2kqGc/FGzlb5lEhHrPigTNjrLpyKApLpWezYaB61Ja0aTZhzn67rzGj9hFqkv/QycOQhxeOGJKs/vty9+9vQ+M0gDdbBb713oEebIOo4wnje6lui9noCHJ8aGgBTGMpAVVqJWXmaJnnJLl/MJksTfa5Eo/4aNfEAsiE2GmfTj6c3rE9KSBGLA+W7M97HxeKRlKH+jLo5RX5GI+ANLiRxZy1inugNP9MnK0jTL8m+CYu2v09WlMRA4+MQvC/6U2xK5+GrPwWN1eB+bma+IfAQLu0izGndQW/A5WWAfB6wP+azPbOww1VNqLcQsKb/tuL7bEuuiHadW55nDUXM/hHFbgaLG6Rq8tMyI1zokU5zos7ism7mUvHQiwPsCkWOPFvLGh9BF39orKpJFgnSfP6aK69oEQ==",
+    "log3": "+Ef5aTeyEPyn2n3FarXvFmouRKZdeAG4MjHSoCaRizy+/FvFnuZ7ARNE9gYEHZERPfOSZHwmKv+UjzS7+dY42So24hOQW+SB2Xs1ly/5Bv95h3Tozym3ZJGH0Fl58+8vp0RKzP9NQjbaDu48P9qOPSsVoOQtpmealiuONsl9iquOJ23tcwIjdxhF1sxlfeD30BnmzKZ+dB1UBAgai3+BiVNnyLKECFYzRF8fmcl+oMJL+Y2D8qpQgMXcSqRVZhJ61cjKdD+egFzPtXQDvOSo62rANiSnJN2AfwC1khTAKSrLYGcwyA4ghgE8c9tE1saQAP9VhXn/lo7fmyNieGnD+XTN1HGF8hhlEtR//vH8D0sBOfPKSSYd6381jf/kBc6hG6Y8ceyl9zSnKE5kuaZj7xnFO+tUZRIXf5AvYSBX9OMJBVn5ofn2C33emqVFFkRXkSYk/Ar6/avFATAF9UFZTybHk2aY0ulnlnN9sTeC1sX9W3RpBifS+/Dyr7Cf/brraDlSgYW4kV8sBI1UwSqLEqhqBhx7HNgplgF+IhvqC/oSFwRuLbV8h3tHxyxB5LoNn4B3sfpwyH26fh5hjNFv0A4wbhWy2nq4JvmCgDCPKoopDLLcS42c89jB36iVha7ccEOQa//9v8TrpmJ1h7KTksmAl155moZwzCPHCwvJK9YrQ6zjE2LENrZxX5RGFiYgXmc2ta/+VcBlKrUPVWhPbGpAqm+9LHvitXJEWPG6a8tY1fnnMFt9m6SOwEVDL1sJ4S+jmP6OmTWcsQvoHJdESWuT/rG/AksOjK8uo6oggawFyodjxeSJvjB/iJtACEVFQ0Sk4URylbKgd52GxLzPpNcbRfMP9diKTuC4fCWnhenMLekWExwoMq2Iqr6GD3fm+0bL4tgbRJRwi8bBP1dSpH7LMvbZDYVrXJQ+QVYdeGnJLEBlCx04D8+2vFlrNtaCa95npqClvQpJGyczdkctImqn1haUWPIKxN8E3pRrKJOTrGlBaxAmvLSbeDe4YALE6itOMGdGprRf7TwDJhXx6br4eriGMFzYw8YLxsWwEr2/SopBsF+XxokM0wq9I2SNO0R7SVfjNCaAbJ9gKc3ZWCrgH5bwHhss4h+F+0bQZm4plSvqMmNWHzEm64Y509v73WculcFWRLOqqgvJ8L44JVUlJBPbjaQIzc1NUlaVBqIDZy2CYTczkYcEpixC0eJC4OIFMYobCqIxmV7AxhlXfNMoaTh8lytKCFVauDIPP2AkpcYAJHD7C3cZPAj30peX0XuryCilLDeioYRc3QOS/2jpa9NB/Wr/howS5Zi3q3Gc/N5FncQRbQtKQLp7fFqJlhUU4wttHEHfoERK//vW0BnueyInRl7jCxo/g+kq79GPtoNiUsG4cUy0DDR/XZTVtzuBpzX86jEMdYpXjBA9J66hAAVinLzPaaJVLVP41rb090jAaE9E+vbBIkXGgvepnnV9GpVdYrlIZqCKMPs63pq63RoDZ40lE7SJam/iYubf8HPpcAZgryJPvgjNudpOX9m8HHvllR55HVcgNE8Zacsbsp9RS3QhjU39YaspjJ4=",
+    "gatherCostLog2": 312,
+    "gatherCostLog3": 123,
+    "scene": "19x5u7lo",
+    "devicePlatform": "W.10054"
+  },
+  "verifyParams": {
+    "params": {
+      "AccessKeyId": "TESTKEY",
+      "SignatureMethod": "HMAC-SHA1",
+      "SignatureVersion": "1.0",
+      "Format": "JSON",
+      "Version": "2023-03-05",
+      "Action": "VerifyCaptchaV2",
+      "SignatureNonce": "nonce-verify",
+      "SceneId": "19x5u7lo",
+      "CertifyId": "0a0611221785065901234567e6043",
+      "CaptchaVerifyParam": "{\"sceneId\":\"19x5u7lo\",\"certifyId\":\"0a0611221785065901234567e6043\",\"deviceToken\":\"TOKEN-REDACTED\",\"data\":\"DATA-REDACTED\"}",
+      "UserUserId": "UUUU-TEMPLATE",
+      "Signature": "ccO3g2qKnjSu8S4hT3L4H7R5APQ="
+    },
+    "secret": "TESTSECRET"
+  },
+  "dataBuilderTrack": {
+    "data": "JRMlmh0hDgRQeQIXRQVVJ18WW38JA3g6cxErYF6jBR8ydUSG+UIVQAUDEWIWFPhV3qMRYW2sF3yF8MwaoYF+KUlPNF4RL3kANCoXUHQgeErrXFQhcT9eZ9FbbX8QGmbvZsWiGskZMukpYYgffUU5jTJ+bmtwnd12/FCfQZ4ATpMHfi58FjBXThFqZDpTQBwz40oOJd1Ge35wcBxBy3SRHktWbjkvlTVa1mhpAQ==",
+    "nonce": "00000000000000000000000000000000",
+    "streamKey": "3e627e1b4c63f913",
+    "compressed": "eJx9zUEKgzAQheG7vLWLjG219QzdVboPohJkoCRpQcS7+0Z3XZhF+PiTYZw7Pwva6LvpGVJGs0A7NBAUyIaS0C9xsdITVysf4mZFf1RlSYmamBJxJ4ZAPIiUfcxtUE4L9zHYizisxbH69f/h3ccwzEcp9+LjyBneIlg3zYU1sA==",
+    "trackJson": "{\"TrackList\":{\"mc\":\"1\",\"tc\":\"2\",\"mu\":\"3\",\"te\":\"4\",\"mp\":\"5\",\"tmv\":\"6\",\"mm\":\"7\",\"ks\":\"8\",\"fi\":\"9\",\"startTime\":1000,\"si\":\"10\"},\"TrackStartTime\":1000,\"VerifyTime\":2000,\"arg\":\"arg11\"}"
+  },
+  "buildArg": {
+    "arg": "fSFbBHFkKJc51fRDmD4DDU6iKHitMT5GBH0nNWE=",
+    "key": "abcdef0123456789"
   },
   "pzdsWasmSign": {
     "method": "post",

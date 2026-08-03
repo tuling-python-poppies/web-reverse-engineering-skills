@@ -1,6 +1,6 @@
 # 阿里云 Captcha V2 协议参考
 
-> 状态：本文件是协议族与历史证据参考，不是当前目标的可运行实现。skill 不包含 `run_t001.py`、`verifier/aliyun_v2.py`、`vm_codec.js`、`t001_profile.json` 或更新器；文中这些名称仅指用户明确提供并授权的外部项目文件。
+> 状态：本文件是协议族与历史证据参考，不是当前目标的可运行实现。skill 不包含 `run_t001.py`、`verifier/aliyun_v2.py`、`t001_profile.json` 或更新器；案例库资产中的 `data_builder.js`/`vm_codec.js` 仅为离线向量辅助。文中这些名称仅指用户明确提供并授权的外部项目文件。
 >
 > 本文件中的 51job / FeiLin 观察、固定值、版本记录和在线结果均属于历史样本，不能作为当前目标验收、当前 cookie/profile 或 live replay 授权。当前案例以注册表和对应 `case.json` 的离线向量为准；最终 live egress 仍须走 `python-collector` work order。
 
@@ -127,6 +127,8 @@ STREAM_KEY_DEFAULT = 3e627e1b4c63f913
 
 # 设备 Log 公共语义
 DEVICE_PLATFORM_TAG = W.10051
+# 平台标记按代际轮换：1.4.2 代际为 W.10051；1.5.1 代际（feilin123–125）为 W.10054。
+# 应以当轮 Log2/token 解密出的 platform 字段为准，不要写死。
 DEVICE_APP_NAME     = saf-captcha-waf
 DEVICE_APP_VERSION  = W20220202
 # Log2 event: 501#Base64(record6)
@@ -178,6 +180,22 @@ for each pos, char in suffix:
 field21 = Base64(8 bytes)
 
 回归：对当前目标同一主流 cohort 的 ≥3 个 session suffix，全命中 Log2/token 的 field21。
+```
+
+**field21 feilin124/125（classic 参数轮换，非按位换代）：**
+
+```text
+feilin124: source = 0fda6a92
+           mask   = 6070d095  (ASCII 8 字节；JSON 中 xorMaskHex=3630373064303935)
+feilin125: source = UUUUUUUU
+           mask   = 0000000000000000  (8 个零字节)
+
+固定向量:
+  feilin124: ec172610 -> Q3pCSCxHc3c=
+  feilin125: 64f03822 -> a2k8ZWhtZ2c=
+             9f831948 -> bjxtaGZuaW0=
+
+注：feilin124 的 ec172610 向量对 source=|}DN}IvH、mask=211b172d1c185b2f(hex) 同样命中；classic 单样本无法区分等价参数对，须 ≥3 样本 + holdout 后再采用。
 ```
 
 **历史目标样式示例（不得视为当前端点或定值）：**
@@ -473,6 +491,17 @@ FeiLin111:
 FeiLin112:
   source = """"""""
   mask   = 0eb971e9  (ASCII 8 字节)
+
+FeiLin124:
+  source = 0fda6a92
+  mask   = 6070d095  (ASCII 8 字节；JSON 中 xorMaskHex=3630373064303935)
+  固定向量: ec172610 -> Q3pCSCxHc3c=
+
+FeiLin125:
+  source = UUUUUUUU
+  mask   = 0000000000000000 (8 个零字节)
+  固定向量: 64f03822 -> a2k8ZWhtZ2c=
+            9f831948 -> bjxtaGZuaW0=
 ```
 
 这里的 `072e8290` / `fde95c04` / `0eb971e9` 都是 8 个 ASCII mask 字节；JSON profile 中分别保存为十六进制 `3037326538323930`、`6664653935633034`、`3065623937316539`。FeiLin110 参数已通过 24 样本推导、holdout 和在线 T001 验证，零 mask 在 JSON 中保存为 `0000000000000000`。FeiLin111 参数已通过 12 样本全量拟合与在线 T001 验证；该版本 field 52/88 为轮次本地值，稳定画像比较时应忽略。FeiLin112 的部分采样位置可能因十六进制 suffix 覆盖不足出现等价候选；只有当多样本显示唯一 shared-source 家族，并且候选 profile 在线 `Log2/Log3 200 true + Verify T001 true` 后，才可采用上述参数。

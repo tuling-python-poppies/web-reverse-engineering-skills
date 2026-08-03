@@ -60,6 +60,110 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
         )
         self.assertEqual(json.loads(process.stdout)["output"], sample["expected"])
 
+    def _device_config_fixture(self) -> entry.DeviceConfig:
+        return entry.DeviceConfig(**self.vectors["deviceConfig"]["parsed"])
+
+    def test_device_config_roundtrip(self) -> None:
+        sample = self.vectors["deviceConfig"]
+        config = self._device_config_fixture()
+        self.assertEqual(entry.build_device_config_blob(config), sample["blob"])
+        parsed = entry.parse_device_config(sample["blob"])
+        self.assertEqual(
+            {key: getattr(parsed, key) for key in sample["parsed"]},
+            sample["parsed"],
+        )
+
+    def test_log_envelope_vectors(self) -> None:
+        sample = self.vectors["logEnvelope"]
+        config = self._device_config_fixture()
+        platform = sample["devicePlatform"]
+        full_fields = ["#"] * 36 + [platform] + ["#"] * (142 - 37)
+        full_fields[21] = "WStYKVldLlw="
+        log2 = entry.build_log2_data(
+            config,
+            sample["scene"],
+            full_fields,
+            gather_cost_ms=sample["gatherCostLog2"],
+            timestamp_ms=1785065901234,
+            device_platform=platform,
+        )
+        self.assertEqual(log2, sample["log2"])
+        combat_504 = {
+            "mousemove": [{"x": 1, "y": 2, "t": 1000}],
+            "mouseclick": [],
+            "keyup": [],
+            "scrollTop": 0,
+            "scrollLeft": 0,
+            "clientType": "desktop",
+            "startTime": 1785065900000,
+            "timestamp": "1785065900",
+        }
+        log3 = entry.build_log3_data(
+            config,
+            sample["scene"],
+            "511-status-payload",
+            combat_504,
+            gather_cost_ms=sample["gatherCostLog3"],
+            timestamp_ms=1785065902467,
+            device_platform=platform,
+        )
+        self.assertEqual(log3, sample["log3"])
+
+    def test_verify_params_vector(self) -> None:
+        sample = self.vectors["verifyParams"]
+        params = entry.make_verify_params(
+            scene_id="19x5u7lo",
+            certify_id="0a0611221785065901234567e6043",
+            device_token="TOKEN-REDACTED",
+            data="DATA-REDACTED",
+            user_user_id="UUUU-TEMPLATE",
+            access_key_id="TESTKEY",
+            signature_nonce="nonce-verify",
+            secret=sample["secret"],
+        )
+        self.assertEqual(params, sample["params"])
+
+    def test_build_data_vector(self) -> None:
+        sample = self.vectors["dataBuilderTrack"]
+        track_state = {
+            "TrackList": {
+                "mc": "1", "tc": "2", "mu": "3", "te": "4", "mp": "5",
+                "tmv": "6", "mm": "7", "ks": "8", "fi": "9",
+                "startTime": 1000, "si": "10",
+            },
+            "TrackStartTime": 1000,
+            "VerifyTime": 2000,
+            "arg": "arg11",
+        }
+        built = entry.build_data(track_state, nonce=sample["nonce"])
+        self.assertEqual(built["data"], sample["data"])
+        self.assertEqual(built["compressed"], sample["compressed"])
+        self.assertEqual(built["trackJson"], sample["trackJson"])
+
+    def test_build_arg_vector(self) -> None:
+        sample = self.vectors["buildArg"]
+        built = entry.build_arg("0a0611221785065901234567e6043", key=sample["key"])
+        self.assertEqual(built["arg"], sample["arg"])
+
+    def test_track_template_shape(self) -> None:
+        template = json.loads(
+            (CASE_ROOT / "fixtures" / "track-template.json").read_text(encoding="utf-8")
+        )
+        track = template["track"]
+        track_list = track["TrackList"]
+        for key in ("mc", "tc", "mu", "te", "mp", "tmv", "mm", "ks", "fi", "startTime", "si"):
+            self.assertIn(key, track_list)
+        for key in ("TrackStartTime", "VerifyTime", "arg"):
+            self.assertIn(key, track)
+        generation = template["generation"]
+        self.assertIn("timestampFields", generation)
+        self.assertEqual(
+            generation["screenInfo"]["parts"],
+            len(track_list["si"].split(",")),
+        )
+        for field in generation["timestampFields"]:
+            self.assertIn(field, track_list)
+
     def test_wasm_sign_asset(self) -> None:
         sample = self.vectors["pzdsWasmSign"]
         signed = entry.pzds_wasm_sign(

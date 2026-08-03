@@ -1247,8 +1247,8 @@
                     "action:VerifyCaptchaV2",
                     "sidecar:DeviceConfig-Log2-Log3",
                     "success:T001",
-                    "wasm:pzds-ad96acb6-generate_sign",
-                    "header:X-Sign-Version-v17"
+                    "wasm:pzds-505c6f51-generate_sign",
+                    "header:X-Sign-Version-v18"
                 ],
                 "minimumIndependentSignals": 3,
                 "negativeSignals": [
@@ -1257,7 +1257,9 @@
                     "alias:ruishu",
                     "vendor:geetest",
                     "vendor:tencent-tdc",
-                    "runtime:pure-python-only"
+                    "runtime:pure-python-only",
+                    "path:manual-slider-default",
+                    "path:decode1174-required"
                 ]
             },
             "providerPlan": [
@@ -1286,7 +1288,7 @@
             ],
             "manifest": {
                 "path": "python-node/pzds-aliyun-v2-goods-public/case.json",
-                "sha256": "65eddb3898c1125e8165c08b82669ce5951ebd46720d7178e075da3ba0d7d4de"
+                "sha256": "4b3bb88103d266a706fe8c9894cfbc2dfe1baacb7e7ad2d5ee5f4f4f597fb921"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

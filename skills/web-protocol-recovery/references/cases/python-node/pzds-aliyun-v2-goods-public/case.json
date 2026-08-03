@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 2,
+  "revision": 3,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -18,8 +18,8 @@
       "action:VerifyCaptchaV2",
       "sidecar:DeviceConfig-Log2-Log3",
       "success:T001",
-      "wasm:pzds-ad96acb6-generate_sign",
-      "header:X-Sign-Version-v17"
+      "wasm:pzds-505c6f51-generate_sign",
+      "header:X-Sign-Version-v18"
     ],
     "minimumIndependentSignals": 3,
     "negativeSignals": [
@@ -28,7 +28,9 @@
       "alias:ruishu",
       "vendor:geetest",
       "vendor:tencent-tdc",
-      "runtime:pure-python-only"
+      "runtime:pure-python-only",
+      "path:manual-slider-default",
+      "path:decode1174-required"
     ]
   },
   "exactScopes": [
@@ -70,12 +72,13 @@
     "sidecar:Log2-Log3",
     "business-header:Sign-PZTimestamp-Random",
     "business-api:goodsPublic/page",
-    "runtime:python-node-wasm"
+    "runtime:python-node-wasm",
+    "login:password-md5-oauth"
   ],
   "product": {
     "vendor": "Aliyun",
     "product": "Captcha V2 WAF",
-    "version": "FeiLin117 / PZDS X-Sign-Version v17",
+    "version": "FeiLin12x / PZDS X-Sign-Version v18",
     "subtype": "sliding-t001-pzds-goods-public"
   },
   "dependencies": {
@@ -85,34 +88,36 @@
     "curl_cffi": "live replay only"
   },
   "liveState": {
-    "mode": "project-profile-required",
-    "retention": "memory-only",
+    "mode": "project-profile-and-session-required",
+    "retention": "project-local-only",
     "requiredCookies": [],
     "optionalCookies": [],
     "storageKeys": [],
-    "profile": "verifier/t001_profile.json from the current authorized project; not stored in this case"
+    "profile": "verifier/t001_profile.json in the authorized project; not stored in this case",
+    "session": "js_reverse_cache/pzds_session.json in the authorized project; requires token",
+    "credentials": "ask user for username/password when token is missing; store only in project config.local.json"
   },
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "0080ed45f7e64e366936984d8f2a77b481dca624bc562b5c73c0bcd9a257c9dd"
+      "sha256": "0279f072cec8584dd8e3220b8a49ef3fb711b359e4bf6e2721eeaec6bff42506"
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "72bff33ac66faa9c4ccf6b278bb7c9d449a340ce27a6bfd7edd7f560e0ddc16a"
+      "sha256": "cb604b9569b3f812cd700acb079f0925d970c2c7a79d96bf46e95a2791608755"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
-      "sha256": "7d62720161f584a3aff27aa9d108a4a71c9db009cd5dc3cb8f436817123fb7a9"
+      "sha256": "4c8ee1d977fa951074c88b2fb028090e8c38924ed87085bb2898b1cb94ad81b5"
     },
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "c58ecf8ffc6bc51e65c7de29d26ecd44ea1300d5803a4c9dc8ea029efe25ba34"
+        "sha256": "951b17671204c535a921f61bd340d5c14d33cf059fe7bf04e2197b60078ceb95"
       },
       {
         "path": "fixtures/request.sample.json",
-        "sha256": "48ffb3a201d5838ade2e20daa26b896dd6703c546aa134de96a449a70e3e87e1"
+        "sha256": "3831e69b7705fef33fdbbcee7e74f3dc49e44967de4d770811ded510cb1b3635"
       },
       {
         "path": "fixtures/response.sample.json",
@@ -120,7 +125,11 @@
       },
       {
         "path": "fixtures/live-proof.summary.json",
-        "sha256": "2ae5eae1ebdc0e8588d2bd0d84e38b67b6656a10b622a4cc27f30f362e9d342f"
+        "sha256": "df0165c5766389428d3ac96787c243fb4e9f803d0875909b546957a58266a0b2"
+      },
+      {
+        "path": "fixtures/offline-proof.summary.json",
+        "sha256": "231b0ca9ffdf537603dd620e3234d3990085dc2edfe6696c284951382291afd8"
       },
       {
         "path": "assets/data_builder.js",
@@ -132,26 +141,22 @@
       },
       {
         "path": "assets/pzds_wasm_sign.mjs",
-        "sha256": "7060c9417146d146704f28f17975dba283665d648dc30ece60b8be435d75d03c"
+        "sha256": "4c7db7263e3563dc4d4120f94c8ede776d6bf5cc2282aa084eac5eb7dfb1f723"
       },
       {
-        "path": "assets/pzds_wasm_glue_03574d3f.mjs",
-        "sha256": "501951c6d9b9f3b61264380fdafb0002cbffb6977bb580123502b4010ae6b09a"
+        "path": "assets/pzds_wasm_glue_64c90705.mjs",
+        "sha256": "3b4d2355e115ae96affb0f1bdf927f462fc3166b962db7b30d7a9454296343d3"
       },
       {
-        "path": "assets/ad96acb6.wasm",
-        "sha256": "c3ee2ed8e0457f3c73d5b705bfeb246353d9ed3d0bed77abc8e8e5ed81a59339"
-      },
-      {
-        "path": "fixtures/offline-proof.summary.json",
-        "sha256": "7feea3534cfd1852ec4732987854c1f9743904c5d3b571e714a9910286306e1f"
+        "path": "assets/505c6f51.wasm",
+        "sha256": "932a4bd29706f3de80a203f73bcef14a104b4efbf95375a1474a53def1e60d09"
       }
     ]
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-29",
+    "executedAt": "2026-08-03",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -159,20 +164,20 @@
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "7feea3534cfd1852ec4732987854c1f9743904c5d3b571e714a9910286306e1f"
+      "sha256": "231b0ca9ffdf537603dd620e3234d3990085dc2edfe6696c284951382291afd8"
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "request, field21, RPC, token, JavaScript, WASM, and challenge-parser vectors pass without live network egress",
+      "offlineAcceptance": "request, field21, RPC, token, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "72bff33ac66faa9c4ccf6b278bb7c9d449a340ce27a6bfd7edd7f560e0ddc16a",
+      "currentEntrySha256": "cb604b9569b3f812cd700acb079f0925d970c2c7a79d96bf46e95a2791608755",
       "currentTestArtifactSha256": "39295a0364b93d3e88455891f3e70a66475da94097d931dc69fb7f6273a14330",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
-        "executedAt": "2026-07-26",
+        "executedAt": "2026-08-03",
         "currentAcceptance": false,
         "evidencePath": "fixtures/live-proof.summary.json",
-        "summary": "Source-project PZDS business replay is historical provenance and requires fresh current-target verification."
+        "summary": "Prior live business replay is provenance only and requires fresh current-target verification with project login session and FeiLin profile."
       }
     }
   },

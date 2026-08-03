@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "pzds-aliyun-v2-vectors/v1",
+  "schemaVersion": "pzds-aliyun-v2-vectors/v2",
   "request": {
     "method": "POST",
     "url": "https://api.pzds.com/api/web-client/v2/public/goodsPublic/page",
@@ -77,12 +77,17 @@
     "method": "post",
     "timestamp": "1785065900000",
     "random": "123456",
-    "expectedSign": "7fd3ba623526e269e809adab499fbfef"
+    "signVersion": "v18",
+    "expectedSign": "9683b7807689459f2f1af99680f557bf"
   },
   "assets": {
-    "ad96acb6.wasm": {
-      "sha256": "c3ee2ed8e0457f3c73d5b705bfeb246353d9ed3d0bed77abc8e8e5ed81a59339",
-      "size": 70161
+    "505c6f51.wasm": {
+      "sha256": "932a4bd29706f3de80a203f73bcef14a104b4efbf95375a1474a53def1e60d09",
+      "size": 70353
+    },
+    "pzds_wasm_glue_64c90705.mjs": {
+      "sha256": "3b4d2355e115ae96affb0f1bdf927f462fc3166b962db7b30d7a9454296343d3",
+      "size": 8198
     }
   }
 }

@@ -4,25 +4,27 @@ Read this before using this case's `entry.py`.
 
 ## Goal
 
-Reproduce the public PZDS goods list flow guarded by Aliyun Captcha V2 WAF.
-The final delivery is browser-free for live egress: Python owns page warmup,
-challenge trigger, captcha RPC/device sidecar requests, verifier submission, and
-the protected business POST. Node/WASM are narrow local helpers for the FeiLin
-stream codec and the PZDS business request signer.
+Recover the PZDS goods-list API guarded by Aliyun Captcha V2 and deliver a
+browser-free Python collector that prints business JSON.
 
-Fresh verification from the project implementation on 2026-07-26:
+Success requires both layers:
 
-1. `python main.py --mode offline-selfcheck` returned `passed=true`.
-2. `python main.py --mode business --timeout 60 --attempts 5 --page 1 --pages 1`
-   returned Aliyun `VerifyCode=T001`, `VerifyResult=true`, business JSON
-   `code=SUCCESS`, and `data.records=10`.
-3. A second live page (`--page 2`) returned the same semantic success and
-   `data.records=10` after retry hardening.
+```text
+captcha:
+  response.Success == true
+  response.Result.VerifyCode == "T001"
+  response.Result.VerifyResult == true
+
+business:
+  HTTP 200
+  success == true
+  code == "SUCCESS"
+  data.records is a list
+```
 
 ## Match And Exclusion Signals
 
-Select this case only for the PZDS public goods-list WAF shape when at least
-three independent signals match:
+Select this case when at least three independent signals match:
 
 - `site:pzds`
 - `api:goodsPublic/page`
@@ -31,96 +33,122 @@ three independent signals match:
 - `action:VerifyCaptchaV2`
 - `sidecar:DeviceConfig-Log2-Log3`
 - `success:T001`
-- `wasm:pzds-ad96acb6-generate_sign`
-- `header:X-Sign-Version-v17`
+- `wasm:pzds-505c6f51-generate_sign`
+- `header:X-Sign-Version-v18`
 
-Do not select for Akamai, River Security/Ruishu, Geetest, Tencent TDC, generic
-slider UI automation, or tasks requiring a pure-Python-only runtime.
+Do not select for Akamai, River Security, Geetest, Tencent TDC, pure-Python-only
+runtimes, or tasks whose primary goal is browser UI automation.
+
+## Default Protocol Path
+
+This is the only default collector path.
+
+1. **Login gate**
+   - If project session has no usable `token`, ask the user for username and
+     password.
+   - Credentials are used only inside the authorized project for protocol login.
+     Write them only to project `config.local.json` (gitignored). Never write
+     username/password into the case library, fixtures, tests, or reports.
+   - Protocol login:
+     - `POST /api/auth/oauth2/token` with password MD5 and client basic auth
+     - `POST /api/web-client/v2/user/public/login/idtoken`
+   - Persist project-local session shape to
+     `js_reverse_cache/pzds_session.json`:
+     `token`, optional `pzId`, `deviceId`, `globalId`.
+
+2. **Trigger challenge**
+   - `POST https://api.pzds.com/api/web-client/v2/public/goodsPublic/page`
+   - compact JSON body from `build_goods_page_body`
+   - PZDS PC headers including `X-Sign-Version: v18`
+   - `Sign` / `PZTimestamp` / `Random` from local WASM helper
+   - `Referer: https://www.pzds.com/`
+   - `token` / optional `PZid` for login admission
+
+3. **Parse challenge**
+   - response is HTML containing `var requestInfo = {...}`
+   - required fields: `sceneId`, `traceid`, `token`, `userId`, `userUserId`,
+     optional `type`, `data`
+
+4. **Pure FeiLin captcha**
+   - InitCaptchaV2
+   - Log2 / Log3 on device endpoint
+   - VerifyCaptchaV2
+   - accept only `T001/true`
+
+5. **Business replay**
+   - same compact body used for trigger and final POST
+   - URL carries `u_atoken` and `u_asig`
+   - regenerate v18 `Sign` / `PZTimestamp` / `Random` for the final body
+   - Python owns final HTTP egress
+
+6. **Print business JSON** to console and keep redacted project samples only.
+
+## Live Prerequisites
+
+Before claiming live complete, project root must provide:
+
+| Item | Project path | Notes |
+|---|---|---|
+| FeiLin profile | `verifier/t001_profile.json` | must match live `DeviceConfig.version` as a full package |
+| Login session | `js_reverse_cache/pzds_session.json` | requires `token`; prefer `pzId/deviceId/globalId` |
+| Optional credentials | `config.local.json` | username/password only when login is needed; gitignore |
+
+Use `pull_live_state.py inspect <projectRoot>` to report missing gates. Missing
+session => ask user for username/password. Missing or stale profile => refresh
+the full FeiLin profile package; do not only rewrite the version string.
 
 ## Gate Family
 
-Primary: **verifier**. The platform-specific proof is Aliyun Captcha V2
-`Success==true && Result.VerifyCode=="T001" && Result.VerifyResult==true`.
+Primary: **verifier** (`T001/true`).
 
-Secondary gates:
+Secondary:
 
-- **session**: a cold or stale PZDS session may return JSON `NOT_LOGGED_IN`
-  instead of WAF challenge HTML. Warm `https://www.pzds.com/goodsList/7/6`
-  first and retry the whole round. For the signed goodsPublic trigger POST,
-  keep browser-parity `Referer: https://www.pzds.com/`; using the detail page
-  referer (`/goodsList/7/6`) can route the request to JSON `NOT_LOGGED_IN`
-  instead of the Aliyun challenge page.
-- **transport**: Python 3.9 cannot use `curl_cffi>=0.14`, and `curl_cffi 0.13`
-  does not expose native `chrome146`. Use a custom `chrome146` JA3/Akamai
-  transport profile in Python 3.9 implementations; do not silently downgrade
-  to `chrome136`, which can fail the business WAF trigger.
-- **signer**: the PZDS business API may require `Sign`, `PZTimestamp`, and
-  `Random` before it returns `requestInfo`; these are generated by the frozen
-  public WASM helper at the wire mutation point.
+- **session**: cold/missing login returns JSON `NOT_LOGGED_IN` instead of
+  challenge HTML. Re-login; keep root referer `https://www.pzds.com/`.
+- **signer**: business headers require v18 WASM `Sign` / `PZTimestamp` /
+  `Random` at the wire request boundary.
+- **transport**: use browser-equivalent TLS for live replay; do not silently
+  downgrade impersonation profiles that fail challenge trigger.
 
-## Evidence And Mutation Point
+## Canonical Mutation Point
 
-Observed request chain:
+Python constructs the final HTTP request immediately before egress. Local Node
+WASM only returns narrow artifacts (`Sign`, `PZTimestamp`, `Random`, captcha
+`data`/`arg`) and never owns live HTTP.
 
-1. GET `https://www.pzds.com/goodsList/7/6` for page warmup/session state.
-2. POST `https://api.pzds.com/api/web-client/v2/public/goodsPublic/page` with
-   the compact JSON body, PZDS signed headers, and root-page referer
-   `https://www.pzds.com/`.
-3. The WAF response is HTML containing `var requestInfo = {...}` with
-   `sceneId`, `traceid`, `token`, `userId`, `userUserId`, `type`, and base64
-   original request body data.
-4. POST `InitCaptchaV2` to
-   `https://18152c0dc559302765e69a8f8bf3c191.captcha-pro-open.aliyuncs.com/`.
-5. POST `Log2` and `Log3` to `https://device.captcha-open.aliyuncs.com/` with
-   same-round `DeviceConfig`, profile fields, sparse token, timestamps, and
-   combat telemetry.
-6. POST `VerifyCaptchaV2` to the matching `-verify` endpoint.
-7. POST the business API again with `u_atoken=requestInfo.token`,
-   `u_asig=CertifyId`, and regenerated PZDS signed headers.
+## False Leads
 
-Canonical mutation point: Python constructs the final wire request immediately
-before egress. Node/WASM only returns narrow artifacts (`data`, `arg`, or
-`Sign/PZTimestamp/Random`) and never owns live HTTP.
+- Treating page SSR HTML as the business data source.
+- Treating `decode__1174` as a required default gate for
+  `goodsPublic/page` POST. It may appear in browser traffic and is not required
+  once captcha admission and v18 headers are correct.
+- Using manual captcha slider or browser page automation as the default
+  collector path.
+- Spending captcha retries while trigger still returns `NOT_LOGGED_IN`.
+- Changing only `feilinVersion` text when server cohort changes.
 
 ## Implementation Notes
 
-`entry.py` is intentionally import-safe: importing it performs no network I/O
-and writes no files. It provides reusable primitives and an offline self-check:
+`entry.py` is import-safe and provides:
 
-- PZDS compact goods body builder
-- WAF `requestInfo` parser
-- Aliyun RPC HMAC-SHA1 signer
-- Device token parser/checksum/encrypt/decrypt helper
-- FeiLin field21 classic helper
-- PZDS WASM signer wrapper
-- Challenge/business response classifiers
+- compact goods body builder
+- password MD5 / oauth body helper
+- challenge parser
+- Aliyun RPC HMAC-SHA1 helper
+- device token helpers
+- v18 WASM signer wrapper
+- business URL builder and response classifier
 
-The full live project runner also needs a current profile/state file generated
-from the current target browser cohort. Do not copy the original project
-`t001_profile.json` into the case library: it contains browser/device profile
-and IP-derived state. Use `pull_live_state.py` to locate an approved current
-profile in a reproduction project and keep one-shot tokens in memory only.
+Project live runners must keep:
 
-Python 3.9 implementations need one extra transport guard. `curl_cffi 0.13.0`
-supports custom `ja3`, `akamai`, and `extra_fp` values but not native
-`chrome146`; `curl_cffi>=0.14` requires Python >=3.10. The verified Python 3.9
-fallback used this browser-equivalent profile:
+- current FeiLin profile package under `verifier/`
+- login session under `js_reverse_cache/`
+- v18 signer assets used by the project entry
 
-```text
-ja3 = 771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,43-35-5-11-10-65037-45-51-13-17613-16-0-23-65281-27-18,4588-29-23-24,0
-akamai = 1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p
-extra_fp = tls_grease=true, tls_permute_extensions=true,
-           tls_cert_compression=brotli, http2_stream_weight=256,
-           http2_stream_exclusive=1
-```
+Case library stores only redacted shapes, offline vectors, and public frozen
+signer assets.
 
-When `NOT_LOGGED_IN` appears after a signed trigger POST, first run a
-challenge-only probe that stops after `requestInfo`; do not spend retries on
-captcha submission until the trigger consistently returns challenge HTML.
-
-## Fixed-Vector / Live Proof
-
-Case-local offline tests:
+## Fixed-Vector / Offline Proof
 
 ```text
 python -m unittest discover -s tests -v
@@ -128,46 +156,36 @@ python -m unittest discover -s tests -v
 
 Vectors cover:
 
-- PZDS goods body SHA-256 and request shape
-- FeiLin field21 classic vectors and FeiLin117 sample
-- Aliyun RPC HMAC-SHA1 deterministic signature
-- deviceToken checksum / AES-CBC roundtrip
+- goods body SHA-256 and request shape
+- field21 classic vectors
+- Aliyun RPC HMAC-SHA1
+- deviceToken checksum / AES roundtrip
 - `data_builder.js` fixed output
-- `pzds_wasm_sign.mjs` deterministic output for fixed timestamp/random/body
-- WAF challenge HTML parsing
-
-Fresh live proof summary is stored in `fixtures/live-proof.summary.json`. It
-contains no cookies, verifier tokens, one-shot certify IDs, HAR, browser state,
-or raw response body.
+- v18 `pzds_wasm_sign.mjs` fixed timestamp/random/body
+- challenge HTML parser
 
 ## Dependencies
 
-- Python >= 3.9 for project implementations; Python 3.9 requires the custom
-  `chrome146` transport profile above when `curl_cffi` is pinned to 0.13.x
-- `pycryptodome` for AES helpers
-- `curl_cffi` for live replay in project implementations
+- Python >= 3.10 for current project runners
 - Node.js for `assets/data_builder.js` and `assets/pzds_wasm_sign.mjs`
+- `pycryptodome` for AES helpers
+- `curl_cffi` for live replay in project runners
 
 ## Invalidation Signals
 
-- PZDS `X-Sign-Version` changes from `v17` or the WASM asset hash changes.
-- `wasm-config-prod.json` no longer points to the `ad96acb6` signer family.
-- PZDS challenge trigger no longer returns `var requestInfo` after page warmup,
-  root referer, and signed headers.
-- Python 3.9 transport profile fails to reproduce `chrome146` JA3/Akamai shape
-  or regresses to unsupported/native `chrome146` errors.
-- Aliyun `DeviceConfig` layout, AES keys, token envelope, Log2/Log3 sidecar, or
-  FeiLin field21 family changes.
-- Current `DeviceConfig.version` diverges from the selected live profile.
-- `VerifyCaptchaV2` stops returning `T001/true` on a coherent same-round state.
-- Business success shape leaves JSON `success=true`, `code=SUCCESS`, and
-  `data.records` list.
+- `X-Sign-Version` leaves `v18`
+- WASM asset no longer matches `505c6f51` family
+- challenge trigger no longer returns `var requestInfo` after login + signed
+  headers + root referer
+- `DeviceConfig.version` diverges from project profile and full profile refresh
+  is not performed
+- Verify no longer returns `T001/true` on a coherent same-round state
+- business success leaves `success=true`, `code=SUCCESS`, and `data.records`
 
 ## Sensitive Materials Intentionally Excluded
 
-- No cookies (`acw_tc`, `ssxmod_*`, analytics cookies), Authorization, browser
-  state, HAR, raw private response, or local absolute path.
-- No one-shot `u_atoken`, `u_asig`, `CertifyId`, `traceid`, gateway token, or
-  full live response body.
-- No full `t001_profile.json`; profile state is current-target live state and
-  must be pulled from the authorized reproduction project.
+- username, password, raw token values, cookie values
+- Authorization secrets
+- full FeiLin profile bodies in the case library
+- one-shot `u_atoken`, `u_asig`, `CertifyId`, `traceid`
+- HAR, full private responses, absolute local paths

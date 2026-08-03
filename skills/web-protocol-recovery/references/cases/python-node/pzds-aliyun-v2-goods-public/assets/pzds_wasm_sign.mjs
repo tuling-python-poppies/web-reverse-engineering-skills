@@ -2,10 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import initWasm, { generate_sign } from "./pzds_wasm_glue_03574d3f.mjs";
+import initWasm, { generate_sign } from "./pzds_wasm_glue_64c90705.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const wasmPath = path.join(__dirname, "ad96acb6.wasm");
+const wasmPath = path.join(__dirname, "505c6f51.wasm");
 
 globalThis.self ??= globalThis;
 globalThis.window ??= globalThis;
@@ -15,7 +15,7 @@ Object.defineProperty(globalThis, Symbol.toStringTag, {
   configurable: true,
 });
 globalThis.location ??= {
-  href: "https://www.pzds.com/goodsList/7/6",
+  href: "https://www.pzds.com/goodsList/7",
   hostname: "www.pzds.com",
 };
 

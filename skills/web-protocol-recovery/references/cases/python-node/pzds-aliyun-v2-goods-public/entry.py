@@ -1,8 +1,8 @@
 """Reusable PZDS Aliyun Captcha V2 primitives.
 
 Importing this module performs no network traffic and writes no files. Live
-collectors should combine these helpers with a current project profile selected
-through `pull_live_state.py`.
+collectors should combine these helpers with current project login session and
+FeiLin profile state selected through `pull_live_state.py`.
 """
 
 from __future__ import annotations
@@ -16,13 +16,13 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
-from urllib.parse import parse_qsl, quote
+from urllib.parse import quote
 
 
 PZDS_ORIGIN = "https://www.pzds.com"
 GOODS_PAGE_URL = "https://api.pzds.com/api/web-client/v2/public/goodsPublic/page"
-PZDS_VERSION = "26.724.1707"
-PZDS_SIGN_VERSION = "v17"
+PZDS_VERSION = "26.731.2023"
+PZDS_SIGN_VERSION = "v18"
 PZDS_CHANNEL_INFO = '{"channelCode":null,"tag":null,"channelType":null,"searchWord":"null","adExtras":"","urlParam":""}'
 DEVICE_AES_IV = b"0123456789ABCDEF"
 DEVICE_TOKEN_SALT = "daye,raolewoba!"
@@ -59,7 +59,11 @@ def percent_encode(value: Any) -> str:
 
 
 def canonical_query(params: Mapping[str, Any]) -> str:
-    return "&".join(f"{percent_encode(key)}={percent_encode(value)}" for key, value in sorted(params.items()) if key != "Signature")
+    return "&".join(
+        f"{percent_encode(key)}={percent_encode(value)}"
+        for key, value in sorted(params.items())
+        if key != "Signature"
+    )
 
 
 def sign_rpc(params: Mapping[str, Any], secret: str, method: str = "POST") -> str:
@@ -84,7 +88,10 @@ def rpc_base_params(action: str, access_key_id: str, version: str) -> dict[str, 
 def build_field21(local_suffix: str, source_key: str, xor_mask: bytes) -> str:
     if len(local_suffix) != 8 or any(ch not in "0123456789abcdef" for ch in local_suffix):
         raise ValueError("local_suffix must be 8 lowercase hexadecimal chars")
-    mixed = bytes(32 + ((ord(source) - 32 + ord(suffix) - 32) % 95) for source, suffix in zip(source_key, local_suffix))
+    mixed = bytes(
+        32 + ((ord(source) - 32 + ord(suffix) - 32) % 95)
+        for source, suffix in zip(source_key, local_suffix)
+    )
     return base64.b64encode(bytes(value ^ mask for value, mask in zip(mixed, xor_mask))).decode("ascii")
 
 
@@ -109,7 +116,9 @@ def _aes_cbc_encrypt(plaintext: bytes, key: str) -> str:
 def _aes_cbc_decrypt(ciphertext: str, key: str) -> bytes:
     from Crypto.Cipher import AES
 
-    plaintext = AES.new(key.encode("utf-8"), AES.MODE_CBC, DEVICE_AES_IV).decrypt(base64.b64decode(ciphertext, validate=True))
+    plaintext = AES.new(key.encode("utf-8"), AES.MODE_CBC, DEVICE_AES_IV).decrypt(
+        base64.b64decode(ciphertext, validate=True)
+    )
     padding = plaintext[-1]
     if padding < 1 or padding > 16 or plaintext[-padding:] != bytes([padding]) * padding:
         raise ValueError("invalid AES PKCS7 padding")
@@ -123,7 +132,9 @@ def parse_device_token(token: str) -> DeviceToken:
 
 
 def device_token_checksum(platform: str, session_id: str, payload: str, counter: int) -> str:
-    return hashlib.md5(f"{platform}#{session_id}#{payload}#{counter}#{DEVICE_TOKEN_SALT}".encode()).hexdigest()
+    return hashlib.md5(
+        f"{platform}#{session_id}#{payload}#{counter}#{DEVICE_TOKEN_SALT}".encode()
+    ).hexdigest()
 
 
 def build_device_token(session_id: str, payload_plaintext: str, counter: int, encryption_key: str) -> str:
@@ -137,7 +148,26 @@ def decrypt_device_payload(token: str | DeviceToken, encryption_key: str) -> str
     return _aes_cbc_decrypt(parsed.payload, encryption_key).decode("utf-8")
 
 
-def pzds_wasm_sign(body: bytes, method: str = "post", timestamp: str | None = None, random_value: str | None = None) -> dict[str, str]:
+def password_md5(password: str) -> str:
+    return hashlib.md5(password.encode("utf-8")).hexdigest()
+
+
+def build_oauth_password_body(username: str, password: str) -> bytes:
+    payload = {
+        "username": username,
+        "password": password_md5(password),
+        "scope": "openid",
+        "grant_type": "password",
+    }
+    return json.dumps(payload, separators=(",", ":")).encode("utf-8")
+
+
+def pzds_wasm_sign(
+    body: bytes,
+    method: str = "post",
+    timestamp: str | None = None,
+    random_value: str | None = None,
+) -> dict[str, str]:
     request = {"dataJson": body.decode("utf-8"), "method": method.lower()}
     if timestamp is not None:
         request["timestamp"] = str(timestamp)
@@ -153,16 +183,28 @@ def pzds_wasm_sign(body: bytes, method: str = "post", timestamp: str | None = No
     if process.returncode:
         raise RuntimeError(process.stderr.strip() or "pzds_wasm_sign.mjs failed")
     output = json.loads(process.stdout)
-    return {"Sign": str(output["sign"]), "PZTimestamp": str(output["timestamp"]), "Random": str(output["random"])}
+    return {
+        "Sign": str(output["sign"]),
+        "PZTimestamp": str(output["timestamp"]),
+        "Random": str(output["random"]),
+    }
 
 
-def pzds_signed_headers(body: bytes, user_agent: str, device_id: str, global_id: str) -> dict[str, str]:
+def pzds_signed_headers(
+    body: bytes,
+    user_agent: str,
+    device_id: str,
+    global_id: str,
+    *,
+    token: str | None = None,
+    pz_id: str | None = None,
+) -> dict[str, str]:
     headers = {
         "accept": "application/json, text/plain, */*",
         "accept-language": "zh-CN",
         "content-type": "application/json",
         "origin": PZDS_ORIGIN,
-        "referer": f"{PZDS_ORIGIN}/goodsList/7/6",
+        "referer": f"{PZDS_ORIGIN}/",
         "user-agent": user_agent,
         "PZOs": "windows",
         "PZPlatform": "pc",
@@ -174,6 +216,10 @@ def pzds_signed_headers(body: bytes, user_agent: str, device_id: str, global_id:
         "deviceId": device_id,
         "globalId": global_id,
     }
+    if token:
+        headers["token"] = token
+    if pz_id:
+        headers["PZid"] = str(pz_id)
     headers.update(pzds_wasm_sign(body))
     return headers
 
@@ -182,19 +228,29 @@ def parse_challenge_html(html: str) -> dict[str, Any]:
     marker = "var requestInfo = "
     required = {"sceneId", "traceid", "token", "userId", "userUserId"}
     for start in reversed([idx for idx in range(len(html)) if html.startswith(marker, idx)]):
-        payload, _ = json.JSONDecoder().raw_decode(html[start + len(marker):].lstrip())
+        payload, _ = json.JSONDecoder().raw_decode(html[start + len(marker) :].lstrip())
         if isinstance(payload, dict) and not required.difference(payload):
             return payload
     raise ValueError("challenge HTML has no usable requestInfo JSON")
 
 
 def build_business_url(target: str, gateway_token: str, certify_id: str, refer: str | None = None) -> str:
-    from urllib.parse import quote as urlquote, unquote, urlsplit, urlunsplit
+    from urllib.parse import quote as urlquote
+    from urllib.parse import unquote, urlsplit, urlunsplit
 
     parts = urlsplit(target)
     remove_keys = {"u_aref", "u_asig", "u_atoken", "decode__1174"}
-    query_parts = [item for item in parts.query.split("&") if item and unquote(item.split("=", 1)[0]) not in remove_keys]
-    query_parts.extend([f"u_atoken={urlquote(gateway_token, safe='')}", f"u_asig={urlquote(certify_id, safe='')}"])
+    query_parts = [
+        item
+        for item in parts.query.split("&")
+        if item and unquote(item.split("=", 1)[0]) not in remove_keys
+    ]
+    query_parts.extend(
+        [
+            f"u_atoken={urlquote(gateway_token, safe='')}",
+            f"u_asig={urlquote(certify_id, safe='')}",
+        ]
+    )
     if refer:
         query_parts.append(f"u_aref={urlquote(refer, safe='')}")
     return urlunsplit((parts.scheme, parts.netloc, parts.path, "&".join(query_parts), parts.fragment))
@@ -221,20 +277,35 @@ def classify_business_response(status_code: int, content_type: str, body: bytes)
         "jsonType": type(payload).__name__ if payload is not None else None,
         "success": payload.get("success") if isinstance(payload, dict) else None,
         "code": payload.get("code") if isinstance(payload, dict) else None,
-        "recordsCount": len(payload.get("data", {}).get("records", [])) if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else None,
+        "recordsCount": (
+            len(payload.get("data", {}).get("records", []))
+            if isinstance(payload, dict) and isinstance(payload.get("data"), dict)
+            else None
+        ),
     }
 
 
 def main() -> int:
-    vectors = json.loads((Path(__file__).resolve().parent / "fixtures" / "vectors.json").read_text(encoding="utf-8"))
+    vectors = json.loads(
+        (Path(__file__).resolve().parent / "fixtures" / "vectors.json").read_text(encoding="utf-8")
+    )
     body = build_goods_page_body()
+    signed = pzds_wasm_sign(
+        body,
+        timestamp=vectors["pzdsWasmSign"]["timestamp"],
+        random_value=vectors["pzdsWasmSign"]["random"],
+    )
     result = {
         "bodySha256": hashlib.sha256(body).hexdigest(),
         "expectedBodySha256": vectors["request"]["bodySha256"],
-        "wasmSign": pzds_wasm_sign(body, timestamp=vectors["pzdsWasmSign"]["timestamp"], random_value=vectors["pzdsWasmSign"]["random"]),
+        "wasmSign": signed,
+        "expectedSign": vectors["pzdsWasmSign"]["expectedSign"],
+        "signVersion": PZDS_SIGN_VERSION,
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 0 if result["bodySha256"] == result["expectedBodySha256"] else 1
+    body_ok = result["bodySha256"] == result["expectedBodySha256"]
+    sign_ok = signed["Sign"] == vectors["pzdsWasmSign"]["expectedSign"]
+    return 0 if body_ok and sign_ok else 1
 
 
 if __name__ == "__main__":

@@ -4,12 +4,14 @@
   "executedAt": "2026-08-04",
   "passed": true,
   "activeScope": "offline-only",
-  "entrySha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42",
-  "testArtifactSha256": "ac080c3efd07d4f9181034e888a4abc9ea8c7aa4fffffa67762707214925b39b",
+  "entrySha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40",
+  "testArtifactSha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95",
   "assertions": [
-    "offline request, field21, RPC, token, DeviceConfig, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
+    "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
     "entry import and case-local tests perform no live network egress",
-    "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation"
+    "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation",
+    "profile refresh process uses CDP with ordinary Chrome first and optional CloakBrowser fallback; legacy browser automation stacks are not part of this case",
+    "track-template.json is an offline shape guard only; live runs require a project-private accepted track seed or a freshly captured seed"
   ],
   "historicalLiveProofIsCurrentAcceptance": false
 }

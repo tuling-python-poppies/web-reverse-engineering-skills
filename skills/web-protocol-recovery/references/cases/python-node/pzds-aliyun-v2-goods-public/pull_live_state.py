@@ -27,6 +27,7 @@ OPTIONAL_SESSION_KEYS = {"pzId", "deviceId", "globalId"}
 PRIVATE_STATE_ROOT = Path("js_reverse_cache") / "private" / "pzds"
 PROFILE_RELATIVE_PATH = PRIVATE_STATE_ROOT / "t001_profile.json"
 SESSION_RELATIVE_PATH = PRIVATE_STATE_ROOT / "session.json"
+SUPPORTED_DEVICE_FIELD_COUNTS = frozenset({111, 133, 142})
 FILE_ATTRIBUTE_REPARSE_POINT = 0x400
 
 
@@ -80,12 +81,18 @@ def _load_json(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _require_string_list(profile: dict[str, Any], field: str, count: int) -> list[str]:
+def _require_string_list(
+    profile: dict[str, Any],
+    field: str,
+    supported_counts: frozenset[int],
+) -> list[str]:
     value = profile.get(field)
-    if not isinstance(value, list) or len(value) != count or not all(
+    if not isinstance(value, list) or len(value) not in supported_counts or not all(
         isinstance(item, str) for item in value
     ):
-        raise ValueError(f"{field} must be a list of {count} strings")
+        raise ValueError(
+            f"{field} must be a list of {sorted(supported_counts)} strings"
+        )
     return value
 
 
@@ -104,8 +111,18 @@ def load_profile(
     missing = REQUIRED_PROFILE_TOP_LEVEL.difference(profile)
     if missing:
         raise ValueError(f"profile missing keys: {', '.join(sorted(missing))}")
-    full_device_fields = _require_string_list(profile, "fullDeviceFields", 133)
-    token_fields = _require_string_list(profile, "tokenFields", 133)
+    full_device_fields = _require_string_list(
+        profile,
+        "fullDeviceFields",
+        SUPPORTED_DEVICE_FIELD_COUNTS,
+    )
+    token_fields = _require_string_list(
+        profile,
+        "tokenFields",
+        SUPPORTED_DEVICE_FIELD_COUNTS,
+    )
+    if len(token_fields) != len(full_device_fields):
+        raise ValueError("tokenFields length must match fullDeviceFields length")
     version = profile.get("feilinVersion")
     if not isinstance(version, str) or not version.strip():
         raise ValueError("feilinVersion must be a nonempty string")

@@ -153,6 +153,11 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
         template = json.loads(
             (CASE_ROOT / "fixtures" / "track-template.json").read_text(encoding="utf-8")
         )
+        self.assertEqual(template["acceptance"]["liveUse"], "not-standalone")
+        self.assertEqual(
+            template["acceptance"]["projectSeedPath"],
+            "js_reverse_cache/private/pzds/track_seed.json",
+        )
         track = template["track"]
         track_list = track["TrackList"]
         for key in ("mc", "tc", "mu", "te", "mp", "tmv", "mm", "ks", "fi", "startTime", "si"):
@@ -243,8 +248,8 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
             profile = {
                 "feilinVersion": "feilin-test",
                 "userAgent": "test-agent",
-                "fullDeviceFields": [""] * 133,
-                "tokenFields": [""] * 133,
+                "fullDeviceFields": [""] * 111,
+                "tokenFields": [""] * 111,
                 "field21": {"sourceKey": "test", "xorMaskHex": "00"},
                 "combat511": {},
                 "combat504": {},
@@ -259,6 +264,8 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
                 loaded["profilePath"],
                 "js_reverse_cache/private/pzds/t001_profile.json",
             )
+            self.assertEqual(loaded["fullDeviceFieldCount"], 111)
+            self.assertEqual(loaded["tokenFieldCount"], 111)
             self.assertTrue(loaded["hasField21"])
             self.assertNotIn("field21", loaded)
 
@@ -286,7 +293,14 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
                 pull_live_state.load_profile(root, raw_secret_handling_confirmed=True)
             with self.assertRaisesRegex(ValueError, "session missing keys"):
                 pull_live_state.load_session(root, raw_secret_handling_confirmed=True)
-            bad_profile["fullDeviceFields"] = [""] * 133
+            bad_profile["fullDeviceFields"] = [""] * 111
+            bad_profile["tokenFields"] = [""] * 142
+            (state_root / "t001_profile.json").write_text(
+                json.dumps(bad_profile), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "length must match"):
+                pull_live_state.load_profile(root, raw_secret_handling_confirmed=True)
+            bad_profile["tokenFields"] = [""] * 111
             bad_profile["userAgent"] = 123
             bad_profile["field21"] = {"sourceKey": "test", "xorMaskHex": "00"}
             (state_root / "t001_profile.json").write_text(
@@ -315,8 +329,20 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
         self.assertIn("raw-secret-handling", process)
         self.assertIn("js_reverse_cache/private/pzds/session.json", process)
         self.assertIn("js_reverse_cache/private/pzds/t001_profile.json", process)
+        self.assertIn("utils/t001_profile_refresh.py", process)
+        self.assertIn("websocket-client", process)
+        self.assertIn("ordinary Chrome", process)
+        self.assertIn("CloakBrowser", process)
+        self.assertIn("js_reverse_cache/private/pzds/track_seed.json", process)
+        self.assertIn("seed-derived track", process)
+        self.assertIn("structural template alone", process)
+        self.assertIn("111", process)
+        self.assertIn("133", process)
+        self.assertIn("142", process)
         self.assertNotIn("verifier/t001_profile.json", process)
-        self.assertNotIn("js_reverse_cache/pzds_session.json", process)
+        self.assertNotIn("js_reverse_cache/" + "pzds_session.json", process)
+        self.assertNotIn("update_" + "t001_profile.py", process)
+        self.assertIn("raw CDP", process)
 
 
 if __name__ == "__main__":

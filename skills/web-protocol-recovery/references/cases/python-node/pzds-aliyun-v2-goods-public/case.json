@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 8,
+  "revision": 9,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -78,7 +78,7 @@
   "product": {
     "vendor": "Aliyun",
     "product": "Captcha V2 WAF",
-    "version": "FeiLin12x / PZDS X-Sign-Version v18",
+    "version": "FeiLin111/133/142 observed through feilin126 / PZDS X-Sign-Version v18",
     "subtype": "sliding-t001-pzds-goods-public"
   },
   "dependencies": {
@@ -86,7 +86,8 @@
     "node": "required for local helper assets",
     "pycryptodome": "offline vectors and live replay",
     "curl_cffi": "live replay only",
-    "playwright": "project-local profile refresh tool only; not a case asset"
+    "websocket-client": "CDP profile refresh only",
+    "local_browser": "ordinary Chrome first; optional CloakBrowser fallback for profile refresh"
   },
   "liveState": {
     "mode": "project-profile-and-session-required",
@@ -101,15 +102,15 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "e29adf571ea63aa189e6e8ea01d3dbb0e16bc2629a3714febfc12ce4e0ee05a4"
+      "sha256": "09adc067d8c4fedecbe93df22eea7c5f99d20608aab29f5929a77c5d04cbb6aa"
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42"
+      "sha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
-      "sha256": "24f68109270e58352c48d04895ecc7586ad12acd739e6ea9bbe248a326edc82c"
+      "sha256": "e6d45f19d845f76833e1b2d50e3b1a988fbad35c327ab05886d73704a7030f29"
     },
     "assets": [
       {
@@ -118,7 +119,7 @@
       },
       {
         "path": "fixtures/track-template.json",
-        "sha256": "7e2f7e5dded1c87721ccae1d421b425d35ebd0a5a5cb25e23195671d8f304a76"
+        "sha256": "383bfdbcc6802bec98dfdd2fd5ceceda9fbbc342a2da4d5cebf2725259f36049"
       },
       {
         "path": "fixtures/request.sample.json",
@@ -134,7 +135,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "33dbc1dc7212a90b5bf1d675b5192485b3174d4f22ded9a61a92830822af425a"
+        "sha256": "d6ce933a07b19ae6cacb8d52a56d917b6d3f060a2bbc6dc266cdf188c0cc2a62"
       },
       {
         "path": "assets/data_builder.js",
@@ -161,22 +162,22 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-04T20:35:13+08:00",
+    "executedAt": "2026-08-04T23:20:00+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "ac080c3efd07d4f9181034e888a4abc9ea8c7aa4fffffa67762707214925b39b"
+      "sha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "33dbc1dc7212a90b5bf1d675b5192485b3174d4f22ded9a61a92830822af425a"
+      "sha256": "d6ce933a07b19ae6cacb8d52a56d917b6d3f060a2bbc6dc266cdf188c0cc2a62"
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "request, field21, RPC, token, DeviceConfig, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
+      "offlineAcceptance": "request, field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42",
-      "currentTestArtifactSha256": "ac080c3efd07d4f9181034e888a4abc9ea8c7aa4fffffa67762707214925b39b",
+      "currentEntrySha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40",
+      "currentTestArtifactSha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-08-03",

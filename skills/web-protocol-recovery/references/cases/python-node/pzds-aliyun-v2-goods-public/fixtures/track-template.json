@@ -1,6 +1,11 @@
 {
   "schemaVersion": "pzds-aliyun-v2-track-template/v1",
-  "purpose": "Offline structural template for synthesizing a fresh slider track. All values are synthetic placeholders; mutate them per the generation rules below for each round. Do not replay this template verbatim and do not copy any captured session track.",
+  "purpose": "Offline structural template for track-shape checks only. This file is not a live-proven standalone trajectory generator. A fresh project needs a project-private accepted track seed or a newly captured accepted seed, then mutates that seed per round.",
+  "acceptance": {
+    "liveUse": "not-standalone",
+    "projectSeedPath": "js_reverse_cache/private/pzds/track_seed.json",
+    "rule": "Do not claim live trajectory acceptance from this structural template alone."
+  },
   "track": {
     "TrackList": {
       "mc": "720,332,168808, ,1|683,314,170685, ,1",
@@ -44,7 +49,8 @@
       "event times are relative ms within 0..999999 and must stay monotonically increasing per field",
       "the last event must not be later than the real Log3/Verify send time",
       "VerifyTime = TrackStartTime + declared duration + settle margin",
-      "generate a fresh arg per round (CertifyId-bound 16-char key through the shared VM helper)"
+      "generate a fresh arg per round (CertifyId-bound 16-char key through the shared VM helper)",
+      "load movement events from a project-private accepted seed before perturbing; this template alone is only an offline shape guard"
     ],
     "diagnosisOrder": [
       "structure is accepted only after sidecar (Log2/Log3 200/true) and full profile/sparse token consistency are aligned",

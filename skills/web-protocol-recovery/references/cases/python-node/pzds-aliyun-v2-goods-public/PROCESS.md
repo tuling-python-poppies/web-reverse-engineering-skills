@@ -93,6 +93,7 @@ Before claiming live complete, project root must provide:
 |---|---|---|
 | FeiLin profile | `js_reverse_cache/private/pzds/t001_profile.json` | raw private state; only after `raw-secret-handling`; must match live `DeviceConfig.version` as a full package |
 | Login session | `js_reverse_cache/private/pzds/session.json` | raw private state; requires `token`; only after `raw-secret-handling` |
+| Accepted track seed | `js_reverse_cache/private/pzds/track_seed.json` | project-private behavior seed; derive a fresh track from this seed, or capture a new accepted seed before claiming live success |
 | Optional credentials | in memory by default | persistence to `config.local.json` requires the same exact raw-secret approval and gitignore protection |
 
 Use `pull_live_state.py inspect <projectRoot>` to report missing gates without
@@ -138,24 +139,30 @@ When `DeviceConfig.version` diverges from
 project-local updater. Do not edit the version string only.
 
 ```text
-python update_t001_profile.py --preflight-only --version-samples 3 --preflight-attempts 5 --timeout 30
-python update_t001_profile.py --fast --rounds 3 --version-samples 3 --preflight-attempts 5 --timeout 45 --headless
+python utils/t001_profile_refresh.py --preflight-only --version-samples 1 --preflight-attempts 1 --timeout 30
+python utils/t001_profile_refresh.py --fast --rounds 3 --version-samples 1 --preflight-attempts 1 --online-attempts 5 --max-capture-attempts 8 --timeout 90 --headless
 ```
 
 Requirements:
 
 - The updater's challenge trigger must carry the project login `token` plus
   v18 signed PC headers; otherwise it gets `HTTP 401 NOT_LOGGED_IN`.
-- A fresh FeiLin generation must extend
-  `GENERATION_SIGNATURE_IGNORED_FIELDS` in the updater with the observed
-  varying fields before the stability check passes. Observed generations:
-  - feilin123: `{52, 86, 136, 137}`
-  - feilin124: `{52, 86, 136, 137}`
-  - feilin125: `{52, 86, 136, 137}`
+- The updater uses raw CDP instead of browser automation frameworks. Default
+  `--browser auto` tries ordinary Chrome first, then falls back to CloakBrowser
+  only when capture or online `T001/true` validation fails.
+- `websocket-client` is the CDP dependency. Browser binaries are local tools;
+  the case library stores neither browser profiles nor CDP artifacts.
+- CDP browser lifecycle is part of acceptance: close the CDP WebSocket, then
+  terminate the browser process; on Windows, kill the process tree if normal
+  termination times out. Do not claim complete while a refresh browser remains
+  live.
+- A fresh FeiLin generation must extend generation-local ignored fields before
+  the stability check passes. Observed current generations:
+  - feilin123-126: `{52, 86, 136, 137}`
+- Current accepted profile field counts are `111`, `133`, and `142`; reject
+  other counts until a fixed vector or online `T001/true` proves the new shape.
 - Success is only an online `T001 / true` verification before an exclusive,
   approved write of the new profile under `js_reverse_cache/private/pzds/`.
-- The updater needs CloakBrowser + Playwright; they are project tools, not
-  case assets.
 
 ## Gate Family
 
@@ -207,8 +214,38 @@ Project live runners must keep:
   approval
 - v18 signer assets used by the project entry
 
-Case library stores only redacted shapes, offline vectors, and public frozen
-signer assets.
+Case library stores only redacted shapes, offline vectors, public frozen signer
+assets, and process/code primitives. It does not store project-local live state.
+
+## Project Delivery Files
+
+When this case is used to generate a fresh collector, the stable project should
+be assembled in the `web-protocol-recovery-simple` layout:
+
+- root `main.py` as the default command (`python main.py`)
+- `utils/logger.py` for bounded progress logs
+- `utils/pzds_challenge.py` for goods body construction and challenge parsing
+- `utils/pzds_goods.py` for business replay after `T001/true`
+- `utils/aliyun_t001_runner.py`, `utils/aliyun_v2_core.py`, and
+  `utils/aliyun_v2/protocol.py` for the Aliyun V2 protocol
+- `utils/t001_profile_refresh.py` for CDP profile refresh
+- `utils/pzds_wasm_sign.mjs`, `505c6f51.wasm`,
+  `pzds_wasm_glue_64c90705.mjs`, `data_builder.js`, and `vm_codec.js` as
+  narrow local helper assets
+- `requirements.txt` with `curl_cffi`, `pycryptodome`, `requests`, and
+  `websocket-client`
+
+The generated code may support a local `config.local.json` for credentials only
+after the hub records raw-secret handling. That file stays project-local and is
+never a case asset. Stable helper modules should load FeiLin profile and session
+state through project-private paths, not from the case directory.
+
+Do not treat `fixtures/track-template.json` as a live-accepted trajectory. It is
+an offline shape guard. A fresh project must either carry a project-private
+accepted movement seed at `js_reverse_cache/private/pzds/track_seed.json` or
+capture one in a current verifier round before running the Python collector.
+The runtime may perturb timings, offsets, screen ratio, and `arg`, but it must
+start from an accepted seed rather than arbitrary from-zero synthetic points.
 
 ## Fixed-Vector / Offline Proof
 
@@ -247,56 +284,51 @@ Vectors cover:
 ## Fresh Machine Shortest Path
 
 When the project has no existing runner, profile, or updater (a new machine or a
-new target directory), assemble the full chain from case assets and one live
-browser capture round. This is the supported path when no project-local
-`update_t001_profile.py` exists.
-
-Prerequisites (ask before starting):
-
-- browser recon allowed (chromium-recon) and one visible browser session
-- account credentials for one project-local protocol login
-- `raw-secret-handling` confirmation before any profile/session/credential or
-  raw response is persisted
-- live replay + verifier submission approval
-- a project root under which `js_reverse_cache/private/pzds/` can be created
+new target directory), assemble the full chain from this case's primitives and
+current live evidence. Routine browser recon, read-only live requests, and the
+protocol-needed verifier submit stay inside the selected collector shape; do not
+pause for those. Pause only for dependency installation, local execution of
+target-supplied JS/WASM/HTML, raw-secret persistence, or larger scope/budget.
 
 Order:
 
-1. **Login** - protocol login (`oauth2/token` MD5 + `idtoken`) and keep
-   `token`, optional `pzId`, `deviceId`, and `globalId` in memory. Persist them
+1. **Generate stable files** - create the `Project Delivery Files` above. The
+   generated `main.py` must auto-refresh a stale login token when credentials
+   are available, auto-run `utils/t001_profile_refresh.py` when FeiLin profile
+   stale is detected, and print the final business JSON in Chinese-safe UTF-8.
+2. **Login** - protocol login (`oauth2/token` MD5 + `idtoken`) and keep
+   `token`, optional `PZid`, `deviceId`, and `globalId` in memory. Persist them
    only after the exact raw-secret confirmation to
    `js_reverse_cache/private/pzds/session.json`.
-2. **Trigger and capture one round** - warm up the goods page, then capture
-   from the same round: challenge HTML, `InitCaptchaV2` request/response,
-   the browser-sent `Log2` request, and `window.um.getToken()` output. Keep
-   redacted summaries by default; raw bodies require the separately approved
-   private artifact policy.
-3. **Decrypt and diff** - run the offline helper:
-   `python scripts/providers/protocol-recovery/verifier/aliyun_v2_profile_diff.py
-   --init init.json --log2 log2.json --token token.json`. It prints version,
-   session, IP, Log2 GatherCost, the
-   full 142-field profile, sparse token state and checksum status, and the
-   per-index diff with known field roles.
-4. **Field21** - try the candidate table (classic source/mask families,
-   including feilin124/125 rows) against the captured suffix -> field21 pair;
-   infer new parameters only with >=3 samples plus holdout, matching both
-   Log2 and sparse token field 21.
-5. **Assemble the profile** - after raw-secret approval, write
-   `js_reverse_cache/private/pzds/t001_profile.json` with
-   `feilinVersion`, `userAgent`, `fullDeviceFields`, `tokenFields`, `field21`
-   (sourceKey + xorMaskHex), `combat511`, and `combat504` from the captured
-   round. Keep the whole package consistent; never merge fields from
-   different rounds or cohorts.
-6. **Track** - synthesize a fresh track per `fixtures/track-template.json`
-   generation rules (event counts, time scale, offsets, screen ratio, time
-   ordering). Do not replay a captured track verbatim.
-7. **Runner** - build the Python collector from `entry.py` primitives and the
-   flow above: trigger -> parse `requestInfo` -> InitCaptchaV2 -> Log2 ->
-   Log3 -> VerifyCaptchaV2 (`T001/true`) -> business replay with `u_atoken`
-   and `u_asig`. Python owns final HTTP egress.
-8. **Accept** - only `T001/true` with Log2/Log3 `200/true` on a coherent
-   same-round state counts; then business `success=true`,
-   `code=SUCCESS`, `data.records` as a list.
+3. **Profile and movement bootstrap** - if no private FeiLin profile exists,
+   use CDP capture to collect current `DeviceConfig`, `InitCaptchaV2`, browser
+   `Log2`, sparse token, the combat baselines needed by Log3, and an accepted
+   movement seed. Store the coherent package only under project-private paths.
+   If a private seed profile exists, the CDP updater may refresh
+   `fullDeviceFields`, `tokenFields`, `field21`, and version while retaining
+   verified combat baselines and the accepted movement seed.
+4. **Refresh validation** - run preflight version sampling, then CDP capture.
+   Default to ordinary Chrome. Fall back to CloakBrowser only after the ordinary
+   Chrome candidate fails capture or online `T001/true`. Every candidate profile
+   must pass online `T001/true` before any write.
+5. **Trigger and parse** - signed `goodsPublic/page` returns challenge HTML;
+   parse `requestInfo` (`sceneId`, `traceid`, `token`, `userId`, `userUserId`,
+   optional `type`, `data`, `refer`).
+6. **Verifier round** - InitCaptchaV2 -> Log2 -> seed-derived track -> Log3 ->
+   VerifyCaptchaV2. Accept only `T001/true` on a coherent same-round state.
+   If `track_seed.json` is missing, stop and capture/derive it first; do not
+   spend verifier attempts on a structural template alone.
+7. **Business replay** - Python appends `u_atoken` and `u_asig`, regenerates v18
+   `Sign` / `PZTimestamp` / `Random` at the wire boundary, and posts the compact
+   goods body. The browser never owns final business egress.
+8. **Accept** - business `HTTP 200`, `success=true`, `code=SUCCESS`, and
+   `data.records` as a list. One non-empty sign, one HTTP 200, or a browser page
+   JSON view is not enough.
+
+If bootstrap lacks combat baselines, do not write a half-profile. Capture one
+browser-accepted verifier round and extract Log3/combat material into the same
+private profile package, or stop with that blocker. Never merge fields from
+different FeiLin versions, browser engines, sessions, or target rounds.
 
 Failure routing: `NOT_LOGGED_IN` -> re-login and keep root referer;
 `F025` -> session/profile/token consistency; `F001` -> sidecar order first,
@@ -309,3 +341,10 @@ trajectory last; `T001` is the only pass.
 - full FeiLin profile bodies in the case library
 - one-shot `u_atoken`, `u_asig`, `CertifyId`, `traceid`
 - HAR, full private responses, absolute local paths
+- project-local browser/CDP artifacts, profile-refresh captures, and transient
+  business response bodies
+- project-local accepted track seeds and raw `np` input/output captures; keep
+  them under `js_reverse_cache/private/pzds/` in the active project or recapture
+  them, not in the case library
+- the historical project's local config and saved login state; regenerate these
+  through protocol login and CDP bootstrap in the new project instead

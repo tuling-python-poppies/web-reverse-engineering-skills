@@ -35,6 +35,7 @@ DEVICE_APP_VERSION = "W20220202"
 DEVICE_API_VERSION = "2020-10-15"
 STREAM_KEY_DEFAULT = "3e627e1b4c63f913"
 ASSETS = Path(__file__).resolve().parent / "assets"
+SUPPORTED_DEVICE_FIELD_COUNTS = frozenset({111, 133, 142})
 
 
 def build_goods_page_body(page: int = 1, page_size: int = 10) -> bytes:
@@ -422,8 +423,11 @@ def build_log2_data(
     timestamp_ms: int,
     device_platform: str,
 ) -> str:
-    if len(full_device_fields) < 133:
-        raise ValueError("Log2 device profile must contain at least 133 fields")
+    if len(full_device_fields) not in SUPPORTED_DEVICE_FIELD_COUNTS:
+        raise ValueError(
+            "Log2 device profile must contain one of the supported field counts "
+            f"{sorted(SUPPORTED_DEVICE_FIELD_COUNTS)}"
+        )
     record = build_device_log_record(
         config,
         "#".join(full_device_fields),

@@ -259,8 +259,9 @@ Order:
    the browser-sent `Log2` request, and `window.um.getToken()` output. Keep
    full request/response bodies.
 3. **Decrypt and diff** - run the offline helper:
-   `python scripts/aliyun_v2_profile_diff.py --init init.json --log2 log2.json
-   --token token.json`. It prints version, session, IP, Log2 GatherCost, the
+   `python scripts/providers/protocol-recovery/verifier/aliyun_v2_profile_diff.py
+   --init init.json --log2 log2.json --token token.json`. It prints version,
+   session, IP, Log2 GatherCost, the
    full 142-field profile, sparse token state and checksum status, and the
    per-index diff with known field roles.
 4. **Field21** - try the candidate table (classic source/mask families,

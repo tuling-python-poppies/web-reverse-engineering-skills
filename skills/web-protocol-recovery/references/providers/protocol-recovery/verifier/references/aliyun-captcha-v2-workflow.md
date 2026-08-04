@@ -412,7 +412,7 @@ DeviceConfig.version
 使用本 Provider 的只读助手：
 
 ```powershell
-python scripts/aliyun_v2_profile_diff.py `
+python scripts/providers/protocol-recovery/verifier/aliyun_v2_profile_diff.py `
   --init current_init.json `
   --log2 current_log2.json `
   --token current_token.json `

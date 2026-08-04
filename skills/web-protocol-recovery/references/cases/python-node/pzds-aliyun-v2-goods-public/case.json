@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 5,
+  "revision": 6,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -101,7 +101,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "247e5976251acccec6f8c3caebfad913d9451e4ed1b6673c1166149a8ef5a095"
+      "sha256": "ba6e81a92cfa424ff41e2059625f73a0951ab17b10094bae37c981f02a28738a"
     },
     "entry": {
       "path": "entry.py",
@@ -161,7 +161,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-03T19:44:14+08:00",
+    "executedAt": "2026-08-04T17:07:19+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",

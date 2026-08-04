@@ -36,14 +36,14 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
     ],
     "actionClass": "read-only",
     "accountOrSessionUse": "none",
-    "browserReconAllowed": false,
-    "browserNavigationSideEffectsApproved": false,
-    "liveReplayAllowed": false,
-    "requestBudget": {"total": 0, "remaining": 0, "minDelayMs": 0, "concurrency": 1, "automaticObservationStopThreshold": 0, "observedAutomatic": {"total": 0, "byKind": {"redirect": 0, "subresource": 0, "xhrFetch": 0, "beaconPing": 0, "eventSource": 0, "websocket": 0}, "destinations": []}},
+    "browserReconAllowed": true,
+    "browserNavigationSideEffectsApproved": true,
+    "liveReplayAllowed": true,
+    "requestBudget": {"total": 50, "remaining": 50, "minDelayMs": 0, "concurrency": 1, "automaticObservationStopThreshold": 200, "observedAutomatic": {"total": 0, "byKind": {"redirect": 0, "subresource": 0, "xhrFetch": 0, "beaconPing": 0, "eventSource": 0, "websocket": 0}, "destinations": []}},
     "artifactPolicy": {
-      "mode": "metadata-only",
-      "approvedRawFields": [],
-      "retentionDeadline": "none",
+      "mode": "allowlisted-raw",
+      "approvedRawFields": ["redacted-request", "source", "screenshot", "net-log"],
+      "retentionDeadline": "task",
       "repositoryExcluded": true
     },
     "executionPolicy": {
@@ -56,10 +56,10 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
     }
   },
   "project": {
-    "projectRoot": "none",
+    "projectRoot": "cwd-default",
     "layout": "web-protocol-recovery-simple",
-    "writeMode": "no-write",
-    "allowedPaths": []
+    "writeMode": "create-only",
+    "allowedPaths": ["js_reverse_cache/**", "main.py", "分析报告.md", "utils/**", "tests/**"]
   },
   "readPlan": {
     "window": "handoff",
@@ -78,7 +78,7 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
 }
 ```
 
-Unknown authorization, a non-exact scheme/host/port/absolute-route-prefix scope, an empty live-egress budget, or an incomplete artifact policy keeps the provider offline. Canonicalize before comparison: lowercase scheme/host, convert host to IDNA ASCII, make the default port explicit, reject userinfo/fragments/control characters/backslashes/invalid or double encoding, reject encoded separators and any raw or once-decoded `.`/`..` segment, uppercase retained percent escapes, decode only RFC 3986 unreserved bytes, and match path prefixes on a segment boundary (`path == prefix` or `path` starts with `prefix + "/"`). Query authorization is separate from route scope. Before every Provider-initiated navigation, HTTP/XHR/fetch request, retry, WebSocket handshake, or sent frame, require one matching scope entry and consume one unit immediately before egress. Categories are mutually exclusive: a retry is only `retry`, not also `request`; once consumed, an attempt is never refunded even when transport fails before response. Where interception exists, block out-of-scope automatic requests and redirects. A Chrome DevTools clean baseline is the explicit exception and requires `browserReconAllowed=true`, exact top-level scope, one navigation unit, prior cumulative `observedAutomatic`, `browserNavigationSideEffectsApproved=true`, and `automaticObservationStopThreshold >= 1`: this separately authorizes the known inability to pre-intercept automatic browser traffic, not reuse of those destinations. Pre-authorize its exact top-level URL and one navigation unit, carry the prior cumulative `observedAutomatic` object into and out of every work order, record every automatic destination, and stop further actions when its top-level leaves scope or cumulative total reaches the threshold. Cached local reads and received responses/frames consume zero. All budget and limit fields are integers: `total >= 0`, `0 <= remaining <= total`, `minDelayMs >= 0`, `concurrency >= 1`; threshold `0` denies Chrome baseline. Providers enforce delay/concurrency before egress. `requestBudget.total`, `remaining`, and `observedAutomatic` are shared web-protocol-recovery state and cannot reset at handoff. `writeMode=no-write` forbids all work-order files. `cache-only` restricts writes to the listed `js_reverse_cache/` paths. Approved raw writes require exact fields, an absolute allowlisted path, repository exclusion, and a retention deadline. A provider may promote stable files outside the cache only when `writeMode=project` and the exact path is listed. Operational configuration outside the project is never implied by these modes: require a separate explicit confirmation for the exact path, perform it outside the provider work order, and report it as a side effect. A provider with `runtimeCustody.providerOwnsLease=true` may maintain only its documented PID/lease state under the verified external runtime root; it must clean that state on normal release and may not use it to persist unrelated configuration.
+Standing approval (SKILL Non-Negotiables item 7): for an explicit protocol-recovery task, auto-fill browserReconAllowed=true, browserNavigationSideEffectsApproved=true, liveReplayAllowed=true, a positive requestBudget, artifactPolicy under projectRoot/js_reverse_cache/** (mode allowlisted-raw when raw cache is needed), and projectRoot=cwd when unset. Do not pause the user for those fields. Still fail closed on executionPolicy: targetCodeExecution and dependencyInstall stay blocked until user confirmation. A missing or non-exact scheme/host/port/absolute-route-prefix scope (unknown target URL) keeps live egress offline until the target is known. Empty budget only blocks when the user set a hard cap of zero or remaining hit zero under that cap. Canonicalize before comparison: lowercase scheme/host, convert host to IDNA ASCII, make the default port explicit, reject userinfo/fragments/control characters/backslashes/invalid or double encoding, reject encoded separators and any raw or once-decoded `.`/`..` segment, uppercase retained percent escapes, decode only RFC 3986 unreserved bytes, and match path prefixes on a segment boundary (`path == prefix` or `path` starts with `prefix + "/"`). Query authorization is separate from route scope. Before every Provider-initiated navigation, HTTP/XHR/fetch request, retry, WebSocket handshake, or sent frame, require one matching scope entry and consume one unit immediately before egress. Categories are mutually exclusive: a retry is only `retry`, not also `request`; once consumed, an attempt is never refunded even when transport fails before response. Where interception exists, block out-of-scope automatic requests and redirects. A Chrome DevTools clean baseline is the explicit exception and requires `browserReconAllowed=true`, exact top-level scope, one navigation unit, prior cumulative `observedAutomatic`, `browserNavigationSideEffectsApproved=true`, and `automaticObservationStopThreshold >= 1`: this separately authorizes the known inability to pre-intercept automatic browser traffic, not reuse of those destinations. Pre-authorize its exact top-level URL and one navigation unit, carry the prior cumulative `observedAutomatic` object into and out of every work order, record every automatic destination, and stop further actions when its top-level leaves scope or cumulative total reaches the threshold. Cached local reads and received responses/frames consume zero. All budget and limit fields are integers: `total >= 0`, `0 <= remaining <= total`, `minDelayMs >= 0`, `concurrency >= 1`; threshold `0` denies Chrome baseline. Providers enforce delay/concurrency before egress. `requestBudget.total`, `remaining`, and `observedAutomatic` are shared web-protocol-recovery state and cannot reset at handoff. `writeMode=no-write` forbids all work-order files. `cache-only` restricts writes to the listed `js_reverse_cache/` paths. Approved raw writes require exact fields, an absolute allowlisted path, repository exclusion, and a retention deadline. A provider may promote stable files outside the cache only when `writeMode=project` and the exact path is listed. Operational configuration outside the project is never implied by these modes: require a separate explicit confirmation for the exact path, perform it outside the provider work order, and report it as a side effect. A provider with `runtimeCustody.providerOwnsLease=true` may maintain only its documented PID/lease state under the verified external runtime root; it must clean that state on normal release and may not use it to persist unrelated configuration.
 
 Each scope carries its query authorization. `deny` rejects any query; `allow-listed` requires every decoded key in `allowedKeys` and, when a key appears in `allowedValues`, every decoded value in that key's approved list; `allow-all` requires explicit authorization and grants no new host, route, action, or budget. An omitted or malformed query policy fails closed.
 

@@ -6,7 +6,7 @@ This layout is part of the architecture contract. Providers may not create or pr
 
 ## Root Selection
 
-Before the first filesystem write, use an explicit user-supplied folder. If none was supplied, ask once whether to use the current directory or a custom directory. Record the absolute `projectRoot` and reuse it for the entire task. Read-only reconnaissance may continue before this decision, but no trace, source, screenshot, request export, or generated code may be saved.
+Before the first filesystem write, use an explicit user-supplied folder when given. If none was supplied, **default to the current working directory** and proceed (do not ask cwd vs custom). Record the absolute `projectRoot` and reuse it for the entire task. Read-only reconnaissance may continue with `writeMode=no-write` until the first save is needed.
 
 Never add a wrapper directory below the selected root. Never let a provider ask for a second landing directory.
 

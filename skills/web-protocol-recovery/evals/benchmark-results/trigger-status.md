@@ -17,7 +17,7 @@
 | Timeout semantics | Requested worker soft limit; six first-pass overruns are recorded by exact `(query_id, attempt, duration_ms)` |
 | Artifact | `evals/benchmark-results/trigger-deepseek-v4-pro-current.json` |
 | eval_mode | `full_test` |
-| current_acceptance | true |
+| current_acceptance | false |
 | runs_per_query | `3` |
 
 First-pass taxonomy: under-trigger=2, over-trigger=4, runtime-error=6. Final
@@ -70,3 +70,7 @@ current acceptance.
 2. Neighbor stubs for `skill-creator` and `darwin-skill` remain enabled for near-miss routing realism.
 3. The current acceptance run uses `deepseek-v4-pro` only. It does not use DeepSeek Flash, GPT-5.6, or Grok.
 4. The artifact retains first-pass attempt grades, retry attempt grades, exact timeout overruns, and per-query aggregates. Retry granularity is one bounded retry per failed `(query_id, attempt)`; one query can therefore have multiple retries only when multiple n-run attempts failed independently. `runs_per_query=3`; no sample-count caveat is required, but the failed first-pass stability result remains explicit.
+
+## Note
+
+`current_acceptance` withdrawn after standing-approval gate policy edit to SKILL.md. Re-run trigger full_test to restore acceptance.

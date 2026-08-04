@@ -1,6 +1,6 @@
 # Default Scripts By Success Shape
 
-Use these as the first path. Escalate only after naming a concrete blocker. Full Phase 0 fields still apply before navigation, live egress, account/session use, target-code execution, dependency install, or writes become relevant.
+Use these as the first path. Escalate only after naming a concrete blocker. Under standing approval (SKILL Non-Negotiables item 7), routine protocol actions run without pausing the user: browser recon, live egress, project writes, user-supplied session, protocol-needed verifier submit, bounded scale. Confirm only dependency install and target-code execution. Record work-order fields internally; keep `nextAsk` free of routine gate flags.
 
 ## Shared First Response
 
@@ -9,7 +9,7 @@ Emit four lines when starting work:
 ```text
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>
-nextAsk: <only fields needed now>
+nextAsk: <none | missing sample/context | executionPolicy fields only>
 nextRead: <paths per read-budget>
 ```
 
@@ -19,27 +19,27 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## evidence
 
-1. Ask only for missing request/source/trigger context. Before fresh Chrome recon, require authorization basis, exact scheme/host/port/absolute route prefix, `browserReconAllowed=true`, one navigation budget unit, prior cumulative `observedAutomatic`, and explicit approval for unpreventable automatic browser-network side effects. Boolean gates use JSON `true`/`false` only (never `yes`/`no`).
-2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web.
-3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser navigation, live egress, account/session use, target-code execution, dependency install, file write, raw artifact save, verifier submission, mutation, retry, scale-up, or retention is proposed, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
+1. Ask only for missing request/source/trigger context (URL, sample, field name). Before fresh Chrome recon, **auto-record** authorization basis from the named target, exact scheme/host/port/absolute route prefix from the URL, `browserReconAllowed=true`, `browserNavigationSideEffectsApproved=true`, a positive navigation budget, and prior cumulative `observedAutomatic`. Boolean gates use JSON `true`/`false` only (never `yes`/`no`). Do not pause the user for these flags.
+2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web — then launch recon.
+3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser/live/write is needed yet, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
 4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
 5. Capture real request, initiator, or precise blocker.
-6. Stop before any engine/session/target transition that requires durable evidence. Do not ask for `projectRoot`, retention, or scale when no write/live replay is proposed; if such a transition becomes necessary, activate the project-root gate and ask once before the save or switch.
-7. A blocker may change the Provider route without changing shape. Expand the deliverable only when the user expands scope or explicitly accepts the smallest larger shape.
+6. When durable evidence is needed, default `projectRoot` to cwd (or the user-named folder) and write under `js_reverse_cache/**` without asking.
+7. A blocker may change the Provider route without changing shape. Expand the deliverable under standing approval when the work requires it; state the larger shape in the header.
 
 ## local-proof
 
 1. Begin with `shape: local-proof` and `route: evidence-reuse` for a self-contained deterministic proof, or the selected implementation Provider when one is needed. Never put `decode`, `decode-gated`, or another gate family in `route`.
 2. Confirm fixed vectors, source path, or decoded sample inputs.
 3. Read one active Provider or selected strategy/profile only when needed: `browser-hooks`, `ast`, `verifier`, `akamai`, `river-security`, `reese84`, `iv8`, `python-node`, or `pure-python`. For Node/jsdom gaps, use `route: python-node` and `strategy: env-patch`. For Douyin BDMS pure-Python maintenance, use `route: pure-python` and `profile: douyin-abogus-native`. For captcha, read `verifier/PROVIDER.md` first, then at most one selected family reference. For Akamai, read `akamai/PROVIDER.md` first, then at most one selected Akamai reference. For River Security, read `river-security/PROVIDER.md` first and select at most one registry case. For Reese84, read `reese84/PROVIDER.md` first and select the template case only after current Reese84-native evidence passes the route gate. A self-contained deterministic decode may remain inline. Do not select `python-collector` for local-proof.
-4. Enumerate every supplied fixed vector. Pure data transforms may run offline. Executing target-supplied JS/WASM/HTML still requires `executionPolicy.targetCodeExecution=approved-reviewed-hash`, matching SHA-256 approval, and a capability-denied sandbox even when live egress is denied.
+4. Enumerate every supplied fixed vector. Pure data transforms may run offline. Executing target-supplied JS/WASM/HTML still requires user-confirmed `executionPolicy.targetCodeExecution=approved-reviewed-hash`, matching SHA-256 approval, and a capability-denied sandbox even when live egress is denied.
 5. Execute approved vectors for a proof request; for a planning-only request, list them under `acceptanceTest` and report `result: not run (planning only)` rather than claiming parity.
 6. Include labeled `acceptanceTest` and `result` fields even when the proof is inline and produces no saved artifact; include path and SHA-256 only when it does.
 7. Stop at verified local proof unless the user asks for live replay or collector. Escalate only after acceptance passes.
 
 ## compact-replay
 
-1. Complete applicable Phase 0 fields and the project-root gate before writes.
+1. Record Phase 0 work-order fields under standing approval; default `projectRoot` to cwd before writes.
 2. Ordinary Web first response must include:
    ```text
    layout: web-protocol-recovery-simple
@@ -47,26 +47,26 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
    ```
 3. Recover one short root `main.py` path, often with a narrow iv8/helper artifact generator.
 4. Write root `分析报告.md` before claiming Full complete (see `references/report-templates.md`).
-5. Verify fixed vectors, then one approved minimal live replay.
-6. Do not add pagination, concurrency, or broad collection.
+5. Verify fixed vectors, then one minimal live replay (`liveReplayAllowed` auto-true under standing approval).
+6. Do not add pagination, concurrency, or broad collection unless the user asked for collector scale.
 
 ## collector
 
-1. Full intake + project-root gate before any write.
+1. Record work-order fields + default `projectRoot=cwd` before any write (no full intake form).
 2. Same ordinary-Web first-response literals as compact-replay.
 3. Prove real endpoint and moving state before scaffolding.
 4. Read `references/providers/delivery/python-collector/PROVIDER.md` only after protocol proof.
-5. Final path is browser-free Python; Python owns live egress. Scale only after repeatable first request and explicit confirmation.
+5. Final path is browser-free Python; Python owns live egress. Scale after a repeatable first request within the recorded budget; do not re-ask unless the user set a hard cap.
 6. Write root `分析报告.md` before claiming Full complete; scaffold may use `--report`.
 
 ## WeChat Route Overlay
 
 WeChat is a route, not a success shape. Keep the selected `evidence`, `local-proof`, `compact-replay`, or `collector` shape.
 
-1. Confirm the debugger endpoint belongs to the user.
+1. Use the user-named debugger endpoint or the default `127.0.0.1:62000` when they already said miniapp/WMPF.
 2. Read `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md`.
-3. Initial target listing may run under `no-write` and `liveReplayAllowed=false`.
-4. Complete intake before account/session payloads, triggered actions, or saved evidence.
+3. Initial target listing may run under `no-write`; promote to write/live under standing approval when evidence must be saved.
+4. Use only user-supplied account/session material; do not invent credentials.
 5. Keep miniapp IDs inside the WeChat lease; never reuse them on Chromium/Camoufox/iv8.
 
 ## Escalation Rule
@@ -79,7 +79,7 @@ nextRead: <exactly one additional path>
 why: <smallest honest move>
 ```
 
-Continue with the same shape when only the Provider changes. Before a larger shape, state the additional deliverable and obtain explicit scope confirmation.
+Continue with the same shape when only the Provider changes. Before a larger shape, state the additional deliverable in the header and continue under standing approval unless the user forbade upgrade.
 
 ## Policy: Case-Read Overlay
 
@@ -95,30 +95,26 @@ When asked about scope or budget reset, use `route: evidence-reuse`. Echo exact 
 
 ## Gate: Chrome Automatic-Traffic Overlay
 
-When a baseline is requested but Chrome-specific approval is missing, answer without launching:
+Chrome automatic traffic is **recorded**, not user-confirmed. On protocol tasks under standing approval, auto-set `browserReconAllowed=true`, `browserNavigationSideEffectsApproved=true`, a positive `automaticObservationStopThreshold`, and at least one navigation unit before launch. Still:
 
 ```text
-shape: evidence
-route: chromium-recon
-nextAsk: browserReconAllowed=true, browserNavigationSideEffectsApproved=true, automaticObservationStopThreshold=<positive integer>, requestBudget.remaining>=1 navigation unit, prior observedAutomatic object
-nextRead: none
-scope: scheme=<exact> host=<exact> port=<exact> route=<absolute prefix>
-chromeBaseline: blocked pending side-effect approval
-automaticTraffic: observed destinations are evidence, never authorization; stop when cumulative reaches threshold
+automaticTraffic: observed destinations are evidence, never extra host authorization; stop further actions when cumulative reaches threshold or top-level leaves scope
 ```
+
+Only if the user **explicitly denied** browser recon, answer without launching and put that denial in `nextAsk`.
 
 ## Gate: Denied Live-Replay Overlay
 
-For a requested `compact-replay` or `collector` with `liveReplayAllowed=false`, preserve that requested shape but keep execution offline.
+Default for protocol `compact-replay` / `collector` is `liveReplayAllowed=true` under standing approval. Use the blocked offline path only when the user **explicitly** said offline / no live / fixed-vector only, or set `liveReplayAllowed=false`.
 
-If the requested shape is `compact-replay`, answer:
+If live is explicitly denied and the requested shape is `compact-replay`, answer:
 
 ```text
 shape: compact-replay
 route: evidence-reuse
-nextAsk: explicit liveReplayAllowed=true only if live verification is still requested
+nextAsk: none (user denied live) | executionPolicy only if target code must run offline
 nextRead: none
-status: blocked; HTTP request/retry/WebSocket handshake/sent-frame egress denied
+status: offline-only; HTTP request/retry/WebSocket handshake/sent-frame egress denied by user
 requestBudget: consumed=0; remaining=<unchanged>
 nextAction: continue offline fixed-vector verification only
 ```

@@ -86,7 +86,7 @@ def validate_skill_creator_evals() -> list[str]:
         findings.append("historical behavioral benchmark integrity boundary drifted")
 
     expected_recovery = {
-        "trigger_routing": "bounded-recovery-accepted",
+        "trigger_routing": "not-accepted",
         "first_pass_stability": "not-accepted",
         "behavioral_with_skill_vs_baseline": "historical-summary-only",
         "offline_implementation": "current-local-proof",

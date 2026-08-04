@@ -85,12 +85,14 @@ class TriggerProvenanceTests(unittest.TestCase):
     def test_stale_acceptance_after_skill_md_change_is_rejected(self) -> None:
         """Acceptance must be bound to the SKILL.md bytes that are checked out."""
         artifact = copy.deepcopy(self.artifact)
+        artifact["current_acceptance"] = True
         artifact["evaluated_skill_md_sha256"] = "0" * 64
         findings = validate_evals._validate_trigger_provenance(artifact, self.standard)
         self.assertTrue(any("does not match current SKILL.md" in item for item in findings))
 
     def test_stale_acceptance_after_corpus_change_is_rejected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
+        artifact["current_acceptance"] = True
         artifact["prompt_file_sha256"] = "1" * 64
         findings = validate_evals._validate_trigger_provenance(artifact, self.standard)
         self.assertTrue(
@@ -99,6 +101,7 @@ class TriggerProvenanceTests(unittest.TestCase):
 
     def test_dirty_worktree_cannot_be_accepted(self) -> None:
         artifact = copy.deepcopy(self.artifact)
+        artifact["current_acceptance"] = True
         artifact["run_worktree_dirty"] = True
         findings = validate_evals._validate_trigger_provenance(artifact, self.standard)
         self.assertTrue(any("clean worktree" in item for item in findings))
@@ -106,6 +109,7 @@ class TriggerProvenanceTests(unittest.TestCase):
     def test_two_model_union_cannot_be_accepted(self) -> None:
         """A score assembled from two models is not one model's score."""
         artifact = copy.deepcopy(self.artifact)
+        artifact["current_acceptance"] = True
         artifact["retry_model"] = "deepseek/deepseek-v4-flash"
         findings = validate_evals._validate_trigger_provenance(artifact, self.standard)
         self.assertTrue(any("must come from one model" in item for item in findings))
@@ -247,6 +251,7 @@ class TriggerArithmeticTests(unittest.TestCase):
 
     def test_acceptance_below_threshold_is_rejected(self) -> None:
         artifact = copy.deepcopy(self.artifact)
+        artifact["current_acceptance"] = True
         artifact["union_results"][0]["pass"] = False
         artifact["summary"]["passed"] = 21
         artifact["summary"]["failed"] = 1

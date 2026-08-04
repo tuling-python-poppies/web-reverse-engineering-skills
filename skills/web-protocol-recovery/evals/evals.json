@@ -39,7 +39,7 @@
     "standard_note": "runs_per_query 3 is the bounded-recovery routing standard: a single run cannot separate a real routing decision from wall-clock noise. Current acceptance requires every final attempt to pass after the declared bounded retry. First-pass stability is reported independently and requires perfect semantic routing among completed attempts plus no more than 10% runtime errors. A run below n=3 must carry statistical_caveat naming the shortfall."
   },
   "recovery_acceptance": {
-    "trigger_routing": "bounded-recovery-accepted",
+    "trigger_routing": "not-accepted",
     "first_pass_stability": "not-accepted",
     "behavioral_with_skill_vs_baseline": "historical-summary-only",
     "offline_implementation": "current-local-proof",

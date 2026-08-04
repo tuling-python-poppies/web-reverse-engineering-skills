@@ -107,7 +107,42 @@ def copy_opencode_credentials(source: Mapping[str, str], data_home: Path) -> Non
     shutil.copyfile(auth_file, destination)
 
 
-def write_restricted_config(config_home: Path, allowed_skills: Sequence[str] = ()) -> Path:
+def read_real_provider_block(source: Mapping[str, str], model: Optional[str]) -> Dict[str, Any]:
+    """Read the minimum provider credentials the isolated worker needs.
+
+    The isolated config below is deny-by-default and deliberately carries none of
+    the user's global skills, state, or permissions. It also used to carry no
+    `provider` block, while the only credential-restore path reads
+    `~/.local/share/opencode/auth.json`. An install that keeps its keys inline in
+    `~/.config/opencode/opencode.json` therefore launched every worker with no
+    credentials at all: the provider answered with a server error and every query
+    was scored not-triggered, which reads as a description regression instead of a
+    setup failure. Copy only the one provider the requested model needs, never the
+    whole file, and only into the per-run temp directory.
+    """
+    source_home_value = source.get("HOME") or source.get("USERPROFILE")
+    if not source_home_value:
+        return {}
+    source_config = Path(source.get("XDG_CONFIG_HOME", Path(source_home_value) / ".config"))
+    real_config = source_config / "opencode" / "opencode.json"
+    if not real_config.is_file() or real_config.is_symlink():
+        return {}
+    try:
+        providers = json.loads(real_config.read_text(encoding="utf-8")).get("provider")
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if not isinstance(providers, dict) or not model:
+        return {}
+    wanted = model.split("/", 1)[0]
+    block = providers.get(wanted)
+    return {wanted: block} if isinstance(block, dict) else {}
+
+
+def write_restricted_config(
+    config_home: Path,
+    allowed_skills: Sequence[str] = (),
+    provider: Optional[Dict[str, Any]] = None,
+) -> Path:
     """Write deny-by-default OpenCode permissions into an isolated config home."""
     config_dir = config_home / "opencode"
     config_dir.mkdir(parents=True, exist_ok=True)
@@ -117,8 +152,11 @@ def write_restricted_config(config_home: Path, allowed_skills: Sequence[str] = (
             "*": "deny",
             **{skill_name: "allow" for skill_name in allowed_skills},
         }
+    config: Dict[str, Any] = {"permission": permission}
+    if provider:
+        config["provider"] = provider
     config_path = config_dir / "opencode.json"
-    config_path.write_text(json.dumps({"permission": permission}), encoding="utf-8")
+    config_path.write_text(json.dumps(config), encoding="utf-8")
     return config_path
 
 
@@ -178,7 +216,9 @@ def run_single_query(
         xdg_config_home = temp_root / "config"
         workspace = temp_root / "workspace"
         workspace.mkdir()
-        write_restricted_config(xdg_config_home, [skill_name])
+        write_restricted_config(
+            xdg_config_home, [skill_name], read_real_provider_block(os.environ, model)
+        )
         temp_skills_root = xdg_config_home / "opencode" / "skills"
         temp_skill_dir = temp_skills_root / skill_name
         if temp_skill_dir.resolve().parent != temp_skills_root.resolve():
@@ -329,6 +369,20 @@ def main():
         sys.exit(2)
     if not 0.0 < args.trigger_threshold <= 1.0:
         print("Error: trigger-threshold must be greater than 0 and at most 1", file=sys.stderr)
+        sys.exit(2)
+    # Fail loud rather than sweeping credential-less. A worker with no provider
+    # credentials still completes and is scored not-triggered, so the run reports a
+    # clean 0/N across every positive and reads as a description regression.
+    if args.model and not read_real_provider_block(os.environ, args.model):
+        provider_name = args.model.split("/", 1)[0]
+        print(
+            f"Error: no credentials resolvable for provider {provider_name!r} of model "
+            f"{args.model!r}. Isolated workers carry only the provider block copied from "
+            "the real OpenCode config, so this run would score every query as "
+            "not-triggered. Check provider."
+            f"{provider_name} exists in ~/.config/opencode/opencode.json.",
+            file=sys.stderr,
+        )
         sys.exit(2)
 
     eval_set = json.loads(Path(args.eval_set).read_text(encoding="utf-8"))

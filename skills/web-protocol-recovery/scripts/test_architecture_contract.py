@@ -67,6 +67,48 @@ class ArchitectureContractTests(unittest.TestCase):
         )
         self.assertTrue(any("resolves and must be recorded" in finding for finding in findings))
 
+    def test_inherited_camoufox_current_stage_is_rejected(self) -> None:
+        """Copying a historical camoufox stage into the current chain must fail.
+
+        This is the exact defect that shipped: four python-node cases duplicated
+        historicalProviderChain into requiredCurrentProviderChain, so a signal
+        match handed the model a camoufox order the hub forbids.
+        """
+        findings = validate_architecture.current_camoufox_findings(
+            "fixture",
+            [{"provider": "camoufox", "role": "reconnaissance"}],
+        )
+        self.assertTrue(any("without a camoufoxCriterion" in item for item in findings))
+
+    def test_declared_camoufox_criterion_is_accepted(self) -> None:
+        findings = validate_architecture.current_camoufox_findings(
+            "fixture",
+            [
+                {
+                    "provider": "camoufox",
+                    "role": "reconnaissance",
+                    "camoufoxCriterion": "engine-level SpiderMonkey property tracing",
+                }
+            ],
+        )
+        self.assertEqual(findings, [])
+
+    def test_historical_camoufox_stage_stays_legal(self) -> None:
+        """Only the current chain is gated; provenance must remain recordable."""
+        for path in sorted(validate_architecture.CASES_ROOT.glob("**/case.json")):
+            data = json.loads(path.read_text(encoding="utf-8"))
+            historical = data.get("historicalProviderChain") or []
+            if any(stage.get("provider") == "camoufox" for stage in historical):
+                self.assertEqual(
+                    validate_architecture.current_camoufox_findings(
+                        str(data.get("caseId")),
+                        data.get("requiredCurrentProviderChain") or [],
+                    ),
+                    [],
+                )
+                return
+        self.fail("expected at least one case with a historical camoufox stage")
+
     def test_case_ambiguity_requires_negative_discriminator(self) -> None:
         left = row("left", ["parameter:s"], [])
         right = row("right", ["parameter:s"], [])

@@ -21,8 +21,9 @@
             },
             "providerPlan": [
                 {
-                    "provider": "camoufox",
-                    "role": "reconnaissance"
+                    "provider": "chromium-recon",
+                    "role": "reconnaissance",
+                    "purpose": "current-target evidence"
                 },
                 {
                     "provider": "browser-hooks",
@@ -35,7 +36,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-dual-sign-cacheopts/case.json",
-                "sha256": "6f655d7e3c4b819189c1bc2fff4ac347559395cbee3924a66a7f7ae811600519"
+                "sha256": "56fc9026b59902998c3a0c1610a92989adf29aaf29ccd1c751dd5ef46da7550b"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -69,8 +70,9 @@
             },
             "providerPlan": [
                 {
-                    "provider": "camoufox",
-                    "role": "reconnaissance"
+                    "provider": "chromium-recon",
+                    "role": "reconnaissance",
+                    "purpose": "current-target evidence"
                 },
                 {
                     "provider": "python-node",
@@ -81,7 +83,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-ruishu6-cookie-412-sdenv/case.json",
-                "sha256": "8d43b344f0c95088783260c8026463265e22043fccf6d8871e17c8eaa9f4b4c6"
+                "sha256": "d637220d37d335caf658a4baed4fecbfb2fcbbf79cd6d886c80b74251b17315c"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -107,8 +109,9 @@
             },
             "providerPlan": [
                 {
-                    "provider": "camoufox",
-                    "role": "reconnaissance"
+                    "provider": "chromium-recon",
+                    "role": "reconnaissance",
+                    "purpose": "current-target evidence"
                 },
                 {
                     "provider": "browser-hooks",
@@ -123,7 +126,7 @@
             ],
             "manifest": {
                 "path": "python-node/jsvmp-xhr-interceptor-env-emulation/case.json",
-                "sha256": "8579b00290bb3408b16d8274a613b30d59ac3f52cdbfac270d0a6cc67f4a31cf"
+                "sha256": "c4f567e57cbdb7e48f79975ffae8a9e2ae637cec28fd3e6054311422dde2b4ad"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -147,8 +150,9 @@
             },
             "providerPlan": [
                 {
-                    "provider": "camoufox",
-                    "role": "reconnaissance"
+                    "provider": "chromium-recon",
+                    "role": "reconnaissance",
+                    "purpose": "current-target evidence"
                 },
                 {
                     "provider": "browser-hooks",
@@ -161,7 +165,7 @@
             ],
             "manifest": {
                 "path": "python-node/universal-vmp-instrumentation/case.json",
-                "sha256": "4044024b33a1f108495b34cd1d77c1360d183d3c49f996d1b7808a701e87a92e"
+                "sha256": "d0f9c9f1829299a9988f9b8b2a50ccbaed61c0edf8777bf34691db46e8104bfa"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

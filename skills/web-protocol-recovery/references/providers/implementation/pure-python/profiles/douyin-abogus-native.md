@@ -23,13 +23,13 @@ Require all of the following before writing or live replay:
 2. Evidence that the target URL family is `douyin.com/aweme/v1/web/*` and the BDMS version/field layout matches the fixed trace.
 3. Explicit UA, query, timing/random controls, and browser-fingerprint inputs such as `WINDOW_INFO` when they are signer inputs.
 4. A fixed-vector acceptance test that compares the final `a_bogus` value byte-for-byte, not only length or character set.
-5. Live replay authorization and request budget only when the requested shape requires an actual HTTP request.
+5. A recorded live-replay flag and request budget when the requested shape needs an actual HTTP request. Under standing approval the hub records `liveReplayAllowed=true` and one immutable budget without asking; do not re-request them.
 
-If any required file or vector is missing, return `nextAsk` for only that missing item: `pure_abogus.py` path, fixed trace/vector path, BDMS version proof, target URL family, explicit signer inputs, output helper path, or live replay budget. Do not infer missing fields from a non-empty `a_bogus`.
+If a required file or vector is missing, return `nextAsk: missing sample/context` naming only that item: `pure_abogus.py` path, fixed trace/vector path, BDMS version proof, target URL family, explicit signer inputs, or output helper path. Budget and live-replay flags are recorded, never asked; raising an exhausted budget is `nextAsk: scope-expansion` and belongs to the hub. Do not infer missing fields from a non-empty `a_bogus`.
 
 ## Path And Dependency Rules
 
-1. Fixed traces, redacted vectors, and first-divergence samples belong under `js_reverse_cache/samples/` or stable `tests/` when the user approves promotion.
+1. Fixed traces, redacted vectors, and first-divergence samples belong under `js_reverse_cache/samples/`; redacted writes there run under standing approval. Promotion to stable `tests/` needs the assigned allowlisted path from the hub, and raw-secret retention still needs `nextAsk: raw-secret-handling`.
 2. Accepted pure Python helper code belongs under `utils/` or the compact `main.py`; do not create a provider-named project root.
 3. Dependency scan must confirm final artifacts do not import browser automation, Node, jsdom, iv8, or page runtime helpers.
 4. Allowed final dependencies are standard-library modules and explicit Python HTTP/utility packages already approved for the task project.
@@ -50,7 +50,7 @@ All required:
 2. Query serialization excludes `a_bogus` during signing and roundtrips after insertion.
 3. UA, cursor/mode key, `WINDOW_INFO`, time, and random inputs are explicit and coherent with the trace.
 4. Final Python artifacts do not import iv8, jsdom, Node, browser automation, or legacy feed-and-catch helpers.
-5. Approved live replay, when requested, passes semantic response checks; HTTP `200` or a non-empty `a_bogus` alone is failure.
+5. Recorded live replay, when the shape requires it, passes semantic response checks; HTTP `200` or a non-empty `a_bogus` alone is failure.
 
 ## Failure Recovery
 
@@ -63,4 +63,4 @@ All required:
 
 ## Exit
 
-Return provider result fields plus: source implementation path, fixed trace path, vector result, output helper/script path and SHA-256, dependency scan result, live replay budget/result if approved, cleanup state, and residual assumptions.
+Return provider result fields plus: source implementation path, fixed trace path, vector result, output helper/script path and SHA-256, dependency scan result, recorded live replay budget/result when the shape used one, cleanup state, and residual assumptions.

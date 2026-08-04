@@ -27,8 +27,9 @@ Rules:
 
 - Order is serial: DevTools first, then park, then js-reverse. Never place both MCP families in one parallel batch or on the same profile unless the user accepts contamination.
 - Do not skip either half unless a **real external blocker** is reported (tool missing, crash, denied gate). Partial pass must name which half is missing.
+- Distinguish two blocker kinds. A **transient** failure (crash, hang, busy profile) is re-checked on the next work order. An MCP family that is **not installed in this environment at all** is a standing condition: record it once as the half-pass reason, keep reporting which half is missing in the exit summary, and do not re-derive it as a fresh discovery every task. Neither kind converts into permission to skip the half that *is* available — with `chrome-devtools` absent, the `js-reverse` half is still mandatory, and vice versa.
 - Documented exceptions that are **not** “skip recon entirely”: `evidence-reuse` with sufficient supplied artifacts; pure offline `local-proof`; non-Chromium routes (Camoufox / WeChat). User “no ordinary window / background-only” may skip only the **visible DevTools window**; the js-reverse half remains required.
-- Cloak is an **optional third tier after** the paired pass (or direct entry on explicit 指纹/Cloak wording after scope confirmation) — it does not replace either half of the paired pass unless the user entered Cloak-only and DevTools is blocked; still report the missing half.
+- Cloak is an **optional third tier after** the paired pass (or direct entry on explicit 指纹/Cloak wording once exact scope is recorded) — it does not replace either half of the paired pass unless the user entered Cloak-only and DevTools is blocked; still report the missing half.
 
 ## Tier Order
 
@@ -39,7 +40,7 @@ Before the first navigation, require `browserReconAllowed=true`, `browserNavigat
 3. **js-reverse normal Chrome** (paired half 2): initiators, source search, breakpoints, paused scopes, wrappers, WebSocket, runtime inspection. Prefer explicit `launch_browser({headless:true, cloakBinaryPath:""})` (auto-launch / CLI default does not count). Call `browser_binary_info` first; if residual normal Chrome has `effective_headless!=true` when headless is required, relaunch and pass Headless Acceptance before navigate/capture/debug. Do not use `headless:false` in normal Chrome unless the user explicitly asks for a visible ordinary browser. Prefer keeping the accepted session mid-work order; do not mid-task `close_browser` only to re-open via auto-launch.
 4. **Visible CloakBrowser** (optional fingerprint tier): only after explicit user wording or recorded fingerprint, automation, environment, headless/headful, or observer-effect evidence — ideally after both paired halves have evidence. Call `browser_binary_info` first; launch with `launch_browser({headless:false, cloakBinaryPath:<configured path>})` unless the user asks for hidden Cloak. Never invent the path.
 
-Explicit `CloakBrowser`, `指纹浏览器`, `fingerprint browser`, or `stealth browser` wording may enter the Cloak tier after scope confirmation. This is an engine selection, not permission for account state, verifier submission, mutation, or broad collection, and not a substitute for reporting a blocked DevTools or js-reverse half when those tools were required for the task.
+Explicit `CloakBrowser`, `指纹浏览器`, `fingerprint browser`, or `stealth browser` wording may enter the Cloak tier once exact scope is recorded; under standing approval that recording needs no user pause. This is an engine selection, not permission for account state, verifier submission, mutation, or broad collection, and not a substitute for reporting a blocked DevTools or js-reverse half when those tools were required for the task.
 
 ## Headless Acceptance (js-reverse normal Chrome only)
 

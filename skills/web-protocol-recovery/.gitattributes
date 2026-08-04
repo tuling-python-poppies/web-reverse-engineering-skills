@@ -1,0 +1,36 @@
+# Skill-local LF pin. Keep in sync with the repository-root .gitattributes.
+#
+# Why this file exists twice: this skill's gates hash worktree bytes, not git
+# blobs. scripts/verify_case_hashes.py compares sha256 of the checked-out file
+# against registry.json / case.json manifests, and the trigger eval ledger
+# records evaluated_skill_md_sha256 for SKILL.md. On Windows with
+# core.autocrlf=true a plain checkout materializes CRLF, which changes those
+# hashes and fails the gates on line endings alone - indistinguishable from real
+# tampering. Verified once already: a CRLF checkout of one case.json produced
+# e87142de instead of the recorded 0894dcf6.
+#
+# The root file pins these paths for this repository. This copy makes the pin
+# travel with the directory, so vendoring the skill into another repository or
+# copying it into ~/.claude/skills/ cannot silently lose the guarantee. Blobs are
+# already LF, so this changes no committed bytes - only what checkout writes.
+#
+# Suffix list must match EOL_CHECKED_SUFFIXES in scripts/validate_architecture.py.
+
+.gitattributes text eol=lf
+
+*.md   text eol=lf
+*.json text eol=lf
+*.py   text eol=lf
+*.js   text eol=lf
+*.mjs  text eol=lf
+*.cjs  text eol=lf
+*.html text eol=lf
+*.txt  text eol=lf
+*.tsv  text eol=lf
+
+# Extensionless text file: not covered by the suffix rules above.
+LICENSE text eol=lf
+
+# Binary assets: never line-ending convert.
+*.wasm binary
+*.pt   binary

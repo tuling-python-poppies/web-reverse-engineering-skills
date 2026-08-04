@@ -621,6 +621,31 @@ def case_asset_contract_findings(case_id: str, artifacts: dict) -> list[str]:
     return findings
 
 
+def current_camoufox_findings(case_id: str, current_chain: list) -> list[str]:
+    """A case may not demand camoufox on the current target by inheritance.
+
+    SKILL.md Phase 2 and Do Not both state that historical case provenance is not
+    a camoufox selection criterion: only explicit Camoufox/SpiderMonkey/engine-level
+    wording or a recorded Chromium/Cloak observer-effect blocker selects it. Four
+    cases used to copy `historicalProviderChain` verbatim into
+    `requiredCurrentProviderChain`, so selecting one of them by signal match told
+    the model to open a second recon engine the hub had forbidden. Fail closed:
+    camoufox stays legal in the historical chain, but a current-chain stage must
+    name the criterion that survives without that history.
+    """
+    findings: list[str] = []
+    for index, stage in enumerate(current_chain):
+        if not isinstance(stage, dict) or stage.get("provider") != "camoufox":
+            continue
+        criterion = stage.get("camoufoxCriterion")
+        if not isinstance(criterion, str) or not criterion.strip():
+            findings.append(
+                f"{case_id}: requiredCurrentProviderChain[{index}] selects camoufox "
+                "without a camoufoxCriterion; historical provenance is not a criterion"
+            )
+    return findings
+
+
 def case_manifest_findings() -> list[str]:
     findings: list[str] = []
     for path in sorted(CASES_ROOT.glob("**/case.json")):
@@ -675,6 +700,11 @@ def case_manifest_findings() -> list[str]:
                     findings.append(f"{case_id}: env-patch strategy must be on python-node stage")
                 if stage.get("profile") == "douyin-abogus-native" and provider != "pure-python":
                     findings.append(f"{case_id}: douyin-abogus-native profile must be on pure-python stage")
+        findings.extend(
+            current_camoufox_findings(
+                str(case_id), data.get("requiredCurrentProviderChain") or []
+            )
+        )
     return findings
 
 

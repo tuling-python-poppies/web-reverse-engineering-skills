@@ -52,6 +52,22 @@
             "required": ["actionApproval"],
             "properties": {"actionApproval": {"const": "user-confirmed-mutation"}}
           }
+        },
+        {
+          "if": {"properties": {"actionApproval": {"const": "user-confirmed-mutation"}}, "required": ["actionApproval"]},
+          "then": {"properties": {"actionClass": {"const": "mutation-submit"}}}
+        },
+        {
+          "if": {"properties": {"actionClass": {"const": "verifier-submit"}}, "required": ["actionClass"]},
+          "then": {"properties": {"actionApproval": {"enum": ["standing-verifier-submit", "user-confirmed-mutation"]}}}
+        },
+        {
+          "if": {"properties": {"actionApproval": {"const": "standing-verifier-submit"}}, "required": ["actionApproval"]},
+          "then": {"properties": {"actionClass": {"const": "verifier-submit"}}}
+        },
+        {
+          "if": {"properties": {"actionApproval": {"const": "standing-read-only"}}, "required": ["actionApproval"]},
+          "then": {"properties": {"actionClass": {"enum": ["none", "read-only"]}}}
         }
       ]
     },

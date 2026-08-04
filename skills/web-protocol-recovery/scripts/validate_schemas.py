@@ -291,6 +291,53 @@ def main() -> int:
         )
     )
 
+    # The forward rule alone let a read-only order carry a mutation approval, so a
+    # stale or copy-pasted approval could sit on a routine work order and read as
+    # if the user had confirmed a business mutation. Bind the pair both ways.
+    overclaimed_approval = copy.deepcopy(VALID_WORK_ORDER)
+    overclaimed_approval["authorization"]["actionClass"] = "read-only"
+    overclaimed_approval["authorization"]["actionApproval"] = "user-confirmed-mutation"
+    failures.extend(
+        expect_invalid(
+            work_order,
+            overclaimed_approval,
+            "read-only action carrying user-confirmed-mutation approval",
+        )
+    )
+
+    mismatched_verifier = copy.deepcopy(VALID_WORK_ORDER)
+    mismatched_verifier["authorization"]["actionClass"] = "read-only"
+    mismatched_verifier["authorization"]["actionApproval"] = "standing-verifier-submit"
+    failures.extend(
+        expect_invalid(
+            work_order,
+            mismatched_verifier,
+            "read-only action carrying standing-verifier-submit approval",
+        )
+    )
+
+    understated_verifier = copy.deepcopy(VALID_WORK_ORDER)
+    understated_verifier["authorization"]["actionClass"] = "verifier-submit"
+    understated_verifier["authorization"]["actionApproval"] = "standing-read-only"
+    failures.extend(
+        expect_invalid(
+            work_order,
+            understated_verifier,
+            "verifier-submit understated as standing-read-only",
+        )
+    )
+
+    approved_verifier = copy.deepcopy(VALID_WORK_ORDER)
+    approved_verifier["authorization"]["actionClass"] = "verifier-submit"
+    approved_verifier["authorization"]["actionApproval"] = "standing-verifier-submit"
+    failures.extend(
+        expect_valid(
+            work_order,
+            approved_verifier,
+            "verifier-submit with standing-verifier-submit approval",
+        )
+    )
+
     failures.extend(expect_valid(result, VALID_RESULT, "valid provider result"))
     missing_cleanup = copy.deepcopy(VALID_RESULT)
     missing_cleanup["cleanup"].pop("runtimeIdsClosed")

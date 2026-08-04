@@ -45,7 +45,8 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
       "mode": "allowlisted-raw",
       "approvedRawFields": ["redacted-request", "source", "screenshot", "net-log"],
       "retentionDeadline": "task",
-      "repositoryExcluded": true
+      "repositoryExcluded": true,
+      "rawSecretHandling": "blocked"
     },
     "executionPolicy": {
       "targetCodeExecution": "blocked",
@@ -53,7 +54,7 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
       "dependencyInstall": "blocked",
       "approvedCommands": [],
       "approvalEvidence": "none",
-      "approvalDeadline": "none"
+      "approvalDeadline": null
     }
   },
   "project": {
@@ -91,11 +92,13 @@ Before every Provider-initiated navigation, HTTP/XHR/fetch request, retry, WebSo
 
 All budget and limit fields are integers: `total >= 0`, `0 <= remaining <= total`, `minDelayMs >= 0`, `concurrency >= 1`; threshold `0` denies Chrome baseline. The hub chooses `requestBudget.total` once before first egress. `total`, `remaining`, and `observedAutomatic` are shared task state: route handoffs cannot reset them, and neither hub nor Provider may replenish/increase `total` without `scope-expansion` confirmation. Providers enforce delay/concurrency before egress.
 
-`writeMode=no-write` forbids all work-order writes. `create-only` permits only new files matching `allowedPaths`; `modify-allowlisted` permits new or existing files only at the exact allowlisted paths and never weakens the no-overwrite rules owned by project layout. Routine redacted/nonsecret cache writes may be recorded internally. Raw-secret writes require `raw-secret-handling` confirmation with exact fields, an absolute allowlisted path, repository exclusion, and a retention deadline. Operational configuration outside the project requires a separate exact-path confirmation and is reported as a side effect. A provider with `runtimeCustody.providerOwnsLease=true` may maintain only its documented PID/lease state under the verified external runtime root; it must clean that state on normal release and may not use it to persist unrelated configuration.
+`writeMode=no-write` forbids all work-order writes. `create-only` permits only new files matching `allowedPaths`; `modify-allowlisted` permits new or existing files only at the exact allowlisted paths and never weakens the no-overwrite rules owned by project layout. Routine redacted/nonsecret cache writes may be recorded internally. `artifactPolicy.rawSecretHandling=confirmed` is required for raw-secret writes, alongside `raw-secret-handling` confirmation with exact fields, an absolute allowlisted path, repository exclusion, and a retention deadline. Operational configuration outside the project requires a separate exact-path confirmation and is reported as a side effect. A provider with `runtimeCustody.providerOwnsLease=true` may maintain only its documented PID/lease state under the verified external runtime root; it must clean that state on normal release and may not use it to persist unrelated configuration.
+
+Stateful delivery templates that reserve budget across process launches carry `requestBudget.budgetLedgerId=sha256(workOrderId)` and the exact canonical `requestBudget.ledgerPath` `js_reverse_cache/private/gt4-ledgers/<budgetLedgerId>/ledger.sqlite3`. Its parent subtree is the one terminal `project.allowedPaths` `/**` entry and uses `modify-allowlisted`; it records reservations before egress and never refunds them. A later process must reopen the same ledger, not copy `requestBudget.remaining` into a new in-memory counter or choose a new ledger path.
 
 Each scope carries its query authorization. `deny` rejects any query; `allow-listed` requires every decoded key in `allowedKeys` and, when a key appears in `allowedValues`, every decoded value in that key's approved list; `allow-all` requires explicit authorization and grants no new host, route, action, or budget. An omitted or malformed query policy fails closed.
 
-Before executing target-supplied code, hash the exact reviewed bytes and require `targetCodeExecution=approved-reviewed-hash`, a matching `approvedCodeSha256`, unexpired approval evidence, and a sandbox whose network/file/process capabilities are denied unless separately authorized. Dependency installation requires `dependencyInstall=approved` and an exact command present in `approvedCommands`; package names alone are not approval.
+Before executing target-supplied code, hash the exact reviewed bytes and require `targetCodeExecution=approved-reviewed-hash`, a matching `approvedCodeSha256`, unexpired approval evidence, and a declared `executionPolicy.sandbox` with a reviewed capability-denied adapter identity, adapter hash, and capability evidence. `node:vm` and a work-order supplied argv are not security boundaries. A template that has no bundled reviewed adapter must fail closed rather than invoke a user-declared command. Dependency installation requires `dependencyInstall=approved` and an exact command present in `approvedCommands`; package names alone are not approval.
 
 ## Result
 
@@ -115,9 +118,9 @@ Before executing target-supplied code, hash the exact reviewed bytes and require
   "status": "complete",
   "artifactBoundary": null,
   "artifacts": [],
-  "verification": {"test": "return bounded offline evidence", "passed": true, "evidence": "offline contract validated"},
-  "requestBudget": {"consumed": 0, "remaining": 0, "byKind": {"navigation": 0, "request": 0, "retry": 0, "websocketHandshake": 0, "websocketFrame": 0}, "observedAutomatic": {"total": 0, "byKind": {"redirect": 0, "subresource": 0, "xhrFetch": 0, "beaconPing": 0, "eventSource": 0, "websocket": 0}, "destinations": []}, "minDelayMsApplied": 0, "maxConcurrencyObserved": 1},
-  "execution": {"executedCodeSha256": [], "installedCommands": []},
+  "verification": {"fixedVectorPass": true, "liveReplayPass": false, "semanticSuccess": true, "firstDivergence": null},
+  "requestBudget": {"total": 10, "priorRemaining": 10, "consumed": 0, "remaining": 10, "byKind": {"navigation": 0, "request": 0, "retry": 0, "websocketHandshake": 0, "websocketFrame": 0}, "observedAutomatic": {"total": 0, "byKind": {"redirect": 0, "subresource": 0, "xhrFetch": 0, "beaconPing": 0, "eventSource": 0, "websocket": 0}, "destinations": []}, "minDelayMsApplied": 0, "maxConcurrencyObserved": 1},
+  "execution": {"targetCodeExecution": "blocked", "executedCodeSha256": [], "installedCommands": []},
   "runtimeIds": [],
   "diagnostics": [],
   "sideEffects": [],
@@ -126,7 +129,7 @@ Before executing target-supplied code, hash the exact reviewed bytes and require
 }
 ```
 
-Every browser request, script, frame, target, worker, and WebSocket ID is bound to the exact record fields `resourceId`, `engine`, `contextId`, `targetId`, `navigationEpoch`, `owner`, and `lifecycle` (`live | stale | retained | released`). Every result returns the final record for each incoming ID plus every ID created by the Provider. Identity fields never change; navigation, reload, engine switch, worker stop, lease release, or browser close makes affected IDs stale or released. A retained record also carries nonempty `retention.reason`, `retention.approvalEvidence`, and `retention.releaseDeadline`. Reject work orders/results that omit these fields for an ID; never invent defaults or reuse an ID across boundaries. Save durable redacted artifacts before cleanup.
+Every browser request, script, frame, target, worker, and WebSocket ID is an object with exact `resourceId`, `engine`, `contextId`, `targetId`, `navigationEpoch`, `owner`, and `lifecycle` (`live | stale | retained | released`) fields. Every result returns the final record for each incoming ID plus every ID created by the Provider. Identity fields never change; navigation, reload, engine switch, worker stop, lease release, or browser close makes affected IDs stale or released. A retained record also carries nonempty `retention.reason`, `retention.approvalEvidence`, and `retention.releaseDeadline`. Reject work orders/results that omit these fields for an ID; never invent defaults or reuse an ID across boundaries. Save durable redacted artifacts before cleanup.
 
 One budget unit means one Provider-initiated outbound attempt reserved immediately before egress: navigation, initial HTTP/XHR/fetch request, retry attempt, WebSocket handshake, or sent frame. Categories are mutually exclusive and consumed units are never refunded. All `byKind`, `consumed`, and returned `remaining` values are non-negative integers. Budget accounting is conserved: `consumed = sum(byKind)`, `0 <= consumed <= prior remaining <= total`, returned `remaining = prior remaining - consumed`, and no Provider may increase `total`. Automatic observation accounting uses cumulative vectors: for every kind, `delta[kind] = returned.byKind[kind] - prior.byKind[kind] >= 0`; `returned.total = sum(returned.byKind) = prior.total + sum(delta)`; and canonical destination counts sum to `returned.total`. Destinations are bounded scheme/host/port/route/count records, and the Provider stops further actions once cumulative total reaches the threshold without claiming prevention. `minDelayMsApplied >= requested minDelayMs` and `maxConcurrencyObserved <= requested concurrency`. Executed hashes and install commands must be subsets of the approved execution policy. web-protocol-recovery rejects a result that omits or violates these equations.
 

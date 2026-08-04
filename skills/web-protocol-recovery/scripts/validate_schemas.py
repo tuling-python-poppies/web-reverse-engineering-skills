@@ -5,10 +5,11 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import sys
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
-from jsonschema import Draft202012Validator, ValidationError
+from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -75,6 +76,7 @@ VALID_WORK_ORDER = {
             "approvedRawFields": [],
             "retentionDeadline": "none",
             "repositoryExcluded": True,
+            "rawSecretHandling": "blocked",
         },
         "executionPolicy": {
             "targetCodeExecution": "blocked",
@@ -82,7 +84,7 @@ VALID_WORK_ORDER = {
             "dependencyInstall": "blocked",
             "approvedCommands": [],
             "approvalEvidence": "none",
-            "approvalDeadline": "none",
+            "approvalDeadline": None,
         },
     },
     "project": {
@@ -118,11 +120,49 @@ VALID_RESULT = {
     "status": "complete",
     "artifactBoundary": None,
     "artifacts": [],
-    "verification": {"fixedVectorPass": True, "liveReplayPass": False, "semanticSuccess": True},
-    "requestBudget": {"remaining": 0},
-    "execution": {"targetCodeExecution": "blocked"},
+    "verification": {
+        "fixedVectorPass": True,
+        "liveReplayPass": False,
+        "semanticSuccess": True,
+        "firstDivergence": None,
+    },
+    "requestBudget": {
+        "total": 0,
+        "priorRemaining": 0,
+        "consumed": 0,
+        "remaining": 0,
+        "byKind": {
+            "navigation": 0,
+            "request": 0,
+            "retry": 0,
+            "websocketHandshake": 0,
+            "websocketFrame": 0,
+        },
+        "observedAutomatic": {
+            "total": 0,
+            "byKind": {
+                "redirect": 0,
+                "subresource": 0,
+                "xhrFetch": 0,
+                "beaconPing": 0,
+                "eventSource": 0,
+                "websocket": 0,
+            },
+            "destinations": [],
+        },
+        "minDelayMsApplied": 0,
+        "maxConcurrencyObserved": 1,
+    },
+    "execution": {
+        "targetCodeExecution": "blocked",
+        "executedCodeSha256": [],
+        "installedCommands": [],
+    },
     "runtimeIds": [],
-    "cleanup": {"complete": True, "runtimeIdsClosed": True},
+    "diagnostics": [],
+    "sideEffects": [],
+    "cleanup": {"complete": True, "remainingResources": []},
+    "residualRisks": [],
 }
 
 
@@ -187,34 +227,185 @@ def work_order_semantic_findings(value: dict, label: str) -> list[str]:
         kind_sum = sum(value for value in by_kind.values() if isinstance(value, int))
         if observed_total != kind_sum:
             findings.append(f"{label}: observedAutomatic.total must equal sum(byKind)")
+
+    authorization = value.get("authorization") or {}
+    live_replay = authorization.get("liveReplayAllowed")
+    scopes = authorization.get("allowedHostsAndRoutes") or []
+    if live_replay is True:
+        if not scopes:
+            findings.append(f"{label}: live replay requires at least one route scope")
+        if not isinstance(total, int) or total < 1:
+            findings.append(f"{label}: live replay requires a positive total budget")
+        if not isinstance(remaining, int) or remaining < 1:
+            findings.append(f"{label}: live replay requires a positive remaining budget")
+
+    ledger_id = budget.get("budgetLedgerId")
+    ledger_path = budget.get("ledgerPath")
+    if bool(ledger_id) != bool(ledger_path):
+        findings.append(f"{label}: budget ledger id and path must appear together")
+    if ledger_path:
+        if not isinstance(ledger_path, str) or Path(ledger_path).is_absolute() or ".." in Path(ledger_path).parts:
+            findings.append(f"{label}: budget ledger path must be relative and contained")
+        if write_mode != "modify-allowlisted":
+            findings.append(f"{label}: persistent budget ledger requires modify-allowlisted")
+        ledger_allowed = any(
+            isinstance(path, str)
+            and path.endswith("/**")
+            and ledger_path.startswith(path[:-3] + "/")
+            for path in allowed_paths
+        )
+        if not ledger_allowed:
+            findings.append(f"{label}: budget ledger path must stay under an allowed ledger subtree")
     return findings
 
 
-def doc_example_findings(work_order: Draft202012Validator) -> list[str]:
+def provider_result_semantic_findings(
+    work_order_value: dict, result_value: dict, label: str
+) -> list[str]:
+    findings: list[str] = []
+    for field in ("workOrderId", "shape", "gateFamily", "protocolOwner"):
+        if result_value.get(field) != work_order_value.get(field):
+            findings.append(f"{label}: {field} must match the work order")
+    if result_value.get("provider") != work_order_value.get("activeProvider"):
+        findings.append(f"{label}: provider must match activeProvider")
+
+    incoming_runtime_ids = {
+        item.get("resourceId"): item
+        for item in (work_order_value.get("runtimeIds") or [])
+        if isinstance(item, dict) and item.get("resourceId")
+    }
+    result_runtime_ids = {
+        item.get("resourceId"): item
+        for item in (result_value.get("runtimeIds") or [])
+        if isinstance(item, dict) and item.get("resourceId")
+    }
+    for resource_id, incoming in incoming_runtime_ids.items():
+        returned = result_runtime_ids.get(resource_id)
+        if not isinstance(returned, dict):
+            findings.append(f"{label}: result omitted incoming runtime ID {resource_id}")
+            continue
+        for field in ("engine", "contextId", "targetId", "navigationEpoch", "owner"):
+            if returned.get(field) != incoming.get(field):
+                findings.append(
+                    f"{label}: runtime ID {resource_id} changed immutable {field}"
+                )
+
+    work_budget = (work_order_value.get("authorization") or {}).get("requestBudget") or {}
+    result_budget = result_value.get("requestBudget") or {}
+    total = work_budget.get("total")
+    prior = work_budget.get("remaining")
+    if result_budget.get("total") != total:
+        findings.append(f"{label}: requestBudget.total must match the work order")
+    if result_budget.get("priorRemaining") != prior:
+        findings.append(f"{label}: requestBudget.priorRemaining must match the work order")
+    by_kind = result_budget.get("byKind") or {}
+    consumed = result_budget.get("consumed")
+    if isinstance(consumed, int) and consumed != sum(by_kind.values()):
+        findings.append(f"{label}: requestBudget.consumed must equal sum(byKind)")
+    remaining = result_budget.get("remaining")
+    if isinstance(prior, int) and isinstance(consumed, int) and remaining != prior - consumed:
+        findings.append(f"{label}: requestBudget.remaining must equal priorRemaining - consumed")
+    if isinstance(total, int) and isinstance(remaining, int) and not 0 <= remaining <= total:
+        findings.append(f"{label}: requestBudget.remaining must stay within total")
+    if result_budget.get("observedAutomatic") != work_budget.get("observedAutomatic"):
+        findings.append(f"{label}: observedAutomatic must match the immutable work order")
+    required_min_delay = work_budget.get("minDelayMs")
+    applied_min_delay = result_budget.get("minDelayMsApplied")
+    if (
+        isinstance(required_min_delay, int)
+        and isinstance(applied_min_delay, int)
+        and applied_min_delay < required_min_delay
+    ):
+        findings.append(f"{label}: minDelayMsApplied must meet the work-order minimum")
+    allowed_concurrency = work_budget.get("concurrency")
+    observed_concurrency = result_budget.get("maxConcurrencyObserved")
+    if (
+        isinstance(allowed_concurrency, int)
+        and isinstance(observed_concurrency, int)
+        and observed_concurrency > allowed_concurrency
+    ):
+        findings.append(f"{label}: maxConcurrencyObserved must not exceed the work-order limit")
+
+    execution_policy = (work_order_value.get("authorization") or {}).get("executionPolicy") or {}
+    execution = result_value.get("execution") or {}
+    if execution.get("targetCodeExecution") != execution_policy.get("targetCodeExecution"):
+        findings.append(f"{label}: execution targetCodeExecution must match the work order")
+    approved_hashes = set(execution_policy.get("approvedCodeSha256") or [])
+    if not set(execution.get("executedCodeSha256") or []) <= approved_hashes:
+        findings.append(f"{label}: executed code hashes must be approved")
+    approved_commands = set(execution_policy.get("approvedCommands") or [])
+    if not set(execution.get("installedCommands") or []) <= approved_commands:
+        findings.append(f"{label}: installed commands must be approved")
+
+    runtime_ids = result_value.get("runtimeIds") or []
+    resource_ids = {item.get("resourceId") for item in runtime_ids if isinstance(item, dict)}
+    retained = {
+        item.get("resourceId")
+        for item in runtime_ids
+        if isinstance(item, dict) and item.get("lifecycle") == "retained"
+    }
+    live = {
+        item.get("resourceId")
+        for item in runtime_ids
+        if isinstance(item, dict) and item.get("lifecycle") == "live"
+    }
+    cleanup = result_value.get("cleanup") or {}
+    remaining_resources = set(cleanup.get("remainingResources") or [])
+    if not remaining_resources <= resource_ids:
+        findings.append(f"{label}: cleanup remaining resources must be known runtime IDs")
+    if remaining_resources != retained:
+        findings.append(f"{label}: cleanup remaining resources must equal retained IDs")
+    if result_value.get("status") == "complete" and (live or not cleanup.get("complete")):
+        findings.append(f"{label}: complete result cannot retain live resources or incomplete cleanup")
+    return findings
+
+
+def doc_examples() -> list[dict]:
     text = WORK_ORDER_DOC.read_text(encoding="utf-8")
-    start = text.find("```json")
-    end = text.find("```", start + 7)
-    if start < 0 or end < 0:
-        return ["provider-work-order.md missing JSON example"]
+    return [json.loads(block) for block in re.findall(r"```json\s*\n(.*?)\n```", text, re.S)]
+
+
+def doc_example_findings(
+    work_order: Draft202012Validator, result: Draft202012Validator
+) -> list[str]:
     try:
-        example = json.loads(text[start + 7 : end])
+        examples = doc_examples()
     except json.JSONDecodeError as error:
-        return [f"provider-work-order.md example is not valid JSON: {error}"]
-    findings = expect_valid(work_order, example, "provider-work-order.md example")
-    findings.extend(work_order_semantic_findings(example, "provider-work-order.md example"))
+        return [f"provider-work-order.md JSON example is invalid: {error}"]
+    if len(examples) != 2:
+        return [f"provider-work-order.md must contain exactly two JSON examples, got {len(examples)}"]
+    work_order_example, result_example = examples
+    findings = expect_valid(work_order, work_order_example, "provider-work-order.md work order example")
+    findings.extend(
+        work_order_semantic_findings(
+            work_order_example, "provider-work-order.md work order example"
+        )
+    )
+    findings.extend(expect_valid(result, result_example, "provider-work-order.md result example"))
+    findings.extend(
+        provider_result_semantic_findings(
+            work_order_example,
+            result_example,
+            "provider-work-order.md result example",
+        )
+    )
     return findings
 
 
 def main() -> int:
     failures: list[str] = []
-    work_order = Draft202012Validator(load_schema("provider-work-order.schema.json"))
-    result = Draft202012Validator(load_schema("provider-result.schema.json"))
+    work_order = Draft202012Validator(
+        load_schema("provider-work-order.schema.json"), format_checker=FormatChecker()
+    )
+    result = Draft202012Validator(
+        load_schema("provider-result.schema.json"), format_checker=FormatChecker()
+    )
     Draft202012Validator.check_schema(load_schema("case.schema.json"))
     Draft202012Validator.check_schema(load_schema("case-registry.schema.json"))
 
     failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid offline work order"))
     failures.extend(work_order_semantic_findings(VALID_WORK_ORDER, "valid offline work order"))
-    failures.extend(doc_example_findings(work_order))
+    failures.extend(doc_example_findings(work_order, result))
 
     missing_query_policy = copy.deepcopy(VALID_WORK_ORDER)
     del missing_query_policy["authorization"]["allowedHostsAndRoutes"][0]["queryPolicy"]
@@ -231,6 +422,7 @@ def main() -> int:
         "writeMode": "create-only",
         "allowedPaths": ["js_reverse_cache/recon/chrome/**"],
     }
+    failures.extend(expect_invalid(work_order, relative_write_root, "relative writable root schema"))
     relative_findings = work_order_semantic_findings(
         relative_write_root, "relative writable root"
     )
@@ -255,7 +447,8 @@ def main() -> int:
     failures.extend(expect_invalid(work_order, bad_read_plan, "legacy readPlan shape"))
 
     remaining_gt_total = copy.deepcopy(VALID_WORK_ORDER)
-    remaining_gt_total["authorization"]["requestBudget"] = {"total": 1, "remaining": 2}
+    remaining_gt_total["authorization"]["requestBudget"]["total"] = 1
+    remaining_gt_total["authorization"]["requestBudget"]["remaining"] = 2
     failures.extend(expect_valid(work_order, remaining_gt_total, "budget shape still valid"))
     if not work_order_semantic_findings(remaining_gt_total, "budget semantic guard"):
         failures.append("budget semantic guard: expected remaining>total to fail")
@@ -266,6 +459,25 @@ def main() -> int:
         "approvedCodeSha256": ["bad"],
     }
     failures.extend(expect_invalid(work_order, bad_hash, "invalid approvedCodeSha256"))
+
+    expired_shape = copy.deepcopy(VALID_WORK_ORDER)
+    expired_shape["authorization"]["executionPolicy"] = {
+        "targetCodeExecution": "approved-reviewed-hash",
+        "approvedCodeSha256": ["0" * 64],
+        "dependencyInstall": "blocked",
+        "approvedCommands": [],
+        "approvalEvidence": "approved target-code review",
+        "approvalDeadline": "not-a-date",
+        "sandbox": {
+            "backend": "capability-denied-external",
+            "adapterId": "reviewed-adapter",
+            "adapterSha256": "1" * 64,
+            "capabilityEvidence": "review record",
+            "timeoutMs": 1000,
+            "outputByteCap": 1024,
+        },
+    }
+    failures.extend(expect_invalid(work_order, expired_shape, "invalid target-code approval deadline"))
 
     unapproved_mutation = copy.deepcopy(VALID_WORK_ORDER)
     unapproved_mutation["authorization"]["actionClass"] = "mutation-submit"
@@ -285,6 +497,17 @@ def main() -> int:
             work_order,
             missing_read_only_approval,
             "read-only without standing-read-only actionApproval",
+        )
+    )
+
+    missing_verifier_approval = copy.deepcopy(VALID_WORK_ORDER)
+    missing_verifier_approval["authorization"]["actionClass"] = "verifier-submit"
+    missing_verifier_approval["authorization"].pop("actionApproval")
+    failures.extend(
+        expect_invalid(
+            work_order,
+            missing_verifier_approval,
+            "verifier-submit without actionApproval",
         )
     )
 
@@ -361,13 +584,85 @@ def main() -> int:
         )
     )
 
+    invalid_live_budget = copy.deepcopy(VALID_WORK_ORDER)
+    invalid_live_budget["authorization"]["liveReplayAllowed"] = True
+    invalid_live_budget["authorization"]["requestBudget"]["total"] = 0
+    invalid_live_budget["authorization"]["requestBudget"]["remaining"] = 0
+    failures.extend(expect_invalid(work_order, invalid_live_budget, "live replay without positive budget"))
+    live_budget_findings = work_order_semantic_findings(
+        invalid_live_budget, "live replay budget semantic guard"
+    )
+    if not any("positive total budget" in item for item in live_budget_findings):
+        failures.append("live replay budget semantic guard: expected positive budget failure")
+
+    invalid_ledger = copy.deepcopy(VALID_WORK_ORDER)
+    invalid_ledger["authorization"]["requestBudget"]["budgetLedgerId"] = "gt4-ledger"
+    invalid_ledger["authorization"]["requestBudget"]["ledgerPath"] = "js_reverse_cache/private/gt4.sqlite3"
+    invalid_ledger["project"]["writeMode"] = "create-only"
+    invalid_ledger["project"]["allowedPaths"] = ["js_reverse_cache/private/gt4.sqlite3"]
+    ledger_findings = work_order_semantic_findings(
+        invalid_ledger, "persistent ledger semantic guard"
+    )
+    if not any("modify-allowlisted" in item for item in ledger_findings):
+        failures.append("persistent ledger semantic guard: expected write mode failure")
+
     failures.extend(expect_valid(result, VALID_RESULT, "valid provider result"))
     missing_cleanup = copy.deepcopy(VALID_RESULT)
-    missing_cleanup["cleanup"].pop("runtimeIdsClosed")
-    failures.extend(expect_invalid(result, missing_cleanup, "missing cleanup.runtimeIdsClosed"))
+    missing_cleanup["cleanup"].pop("remainingResources")
+    failures.extend(expect_invalid(result, missing_cleanup, "missing cleanup.remainingResources"))
     missing_semantic = copy.deepcopy(VALID_RESULT)
     missing_semantic["verification"].pop("semanticSuccess")
     failures.extend(expect_invalid(result, missing_semantic, "missing semanticSuccess"))
+
+    result_budget_drift = copy.deepcopy(VALID_RESULT)
+    result_budget_drift["requestBudget"]["consumed"] = 1
+    semantic_findings = provider_result_semantic_findings(
+        VALID_WORK_ORDER, result_budget_drift, "provider result budget semantic guard"
+    )
+    if not any("consumed must equal" in item for item in semantic_findings):
+        failures.append("provider result budget semantic guard: expected conservation failure")
+
+    result_timing_drift = copy.deepcopy(VALID_RESULT)
+    timing_order = copy.deepcopy(VALID_WORK_ORDER)
+    timing_order["authorization"]["requestBudget"]["minDelayMs"] = 50
+    timing_order["authorization"]["requestBudget"]["concurrency"] = 1
+    result_timing_drift["requestBudget"]["minDelayMsApplied"] = 0
+    result_timing_drift["requestBudget"]["maxConcurrencyObserved"] = 2
+    timing_findings = provider_result_semantic_findings(
+        timing_order, result_timing_drift, "provider result timing semantic guard"
+    )
+    if not any("minDelayMsApplied" in item for item in timing_findings):
+        failures.append("provider result timing semantic guard: expected min delay failure")
+    if not any("maxConcurrencyObserved" in item for item in timing_findings):
+        failures.append("provider result timing semantic guard: expected concurrency failure")
+
+    result_runtime_drop = copy.deepcopy(VALID_RESULT)
+    runtime_order = copy.deepcopy(VALID_WORK_ORDER)
+    runtime_order["runtimeIds"] = [
+        {
+            "resourceId": "worker-1",
+            "engine": "chromium",
+            "contextId": 1,
+            "targetId": "target-1",
+            "navigationEpoch": 0,
+            "owner": "provider",
+            "lifecycle": "live",
+        }
+    ]
+    runtime_findings = provider_result_semantic_findings(
+        runtime_order, result_runtime_drop, "provider result runtime reconciliation guard"
+    )
+    if not any("omitted incoming runtime ID" in item for item in runtime_findings):
+        failures.append("provider result runtime reconciliation guard: expected missing ID failure")
+
+    result_observed_drift = copy.deepcopy(VALID_RESULT)
+    observed_order = copy.deepcopy(VALID_WORK_ORDER)
+    observed_order["authorization"]["requestBudget"]["observedAutomatic"]["total"] = 1
+    observed_findings = provider_result_semantic_findings(
+        observed_order, result_observed_drift, "provider result automatic-traffic guard"
+    )
+    if not any("observedAutomatic" in item for item in observed_findings):
+        failures.append("provider result automatic-traffic guard: expected observedAutomatic failure")
 
     if failures:
         print("== schema contract ==")

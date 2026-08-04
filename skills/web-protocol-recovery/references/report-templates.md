@@ -167,7 +167,6 @@ The skill mixes Chinese and English on purpose. The split is by audience, not by
 | Machine keys and enum values: `route`, `shape`, `gateFamily`, `family`, `selectableAs`, `verificationClass`, JSON field names | English, lowercase, stable | Asserted verbatim by `evals/route-regression.json` and `scripts/validate_architecture.py`. Never translate or alias these. |
 | Trigger surface and operator-oriented quick rules inside `SKILL.md` | Chinese or mixed CN/EN | These mirror how tasks arrive and may be read directly by the operator; keep canonical field names in English. |
 | User-facing deliverables: `分析报告.md` and its section headings, status prose reported back in-session | Chinese | Written for the operator, matching how the task arrives. |
-| Trigger corpus: `evals/trigger-evals.json` queries | Whichever the user would actually type, including mixed CN/EN | The trigger surface must match real phrasing, e.g. `怀疑瑞数`, `Reese84 412`. |
 
 Two rules that follow from this:
 

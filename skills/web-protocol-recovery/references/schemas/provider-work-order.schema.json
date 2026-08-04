@@ -31,7 +31,7 @@
     "caseId": {"type": ["string", "null"]},
     "authorization": {
       "type": "object",
-      "required": ["liveReplayAllowed", "actionClass", "allowedHostsAndRoutes", "requestBudget", "artifactPolicy", "executionPolicy"],
+      "required": ["liveReplayAllowed", "actionClass", "actionApproval", "allowedHostsAndRoutes", "requestBudget", "artifactPolicy", "executionPolicy"],
       "properties": {
         "authorizationBasis": {"type": "string"},
         "liveReplayAllowed": {"type": "boolean"},
@@ -75,6 +75,20 @@
             "required": ["actionApproval"],
             "properties": {"actionApproval": {"const": "standing-read-only"}}
           }
+        },
+        {
+          "if": {"properties": {"liveReplayAllowed": {"const": true}}, "required": ["liveReplayAllowed"]},
+          "then": {
+            "properties": {
+              "allowedHostsAndRoutes": {"minItems": 1},
+              "requestBudget": {
+                "properties": {
+                  "total": {"minimum": 1},
+                  "remaining": {"minimum": 1}
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -82,10 +96,18 @@
       "type": "object",
       "required": ["projectRoot", "layout", "writeMode", "allowedPaths"],
       "properties": {
-        "projectRoot": {"type": "string", "minLength": 1},
+        "projectRoot": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?:[A-Za-z]:[\\\\/]|/)"
+        },
         "layout": {"const": "web-protocol-recovery-simple"},
         "writeMode": {"enum": ["no-write", "create-only", "modify-allowlisted"]},
-        "allowedPaths": {"type": "array", "items": {"type": "string"}}
+        "allowedPaths": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
       }
     },
     "readPlan": {
@@ -109,14 +131,30 @@
         "providerOwnsLease": {"type": "boolean"}
       }
     },
-    "runtimeIds": {"type": "array", "items": {"type": "string"}}
+    "runtimeIds": {"type": "array", "items": {"$ref": "#/$defs/runtimeId"}}
   },
   "$defs": {
     "providerRef": {
       "type": "object",
-      "required": ["id", "role"],
+      "required": ["id", "role", "strategy", "profile"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {
+          "enum": [
+            "chromium-recon",
+            "camoufox",
+            "wechat-miniapp",
+            "browser-hooks",
+            "ast",
+            "verifier",
+            "akamai",
+            "river-security",
+            "reese84",
+            "iv8",
+            "python-node",
+            "pure-python",
+            "python-collector"
+          ]
+        },
         "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
         "strategy": {"type": ["string", "null"]},
         "profile": {"type": ["string", "null"]}
@@ -145,33 +183,79 @@
     },
     "requestBudget": {
       "type": "object",
-      "required": ["total", "remaining"],
+      "required": [
+        "total",
+        "remaining",
+        "minDelayMs",
+        "concurrency",
+        "automaticObservationStopThreshold",
+        "observedAutomatic"
+      ],
       "properties": {
         "total": {"type": "integer", "minimum": 0},
         "remaining": {"type": "integer", "minimum": 0},
         "minDelayMs": {"type": "integer", "minimum": 0},
         "concurrency": {"type": "integer", "minimum": 1},
         "automaticObservationStopThreshold": {"type": "integer", "minimum": 0},
-        "observedAutomatic": {"type": "object"},
+        "observedAutomatic": {
+          "type": "object",
+          "required": ["total", "byKind", "destinations"],
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "byKind": {
+              "type": "object",
+              "required": ["redirect", "subresource", "xhrFetch", "beaconPing", "eventSource", "websocket"],
+              "properties": {
+                "redirect": {"type": "integer", "minimum": 0},
+                "subresource": {"type": "integer", "minimum": 0},
+                "xhrFetch": {"type": "integer", "minimum": 0},
+                "beaconPing": {"type": "integer", "minimum": 0},
+                "eventSource": {"type": "integer", "minimum": 0},
+                "websocket": {"type": "integer", "minimum": 0}
+              }
+            },
+            "destinations": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "budgetLedgerId": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "ledgerPath": {"type": "string", "minLength": 1},
         "maxRequests": {"type": "integer", "minimum": 0},
         "redirects": {"type": "integer", "minimum": 0},
         "retries": {"type": "integer", "minimum": 0},
         "responseByteCap": {"type": "integer", "minimum": 0}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"required": ["budgetLedgerId"]},
+          "then": {"required": ["ledgerPath"]}
+        },
+        {
+          "if": {"required": ["ledgerPath"]},
+          "then": {"required": ["budgetLedgerId"]}
+        }
+      ]
     },
     "artifactPolicy": {
       "type": "object",
-      "required": ["mode", "repositoryExcluded", "approvedRawFields", "retentionDeadline"],
+      "required": ["mode", "repositoryExcluded", "approvedRawFields", "retentionDeadline", "rawSecretHandling"],
       "properties": {
         "mode": {"enum": ["metadata-only", "allowlisted-raw"]},
         "repositoryExcluded": {"type": "boolean"},
         "approvedRawFields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "retentionDeadline": {"type": "string", "minLength": 1}
+        "retentionDeadline": {"type": "string", "minLength": 1},
+        "rawSecretHandling": {"enum": ["blocked", "confirmed"]}
       }
     },
     "executionPolicy": {
       "type": "object",
-      "required": ["targetCodeExecution"],
+      "required": [
+        "targetCodeExecution",
+        "approvedCodeSha256",
+        "dependencyInstall",
+        "approvedCommands",
+        "approvalEvidence",
+        "approvalDeadline"
+      ],
       "properties": {
         "targetCodeExecution": {"enum": ["blocked", "local-only", "approved-reviewed-hash"]},
         "approvedCodeSha256": {
@@ -179,11 +263,71 @@
           "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
           "uniqueItems": true
         },
-        "dependencyInstall": {"type": "string"},
+        "dependencyInstall": {"enum": ["blocked", "approved"]},
         "approvedCommands": {"type": "array", "items": {"type": "string"}},
         "approvalEvidence": {"type": "string"},
-        "approvalDeadline": {"type": "string"}
-      }
+        "approvalDeadline": {"type": ["string", "null"], "format": "date-time"},
+        "sandbox": {
+          "type": "object",
+          "required": ["backend", "adapterId", "adapterSha256", "capabilityEvidence", "timeoutMs", "outputByteCap"],
+          "properties": {
+            "backend": {"enum": ["capability-denied-external"]},
+            "adapterId": {"type": "string", "minLength": 1},
+            "adapterSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            "capabilityEvidence": {"type": "string", "minLength": 1},
+            "timeoutMs": {"type": "integer", "minimum": 1, "maximum": 60000},
+            "outputByteCap": {"type": "integer", "minimum": 1024, "maximum": 10485760}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"targetCodeExecution": {"const": "approved-reviewed-hash"}},
+            "required": ["targetCodeExecution"]
+          },
+          "then": {
+            "required": ["sandbox"],
+            "properties": {
+              "approvedCodeSha256": {"minItems": 1},
+              "approvalEvidence": {"type": "string", "minLength": 1},
+              "approvalDeadline": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T.+(?:Z|[+-][0-9]{2}:[0-9]{2})$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "runtimeId": {
+      "type": "object",
+      "required": ["resourceId", "engine", "contextId", "targetId", "navigationEpoch", "owner", "lifecycle"],
+      "properties": {
+        "resourceId": {"type": "string", "minLength": 1},
+        "engine": {"type": "string", "minLength": 1},
+        "contextId": {"type": ["string", "integer", "null"]},
+        "targetId": {"type": ["string", "integer", "null"]},
+        "navigationEpoch": {"type": "integer", "minimum": 0},
+        "owner": {"type": "string", "minLength": 1},
+        "lifecycle": {"enum": ["live", "stale", "retained", "released"]},
+        "retention": {
+          "type": "object",
+          "required": ["reason", "approvalEvidence", "releaseDeadline"],
+          "properties": {
+            "reason": {"type": "string", "minLength": 1},
+            "approvalEvidence": {"type": "string", "minLength": 1},
+            "releaseDeadline": {"type": "string", "minLength": 1}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"lifecycle": {"const": "retained"}}, "required": ["lifecycle"]},
+          "then": {"required": ["retention"]}
+        }
+      ]
     }
   }
 }

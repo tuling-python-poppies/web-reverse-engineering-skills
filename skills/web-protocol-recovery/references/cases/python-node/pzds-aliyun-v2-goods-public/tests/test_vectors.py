@@ -4,14 +4,18 @@ import hashlib
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
+from typing import cast
 
 
 CASE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(CASE_ROOT))
 
 import entry
+import pull_live_state
 
 
 class PzdsAliyunV2Vectors(unittest.TestCase):
@@ -208,6 +212,111 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
             proof["testArtifactSha256"],
             hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         )
+
+    def test_live_state_requires_explicit_raw_secret_handling(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state_root = root / "js_reverse_cache" / "private" / "pzds"
+            state_root.mkdir(parents=True)
+            (state_root / "session.json").write_text(
+                json.dumps({"token": "test-token", "pzId": "pz"}),
+                encoding="utf-8",
+            )
+            with self.assertRaises(PermissionError):
+                pull_live_state.load_session(root)
+            with self.assertRaises(PermissionError):
+                pull_live_state.load_session(
+                    root, raw_secret_handling_confirmed=cast(bool, "false")
+                )
+            session = pull_live_state.load_session(
+                root, raw_secret_handling_confirmed=True
+            )
+            self.assertEqual(session["sessionPath"], "js_reverse_cache/private/pzds/session.json")
+            inspection = pull_live_state.inspect_project(root)
+            self.assertEqual(inspection["missing"], ["rawSecretHandling"])
+
+    def test_live_profile_uses_canonical_private_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state_root = root / "js_reverse_cache" / "private" / "pzds"
+            state_root.mkdir(parents=True)
+            profile = {
+                "feilinVersion": "feilin-test",
+                "userAgent": "test-agent",
+                "fullDeviceFields": [""] * 133,
+                "tokenFields": [""] * 133,
+                "field21": {"sourceKey": "test", "xorMaskHex": "00"},
+                "combat511": {},
+                "combat504": {},
+            }
+            (state_root / "t001_profile.json").write_text(
+                json.dumps(profile), encoding="utf-8"
+            )
+            loaded = pull_live_state.load_profile(
+                root, raw_secret_handling_confirmed=True
+            )
+            self.assertEqual(
+                loaded["profilePath"],
+                "js_reverse_cache/private/pzds/t001_profile.json",
+            )
+            self.assertTrue(loaded["hasField21"])
+            self.assertNotIn("field21", loaded)
+
+    def test_live_state_rejects_non_string_protocol_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state_root = root / "js_reverse_cache" / "private" / "pzds"
+            state_root.mkdir(parents=True)
+            bad_profile = {
+                "feilinVersion": "feilin-test",
+                "userAgent": "test-agent",
+                "fullDeviceFields": "x" * 133,
+                "tokenFields": [""] * 133,
+                "field21": {},
+                "combat511": {},
+                "combat504": {},
+            }
+            (state_root / "t001_profile.json").write_text(
+                json.dumps(bad_profile), encoding="utf-8"
+            )
+            (state_root / "session.json").write_text(
+                json.dumps({"token": 123}), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "fullDeviceFields"):
+                pull_live_state.load_profile(root, raw_secret_handling_confirmed=True)
+            with self.assertRaisesRegex(ValueError, "session missing keys"):
+                pull_live_state.load_session(root, raw_secret_handling_confirmed=True)
+            bad_profile["fullDeviceFields"] = [""] * 133
+            bad_profile["userAgent"] = 123
+            bad_profile["field21"] = {"sourceKey": "test", "xorMaskHex": "00"}
+            (state_root / "t001_profile.json").write_text(
+                json.dumps(bad_profile), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "userAgent"):
+                pull_live_state.load_profile(root, raw_secret_handling_confirmed=True)
+
+    def test_live_state_rejects_reparse_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state_root = root / "js_reverse_cache" / "private" / "pzds"
+            state_root.mkdir(parents=True)
+            session_path = state_root / "session.json"
+            session_path.write_text(json.dumps({"token": "test-token"}), encoding="utf-8")
+            with mock.patch.object(
+                pull_live_state,
+                "_is_reparse_point",
+                side_effect=lambda path: path == session_path,
+            ):
+                with self.assertRaisesRegex(ValueError, "reparse path"):
+                    pull_live_state.load_session(root, raw_secret_handling_confirmed=True)
+
+    def test_process_keeps_private_state_behind_raw_secret_gate(self) -> None:
+        process = (CASE_ROOT / "PROCESS.md").read_text(encoding="utf-8")
+        self.assertIn("raw-secret-handling", process)
+        self.assertIn("js_reverse_cache/private/pzds/session.json", process)
+        self.assertIn("js_reverse_cache/private/pzds/t001_profile.json", process)
+        self.assertNotIn("verifier/t001_profile.json", process)
+        self.assertNotIn("js_reverse_cache/pzds_session.json", process)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ Runs offline checks that should pass before committing skill edits:
 1. case hash/registry integrity (verify_case_hashes.py)
 2. generated case registry projection (build_case_registry.py --check)
 3. architecture/document/read-plan contracts (validate_architecture.py)
-4. route regression eval metadata (validate_evals.py)
+4. offline route regression metadata (validate_evals.py)
 5. all case unit tests discovered under references/cases/*/*/tests
 6. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
 7. bundled diagnostic self-tests for evidence, chain, transform, transport, and local controls
@@ -106,11 +106,13 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
             "liveReplayAllowed",
             "actionClass",
             "requestBudget",
-            "APPROVED_BUDGET_REMAINING",
-            "LIVE_VERIFY_APPROVED",
+            "BudgetLedger",
+            "validate_ledger_path",
+            "create_exclusive_directory",
             "def require_live_verify_approval",
             "def live_get",
-            "js_reverse_cache\" / \"source\" / \"geetest_gt4",
+            "require_sandbox_adapter",
+            "safe_lot_cache",
         ),
         "GT4 replay live verifier guard",
     ),
@@ -123,13 +125,25 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
             "liveReplayAllowed",
             "actionClass",
             "requestBudget",
-            "APPROVED_BUDGET_REMAINING",
-            "LIVE_VERIFY_APPROVED",
+            "BudgetLedger",
+            "validate_ledger_path",
+            "create_exclusive_directory",
             "def require_live_verify_approval",
             "def live_get",
-            "js_reverse_cache\" / \"source\" / \"geetest_gt4",
+            "write_new_json",
         ),
         "GT4 pure replay live verifier guard",
+    ),
+    (
+        "references/providers/delivery/python-collector/scripts/verifier/gt4_runtime.py",
+        (
+            "class BudgetLedger",
+            "BEGIN IMMEDIATE",
+            "capability-denied-external",
+            "create_exclusive_directory",
+            "write_new_bytes",
+        ),
+        "GT4 shared budget/sandbox/path guard",
     ),
 )
 
@@ -371,7 +385,16 @@ def check_acceptance_unit_tests() -> tuple[bool, str]:
     tests = [
         SKILL_ROOT / "scripts" / "test_architecture_contract.py",
         SKILL_ROOT / "scripts" / "test_scaffold_project.py",
-        SKILL_ROOT / "scripts" / "test_eval_integrity.py",
+        SKILL_ROOT / "scripts" / "test_line_endings.py",
+        SKILL_ROOT
+        / "references"
+        / "providers"
+        / "delivery"
+        / "python-collector"
+        / "scripts"
+        / "verifier"
+        / "tests"
+        / "test_gt4_delivery_contract.py",
     ]
     missing = [str(path.relative_to(SKILL_ROOT)) for path in tests if not path.is_file()]
     if missing:
@@ -792,7 +815,7 @@ def main(argv: list[str] | None = None) -> int:
     if not ok:
         failures.append("validate_markdown.py failed")
 
-    print("\n== route regression evals ==")
+    print("\n== route regression metadata ==")
     ok, out = check_route_regression_evals()
     print(out)
     if not ok:

@@ -52,6 +52,7 @@ skills/**/*.txt  text eol=lf
 skills/**/*.tsv  text eol=lf
 skills/**/*.cjs  text eol=lf
 skills/**/*.svg  text eol=lf
+skills/**/.gitignore text eol=lf
 
 # darwin-skill ships raster/animated assets; never line-ending convert.
 skills/**/*.png  binary

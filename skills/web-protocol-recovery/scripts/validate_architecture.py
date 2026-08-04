@@ -6,6 +6,7 @@ from __future__ import annotations
 import ast
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -43,6 +44,7 @@ CODE_SUFFIXES = {".py", ".js", ".mjs", ".cjs"}
 RESIDUE_NAMES = {"__pycache__", ".pytest_cache"}
 RESIDUE_SUFFIXES = {".pyc", ".pyo"}
 EOL_CHECKED_SUFFIXES = {".md", ".json", ".py", ".js", ".mjs", ".cjs", ".html", ".txt", ".tsv"}
+EOL_CHECKED_FILE_NAMES = {".gitignore", ".gitattributes", "license"}
 EOL_SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv"}
 LARGE_ASSET_READ_HINT_BYTES = 512 * 1024
 LARGE_ASSET_STORAGE_POLICY_BYTES = 5 * 1024 * 1024
@@ -195,6 +197,57 @@ def documentation_contract_findings() -> list[str]:
         for token in tokens:
             if token not in text:
                 findings.append(f"{rel(path)} missing Reese84 routing token: {token}")
+    runtime_counts = {"iv8": 0, "python-node": 0, "pure-python": 0}
+    for case_path in CASES_ROOT.glob("**/case.json"):
+        runtime = str(load_json(case_path).get("runtime") or "")
+        if runtime in runtime_counts:
+            runtime_counts[runtime] += 1
+    expected_inventory = (
+        f"The root registry indexes {sum(runtime_counts.values())} hash-bound "
+        "`web-protocol-recovery-case` manifests grouped by implementation runtime: "
+        f"{runtime_counts['iv8']} `iv8`, {runtime_counts['python-node']} `python-node`, "
+        f"and {runtime_counts['pure-python']} `pure-python`."
+    )
+    if expected_inventory not in README_DOC.read_text(encoding="utf-8", errors="replace"):
+        findings.append("README.md case inventory is stale")
+    return findings
+
+
+def case_process_policy_findings(case_id: str, text: str) -> list[str]:
+    """Keep selected case instructions inside the hub's secret/layout contract."""
+    findings: list[str] = []
+    normalized = text.replace("\\", "/")
+    if "`verifier/" in normalized:
+        findings.append(f"{case_id}: PROCESS.md must not require a verifier/ project root")
+    if re.search(r"`js_reverse_cache/(?!private/)[^`]*(?:session|token|cookie)", normalized):
+        findings.append(
+            f"{case_id}: PROCESS.md must keep persisted session/token/cookie state under js_reverse_cache/private/**"
+        )
+    if "Keep\n   full request/response bodies" in text or "Keep full request/response bodies" in text:
+        findings.append(
+            f"{case_id}: PROCESS.md must not make raw request/response retention the default"
+        )
+    return findings
+
+
+def case_process_contract_findings() -> list[str]:
+    findings: list[str] = []
+    for case_path in sorted(CASES_ROOT.glob("**/case.json")):
+        data = load_json(case_path)
+        process = (data.get("artifacts") or {}).get("process") or {}
+        process_rel = process.get("path")
+        if not isinstance(process_rel, str) or not process_rel:
+            continue
+        process_path = case_path.parent / process_rel
+        if not process_path.is_file():
+            findings.append(f"{rel(case_path)}: declared PROCESS.md is missing")
+            continue
+        findings.extend(
+            case_process_policy_findings(
+                str(data.get("caseId") or rel(case_path)),
+                process_path.read_text(encoding="utf-8", errors="replace"),
+            )
+        )
     return findings
 
 
@@ -371,11 +424,16 @@ def read_plan_contract_findings() -> list[str]:
                 "references/providers/protocol-recovery/verifier/references/geetest-gt4-workflow.md",
                 "references/providers/protocol-recovery/verifier/references/replay-playbook.md",
             ]),
+            ("iv8 api inventory gate", 3, [
+                "references/methodology/provider-work-order.md",
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+            ]),
             ("case selection", 1, case_selection),
             ("selected case bundle", 8, gt4_case),
             ("implementation handoff", 3, [
+                "references/methodology/provider-work-order.md",
                 "references/providers/implementation/iv8/PROVIDER.md",
-                "references/providers/implementation/iv8/references/api-inventory.md",
                 "references/providers/implementation/iv8/references/script-writing-rules.md",
             ]),
             ("delivery handoff", 3, delivery),
@@ -417,11 +475,16 @@ def read_plan_contract_findings() -> list[str]:
                 "references/providers/protocol-recovery/akamai/references/workflow.md",
                 "references/providers/protocol-recovery/akamai/references/cookie-state-machine.md",
             ]),
+            ("iv8 api inventory gate", 3, [
+                "references/methodology/provider-work-order.md",
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+            ]),
             ("case selection", 1, case_selection),
             ("selected case bundle", 8, iv8_case),
             ("implementation handoff", 3, [
+                "references/methodology/provider-work-order.md",
                 "references/providers/implementation/iv8/PROVIDER.md",
-                "references/providers/implementation/iv8/references/api-inventory.md",
                 "references/providers/implementation/iv8/references/browser-iv8-bridge.md",
             ]),
             ("delivery handoff", 3, delivery),
@@ -433,9 +496,14 @@ def read_plan_contract_findings() -> list[str]:
                 "references/transport-pre-gate-playbook.md",
                 "references/methodology/provider-work-order.md",
             ]),
-            ("implementation handoff", 3, [
+            ("iv8 api inventory gate", 3, [
+                "references/methodology/provider-work-order.md",
                 "references/providers/implementation/iv8/PROVIDER.md",
                 "references/providers/implementation/iv8/references/api-inventory.md",
+            ]),
+            ("implementation handoff", 3, [
+                "references/methodology/provider-work-order.md",
+                "references/providers/implementation/iv8/PROVIDER.md",
                 "references/providers/implementation/iv8/references/runtime-cheatsheet.md",
             ]),
             ("delivery handoff", 3, delivery),
@@ -463,11 +531,16 @@ def read_plan_contract_findings() -> list[str]:
                 "references/transport-pre-gate-playbook.md",
                 "references/methodology/provider-work-order.md",
             ]),
+            ("iv8 api inventory gate", 3, [
+                "references/methodology/provider-work-order.md",
+                "references/providers/implementation/iv8/PROVIDER.md",
+                "references/providers/implementation/iv8/references/api-inventory.md",
+            ]),
             ("case selection", 1, case_selection),
             ("selected case bundle", 8, reese84_case),
             ("implementation handoff", 3, [
+                "references/methodology/provider-work-order.md",
                 "references/providers/implementation/iv8/PROVIDER.md",
-                "references/providers/implementation/iv8/references/api-inventory.md",
                 "references/providers/implementation/iv8/references/browser-iv8-bridge.md",
             ]),
             ("delivery handoff", 3, delivery),
@@ -477,9 +550,9 @@ def read_plan_contract_findings() -> list[str]:
             ("initial dispatch", 3, initial),
             ("provider handoff", 3, registry_handoff),
             ("iv8 api inventory gate", 3, [
+                "references/methodology/provider-work-order.md",
                 "references/providers/implementation/iv8/PROVIDER.md",
                 "references/providers/implementation/iv8/references/api-inventory.md",
-                "references/providers/implementation/iv8/references/case-ingestion-rules.md",
             ]),
             ("case selection", 1, case_selection),
             ("selected case bundle", 8, iv8_case),
@@ -491,8 +564,8 @@ def read_plan_contract_findings() -> list[str]:
             ("case selection", 1, case_selection),
             ("selected case bundle", 8, python_node_case),
             ("implementation handoff", 3, [
+                "references/methodology/provider-work-order.md",
                 "references/providers/implementation/python-node/PROVIDER.md",
-                "references/providers/implementation/python-node/strategies/env-patch/STRATEGY.md",
                 "references/methodology/success-shape-scripts.md",
             ]),
             ("delivery handoff", 3, delivery),
@@ -708,7 +781,23 @@ def case_manifest_findings() -> list[str]:
     return findings
 
 
-def line_ending_findings() -> list[str]:
+def tracked_text_paths() -> list[Path]:
+    result = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=SKILL_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode:
+        raise RuntimeError("could not enumerate tracked files for LF validation")
+    return [
+        SKILL_ROOT / Path(raw.decode("utf-8", errors="surrogateescape"))
+        for raw in result.stdout.split(b"\0")
+        if raw
+    ]
+
+
+def line_ending_findings(extra_paths: tuple[Path, ...] = ()) -> list[str]:
     """No tracked text file may carry CRLF.
 
     Case manifests hash file bytes, so a CRLF worktree hashes differently from the
@@ -719,13 +808,21 @@ def line_ending_findings() -> list[str]:
     `text eol=lf` so a compliant checkout is CRLF-free on every platform.
     """
     findings: list[str] = []
-    for path in sorted(SKILL_ROOT.rglob("*")):
-        if not path.is_file() or path.suffix.lower() not in EOL_CHECKED_SUFFIXES:
+    try:
+        paths = {path.resolve() for path in tracked_text_paths()}
+    except RuntimeError as error:
+        return [str(error)]
+    paths.update(path.resolve() for path in extra_paths)
+    for path in sorted(paths):
+        if not path.is_file() or (
+            path.suffix.lower() not in EOL_CHECKED_SUFFIXES
+            and path.name.lower() not in EOL_CHECKED_FILE_NAMES
+        ):
             continue
         if any(part in EOL_SKIP_DIRS for part in path.parts):
             continue
-        if b"\r\n" in path.read_bytes():
-            findings.append(f"CRLF in tracked text file: {rel(path)}")
+        if b"\r" in path.read_bytes():
+            findings.append(f"CR byte in tracked text file: {rel(path)}")
     return findings
 
 
@@ -832,6 +929,7 @@ def main() -> int:
         ("provider registry", provider_registry_findings),
         ("route literals", route_literal_findings),
         ("documentation contract", documentation_contract_findings),
+        ("case process contract", case_process_contract_findings),
         ("read-plan contract", read_plan_contract_findings),
         ("case manifests", case_manifest_findings),
         ("live egress", live_egress_findings),

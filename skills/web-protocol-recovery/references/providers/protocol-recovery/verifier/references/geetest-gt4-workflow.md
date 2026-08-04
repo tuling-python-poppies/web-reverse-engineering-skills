@@ -25,7 +25,7 @@
 
 1. 先尝试最小首轮 `/load`：只传动态 JSONP `callback`、`captcha_id`、`client_type=web`、`risk_type=slide`、`pt=1`、`lang=zho`。很多公开 GT4 配置不要求预先提供 `lot_number/payload/process_token`。
 2. 如果样本中的 `/load` 请求已经带 `lot_number/payload/process_token`，先区分请求输入和响应输出。后续 `/verify` 应使用 `/load` 响应返回的新值；两阶段 token 不同通常是正常刷新，不是断轮。
-3. 离线暴露 webpack require，只执行 PoW 和 `w` 模块；同时从源码运行时读取 `_lib`、`lib._abo`。不要执行入口 UI 模块。
+3. 离线暴露 webpack require，只执行 PoW 和 `w` 模块；同时从源码运行时读取 `_lib`、`lib._abo`。不要执行入口 UI 模块。执行当前 bundle/GCT 前必须满足 `executionPolicy` 的 reviewed hash 和能力隔离 runner；`node:vm` 本身不是安全沙箱，缺少外部能力隔离时停在静态证据或改走纯 Python 路径。
 4. 下载同轮图片并识别坐标，从原图坐标映射到 `setLeft/userresponse`。
 5. 下载并原样执行本轮 GCT，读取其写入的 `biht`。当前 GCT 写入的是十进制字符串，不要强制转成整数。
 6. 组装 `wPayload`，调用 bundle 的 `w` 模块，真实等待 `passtime` 后提交同轮 `/verify`。
@@ -70,16 +70,15 @@ def image_to_array(image: Image.Image) -> np.ndarray:
 可直接复用：
 
 - `references/providers/implementation/python-node/scripts/gt4_bundle_helper.js`：读取当前 bundle，动态提取元数据、PoW、GCT 和 `w`；只接收 Python 传入的 `gctSource` 或 `biht`，不直接下载目标资源。
-- `references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py`：同轮 `/load -> 图片/GCT -> helper -> sleep -> /verify` delivery 模板。
+- `references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py`：保留给经审计 adapter 集成的 target-JS 模板。当前 skill 未捆绑可验证的能力隔离 adapter，因此它在任何 `/load` 前 fail closed；不能用 work order 声明的命令、`node:vm` 或自报 sandbox 标签代替隔离。
 - `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`：不执行 JavaScript 的纯 Python `/load -> OCR -> PoW/GCT/AES/RSA -> sleep -> /verify` delivery 模板。
 
-运行模板：work order 必须包含 `authorization.actionClass=verifier-submit`、`liveReplayAllowed=true`、至少 5 个剩余请求预算单位，并授权 `gcaptcha4.geetest.com/load`、`gcaptcha4.geetest.com/verify` 与 `static.geetest.com/` scope。模板会在每次 live request 前重新检查 scope 并扣减预算。
+纯 Python 模板运行时，work order 必须包含 `authorization.actionClass=verifier-submit`、`liveReplayAllowed=true`、`artifactPolicy.rawSecretHandling=confirmed`、至少 5 个剩余请求预算单位、`budgetLedgerId=sha256(workOrderId)` 与规范 `ledgerPath`，并授权 `gcaptcha4.geetest.com/load`、`gcaptcha4.geetest.com/verify` 与 `static.geetest.com/` scope。账本在每次 live request 前持久化预留预算，并在实际 prepared request 前取得跨进程 lease；它同时执行 `minDelayMs` 与 `concurrency`，失败请求不退款。三轮验证需要在同一账本中预留至少 15 个单位。Node 模板除 reviewed bundle/helper/GCT hash 外还需要真正可验证的能力隔离 adapter；当前没有，因此不运行。
 
 ```bash
-python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py \
+python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py \
   --captcha-id <captcha_id> \
   --bundle <当前 gcaptcha4.js> \
-  --helper <skill-root>/references/providers/implementation/python-node/scripts/gt4_bundle_helper.js \
   --work-order <validated-provider-work-order-v2.json> \
   --confirm-live-verify
 ```

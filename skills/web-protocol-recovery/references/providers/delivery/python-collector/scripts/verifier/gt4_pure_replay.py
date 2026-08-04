@@ -7,7 +7,7 @@ import re
 import secrets
 import time
 from pathlib import Path
-from urllib.parse import parse_qsl, urljoin, urlparse
+from urllib.parse import urljoin
 
 import ddddocr
 import requests
@@ -15,6 +15,22 @@ from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from Crypto.Util.Padding import pad
 from PIL import Image
+
+from gt4_runtime import (
+    BudgetLedger,
+    buffer_response_with_cap,
+    create_exclusive_directory,
+    ensure_plain_directory,
+    read_plain_text,
+    route_scope_covers,
+    safe_lot_cache,
+    scope_allows,
+    validate_cache_root,
+    validate_ledger_path,
+    write_new_bytes,
+    write_new_json,
+    write_new_text,
+)
 
 
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
@@ -30,45 +46,85 @@ RAW_ARTIFACT_FIELDS = {
     "gt4.slice.png", "gt4.bg.png", "gt4.gct.raw.js", "gt4.trace.json",
     "gt4.image_meta.json", "gt4.pure_output.json", "gt4.verify.jsonp", "gt4.verify.json",
 }
-LIVE_VERIFY_APPROVED = False
 APPROVED_WORK_ORDER_ID = None
 APPROVED_SCOPES = []
-APPROVED_BUDGET_REMAINING = 0
+APPROVED_MIN_DELAY_MS = 0
+APPROVED_RESPONSE_BYTE_CAP = 0
+BUDGET_LEDGER = None
 
 
 def approve_live_verify(work_order):
-    global LIVE_VERIFY_APPROVED, APPROVED_WORK_ORDER_ID, APPROVED_SCOPES, APPROVED_BUDGET_REMAINING
+    global APPROVED_WORK_ORDER_ID, APPROVED_SCOPES, APPROVED_MIN_DELAY_MS
+    global APPROVED_RESPONSE_BYTE_CAP, BUDGET_LEDGER
     authorization = work_order["authorization"]
-    LIVE_VERIFY_APPROVED = True
     APPROVED_WORK_ORDER_ID = work_order["workOrderId"]
     APPROVED_SCOPES = authorization["allowedHostsAndRoutes"]
-    APPROVED_BUDGET_REMAINING = int(authorization["requestBudget"]["remaining"])
+    APPROVED_MIN_DELAY_MS = int(authorization["requestBudget"]["minDelayMs"])
+    APPROVED_RESPONSE_BYTE_CAP = int(authorization["requestBudget"]["responseByteCap"])
+    BUDGET_LEDGER = BudgetLedger.open(work_order)
+    if BUDGET_LEDGER.snapshot()["remaining"] < 5:
+        close_live_verify()
+        raise RuntimeError("reopened GT4 budget ledger has fewer than five requests remaining")
 
 
-def require_live_verify_approval(target_url):
-    global APPROVED_BUDGET_REMAINING
-    if not LIVE_VERIFY_APPROVED:
+def close_live_verify():
+    global BUDGET_LEDGER
+    if BUDGET_LEDGER is not None:
+        BUDGET_LEDGER.close()
+        BUDGET_LEDGER = None
+
+
+def require_live_verify_approval(target_url, timeout_ms):
+    if BUDGET_LEDGER is None:
         raise RuntimeError(
             "live verifier request is not approved; run through main() with "
-            "--confirm-live-verify and --work-order after recording liveReplay/verifier gates"
+            "--confirm-live-verify and a validated immutable work order"
         )
     if not scope_allows(APPROVED_SCOPES, target_url):
         raise RuntimeError(f"live verifier request outside approved scope: {target_url}")
-    if APPROVED_BUDGET_REMAINING <= 0:
-        raise RuntimeError(f"live verifier request budget exhausted before: {target_url}")
-    APPROVED_BUDGET_REMAINING -= 1
+    reservation = BUDGET_LEDGER.begin_request("request", target_url, timeout_ms)
+    return int(reservation["reservationId"])
+
+
+def request_timeout_ms(value):
+    if isinstance(value, (tuple, list)):
+        values = [float(item) for item in value if item is not None]
+        seconds = max(values) if values else 0
+    else:
+        seconds = float(value)
+    if seconds <= 0:
+        raise ValueError("GT4 request timeout must be positive")
+    return max(1, round(seconds * 1000))
 
 
 def live_get(session, url, **kwargs):
-    target_url = prepared_get_url(url, kwargs.get("params"))
-    require_live_verify_approval(target_url)
-    # Force-closed: callers cannot re-enable redirects to skip hop-by-hop scope/budget checks.
-    kwargs["allow_redirects"] = False
-    response = session.get(url, **kwargs)
-    if response.is_redirect or 300 <= int(response.status_code) < 400:
-        location = response.headers.get("location", "")
-        raise RuntimeError(f"live verifier redirect denied without explicit work-order hop: {location}")
-    return response
+    params = kwargs.pop("params", None)
+    timeout = kwargs.pop("timeout", None)
+    if kwargs:
+        raise ValueError(f"unsupported GT4 live request options: {', '.join(sorted(kwargs))}")
+    if timeout is None:
+        raise ValueError("GT4 live request timeout is required")
+    prepared = session.prepare_request(requests.Request("GET", url, params=params))
+    if not prepared.url:
+        raise ValueError("GT4 live request has no prepared URL")
+    reservation_id = require_live_verify_approval(
+        prepared.url, request_timeout_ms(timeout)
+    )
+    try:
+        settings = session.merge_environment_settings(
+            prepared.url, {}, stream=None, verify=None, cert=None
+        )
+        response = session.send(
+            prepared, timeout=timeout, allow_redirects=False, **settings
+        )
+        response = buffer_response_with_cap(response, APPROVED_RESPONSE_BYTE_CAP)
+        if response.is_redirect or 300 <= int(response.status_code) < 400:
+            location = response.headers.get("location", "")
+            raise RuntimeError(f"live verifier redirect denied without explicit work-order hop: {location}")
+        return response
+    finally:
+        if BUDGET_LEDGER is not None:
+            BUDGET_LEDGER.finish_request(reservation_id)
 
 
 RSA_N_HEX = (
@@ -97,130 +153,13 @@ def parse_jsonp(text):
 
 
 def save_json(path, value):
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def prepared_get_url(url, params):
-    prepared = requests.Request("GET", url, params=params).prepare()
-    return prepared.url or url
-
-
-def query_policy_allows(scope, parsed_query):
-    policy = scope.get("queryPolicy")
-    if not isinstance(policy, dict):
-        return False
-    pairs = parse_qsl(parsed_query, keep_blank_values=True)
-    mode = policy.get("mode")
-    if mode == "deny":
-        return not pairs
-    if mode == "allow-all":
-        return True
-    if mode != "allow-listed":
-        return False
-    allowed_keys = set(policy.get("allowedKeys") or [])
-    allowed_values = policy.get("allowedValues") or {}
-    for key, value in pairs:
-        if key not in allowed_keys:
-            return False
-        if key in allowed_values and value not in set(map(str, allowed_values[key])):
-            return False
-    return True
-
-
-def scope_matches_route(scope, target_url):
-    parsed = urlparse(target_url)
-    port = parsed.port or (443 if parsed.scheme == "https" else 80)
-    path = parsed.path or "/"
-    prefix = scope.get("routePrefix") or "/"
-    if not prefix.startswith("/"):
-        return False
-    try:
-        scope_port = int(scope.get("port", -1))
-    except (TypeError, ValueError):
-        return False
-    return (
-        scope.get("scheme") == parsed.scheme
-        and str(scope.get("host", "")).lower() == parsed.hostname
-        and scope_port == port
-        and (path == prefix or path.startswith(prefix.rstrip("/") + "/"))
-    )
-
-
-def scope_allows(scopes, target_url):
-    parsed = urlparse(target_url)
-    for scope in scopes:
-        if scope_matches_route(scope, target_url) and query_policy_allows(scope, parsed.query):
-            return True
-    return False
-
-
-def query_policy_covers(scope, required_keys):
-    policy = scope.get("queryPolicy")
-    if not isinstance(policy, dict):
-        return False
-    mode = policy.get("mode")
-    if mode == "allow-all":
-        return True
-    if mode == "deny":
-        return not required_keys
-    if mode == "allow-listed":
-        return set(required_keys) <= set(policy.get("allowedKeys") or [])
-    return False
-
-
-def route_scope_covers(scopes, target_url, required_query_keys):
-    return any(
-        scope_matches_route(scope, target_url) and query_policy_covers(scope, required_query_keys)
-        for scope in scopes
-    )
-
-
-def absolute_under(path, parent):
-    try:
-        path.resolve(strict=False).relative_to(parent.resolve(strict=False))
-        return True
-    except ValueError:
-        return False
-
-
-def validate_cache_root(project, cache_root):
-    errors = []
-    project_root = Path(str(project.get("projectRoot") or ""))
-    if not project_root.is_absolute():
-        return ["project.projectRoot must be absolute"]
-    cache_root = cache_root if cache_root.is_absolute() else (Path.cwd() / cache_root)
-    allowed_paths = project.get("allowedPaths") or []
-    if not absolute_under(cache_root, project_root):
-        errors.append("--cache-root must stay under project.projectRoot")
-    allowed_roots = []
-    for item in allowed_paths:
-        candidate = Path(str(item))
-        allowed_roots.append(candidate if candidate.is_absolute() else project_root / candidate)
-    if not allowed_roots or not any(absolute_under(cache_root, allowed) for allowed in allowed_roots):
-        errors.append("--cache-root must stay under one project.allowedPaths entry")
-    for ancestor in [cache_root, *cache_root.parents]:
-        if not ancestor.exists() or ancestor == ancestor.parent:
-            continue
-        if ancestor.is_symlink():
-            errors.append(f"--cache-root ancestor must not be symlink: {ancestor}")
-            break
-    return errors
-
-
-def safe_lot_cache(cache_root, lot_number):
-    lot = str(lot_number or "")
-    if not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", lot) or lot in {".", ".."}:
-        raise ValueError(f"unsafe lot_number for cache path: {lot!r}")
-    cache = cache_root / lot
-    if not absolute_under(cache, cache_root):
-        raise ValueError(f"lot_number escapes cache root: {lot!r}")
-    return cache
+    write_new_json(path, value)
 
 
 def validate_work_order(path, cache_root):
     try:
-        work_order = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
+        work_order = json.loads(read_plain_text(path))
+    except (OSError, ValueError, json.JSONDecodeError) as error:
         raise ValueError(f"cannot read work order {path}: {error}") from error
     active = work_order.get("activeProvider") or {}
     authorization = work_order.get("authorization") or {}
@@ -247,6 +186,11 @@ def validate_work_order(path, cache_root):
         errors.append("authorization.liveReplayAllowed must be true")
     if authorization.get("actionClass") != "verifier-submit":
         errors.append("authorization.actionClass must be verifier-submit")
+    if authorization.get("actionApproval") not in {
+        "standing-verifier-submit",
+        "user-confirmed-mutation",
+    }:
+        errors.append("authorization.actionApproval must authorize verifier-submit")
     try:
         remaining_budget = int(budget.get("remaining", 0))
     except (TypeError, ValueError):
@@ -261,11 +205,14 @@ def validate_work_order(path, cache_root):
         errors.append("authorization.requestBudget.total or maxRequests is required")
     elif remaining_budget > total_budget:
         errors.append("authorization.requestBudget.remaining cannot exceed total/maxRequests")
-    write_mode = str(project.get("writeMode") or "")
-    if write_mode not in {"create-only", "modify-allowlisted"}:
-        errors.append("project.writeMode must allow cache writes (create-only or modify-allowlisted)")
-    if project.get("projectRoot") in {None, "", "none"}:
-        errors.append("project.projectRoot must be an absolute project path for live GT4")
+    try:
+        response_byte_cap = int(budget.get("responseByteCap", 0))
+    except (TypeError, ValueError):
+        response_byte_cap = 0
+    if response_byte_cap < 1:
+        errors.append("authorization.requestBudget.responseByteCap must be positive")
+    if project.get("writeMode") != "modify-allowlisted":
+        errors.append("GT4 durable budget ledger requires project.writeMode=modify-allowlisted")
     if artifact_policy.get("repositoryExcluded") is not True:
         errors.append("authorization.artifactPolicy.repositoryExcluded must be true")
     if artifact_policy.get("mode") == "metadata-only":
@@ -276,6 +223,8 @@ def validate_work_order(path, cache_root):
         errors.append("authorization.artifactPolicy.approvedRawFields missing: " + ", ".join(missing_raw))
     if not artifact_policy.get("retentionDeadline") or artifact_policy.get("retentionDeadline") == "none":
         errors.append("authorization.artifactPolicy.retentionDeadline is required for raw GT4 artifacts")
+    if artifact_policy.get("rawSecretHandling") != "confirmed":
+        errors.append("authorization.artifactPolicy.rawSecretHandling must be confirmed for GT4 cookies and raw responses")
     if execution_policy.get("targetCodeExecution") != "blocked":
         errors.append("authorization.executionPolicy.targetCodeExecution must be blocked for pure replay")
     if not route_scope_covers(scopes, LOAD_URL, LOAD_QUERY_KEYS):
@@ -284,7 +233,11 @@ def validate_work_order(path, cache_root):
         errors.append(f"allowedHostsAndRoutes missing verify scope/query policy for {VERIFY_URL}")
     if not route_scope_covers(scopes, STATIC_BASE, set()):
         errors.append(f"allowedHostsAndRoutes missing static scope/query policy for {STATIC_BASE}")
-    errors.extend(validate_cache_root(project, cache_root))
+    try:
+        validate_cache_root(project, cache_root)
+        validate_ledger_path(work_order)
+    except ValueError as error:
+        errors.append(str(error))
     if not work_order.get("acceptanceTest"):
         errors.append("acceptanceTest is required")
     if errors:
@@ -325,7 +278,7 @@ def decode_string_table(source):
 
 
 def extract_bundle_metadata(bundle_path):
-    source = bundle_path.read_text(encoding="utf-8")
+    source = read_plain_text(bundle_path)
     strings = decode_string_table(source)
     lot_match = re.search(
         r'["\'](n\[[^"\']+)["\']\s*:\s*[^\n]*?\((\d+)\)', source
@@ -507,107 +460,112 @@ def main():
         )
     try:
         work_order = validate_work_order(args.work_order, args.cache_root)
-    except ValueError as error:
+        cache_root = validate_cache_root(work_order["project"], args.cache_root)
+        fixed_fields, lot_rules = extract_bundle_metadata(args.bundle)
+        approve_live_verify(work_order)
+    except (OSError, RuntimeError, ValueError) as error:
         parser.error(str(error))
-    approve_live_verify(work_order)
 
-    fixed_fields, lot_rules = extract_bundle_metadata(args.bundle)
-    session = requests.Session()
-    session.trust_env = args.use_env_proxy
-    session.headers.update({
-        "Accept": "*/*",
-        "Accept-Language": "zh-CN,zh;q=0.9",
-        "Referer": "https://gt4.geetest.com/",
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
-        ),
-    })
-    load_response = live_get(session, LOAD_URL, params={
-        "callback": callback(), "captcha_id": args.captcha_id,
-        "client_type": "web", "risk_type": "slide", "lang": "zh",
-    }, timeout=30)
-    load_response.raise_for_status()
-    load_json = parse_jsonp(load_response.text)
-    if load_json.get("status") != "success":
-        raise RuntimeError(f"Load failed: {load_json}")
-    data = load_json["data"]
-    cache = safe_lot_cache(args.cache_root, data["lot_number"])
-    cache.mkdir(parents=True, exist_ok=True)
-    (cache / "load.jsonp").write_text(load_response.text, encoding="utf-8")
-    save_json(cache / "load.json", load_json)
-    save_json(cache / "cookies.json", requests.utils.dict_from_cookiejar(session.cookies))
+    try:
+        session = requests.Session()
+        session.trust_env = args.use_env_proxy
+        session.headers.update({
+            "Accept": "*/*",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+            "Referer": "https://gt4.geetest.com/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+            ),
+        })
+        load_response = live_get(session, LOAD_URL, params={
+            "callback": callback(), "captcha_id": args.captcha_id,
+            "client_type": "web", "risk_type": "slide", "lang": "zh",
+        }, timeout=30)
+        load_response.raise_for_status()
+        load_json = parse_jsonp(load_response.text)
+        if load_json.get("status") != "success":
+            raise RuntimeError(f"Load failed: {load_json}")
+        data = load_json["data"]
+        ensure_plain_directory(cache_root, create=True)
+        cache = create_exclusive_directory(safe_lot_cache(cache_root, data["lot_number"]))
+        write_new_text(cache / "load.jsonp", load_response.text)
+        save_json(cache / "load.json", load_json)
+        save_json(cache / "cookies.json", requests.utils.dict_from_cookiejar(session.cookies))
 
-    slice_response = download(session, data["slice"])
-    bg_response = download(session, data["bg"])
-    if not slice_response.headers.get("content-type", "").startswith("image/"):
-        raise ValueError("Slice response is not an image")
-    if not bg_response.headers.get("content-type", "").startswith("image/"):
-        raise ValueError("Background response is not an image")
-    (cache / "slice.png").write_bytes(slice_response.content)
-    (cache / "bg.png").write_bytes(bg_response.content)
-    detected = ddddocr.DdddOcr(show_ad=False).slide_match(
-        slice_response.content, bg_response.content, simple_target=True
-    )
-    target = detected.get("target")
-    detected_x = int(target[0]) if target and int(target[0]) > 0 else int(detected["target_x"])
-    gap_x = args.gap_x if args.gap_x is not None else detected_x
-    with Image.open(cache / "bg.png") as image:
-        bg_width = image.width
-    scale = 0.8876 * min(bg_width, 340) / bg_width
-    set_left = round((gap_x - 2) * scale)
-    userresponse = set_left / scale + 2
-    passtime = random.randint(950, 1650)
-    trace = generate_trace(set_left, passtime)
+        slice_response = download(session, data["slice"])
+        bg_response = download(session, data["bg"])
+        if not slice_response.headers.get("content-type", "").startswith("image/"):
+            raise ValueError("Slice response is not an image")
+        if not bg_response.headers.get("content-type", "").startswith("image/"):
+            raise ValueError("Background response is not an image")
+        write_new_bytes(cache / "slice.png", slice_response.content)
+        write_new_bytes(cache / "bg.png", bg_response.content)
+        detected = ddddocr.DdddOcr(show_ad=False).slide_match(
+            slice_response.content, bg_response.content, simple_target=True
+        )
+        target = detected.get("target")
+        detected_x = int(target[0]) if target and int(target[0]) > 0 else int(detected["target_x"])
+        gap_x = args.gap_x if args.gap_x is not None else detected_x
+        with Image.open(cache / "bg.png") as image:
+            bg_width = image.width
+        scale = 0.8876 * min(bg_width, 340) / bg_width
+        set_left = round((gap_x - 2) * scale)
+        userresponse = set_left / scale + 2
+        passtime = random.randint(950, 1650)
+        trace = generate_trace(set_left, passtime)
 
-    gct_response = download(session, data["gct_path"])
-    gct_source = gct_response.text
-    (cache / "gct.raw.js").write_text(gct_source, encoding="utf-8")
-    biht = calculate_biht(gct_source)
-    pow_data = solve_pow(args.captcha_id, data["lot_number"], data["pow_detail"])
-    w_payload = {
-        "setLeft": set_left, "passtime": passtime, "userresponse": userresponse,
-        "device_id": "", "lot_number": data["lot_number"], **pow_data,
-        "geetest": "captcha", "lang": "zh", "ep": "123", "biht": biht,
-        "gee_guard": GEE_GUARD, **fixed_fields,
-        **resolve_lot_fields(data["lot_number"], lot_rules), "em": EM,
-    }
-    w, compact = encrypt_w(w_payload, str(data["pt"]))
-    save_json(cache / "trace.json", trace)
-    save_json(cache / "image_meta.json", {
-        "ocr": detected, "gap_x": gap_x, "bg_width": bg_width,
-        "scale": scale, "setLeft": set_left, "userresponse": userresponse,
-        "passtime": passtime, "trace_points": len(trace),
-    })
-    save_json(cache / "pure_output.json", {
-        "w": w, "wPayload": w_payload, "compact": compact,
-        "fixedFields": fixed_fields, "lotRules": lot_rules,
-    })
-    replay_trace_timing(trace)
+        gct_response = download(session, data["gct_path"])
+        gct_source = gct_response.text
+        write_new_text(cache / "gct.raw.js", gct_source)
+        biht = calculate_biht(gct_source)
+        pow_data = solve_pow(args.captcha_id, data["lot_number"], data["pow_detail"])
+        w_payload = {
+            "setLeft": set_left, "passtime": passtime, "userresponse": userresponse,
+            "device_id": "", "lot_number": data["lot_number"], **pow_data,
+            "geetest": "captcha", "lang": "zh", "ep": "123", "biht": biht,
+            "gee_guard": GEE_GUARD, **fixed_fields,
+            **resolve_lot_fields(data["lot_number"], lot_rules), "em": EM,
+        }
+        w, compact = encrypt_w(w_payload, str(data["pt"]))
+        save_json(cache / "trace.json", trace)
+        save_json(cache / "image_meta.json", {
+            "ocr": detected, "gap_x": gap_x, "bg_width": bg_width,
+            "scale": scale, "setLeft": set_left, "userresponse": userresponse,
+            "passtime": passtime, "trace_points": len(trace),
+        })
+        save_json(cache / "pure_output.json", {
+            "w": w, "wPayload": w_payload, "compact": compact,
+            "fixedFields": fixed_fields, "lotRules": lot_rules,
+        })
+        replay_trace_timing(trace)
 
-    verify_response = live_get(session, VERIFY_URL, params={
-        "callback": callback(), "captcha_id": args.captcha_id,
-        "client_type": "web", "lot_number": data["lot_number"],
-        "risk_type": data["captcha_type"], "payload": data["payload"],
-        "process_token": data["process_token"],
-        "payload_protocol": data["payload_protocol"], "pt": data["pt"], "w": w,
-    }, timeout=30)
-    verify_response.raise_for_status()
-    verify_json = parse_jsonp(verify_response.text)
-    (cache / "verify.jsonp").write_text(verify_response.text, encoding="utf-8")
-    save_json(cache / "verify.json", verify_json)
-    result = verify_json.get("data", {}).get("result")
-    print(json.dumps({
-        "runtime": "pure-python", "cache": str(cache.resolve()),
-        "workOrderId": APPROVED_WORK_ORDER_ID,
-        "budgetRemaining": APPROVED_BUDGET_REMAINING,
-        "lot_number": data["lot_number"], "gap_x": gap_x, "setLeft": set_left,
-        "passtime": passtime, "trace_points": len(trace), "biht": biht,
-        "fixed_fields": fixed_fields, "lot_rules": lot_rules,
-        "w_length": len(w), "status": verify_json.get("status"),
-        "result": result, "fail_count": verify_json.get("data", {}).get("fail_count"),
-    }, ensure_ascii=False, indent=2))
-    return 0 if verify_json.get("status") == "success" and result == "success" else 1
+        verify_response = live_get(session, VERIFY_URL, params={
+            "callback": callback(), "captcha_id": args.captcha_id,
+            "client_type": "web", "lot_number": data["lot_number"],
+            "risk_type": data["captcha_type"], "payload": data["payload"],
+            "process_token": data["process_token"],
+            "payload_protocol": data["payload_protocol"], "pt": data["pt"], "w": w,
+        }, timeout=30)
+        verify_response.raise_for_status()
+        verify_json = parse_jsonp(verify_response.text)
+        write_new_text(cache / "verify.jsonp", verify_response.text)
+        save_json(cache / "verify.json", verify_json)
+        result = verify_json.get("data", {}).get("result")
+        budget = BUDGET_LEDGER.snapshot() if BUDGET_LEDGER is not None else {}
+        print(json.dumps({
+            "runtime": "pure-python", "cache": str(cache.resolve()),
+            "workOrderId": APPROVED_WORK_ORDER_ID,
+            "requestBudget": budget,
+            "lot_number": data["lot_number"], "gap_x": gap_x, "setLeft": set_left,
+            "passtime": passtime, "trace_points": len(trace), "biht": biht,
+            "fixed_fields": fixed_fields, "lot_rules": lot_rules,
+            "w_length": len(w), "status": verify_json.get("status"),
+            "result": result, "fail_count": verify_json.get("data", {}).get("fail_count"),
+        }, ensure_ascii=False, indent=2))
+        return 0 if verify_json.get("status") == "success" and result == "success" else 1
+    finally:
+        close_live_verify()
 
 
 if __name__ == "__main__":

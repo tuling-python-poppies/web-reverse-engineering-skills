@@ -30,6 +30,7 @@
 
 # Extensionless text file: not covered by the suffix rules above.
 LICENSE text eol=lf
+.gitignore text eol=lf
 
 # Binary assets: never line-ending convert.
 *.wasm binary

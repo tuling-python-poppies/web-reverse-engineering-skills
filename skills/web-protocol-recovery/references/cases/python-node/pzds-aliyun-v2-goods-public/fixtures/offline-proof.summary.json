@@ -1,15 +1,15 @@
 {
   "schemaVersion": "web-protocol-recovery-offline-proof-summary",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "executedAt": "2026-08-03",
+  "executedAt": "2026-08-04",
   "passed": true,
   "activeScope": "offline-only",
   "entrySha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42",
-  "testArtifactSha256": "1b1df3a1b1b9c17e5f2ed2a9632a17b0ce819707cd3f8fe987e996b827059fc1",
+  "testArtifactSha256": "ac080c3efd07d4f9181034e888a4abc9ea8c7aa4fffffa67762707214925b39b",
   "assertions": [
     "offline request, field21, RPC, token, DeviceConfig, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
     "entry import and case-local tests perform no live network egress",
-    "login credentials and FeiLin profile bodies remain project-local live state"
+    "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation"
   ],
   "historicalLiveProofIsCurrentAcceptance": false
 }

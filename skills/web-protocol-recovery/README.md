@@ -14,11 +14,7 @@
 - Symptom routing: `references/reference-router.md`
 - Tool-family selection/escalation: `references/tool-playbook.md`
 - Case selector: `references/cases/registry.json`
-- Route regression evals: `evals/route-regression.json`
-- Current trigger routing and first-pass stability status: `evals/benchmark-results/trigger-status.md`
-- Historical behavioral benchmark summary (not current acceptance; raw outputs were not retained): `evals/benchmark-results/ACCEPTANCE.md`
-- Line-ending gate status: `evals/benchmark-results/line-ending-status.md`
-- Recovery acceptance status: `evals/benchmark-results/recovery-acceptance-status.md`
+- Route regression metadata: `evals/route-regression.json`
 
 ## Provider Architecture
 
@@ -56,7 +52,7 @@ Internal skills are Providers under this tree (not peer top-level skills). Roles
 
 ## Cases
 
-The root registry indexes 22 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 5 `python-node`, and 1 `pure-python`. All historical cases require fresh current-target verification. `secretPolicy=redacted-pull-live` preserves state names and structure but no cookie/token values.
+The root registry indexes 23 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 5 `python-node`, and 2 `pure-python`. All historical cases require fresh current-target verification. Each manifest declares its own `secretPolicy`; raw project-state persistence requires the hub's `raw-secret-handling` gate and never adds cookie/token values to the case library.
 
 ## Gates
 
@@ -65,25 +61,22 @@ entry point after any edit. Each one is fail-closed; none of them are advisory.
 
 | Gate | Asserts |
 |---|---|
-| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 22 cases |
+| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 23 cases |
 | `build_case_registry.py --check` | `registry.json` is exactly the generated projection |
-| `validate_architecture.py` | Provider registry, route literals, doc contract, case manifests, live-egress boundary, build residue, and LF-only line endings |
+| `validate_architecture.py` | Provider registry, route literals, hub and case-process contracts, read plans, case manifests, live-egress boundary, build residue, and LF-only line endings |
 | `validate_schemas.py` | Work-order and result schemas |
 | `validate_markdown.py` | Markdown contract |
-| `validate_evals.py` | Route-regression metadata, provider route coverage, behavioral and trigger corpora, and the accepted trigger artifact's provenance, arithmetic, and bookkeeping |
+| `validate_evals.py` | Offline route-regression metadata and provider route coverage |
 | case unit tests | Per-case offline behaviour |
-| `test_preflight.py`, `test_architecture_contract.py`, `test_scaffold_project.py`, `test_eval_integrity.py` | The gates themselves fail in the failing direction |
+| `test_preflight.py`, `test_architecture_contract.py`, `test_scaffold_project.py`, `test_line_endings.py` | The gates themselves fail in the failing direction |
 | entry discipline scan | No import-time network, mkdir, or engine start in case entries |
 
 Two invariants exist because both were violated silently for a long time. Every
 hash-bound text surface is pinned to LF by `.gitattributes`, and
 `validate_architecture.py` scans raw bytes for CRLF. Scripts that generate
 checked-in hash-bound text must also write LF explicitly; `build_case_registry.py`
-is covered by `test_eval_integrity.py` because that writer previously emitted
-CRLF on Windows while its own `--check` read back with universal newlines. And an
-accepted trigger run is bound to the SKILL.md bytes it evaluated, so editing
-`SKILL.md` fails `validate_evals.py` until the eval is re-run or
-`current_acceptance` is withdrawn.
+is covered by `test_line_endings.py` because that writer previously emitted
+CRLF on Windows while its own `--check` read back with universal newlines.
 
 ## Runtime Helpers
 

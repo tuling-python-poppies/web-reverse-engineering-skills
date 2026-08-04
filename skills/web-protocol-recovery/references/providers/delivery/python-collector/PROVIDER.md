@@ -46,8 +46,8 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 
 | Template | Use |
 |---|---|
-| `scripts/verifier/gt4_replay.py` | GT4 same-round `/load -> images/GCT -> python-node helper -> /verify` delivery template. Requires the CLI acknowledgement `--confirm-live-verify` and a validated v2 work order with `actionClass=verifier-submit`; standing approval lets the hub record that action without re-asking. Every request rechecks scope and decrements budget. |
-| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires the CLI acknowledgement `--confirm-live-verify` and a validated v2 work order with `actionClass=verifier-submit`; standing approval lets the hub record that action without re-asking. Every request rechecks scope and decrements budget. |
+| `scripts/verifier/gt4_replay.py` | GT4 same-round target-JS template retained for reviewed-adapter integration. No reviewed capability-denied adapter is bundled, so it fails closed before `/load` and must not be used for live replay. `node:vm`, a work-order supplied argv, and a claimed adapter label are not accepted as a sandbox. |
+| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires `--confirm-live-verify`, `actionClass=verifier-submit`, `artifactPolicy.rawSecretHandling=confirmed` for cookies/raw responses, and the same durable budget ledger. It never executes target JavaScript. |
 
 ## Layout Ownership
 
@@ -76,7 +76,12 @@ Keep `main.py` short. Move only proven stable pieces into `utils/`. Do not impor
 
 ## Bounds
 
-Honor the work-order `requestBudget` and never invent a larger budget:
+Honor the work-order `requestBudget` and never invent a larger budget. Stateful
+templates reserve each attempt in their shared ledger before egress, acquire a
+lease immediately before the actual prepared request, and hold that lease until
+the response path finishes. The ledger enforces `minDelayMs` and `concurrency`
+across processes; a failed transport still consumes its reservation and a later
+process must not reset it:
 
 - redirects, retries, response-byte caps, page count, concurrency, min delay
 - output overwrite policy

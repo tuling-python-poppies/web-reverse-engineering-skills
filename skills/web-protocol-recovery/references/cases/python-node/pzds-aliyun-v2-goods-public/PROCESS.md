@@ -43,17 +43,19 @@ runtimes, or tasks whose primary goal is browser UI automation.
 
 This is the only default collector path.
 
-1. **Login gate**
-   - If project session has no usable `token`, ask the user for username and
-     password.
-   - Credentials are used only inside the authorized project for protocol login.
-     Write them only to project `config.local.json` (gitignored). Never write
-     username/password into the case library, fixtures, tests, or reports.
+1. **Session gate**
+   - If the current task has no usable session, ask the user for username and
+     password only for the authorized protocol login.
+   - Keep credentials and the resulting token in memory by default. Persisting a
+     profile, session, credential, cookie, or raw response requires the hub's
+     `raw-secret-handling` confirmation with exact fields, a project path,
+     repository exclusion, and a retention deadline. Never write those values to
+     the case library, fixtures, tests, or reports.
    - Protocol login:
-     - `POST /api/auth/oauth2/token` with password MD5 and client basic auth
-     - `POST /api/web-client/v2/user/public/login/idtoken`
-   - Persist project-local session shape to
-     `js_reverse_cache/pzds_session.json`:
+   - `POST /api/auth/oauth2/token` with password MD5 and client basic auth
+   - `POST /api/web-client/v2/user/public/login/idtoken`
+   - When persistence is explicitly approved, write the project-local session
+     shape only to `js_reverse_cache/private/pzds/session.json`:
      `token`, optional `pzId`, `deviceId`, `globalId`.
 
 2. **Trigger challenge**
@@ -89,18 +91,22 @@ Before claiming live complete, project root must provide:
 
 | Item | Project path | Notes |
 |---|---|---|
-| FeiLin profile | `verifier/t001_profile.json` | must match live `DeviceConfig.version` as a full package |
-| Login session | `js_reverse_cache/pzds_session.json` | requires `token`; prefer `pzId/deviceId/globalId` |
-| Optional credentials | `config.local.json` | username/password only when login is needed; gitignore |
+| FeiLin profile | `js_reverse_cache/private/pzds/t001_profile.json` | raw private state; only after `raw-secret-handling`; must match live `DeviceConfig.version` as a full package |
+| Login session | `js_reverse_cache/private/pzds/session.json` | raw private state; requires `token`; only after `raw-secret-handling` |
+| Optional credentials | in memory by default | persistence to `config.local.json` requires the same exact raw-secret approval and gitignore protection |
 
-Use `pull_live_state.py inspect <projectRoot>` to report missing gates. Missing
-session => ask user for username/password. Missing or stale profile => refresh
-the full FeiLin profile package; do not only rewrite the version string.
+Use `pull_live_state.py inspect <projectRoot>` to report missing gates without
+reading raw state. Add `--raw-secret-handling-confirmed` only after the hub has
+recorded the exact persistence decision. Missing session => ask the user for
+credentials and keep them in memory. Missing or stale profile => refresh the
+full FeiLin profile package; do not only rewrite the version string.
 
 ## Login Landing
 
 When the project has no usable session token, ask the user for username and
-password, then run the login inside the project only:
+password, then run the login inside the project only. Do not create a session
+file unless the hub has confirmed `raw-secret-handling` for its exact fields and
+retention:
 
 1. `POST https://api.pzds.com/api/auth/oauth2/token`
    - body: `username`, `password` (MD5), `scope=openid`,
@@ -111,11 +117,11 @@ password, then run the login inside the project only:
 2. `POST https://api.pzds.com/api/web-client/v2/user/public/login/idtoken`
    - body: `{"action":{"idToken":...,"registerWay":"PASSWORD"}}`
    - response `data.token` becomes the business token
-3. Write project-local `js_reverse_cache/pzds_session.json`:
-   `token` (required), `pzId`, `deviceId`, `globalId`
-4. Persist username/password only in project `config.local.json`
-   (gitignored). Never write them into the case library, fixtures, tests, or
-   reports.
+3. Use `data.token`, `pzId`, `deviceId`, and `globalId` in memory for the
+   current coherent session.
+4. Only after the exact raw-secret decision, write that session to
+   `js_reverse_cache/private/pzds/session.json`. Credentials remain in memory
+   unless the same decision explicitly permits `config.local.json`.
 
 Login failure handling:
 
@@ -126,7 +132,8 @@ Login failure handling:
 
 ## Profile Refresh Runbook
 
-When `DeviceConfig.version` diverges from `verifier/t001_profile.json`
+When `DeviceConfig.version` diverges from
+`js_reverse_cache/private/pzds/t001_profile.json`
 ("FeiLin device profile is stale"), refresh the full profile package with the
 project-local updater. Do not edit the version string only.
 
@@ -145,8 +152,8 @@ Requirements:
   - feilin123: `{52, 86, 136, 137}`
   - feilin124: `{52, 86, 136, 137}`
   - feilin125: `{52, 86, 136, 137}`
-- Success is only an online `T001 / true` verification before atomic write of
-  the new profile.
+- Success is only an online `T001 / true` verification before an exclusive,
+  approved write of the new profile under `js_reverse_cache/private/pzds/`.
 - The updater needs CloakBrowser + Playwright; they are project tools, not
   case assets.
 
@@ -194,8 +201,10 @@ WASM only returns narrow artifacts (`Sign`, `PZTimestamp`, `Random`, captcha
 
 Project live runners must keep:
 
-- current FeiLin profile package under `verifier/`
-- login session under `js_reverse_cache/`
+- current FeiLin profile package under `js_reverse_cache/private/pzds/` only
+  after `raw-secret-handling` approval
+- login session under `js_reverse_cache/private/pzds/` only after the same
+  approval
 - v18 signer assets used by the project entry
 
 Case library stores only redacted shapes, offline vectors, and public frozen
@@ -246,18 +255,22 @@ Prerequisites (ask before starting):
 
 - browser recon allowed (chromium-recon) and one visible browser session
 - account credentials for one project-local protocol login
+- `raw-secret-handling` confirmation before any profile/session/credential or
+  raw response is persisted
 - live replay + verifier submission approval
-- a project root under which `js_reverse_cache/` and `verifier/` exist
+- a project root under which `js_reverse_cache/private/pzds/` can be created
 
 Order:
 
-1. **Login** - protocol login (`oauth2/token` MD5 + `idtoken`) and persist
-   `js_reverse_cache/pzds_session.json` (`token`, optional `pzId`,
-   `deviceId`, `globalId`).
+1. **Login** - protocol login (`oauth2/token` MD5 + `idtoken`) and keep
+   `token`, optional `pzId`, `deviceId`, and `globalId` in memory. Persist them
+   only after the exact raw-secret confirmation to
+   `js_reverse_cache/private/pzds/session.json`.
 2. **Trigger and capture one round** - warm up the goods page, then capture
    from the same round: challenge HTML, `InitCaptchaV2` request/response,
    the browser-sent `Log2` request, and `window.um.getToken()` output. Keep
-   full request/response bodies.
+   redacted summaries by default; raw bodies require the separately approved
+   private artifact policy.
 3. **Decrypt and diff** - run the offline helper:
    `python scripts/providers/protocol-recovery/verifier/aliyun_v2_profile_diff.py
    --init init.json --log2 log2.json --token token.json`. It prints version,
@@ -268,7 +281,8 @@ Order:
    including feilin124/125 rows) against the captured suffix -> field21 pair;
    infer new parameters only with >=3 samples plus holdout, matching both
    Log2 and sparse token field 21.
-5. **Assemble the profile** - write `verifier/t001_profile.json` with
+5. **Assemble the profile** - after raw-secret approval, write
+   `js_reverse_cache/private/pzds/t001_profile.json` with
    `feilinVersion`, `userAgent`, `fullDeviceFields`, `tokenFields`, `field21`
    (sourceKey + xorMaskHex), `combat511`, and `combat504` from the captured
    round. Keep the whole package consistent; never merge fields from

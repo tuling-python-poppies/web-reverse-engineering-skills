@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 6,
+  "revision": 8,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -94,14 +94,14 @@
     "requiredCookies": [],
     "optionalCookies": [],
     "storageKeys": [],
-    "profile": "verifier/t001_profile.json in the authorized project; not stored in this case",
-    "session": "js_reverse_cache/pzds_session.json in the authorized project; requires token",
-    "credentials": "ask user for username/password when token is missing; store only in project config.local.json"
+    "profile": "js_reverse_cache/private/pzds/t001_profile.json only after raw-secret-handling; not stored in this case",
+    "session": "js_reverse_cache/private/pzds/session.json only after raw-secret-handling; requires token",
+    "credentials": "ask user for username/password when token is missing; keep in memory unless an exact raw-secret decision permits config.local.json"
   },
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "ba6e81a92cfa424ff41e2059625f73a0951ab17b10094bae37c981f02a28738a"
+      "sha256": "e29adf571ea63aa189e6e8ea01d3dbb0e16bc2629a3714febfc12ce4e0ee05a4"
     },
     "entry": {
       "path": "entry.py",
@@ -109,7 +109,7 @@
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
-      "sha256": "c8cd197f6d08a45ac8e29101a1b3c3e1be2325e2e8f74e396a1facd4cab7d9ce"
+      "sha256": "24f68109270e58352c48d04895ecc7586ad12acd739e6ea9bbe248a326edc82c"
     },
     "assets": [
       {
@@ -134,7 +134,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "cce79af88c481b8f61314e45fbbdb8dd06c3650726652574554a63c09903e666"
+        "sha256": "33dbc1dc7212a90b5bf1d675b5192485b3174d4f22ded9a61a92830822af425a"
       },
       {
         "path": "assets/data_builder.js",
@@ -161,22 +161,22 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-04T17:07:19+08:00",
+    "executedAt": "2026-08-04T20:35:13+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "1b1df3a1b1b9c17e5f2ed2a9632a17b0ce819707cd3f8fe987e996b827059fc1"
+      "sha256": "ac080c3efd07d4f9181034e888a4abc9ea8c7aa4fffffa67762707214925b39b"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "cce79af88c481b8f61314e45fbbdb8dd06c3650726652574554a63c09903e666"
+      "sha256": "33dbc1dc7212a90b5bf1d675b5192485b3174d4f22ded9a61a92830822af425a"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "request, field21, RPC, token, DeviceConfig, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
       "caseLocalTests": "python -m unittest discover -s tests -v",
       "currentEntrySha256": "0e6cef58920e1e549d3769fd1351fdcc9eee3a0ab2eecf45b4c72e5518b96b42",
-      "currentTestArtifactSha256": "1b1df3a1b1b9c17e5f2ed2a9632a17b0ce819707cd3f8fe987e996b827059fc1",
+      "currentTestArtifactSha256": "ac080c3efd07d4f9181034e888a4abc9ea8c7aa4fffffa67762707214925b39b",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-08-03",

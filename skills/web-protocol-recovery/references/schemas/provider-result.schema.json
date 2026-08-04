@@ -1,10 +1,28 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "web-protocol-recovery-provider-result.schema.json",
-  "title": "web-protocol-recovery provider result v2",
+  "title": "web-protocol-recovery provider result",
   "type": "object",
-  "additionalProperties": true,
-  "required": ["schemaVersion", "workOrderId", "provider", "shape", "gateFamily", "status", "verification", "requestBudget", "execution", "runtimeIds", "cleanup"],
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "workOrderId",
+    "provider",
+    "protocolOwner",
+    "shape",
+    "gateFamily",
+    "status",
+    "artifactBoundary",
+    "artifacts",
+    "verification",
+    "requestBudget",
+    "execution",
+    "runtimeIds",
+    "diagnostics",
+    "sideEffects",
+    "cleanup",
+    "residualRisks"
+  ],
   "properties": {
     "schemaVersion": {"const": "web-protocol-recovery-provider-result"},
     "workOrderId": {"type": "string", "minLength": 1},
@@ -17,7 +35,8 @@
     "artifacts": {"type": "array", "items": {"type": "object"}},
     "verification": {
       "type": "object",
-      "required": ["fixedVectorPass", "liveReplayPass", "semanticSuccess"],
+      "additionalProperties": false,
+      "required": ["fixedVectorPass", "liveReplayPass", "semanticSuccess", "firstDivergence"],
       "properties": {
         "fixedVectorPass": {"type": "boolean"},
         "liveReplayPass": {"type": "boolean"},
@@ -25,24 +44,146 @@
         "firstDivergence": {"type": ["string", "null"]}
       }
     },
-    "requestBudget": {"type": "object", "required": ["remaining"], "properties": {"remaining": {"type": "integer", "minimum": 0}}},
-    "execution": {"type": "object", "required": ["targetCodeExecution"], "properties": {"targetCodeExecution": {"enum": ["blocked", "local-only", "approved-reviewed-hash"]}}},
-    "runtimeIds": {"type": "array", "items": {"type": "string"}},
+    "requestBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "priorRemaining", "consumed", "remaining", "byKind", "observedAutomatic", "minDelayMsApplied", "maxConcurrencyObserved"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "priorRemaining": {"type": "integer", "minimum": 0},
+        "consumed": {"type": "integer", "minimum": 0},
+        "remaining": {"type": "integer", "minimum": 0},
+        "byKind": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["navigation", "request", "retry", "websocketHandshake", "websocketFrame"],
+          "properties": {
+            "navigation": {"type": "integer", "minimum": 0},
+            "request": {"type": "integer", "minimum": 0},
+            "retry": {"type": "integer", "minimum": 0},
+            "websocketHandshake": {"type": "integer", "minimum": 0},
+            "websocketFrame": {"type": "integer", "minimum": 0}
+          }
+        },
+        "observedAutomatic": {"$ref": "#/$defs/observedAutomatic"},
+        "minDelayMsApplied": {"type": "integer", "minimum": 0},
+        "maxConcurrencyObserved": {"type": "integer", "minimum": 1}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetCodeExecution", "executedCodeSha256", "installedCommands"],
+      "properties": {
+        "targetCodeExecution": {"enum": ["blocked", "local-only", "approved-reviewed-hash"]},
+        "executedCodeSha256": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "uniqueItems": true
+        },
+        "installedCommands": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "runtimeIds": {"type": "array", "items": {"$ref": "#/$defs/runtimeId"}},
+    "diagnostics": {"type": "array"},
     "sideEffects": {"type": "array"},
-    "cleanup": {"type": "object", "required": ["complete", "runtimeIdsClosed"], "properties": {"complete": {"type": "boolean"}, "runtimeIdsClosed": {"type": "boolean"}}},
-    "residualRisks": {"type": "array"},
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complete", "remainingResources"],
+      "properties": {
+        "complete": {"type": "boolean"},
+        "remainingResources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "residualRisks": {"type": "array", "items": {"type": "string"}},
     "recommendedNextProvider": {"type": ["string", "null"]}
   },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "complete"}}, "required": ["status"]},
+      "then": {"properties": {"verification": {"properties": {"semanticSuccess": {"const": true}}}}}
+    }
+  ],
   "$defs": {
     "providerRef": {
       "type": "object",
-      "required": ["id", "role"],
+      "additionalProperties": false,
+      "required": ["id", "role", "strategy", "profile"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {
+          "enum": [
+            "chromium-recon",
+            "camoufox",
+            "wechat-miniapp",
+            "browser-hooks",
+            "ast",
+            "verifier",
+            "akamai",
+            "river-security",
+            "reese84",
+            "iv8",
+            "python-node",
+            "pure-python",
+            "python-collector"
+          ]
+        },
         "role": {"enum": ["reconnaissance", "protocol-recovery", "implementation", "delivery"]},
         "strategy": {"type": ["string", "null"]},
         "profile": {"type": ["string", "null"]}
       }
+    },
+    "observedAutomatic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "byKind", "destinations"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "byKind": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["redirect", "subresource", "xhrFetch", "beaconPing", "eventSource", "websocket"],
+          "properties": {
+            "redirect": {"type": "integer", "minimum": 0},
+            "subresource": {"type": "integer", "minimum": 0},
+            "xhrFetch": {"type": "integer", "minimum": 0},
+            "beaconPing": {"type": "integer", "minimum": 0},
+            "eventSource": {"type": "integer", "minimum": 0},
+            "websocket": {"type": "integer", "minimum": 0}
+          }
+        },
+        "destinations": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "runtimeId": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourceId", "engine", "contextId", "targetId", "navigationEpoch", "owner", "lifecycle"],
+      "properties": {
+        "resourceId": {"type": "string", "minLength": 1},
+        "engine": {"type": "string", "minLength": 1},
+        "contextId": {"type": ["string", "integer", "null"]},
+        "targetId": {"type": ["string", "integer", "null"]},
+        "navigationEpoch": {"type": "integer", "minimum": 0},
+        "owner": {"type": "string", "minLength": 1},
+        "lifecycle": {"enum": ["live", "stale", "retained", "released"]},
+        "retention": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "approvalEvidence", "releaseDeadline"],
+          "properties": {
+            "reason": {"type": "string", "minLength": 1},
+            "approvalEvidence": {"type": "string", "minLength": 1},
+            "releaseDeadline": {"type": "string", "minLength": 1}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"lifecycle": {"const": "retained"}}, "required": ["lifecycle"]},
+          "then": {"required": ["retention"]}
+        }
+      ]
     }
   }
 }

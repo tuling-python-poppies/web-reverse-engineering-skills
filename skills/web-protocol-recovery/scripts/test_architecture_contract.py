@@ -299,6 +299,16 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertTrue(any("serializationRisk" in finding for finding in findings))
         self.assertTrue(any("executionPolicy" in finding for finding in findings))
 
+    def test_case_process_rejects_default_secret_storage_and_provider_root(self) -> None:
+        findings = validate_architecture.case_process_policy_findings(
+            "fixture",
+            "Persist `js_reverse_cache/pzds_session.json` and use `verifier/t001_profile.json`.\n"
+            "Keep full request/response bodies.",
+        )
+        self.assertTrue(any("session/token/cookie" in item for item in findings))
+        self.assertTrue(any("verifier/ project root" in item for item in findings))
+        self.assertTrue(any("raw request/response" in item for item in findings))
+
 
 if __name__ == "__main__":
     unittest.main()

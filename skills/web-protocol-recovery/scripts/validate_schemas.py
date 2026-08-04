@@ -278,6 +278,16 @@ def main() -> int:
         )
     )
 
+    missing_read_only_approval = copy.deepcopy(VALID_WORK_ORDER)
+    missing_read_only_approval["authorization"].pop("actionApproval")
+    failures.extend(
+        expect_invalid(
+            work_order,
+            missing_read_only_approval,
+            "read-only without standing-read-only actionApproval",
+        )
+    )
+
     approved_mutation = copy.deepcopy(VALID_WORK_ORDER)
     approved_mutation["authorization"]["actionClass"] = "mutation-submit"
     approved_mutation["authorization"]["actionApproval"] = (
@@ -335,6 +345,19 @@ def main() -> int:
             work_order,
             approved_verifier,
             "verifier-submit with standing-verifier-submit approval",
+        )
+    )
+
+    approved_verifier_mutation = copy.deepcopy(VALID_WORK_ORDER)
+    approved_verifier_mutation["authorization"]["actionClass"] = "verifier-submit"
+    approved_verifier_mutation["authorization"]["actionApproval"] = (
+        "user-confirmed-mutation"
+    )
+    failures.extend(
+        expect_valid(
+            work_order,
+            approved_verifier_mutation,
+            "verifier-submit with user-confirmed mutation approval",
         )
     )
 

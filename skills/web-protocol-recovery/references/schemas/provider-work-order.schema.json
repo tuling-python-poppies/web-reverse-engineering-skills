@@ -55,7 +55,7 @@
         },
         {
           "if": {"properties": {"actionApproval": {"const": "user-confirmed-mutation"}}, "required": ["actionApproval"]},
-          "then": {"properties": {"actionClass": {"const": "mutation-submit"}}}
+          "then": {"properties": {"actionClass": {"enum": ["mutation-submit", "verifier-submit"]}}}
         },
         {
           "if": {"properties": {"actionClass": {"const": "verifier-submit"}}, "required": ["actionClass"]},
@@ -68,6 +68,13 @@
         {
           "if": {"properties": {"actionApproval": {"const": "standing-read-only"}}, "required": ["actionApproval"]},
           "then": {"properties": {"actionClass": {"enum": ["none", "read-only"]}}}
+        },
+        {
+          "if": {"properties": {"actionClass": {"enum": ["none", "read-only"]}}, "required": ["actionClass"]},
+          "then": {
+            "required": ["actionApproval"],
+            "properties": {"actionApproval": {"const": "standing-read-only"}}
+          }
         }
       ]
     },

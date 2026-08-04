@@ -30,6 +30,35 @@ skills/web-protocol-recovery/**/*.cjs  text eol=lf
 # tree keeps a mixed-EOL worktree that the next hash-bound surface can inherit.
 skills/web-protocol-recovery/LICENSE   text eol=lf
 
+# Every other skill needs the same pin, for the same reason one level up:
+# skill-creator/scripts/change_control.py hashes worktree bytes of whatever skill
+# it is reviewing (file_hash -> collect / allowed_state_hash) and of the repo
+# itself (repo_state_hash) to detect out-of-band edits. Those baselines are taken
+# and re-checked on the same disk, so a CRLF checkout in between reads as
+# tampering. create_review_manifest.py hashes review artifacts the same way.
+# Pinning per-skill only would leave the reviewer's own tree unpinned while it
+# enforces integrity on others.
+# Observed before this pin: 24 tracked text files were CRLF on disk (23 in
+# darwin-skill, plus skill-creator/SKILL.md) while every committed blob was LF.
+# Normalizing them changed no committed bytes - `git diff --cached` was empty
+# after staging - only what checkout materializes.
+skills/**/*.md   text eol=lf
+skills/**/*.json text eol=lf
+skills/**/*.py   text eol=lf
+skills/**/*.js   text eol=lf
+skills/**/*.mjs  text eol=lf
+skills/**/*.html text eol=lf
+skills/**/*.txt  text eol=lf
+skills/**/*.tsv  text eol=lf
+skills/**/*.cjs  text eol=lf
+skills/**/*.svg  text eol=lf
+
+# darwin-skill ships raster/animated assets; never line-ending convert.
+skills/**/*.png  binary
+skills/**/*.gif  binary
+skills/**/*.jpg  binary
+skills/**/*.jpeg binary
+
 # Binary asset: never line-ending convert.
 skills/web-protocol-recovery/**/*.wasm binary
 skills/web-protocol-recovery/**/*.pt   binary

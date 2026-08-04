@@ -74,3 +74,40 @@ current acceptance.
 ## Note
 
 `current_acceptance` was withdrawn after the standing-approval policy edit. Re-run trigger full_test to restore routing acceptance, and run the separate standing-policy behavioral cases before claiming the gate behavior itself is accepted.
+
+Case revision 4 then changed the first stage of `requiredCurrentProviderChain` from
+`camoufox` to `chromium-recon` in four `python-node` cases. The static surface of that
+change is verified: `validate_architecture.py` now fails closed on a current-chain
+camoufox stage without a declared `camoufoxCriterion`, three contract tests cover the
+shipped defect and guard the still-legal historical chain, and the regenerated
+`registry.json` projection was checked directly. What is **not** retested is model-side
+routing on that path — eval `15` (positive `route:camoufox` with an explicit
+engine-level criterion) and eval `12` (negative: no camoufox from generic evidence).
+Those two are not runnable with the current toolchain at all: `run_eval.py` and
+`run_loop.py` both score trigger rate over `trigger-evals.json` (does OpenCode load the
+skill), not the `expectations` in `evals.json`. The behavioral set has no automated runner
+here. Note also that `single_model_required: true` binds the trigger gate to one executor
+model, so running it under a different model produces a separate observation and does not
+restore this acceptance.
+
+## Harness defect: isolated runs silently lose provider credentials
+
+A `deepseek-v4-flash` trigger attempt on 2026-08-04 returned `0/3` on all 22 queries,
+including every positive. That result is void and was discarded; it is not a description
+regression. `run_eval.py` isolates each worker by repointing `HOME`, `USERPROFILE`,
+`APPDATA`, and `LOCALAPPDATA` at a temp directory and writing an isolated config holding
+only `permission`, which drops the `provider` block. Its one credential-restore path,
+`copy_opencode_credentials`, reads `~/.local/share/opencode/auth.json` — a location this
+setup does not use, because the provider keys live inline in
+`~/.config/opencode/opencode.json` under `provider.*.options.apiKey`. Every worker
+therefore launched with no credentials, the provider returned
+`UnknownError / Unexpected server error`, and `_parse_triggered` reported not-triggered for
+all of them. `_SAFE_ENVIRONMENT_KEYS` is a fixed allowlist with no `*_API_KEY`, so an
+environment variable cannot substitute.
+
+Reproduced under probe: injecting the real `provider` block into the isolated config makes
+the same positive query emit the `tool_use` / `tool: skill` event that `_parse_triggered`
+expects. The fix belongs to `skill-creator/scripts/run_eval.py` and is out of scope for
+this skill. Until it lands, a `0/N` sweep from this harness is evidence about credentials,
+not about routing — confirm a `skill` tool_use event exists in the raw stream before
+reading any trigger sweep as a regression.

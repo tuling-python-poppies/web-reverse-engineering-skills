@@ -54,7 +54,7 @@ Read only the selected family reference after the work order names a generation-
 
 ## Optional Scripts
 
-Provider-local scripts are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution. Scripts that submit verifier requests require an explicit work order with live replay and verifier action approval; GT4 replay templates fail closed unless called with `--confirm-live-verify`.
+Provider-local scripts are reusable templates, not direct in-place runners. Copy or adapt them into the task project/cache before execution. Scripts that submit verifier requests require a validated work order with live replay and `actionClass=verifier-submit`; for a protocol-needed verifier round, standing approval lets the hub record those fields without asking again. GT4 replay templates still fail closed unless called with the CLI acknowledgement `--confirm-live-verify`.
 
 | Script | Use |
 |---|---|
@@ -71,7 +71,7 @@ All applicable checks must pass:
 2. One-round binding is proved: all tokens, images, callbacks, dynamic scripts, sidecars, proof fields, and verify/check requests belong to the same round.
 3. Offline vectors or fixed-input regressions pass for encryption/signature/serializer/coordinate transforms when available.
 4. Perception output includes confidence or an explicit fail-closed reason; low/tied confidence cannot authorize live verify by itself.
-5. Live verify, when approved, returns platform-specific semantic success, such as Tencent `errorCode == "0"` with ticket/randstr, Aliyun `VerifyCode == "T001" && VerifyResult == true`, GT4 `data.result == "success"`, or the selected reference's success marker.
+5. Live verify, when recorded in the work order, returns platform-specific semantic success, such as Tencent `errorCode == "0"` with ticket/randstr, Aliyun `VerifyCode == "T001" && VerifyResult == true`, GT4 `data.result == "success"`, or the selected reference's success marker.
 6. Linked business request succeeds only if it is in scope and explicitly required after captcha success.
 7. Python owns final live egress; any local JS/iv8/WASM helper is a narrow artifact generator and has no browser/profile runtime dependency.
 
@@ -85,7 +85,7 @@ All applicable checks must pass:
 | Verify semantic fail | Diff state, coordinate space, behavior timeline, proof packaging, sidecar, and transport in that order | Do not submit repeated guesses on one challenge |
 | GT4 `w` generated but `data.result=fail` | Confirm current `gcaptcha4.js` version and submitter path before changing OCR only | Do not treat non-empty `w` or `status=success` as proof |
 | Sidecar/device logs omitted | Add same-session telemetry proof per selected reference | Do not blame track first |
-| Live verify denied | Stay offline with fixtures and proof inputs | No verifier submission |
+| User explicitly denied live verify | Stay offline with fixtures and proof inputs | No verifier submission |
 | Platform workflow needs JS/iv8 host semantics | Return an internal work-order blocker for `iv8` or `python-node` with `strategy: env-patch` | Do not turn browser UI automation into delivery |
 
 ## Exit

@@ -4229,6 +4229,6 @@
       "stderr_preview": ""
     }
   ],
-  "current_run_note": "Current SKILL.md was evaluated with deepseek-v4-pro only; DeepSeek Flash, GPT-5.6, and Grok were not used. The artifact accepts bounded-recovery routing and explicitly does not accept first-pass stability.",
+  "current_run_note": "Historical SKILL.md bytes were evaluated with deepseek-v4-pro only; DeepSeek Flash, GPT-5.6, and Grok were not used. This artifact accepts only the recorded historical routing surface and does not accept current HEAD, standing-approval behavior, or first-pass stability.",
   "stale_reason": "SKILL.md gate policy updated to standing approval for routine protocol actions; re-run trigger full_test before treating score as current acceptance."
 }

@@ -128,6 +128,66 @@ class TriggerProvenanceTests(unittest.TestCase):
         self.assertTrue(any("run_base_commit" in item for item in findings))
 
 
+class StandingApprovalPolicyTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.evals = json.loads(
+            validate_evals.SKILL_EVALS_PATH.read_text(encoding="utf-8")
+        )["evals"]
+        self.test_prompts = json.loads(
+            validate_evals.TEST_PROMPTS_PATH.read_text(encoding="utf-8")
+        )
+
+    def test_current_policy_case_coverage_passes(self) -> None:
+        self.assertEqual(
+            validate_evals._validate_policy_cases(
+                self.evals, "evals", "expected_output"
+            ),
+            [],
+        )
+        self.assertEqual(
+            validate_evals._validate_policy_cases(
+                self.test_prompts, "test-prompts", "expected"
+            ),
+            [],
+        )
+
+    def test_routine_live_write_cannot_require_confirmation(self) -> None:
+        cases = copy.deepcopy(self.evals)
+        target = next(
+            item
+            for item in cases
+            if item.get("policy_case") == "standing-routine-live-write"
+        )
+        target["confirmation_required"] = True
+        target["confirmation_kind"] = "scope-expansion"
+        findings = validate_evals._validate_policy_cases(
+            cases, "evals", "expected_output"
+        )
+        self.assertTrue(any("wrong confirmation_required" in item for item in findings))
+
+    def test_confirmation_requires_typed_kind(self) -> None:
+        cases = copy.deepcopy(self.evals)
+        target = next(
+            item for item in cases if item.get("policy_case") == "dependency-install"
+        )
+        target.pop("confirmation_kind")
+        findings = validate_evals._validate_policy_cases(
+            cases, "evals", "expected_output"
+        )
+        self.assertTrue(any("valid confirmation_kind" in item for item in findings))
+
+    def test_missing_standing_policy_case_is_rejected(self) -> None:
+        cases = [
+            item
+            for item in copy.deepcopy(self.evals)
+            if item.get("policy_case") != "mutation-submit"
+        ]
+        findings = validate_evals._validate_policy_cases(
+            cases, "evals", "expected_output"
+        )
+        self.assertTrue(any("missing standing-policy cases" in item for item in findings))
+
+
 class TriggerArithmeticTests(unittest.TestCase):
     def setUp(self) -> None:
         self.artifact = load_artifact()

@@ -19,11 +19,12 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 2. 用户给了 HAR、源码、固定向量、响应样本，先走 `evidence-reuse` 或 `local-proof`，能不开浏览器就不开。
 3. 用户明确说“不上线 / 本地证明 / 固定向量”，保持离线；不要要 live replay、账号、项目目录或请求预算。
 4. 用户说小程序、Camoufox、Cloak、WebSocket、protobuf 等，只决定 `route` 或 gate，不自动升级到完整采集器。
-5. **协议任务常规动作默认执行、不打断确认**：浏览器 recon、live 请求、写 `projectRoot`（未指定则用 cwd）、用户已给的 cookie/session、协议所需验证码 submit、合理规模采集。内部记账即可，不要把这些写进 `nextAsk`。
-6. **仅两类动作先确认再做**：装依赖（`pip`/`npm` 等）、执行目标站 JS/WASM/HTML（`executionPolicy`）。
-7. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
-8. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
-9. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
+5. **已选 shape 内的常规动作默认执行、不打断确认**：隔离浏览器 recon、只读 live 请求、写 `projectRoot`（未指定则用 cwd）、使用用户已给的 cookie/session、协议所需 verifier submit、首次记录预算内的合理规模采集。内部记账即可，不要把这些写进 `nextAsk`。
+6. **`executionPolicy` 有两个 hard stop**：装依赖（`pip`/`npm` 等）、在本地 runtime 主动执行目标站 JS/WASM/HTML。普通隔离 recon 浏览器按页面正常加载目标代码属于 browser recon，不重复触发本地 target-code gate。
+7. **scope/governance 仍需确认**：业务 `mutation-submit`（表单、下单、支付、账号变更等）、扩大 success shape、提高已记录预算、raw secret 持久化/导出、case-library 写回。
+8. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
+9. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
+10. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
 
 Plain terms:
 
@@ -46,13 +47,13 @@ First response and every subsequent gated turn begin with these four lines. `rou
 ```
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>
-nextAsk: <none | missing sample/context | executionPolicy only>
+nextAsk: <none | missing sample/context | executionPolicy | mutation-submit | scope-expansion | raw-secret-handling | case-writeback>
 nextRead: <paths per read-budget>
 ```
 
-Header meanings: `shape` is deliverable depth; `route` is the selected Provider or `evidence-reuse`; `nextAsk` is almost always `none`—only missing technical samples, or the two hard stops (dependency install / target-code execution); `nextRead` lists exact paths allowed by the read budget. Per-shape scripts and gated overlays live in `references/methodology/success-shape-scripts.md`.
+Header meanings: `shape` is deliverable depth; `route` is the selected Provider or `evidence-reuse`; `nextAsk` is almost always `none` and names only the immediate missing technical input, execution hard stop, or scope/governance decision; `nextRead` lists exact paths allowed by the read budget. Per-shape scripts and gated overlays live in `references/methodology/success-shape-scripts.md`.
 
-Policy overlays (case read, scope/budget accounting, Chrome auto-traffic **recording**, runtime cleanup) remain owned by `references/methodology/success-shape-scripts.md`. They are **accounting/lifecycle rules**, not user-confirmation prompts, except where `executionPolicy` still stops.
+Policy overlays (case read, scope/budget accounting, Chrome auto-traffic **recording**, runtime cleanup) remain owned by `references/methodology/success-shape-scripts.md`. Routine fields are accounting/lifecycle rules. `executionPolicy`, business mutation, shape/budget expansion, raw-secret handling, and case writeback retain their explicit confirmation rules.
 
 1. Final delivery is browser-free. Python owns live egress (HTTP requests, WebSocket handshakes, and sent frames); local JS/WASM/iv8 only as narrow artifact generators.
 2. Evidence precedes implementation: real request, moving state, mutation point, one objective acceptance test.
@@ -60,20 +61,20 @@ Policy overlays (case read, scope/budget accounting, Chrome auto-traffic **recor
 4. All dynamic evidence (recon dumps, challenge JS/HTML, screenshots, browser state, probes, net logs, MCP exports) writes only under `<projectRoot>/js_reverse_cache/**`. Never default to `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, skill directories, or any path outside the approved project root.
 5. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
 6. Browser engines/profiles are lifecycle-serialized. IDs never cross engine/session/target boundaries.
-7. **Standing approval (default for explicit protocol tasks):** browser recon, live egress, writes under `projectRoot`, user-supplied cookies/session, protocol-needed verifier submits, and bounded scale are already approved—execute them, do not re-ask. Confirm only **dependency install** and **target-code execution** (target-supplied JS/WASM/HTML). Never invent or export secrets the user did not supply; case-library writeback still needs a yes.
+7. **Standing approval (default for explicit protocol tasks, within the selected shape):** browser recon, read-only live egress, writes under `projectRoot`, use of user-supplied cookies/session, protocol-needed `verifier-submit`, and scale within the initially recorded immutable request budget are already approved—execute them, do not re-ask. Never auto-promote to `mutation-submit`, a larger shape, or a larger budget. Local target-code execution and dependency installation use `executionPolicy`; raw-secret handling and case-library writeback keep their governance confirmations.
 8. When delivery uses iv8 (or the iv8 silent helper), also create `utils/logger.py` (optional `loguru` with PrintLogger fallback). Progress logs use `logger.info`; do not paste loguru/print fallbacks into every main script.
 
 ## Phase 0: Intake
 
-Do not paste the full intake form on the first reply. Use the four-line template above; `nextAsk` is usually `none` or only missing technical samples. Put dependency-install / target-code-execution only when those actions are about to happen.
+Do not paste the full intake form on the first reply. Use the four-line template above; `nextAsk` is usually `none` or only missing technical samples. Name a confirmation field only when its exact hard stop or scope/governance action is about to happen.
 
 If the user gives no success shape, default to `shape: evidence`. Choose `route` by the strongest Phase 2 signal, then **start the smallest next action** under operator standing approval.
 
-First-turn routing rules choose `shape` and `route`. Under Non-Negotiables item 7, an explicit protocol-recovery task auto-grants browser recon, live egress, writes under default `projectRoot`, user-supplied session use, protocol-needed verifier submits, and bounded scale. It still does **not** auto-grant dependency install or target-code execution.
+First-turn routing rules choose `shape` and `route`. Under Non-Negotiables item 7, an explicit protocol-recovery task grants routine actions only inside that shape. It does **not** grant local target-code execution, dependency installation, business mutation, shape/budget expansion, raw-secret handling, or case-library writeback.
 
 | Signal | First-turn decision |
 |---|---|
-| Supplied artifacts or an exact registry case | Prefer `route: evidence-reuse`; a URL alone never authorizes browser launch. |
+| Supplied artifacts or an exact registry case | Prefer `route: evidence-reuse`. A bare URL with no protocol-recovery intent is not enough; an explicit protocol-recovery request naming that URL may start bounded recon under standing approval unless the user requested offline/no-browser work. |
 | Explicit offline / local / fixed-vector wording | Use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider. |
 | Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
 | Known implementation boundary or explicit implementation Provider request | Use the named Provider route only when the boundary/artifact is named, such as `route: browser-hooks`, `route: ast`, `route: python-node` with `strategy: env-patch`, `route: iv8`, or `route: pure-python`; otherwise stay evidence first. |
@@ -93,9 +94,9 @@ Use this path when all conditions hold: `shape: evidence`; supplied artifact, re
 
 Allowed actions: emit the four-line header, use `route: evidence-reuse` unless reading one selected Provider `PROVIDER.md` or one bounded Provider-local reference is the smallest next read, inspect supplied text/files and bounded references, name the request/function/state source/blocker, and ask only missing sample/context fields. Do **not** ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization on this path.
 
-When the next step needs browser/live/write work, leave the fast path and **just do it** under standing approval (record work-order fields internally; do not pause for user confirmation). Still stop and put `executionPolicy` in `nextAsk` before dependency install or target-code execution.
+When the next step needs routine browser/live/write work inside the selected shape, leave the fast path and **just do it** under standing approval (record work-order fields internally; do not pause for user confirmation). Stop only when the next exact action matches one of the declared `nextAsk` confirmation kinds.
 
-Before navigation, live egress, session use, writes, target-code execution, or dependency install, **record** the applicable fields from `references/methodology/provider-work-order.md` (internal bookkeeping). For protocol tasks under standing approval, auto-fill: `browserReconAllowed=true`, `browserNavigationSideEffectsApproved=true`, `liveReplayAllowed=true`, reasonable `requestBudget`, `artifactPolicy` under `js_reverse_cache/**`, `accountOrSessionUse` from user-supplied material, `projectRoot=cwd` when unset. **Still deny by default:** `executionPolicy.targetCodeExecution` and `executionPolicy.dependencyInstall` until the user confirms those two. Pre-egress accounting and Chrome automatic-traffic **recording** stay canonical; route switches never reset them.
+Before navigation, live egress, session use, writes, target-code execution, or dependency install, **record** the applicable fields from `references/methodology/provider-work-order.md` (internal bookkeeping). For routine protocol work, auto-fill: `actionClass=read-only` (or `verifier-submit` only for a protocol-needed verifier round), browser flags, `liveReplayAllowed=true`, one positive immutable request budget, redacted artifact policy under `js_reverse_cache/**`, supplied-session use, and the resolved absolute cwd when `projectRoot` is unset. Keep `mutation-submit` and all confirmation kinds blocked until the matching user decision. Pre-egress accounting and Chrome automatic-traffic **recording** stay canonical; route switches never reset or replenish the budget.
 
 Smallest success shape:
 
@@ -166,10 +167,10 @@ Chains are sequential and role-aware (typical: recon -> AST -> python-node/iv8/p
 Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 1. Fixed-output parity or named checkpoints match captured truth.
-2. For `compact-replay`, one approved minimal live replay succeeds on a coherent session; for `collector`, the minimal request repeats successfully or the next cursor/page is proved before scale.
+2. For `compact-replay`, one recorded minimal live replay succeeds on a coherent session; for `collector`, the minimal request repeats successfully or the next cursor/page is proved before scale.
 3. Content type, challenge markers, business result, and data shape pass.
 4. Signatures, cookies, headers, and wrapped bodies regenerate at the canonical request boundary.
-5. Page/retry/concurrency/duration scale only after a repeatable first request; under standing approval, expand within the recorded `requestBudget` without re-asking unless the user set a hard cap.
+5. Page/retry/concurrency/duration scale only after a repeatable first request and only within the initially recorded `requestBudget`; exhaustion or any larger shape/budget requires `scope-expansion` confirmation.
 6. Preserve the delivery invariant from Non-Negotiables: Python owns final live egress; local runtimes only produce narrow artifacts.
 
 ## Case Reuse And Writeback
@@ -189,10 +190,10 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 | Recon empty / no target request | Re-check route signals; one more bounded capture | Name blocker; do not open second recon engine |
 | Provider `status!=complete` or acceptance fails | One corrective work order on same Provider | Switch only after naming a new mutation/gate blocker |
 | Case disagrees with current evidence | Stop reuse immediately | Return to normal evidence routing; no sibling case |
-| `requestBudget.remaining=0` | Offline vectors / local-proof, or raise budget internally for standing-approval protocol tasks when the user set no hard cap | If user set a hard cap, stop live egress until they raise it |
+| `requestBudget.remaining=0` | Continue offline and put the exact requested increase in `nextAsk: scope-expansion` only when more live work is necessary | Do not replenish or reset the budget without user confirmation |
 | `cleanup.complete=false` or live task resource remains | Cleanup or record approved retention IDs | Reject `status=complete` |
 
-When the same shape must expand (Provider change only keeps the shape; larger shape should be stated, then continue under standing approval unless the user forbade upgrade), name:
+When the same shape needs another Provider, keep the shape. Before a larger shape, name the proposed scope and wait for `nextAsk: scope-expansion` confirmation:
 
 ```
 blocker: <one sentence>
@@ -202,13 +203,13 @@ why: <smallest honest move>
 
 ## Safety Checkpoints
 
-🔴 CHECKPOINT · 🛑 STOP and confirm only before: **untrusted dependency install**; **target-supplied JS/WASM/HTML execution**; **bundled case-library writes**; **exporting raw account secrets the user did not supply**. Protocol-needed browser recon, live egress, project writes under `js_reverse_cache/**`, user-supplied session use, captcha protocol submits, and bounded scale **do not pause for confirmation** under standing approval. Static reads, metadata-only indexes, redacted samples, and offline deterministic tests need no pause.
+🔴 CHECKPOINT · 🛑 STOP and confirm before: **dependency installation**; **local execution of target-supplied JS/WASM/HTML**; **business `mutation-submit`**; **success-shape or request-budget expansion**; **raw-secret persistence/export**; **bundled case-library writes**. Routine browser recon, read-only live egress, redacted project writes under `js_reverse_cache/**`, user-supplied session use, protocol-needed verifier submits, and scale inside the immutable budget do not pause under standing approval. Never invent or export secrets the user did not supply.
 
-Gate mapping (record vs confirm): most fields are **recorded auto-approvals**; only target code/install ↔ `executionPolicy` still **confirms**. account ↔ `accountOrSessionUse`, mutation ↔ `actionClass`, scale ↔ `requestBudget`, raw save ↔ `artifactPolicy`, recon nav ↔ `browserReconAllowed` + Chrome side-effect flags, live egress ↔ `liveReplayAllowed`.
+Gate mapping (record vs confirm): read-only/verifier action ↔ `actionClass` records; business mutation ↔ `actionClass=mutation-submit` confirms; scale ↔ immutable `requestBudget` records until expansion confirms; redacted save ↔ `artifactPolicy` records; raw-secret handling ↔ `artifactPolicy` confirms; target code/install ↔ `executionPolicy` confirms; recon nav ↔ browser flags records; live egress ↔ `liveReplayAllowed` records.
 
 ## Do Not
 
-- Do not skip **recording** work-order fields for browser navigation, live egress, session use, writes, target-code execution, or dependency install. Do not skip **user confirmation** for dependency install or target-code execution. Do not invent credentials the user never supplied.
+- Do not skip work-order accounting. Do not auto-approve `mutation-submit`, shape/budget expansion, raw-secret handling, case writeback, dependency installation, or local target-code execution. Do not invent credentials the user never supplied.
 - Do not put a gate family, strategy, profile, or file path in `route` (Non-Negotiables owns this).
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.

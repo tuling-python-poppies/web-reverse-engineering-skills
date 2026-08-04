@@ -67,7 +67,7 @@ Create only paths required by the current task. A minimal code skeleton may star
 
 Downloaded HTML/JS/WASM/fonts/images, network exports, screenshots, browser state, traces, AST intermediates, env probes, and runtime logs stay in `js_reverse_cache/`. Promote code only after a fixed-vector or live semantic acceptance test passes.
 
-`js_reverse_cache/private/` is never copied into the bundled skill or case library. Raw account/session artifacts require explicit field, path, and retention approval. Existing project files are never overwritten; choose a new approved path or leave the user-owned file unchanged.
+`js_reverse_cache/private/` is never copied into the bundled skill or case library. Redacted evidence writes are routine standing-approved project writes. Raw account/session persistence or export is a separate `raw-secret-handling` gate requiring exact field, absolute path, repository exclusion, and retention approval. Existing project files are never overwritten; choose a new approved path or leave the user-owned file unchanged.
 
 ## Absolute Path And Temp Policy
 

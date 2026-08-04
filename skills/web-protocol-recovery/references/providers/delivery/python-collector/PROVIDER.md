@@ -46,8 +46,8 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 
 | Template | Use |
 |---|---|
-| `scripts/verifier/gt4_replay.py` | GT4 same-round `/load -> images/GCT -> python-node helper -> /verify` delivery template. Requires `--confirm-live-verify` and a validated `--work-order` v2 JSON with `authorization.actionClass=verifier-submit`; every live request rechecks scope and decrements budget. |
-| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires `--confirm-live-verify` and a validated `--work-order` v2 JSON with `authorization.actionClass=verifier-submit`; every live request rechecks scope and decrements budget. |
+| `scripts/verifier/gt4_replay.py` | GT4 same-round `/load -> images/GCT -> python-node helper -> /verify` delivery template. Requires the CLI acknowledgement `--confirm-live-verify` and a validated v2 work order with `actionClass=verifier-submit`; standing approval lets the hub record that action without re-asking. Every request rechecks scope and decrements budget. |
+| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires the CLI acknowledgement `--confirm-live-verify` and a validated v2 work order with `actionClass=verifier-submit`; standing approval lets the hub record that action without re-asking. Every request rechecks scope and decrements budget. |
 
 ## Layout Ownership
 
@@ -68,7 +68,7 @@ Keep `main.py` short. Move only proven stable pieces into `utils/`. Do not impor
 ## Acceptance (all required before scale)
 
 1. Fixed-input / named checkpoint parity against captured truth.
-2. One approved minimal live replay on a coherent session succeeds.
+2. One recorded minimal live replay on a coherent session succeeds.
 3. Content type, challenge markers, business result, and data shape pass.
 4. Signatures, cookies, headers, and wrapped bodies regenerate at the canonical request boundary—not from a leftover browser jar.
 5. Delivery gate: final path is browser-free; host-like values (UA, screen, etc.) are explicit config when they are only signer inputs.
@@ -83,7 +83,7 @@ Honor the work-order `requestBudget` and never invent a larger budget:
 - cookie domain/path scope and exact serialization
 - response bytes preserved before decode
 
-Scale pagination/retry/concurrency only after a repeatable first request and explicit confirmation.
+Scale pagination/retry/concurrency only after a repeatable first request and inside the initially recorded immutable budget. Do not re-ask within that budget; do not increase or replenish it without `scope-expansion` confirmation.
 
 ## Exit
 
@@ -98,4 +98,4 @@ Return: absolute paths created or updated, fixed-vector and live acceptance stat
 | Fixed vectors fail | Diff first divergence; fix helper/serialization | No live egress |
 | Live `200` but wrong body/shape/challenge | Treat as fail; capture semantic mismatch | Do not scale |
 | Import has network/browser side effects | Make import-safe; move I/O behind explicit call | Reject helper |
-| Budget remaining 0 | Offline vectors only | No live egress until user raises budget |
+| Budget remaining 0 | Offline vectors only; return the exact requested increase to the hub | No live egress until `scope-expansion` confirmation raises the task budget |

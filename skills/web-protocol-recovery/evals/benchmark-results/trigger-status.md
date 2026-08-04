@@ -1,6 +1,6 @@
 # Trigger eval status
 
-## Current HEAD bounded-recovery full_test
+## Historical bounded-recovery full_test (stale for current HEAD)
 
 | Field | Value |
 |---|---|
@@ -22,8 +22,8 @@
 
 First-pass taxonomy: under-trigger=2, over-trigger=4, runtime-error=6. Final
 taxonomy after bounded retry: under-trigger=0, over-trigger=0, runtime-error=0.
-The run accepts the bounded-recovery routing surface only; it does not claim
-first-pass stability.
+The historical run accepted the bounded-recovery routing surface for the recorded
+SKILL.md hash only; it does not accept current HEAD or claim first-pass stability.
 
 ### Final Failures
 
@@ -68,9 +68,9 @@ current acceptance.
 
 1. This run uses isolated temp skills plus provider credentials from local OpenCode config; no credentials are written to the repository.
 2. Neighbor stubs for `skill-creator` and `darwin-skill` remain enabled for near-miss routing realism.
-3. The current acceptance run uses `deepseek-v4-pro` only. It does not use DeepSeek Flash, GPT-5.6, or Grok.
+3. The historical run uses `deepseek-v4-pro` only. It does not use DeepSeek Flash, GPT-5.6, or Grok.
 4. The artifact retains first-pass attempt grades, retry attempt grades, exact timeout overruns, and per-query aggregates. Retry granularity is one bounded retry per failed `(query_id, attempt)`; one query can therefore have multiple retries only when multiple n-run attempts failed independently. `runs_per_query=3`; no sample-count caveat is required, but the failed first-pass stability result remains explicit.
 
 ## Note
 
-`current_acceptance` withdrawn after standing-approval gate policy edit to SKILL.md. Re-run trigger full_test to restore acceptance.
+`current_acceptance` was withdrawn after the standing-approval policy edit. Re-run trigger full_test to restore routing acceptance, and run the separate standing-policy behavioral cases before claiming the gate behavior itself is accepted.

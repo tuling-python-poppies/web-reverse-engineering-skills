@@ -36,6 +36,7 @@
         "authorizationBasis": {"type": "string"},
         "liveReplayAllowed": {"type": "boolean"},
         "actionClass": {"enum": ["none", "read-only", "verifier-submit", "mutation-submit"]},
+        "actionApproval": {"enum": ["standing-read-only", "standing-verifier-submit", "user-confirmed-mutation"]},
         "accountOrSessionUse": {"type": "string"},
         "browserReconAllowed": {"type": "boolean"},
         "browserNavigationSideEffectsApproved": {"type": "boolean"},
@@ -43,7 +44,16 @@
         "requestBudget": {"$ref": "#/$defs/requestBudget"},
         "artifactPolicy": {"$ref": "#/$defs/artifactPolicy"},
         "executionPolicy": {"$ref": "#/$defs/executionPolicy"}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"actionClass": {"const": "mutation-submit"}}, "required": ["actionClass"]},
+          "then": {
+            "required": ["actionApproval"],
+            "properties": {"actionApproval": {"const": "user-confirmed-mutation"}}
+          }
+        }
+      ]
     },
     "project": {
       "type": "object",

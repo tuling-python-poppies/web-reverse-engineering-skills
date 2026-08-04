@@ -6,7 +6,7 @@ from __future__ import annotations
 import copy
 import json
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 from jsonschema import Draft202012Validator, ValidationError
 
@@ -46,6 +46,7 @@ VALID_WORK_ORDER = {
             }
         ],
         "actionClass": "read-only",
+        "actionApproval": "standing-read-only",
         "accountOrSessionUse": "none",
         "browserReconAllowed": False,
         "browserNavigationSideEffectsApproved": False,
@@ -85,7 +86,7 @@ VALID_WORK_ORDER = {
         },
     },
     "project": {
-        "projectRoot": "none",
+        "projectRoot": "C:/absolute/project-root",
         "layout": "web-protocol-recovery-simple",
         "writeMode": "no-write",
         "allowedPaths": [],
@@ -143,6 +144,37 @@ def expect_invalid(validator: Draft202012Validator, value: dict, label: str) -> 
 
 def work_order_semantic_findings(value: dict, label: str) -> list[str]:
     findings: list[str] = []
+    project = value.get("project") or {}
+    project_root = project.get("projectRoot")
+    write_mode = project.get("writeMode")
+    allowed_paths = project.get("allowedPaths") or []
+    if write_mode != "no-write":
+        is_absolute = isinstance(project_root, str) and (
+            PurePosixPath(project_root).is_absolute()
+            or PureWindowsPath(project_root).is_absolute()
+        )
+        if not is_absolute:
+            findings.append(f"{label}: writable projectRoot must be absolute")
+        if not allowed_paths:
+            findings.append(f"{label}: writable work order requires allowedPaths")
+    elif allowed_paths:
+        findings.append(f"{label}: no-write work order must have empty allowedPaths")
+
+    provider = value.get("activeProvider") or {}
+    if provider.get("role") == "reconnaissance":
+        invalid_paths = [
+            path
+            for path in allowed_paths
+            if not (
+                path.startswith("js_reverse_cache/recon/")
+                or path.startswith("js_reverse_cache/source/")
+            )
+        ]
+        if invalid_paths:
+            findings.append(
+                f"{label}: reconnaissance allowedPaths contain stable/non-recon paths"
+            )
+
     budget = ((value.get("authorization") or {}).get("requestBudget") or {})
     total = budget.get("total")
     remaining = budget.get("remaining")
@@ -192,6 +224,32 @@ def main() -> int:
     bad_write_mode["project"]["writeMode"] = "none"
     failures.extend(expect_invalid(work_order, bad_write_mode, "invalid writeMode none"))
 
+    relative_write_root = copy.deepcopy(VALID_WORK_ORDER)
+    relative_write_root["project"] = {
+        "projectRoot": "cwd-default",
+        "layout": "web-protocol-recovery-simple",
+        "writeMode": "create-only",
+        "allowedPaths": ["js_reverse_cache/recon/chrome/**"],
+    }
+    relative_findings = work_order_semantic_findings(
+        relative_write_root, "relative writable root"
+    )
+    if not any("must be absolute" in item for item in relative_findings):
+        failures.append("relative writable root: expected absolute-path guard to fail")
+
+    broad_recon_paths = copy.deepcopy(VALID_WORK_ORDER)
+    broad_recon_paths["project"] = {
+        "projectRoot": "C:/absolute/project-root",
+        "layout": "web-protocol-recovery-simple",
+        "writeMode": "create-only",
+        "allowedPaths": ["js_reverse_cache/recon/chrome/**", "main.py"],
+    }
+    broad_findings = work_order_semantic_findings(
+        broad_recon_paths, "broad reconnaissance paths"
+    )
+    if not any("stable/non-recon" in item for item in broad_findings):
+        failures.append("broad reconnaissance paths: expected least-privilege guard to fail")
+
     bad_read_plan = copy.deepcopy(VALID_WORK_ORDER)
     bad_read_plan["readPlan"] = {"maxDistinctPaths": 24, "windows": []}
     failures.extend(expect_invalid(work_order, bad_read_plan, "legacy readPlan shape"))
@@ -208,6 +266,30 @@ def main() -> int:
         "approvedCodeSha256": ["bad"],
     }
     failures.extend(expect_invalid(work_order, bad_hash, "invalid approvedCodeSha256"))
+
+    unapproved_mutation = copy.deepcopy(VALID_WORK_ORDER)
+    unapproved_mutation["authorization"]["actionClass"] = "mutation-submit"
+    unapproved_mutation["authorization"].pop("actionApproval")
+    failures.extend(
+        expect_invalid(
+            work_order,
+            unapproved_mutation,
+            "mutation-submit without user-confirmed actionApproval",
+        )
+    )
+
+    approved_mutation = copy.deepcopy(VALID_WORK_ORDER)
+    approved_mutation["authorization"]["actionClass"] = "mutation-submit"
+    approved_mutation["authorization"]["actionApproval"] = (
+        "user-confirmed-mutation"
+    )
+    failures.extend(
+        expect_valid(
+            work_order,
+            approved_mutation,
+            "mutation-submit with user-confirmed actionApproval",
+        )
+    )
 
     failures.extend(expect_valid(result, VALID_RESULT, "valid provider result"))
     missing_cleanup = copy.deepcopy(VALID_RESULT)

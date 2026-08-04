@@ -17,11 +17,11 @@ Legacy `Expected route` headings below mean expected reference owners, never the
 
 - authorization/scope is recorded before the first browser navigation or live egress; unknown authorization remains offline
 - raw artifacts are opt-in, gitignored, access-scoped, and retention-bounded; metadata/redacted evidence is the default
-- generated collectors bound pages, retries, timeout, response bytes, backoff, and concurrency; mutations are not retried without an idempotency contract
+- generated collectors bound pages, retries, timeout, response bytes, backoff, and concurrency; `mutation-submit` requires explicit confirmation and is not retried without an idempotency contract
 - generated transport disables implicit environment proxies, preserves CookieJar domain/path scope, and declares TLS/CA/redirect ownership
 - scaffold updates reject symlinks, junctions, hard links, and incomplete ignore rules; they never overwrite existing files and publish new files atomically
 - generated outputs are exclusive by default, atomically published, and CSV-safe
-- the mandatory four-line protocol header is emitted first on protocol tasks; the startup gate follows with only applicable fields on fresh targets
+- the mandatory four-line protocol header is emitted first on protocol tasks; routine startup fields are recorded internally, while only declared execution/scope/governance blockers appear in `nextAsk`
 - blocked tools are reported explicitly instead of being silently skipped
 - paired `chrome-devtools` and `js-reverse-mcp` recon stays sequential and profile-isolated unless explicit profile reuse is requested and documented
 - dual recon is lifecycle-exclusive: no cross-family parallel preflight; fresh Chromium targets complete a **mandatory paired pass** (chrome-devtools baseline then js-reverse mutation) before the final collector unless a real blocker or documented exception applies; js-reverse mutation uses explicit headless launch unless the user asks for a visible ordinary browser; a no-window exception may skip only the visible DevTools window; Chrome is honestly reported as parked when its last page cannot close; visible CloakBrowser is used only after explicit/fingerprint selection (optional third tier) unless the user asks for hidden Cloak; js-reverse closes before a return to Chrome
@@ -59,7 +59,7 @@ Expected route:
 
 Must conclude:
 
-- emit the startup gate first
+- emit the four-line startup header first and keep routine standing-approval fields out of `nextAsk`
 - report the blocked tool explicitly as a **missing paired-pass half** (chrome-devtools)
 - still classify the target family and intended final delivery shape
 - do not pretend the missing tool already proved anything
@@ -102,7 +102,7 @@ Must conclude:
 - keep `shape: evidence`; do not select `route: reese84`
 - generic Imperva branding, interstitial, error 15, or one incap cookie is not Reese84 proof
 - require one Reese84-native marker plus an independent network/script/cookie-transition/business-consumer surface
-- Imperva/Reese84 wording alone is not a Camoufox criterion; fresh URL recon starts with Chromium after gates
+- Imperva/Reese84 wording alone is not a Camoufox criterion; an explicit protocol-recovery URL starts bounded Chromium after internal scope/budget accounting
 
 ## Task 0A2: Reese84 native plus corroboration owns the gate
 
@@ -242,7 +242,7 @@ Must conclude:
 
 - run local environment checks without launching both browsers
 - confirm both `chrome-devtools` and `js-reverse` usability; report a real blocker if either half cannot run
-- mandatory paired pass: Chrome DevTools visible clean baseline after recon gates, park Chrome (`about:blank`, report `parked`, not `closed`), then js-reverse mutation/source pass before the final collector
+- mandatory paired pass: Chrome DevTools visible clean baseline after internal recon accounting, park Chrome (`about:blank`, report `parked`, not `closed`), then js-reverse mutation/source pass before the final collector
 - skip only the visible DevTools window when the user explicitly requires no ordinary window / background-only recon; document that exception; js-reverse half remains required
 - js-reverse uses explicit `launch_browser({headless:true, cloakBinaryPath:""})` and Headless Acceptance; do not treat MCP auto-launch or CLI default as that pass
 - if residual normal Chrome is headful during a required headless js-reverse pass, relaunch headless first (brief OS flash while the old process closes is allowed); require settled `effective_headless=true` and no lasting normal-Chrome window

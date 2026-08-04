@@ -1,6 +1,6 @@
 # Default Scripts By Success Shape
 
-Use these as the first path. Escalate only after naming a concrete blocker. Under standing approval (SKILL Non-Negotiables item 7), routine protocol actions run without pausing the user: browser recon, live egress, project writes, user-supplied session, protocol-needed verifier submit, bounded scale. Confirm only dependency install and target-code execution. Record work-order fields internally; keep `nextAsk` free of routine gate flags.
+Use these as the first path. Escalate only after naming a concrete blocker. Under standing approval (SKILL Non-Negotiables item 7), routine protocol actions inside the selected shape run without pausing the user: browser recon, read-only live egress, redacted project writes, user-supplied session use, protocol-needed verifier submit, and scale inside the immutable budget. Record routine fields internally. Use `nextAsk` only for execution hard stops or scope/governance decisions.
 
 ## Shared First Response
 
@@ -9,7 +9,7 @@ Emit four lines when starting work:
 ```text
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>
-nextAsk: <none | missing sample/context | executionPolicy fields only>
+nextAsk: <none | missing sample/context | executionPolicy | mutation-submit | scope-expansion | raw-secret-handling | case-writeback>
 nextRead: <paths per read-budget>
 ```
 
@@ -19,13 +19,13 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## evidence
 
-1. Ask only for missing request/source/trigger context (URL, sample, field name). Before fresh Chrome recon, **auto-record** authorization basis from the named target, exact scheme/host/port/absolute route prefix from the URL, `browserReconAllowed=true`, `browserNavigationSideEffectsApproved=true`, a positive navigation budget, and prior cumulative `observedAutomatic`. Boolean gates use JSON `true`/`false` only (never `yes`/`no`). Do not pause the user for these flags.
+1. Ask only for missing request/source/trigger context (URL, sample, field name). An explicit protocol-recovery request naming a URL authorizes bounded recon unless it also says offline/no-browser; a bare URL with no recovery intent does not. Before fresh Chrome recon, **auto-record** exact scope, browser flags, one positive immutable navigation budget, and prior cumulative `observedAutomatic`. Boolean gates use JSON `true`/`false` only (never `yes`/`no`).
 2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web — then launch recon.
 3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser/live/write is needed yet, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
 4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
 5. Capture real request, initiator, or precise blocker.
 6. When durable evidence is needed, default `projectRoot` to cwd (or the user-named folder) and write under `js_reverse_cache/**` without asking.
-7. A blocker may change the Provider route without changing shape. Expand the deliverable under standing approval when the work requires it; state the larger shape in the header.
+7. A blocker may change the Provider route without changing shape. A larger deliverable requires `nextAsk: scope-expansion`; do not treat silence as permission to upgrade.
 
 ## local-proof
 
@@ -39,7 +39,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## compact-replay
 
-1. Record Phase 0 work-order fields under standing approval; default `projectRoot` to cwd before writes.
+1. Record Phase 0 work-order fields under standing approval; resolve cwd to the absolute `projectRoot` before writes.
 2. Ordinary Web first response must include:
    ```text
    layout: web-protocol-recovery-simple
@@ -52,11 +52,11 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## collector
 
-1. Record work-order fields + default `projectRoot=cwd` before any write (no full intake form).
+1. Record work-order fields and resolve cwd to an absolute `projectRoot` before any write (no full intake form).
 2. Same ordinary-Web first-response literals as compact-replay.
 3. Prove real endpoint and moving state before scaffolding.
 4. Read `references/providers/delivery/python-collector/PROVIDER.md` only after protocol proof.
-5. Final path is browser-free Python; Python owns live egress. Scale after a repeatable first request within the recorded budget; do not re-ask unless the user set a hard cap.
+5. Final path is browser-free Python; Python owns live egress. Scale after a repeatable first request within the initially recorded budget. Exhaustion or a larger budget requires `nextAsk: scope-expansion`.
 6. Write root `分析报告.md` before claiming Full complete; scaffold may use `--report`.
 
 ## WeChat Route Overlay
@@ -79,7 +79,7 @@ nextRead: <exactly one additional path>
 why: <smallest honest move>
 ```
 
-Continue with the same shape when only the Provider changes. Before a larger shape, state the additional deliverable in the header and continue under standing approval unless the user forbade upgrade.
+Continue with the same shape when only the Provider changes. Before a larger shape, state the additional deliverable and wait for `nextAsk: scope-expansion` confirmation.
 
 ## Policy: Case-Read Overlay
 
@@ -101,7 +101,7 @@ Chrome automatic traffic is **recorded**, not user-confirmed. On protocol tasks 
 automaticTraffic: observed destinations are evidence, never extra host authorization; stop further actions when cumulative reaches threshold or top-level leaves scope
 ```
 
-Only if the user **explicitly denied** browser recon, answer without launching and put that denial in `nextAsk`.
+If the user **explicitly denied** browser recon, answer without launching, keep `nextAsk: none`, and record the offline/no-browser constraint in status.
 
 ## Gate: Denied Live-Replay Overlay
 
@@ -112,12 +112,14 @@ If live is explicitly denied and the requested shape is `compact-replay`, answer
 ```text
 shape: compact-replay
 route: evidence-reuse
-nextAsk: none (user denied live) | executionPolicy only if target code must run offline
+nextAsk: none
 nextRead: none
 status: offline-only; HTTP request/retry/WebSocket handshake/sent-frame egress denied by user
 requestBudget: consumed=0; remaining=<unchanged>
 nextAction: continue offline fixed-vector verification only
 ```
+
+If offline proof later requires local target-code execution, use a new gated turn with `nextAsk: executionPolicy`; do not encode two alternatives in one header value.
 
 If the requested shape is `collector`, answer the same block with `shape: collector`. Never emit a combined or placeholder shape.
 

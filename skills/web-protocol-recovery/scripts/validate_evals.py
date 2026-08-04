@@ -46,6 +46,59 @@ REQUIRED_CASE_EXPECTATIONS = {
 OBSOLETE_ROUTES = {"env-patch", "douyin-abogus-native"}
 PROMPT_TYPES = {"should-trigger", "near-miss", "anti-pattern"}
 TRIGGER_ARTIFACT_SCHEMA = "web-protocol-recovery-trigger-fulltest"
+CONFIRMATION_KINDS = {
+    "dependency-install",
+    "target-code-execution",
+    "mutation-submit",
+    "raw-secret-handling",
+    "case-writeback",
+    "scope-expansion",
+}
+POLICY_CASE_CONTRACTS = {
+    "standing-routine-live-write": {
+        "confirmation_required": False,
+        "markers": ("standing", "executionpolicy"),
+    },
+    "standing-verifier-submit": {
+        "confirmation_required": False,
+        "markers": ("verifier-submit", "standing"),
+    },
+    "dependency-install": {
+        "confirmation_required": True,
+        "confirmation_kind": "dependency-install",
+        "markers": ("executionpolicy", "exact"),
+    },
+    "target-code-execution": {
+        "confirmation_required": True,
+        "confirmation_kind": "target-code-execution",
+        "markers": ("executionpolicy", "sha-256"),
+    },
+    "mutation-submit": {
+        "confirmation_required": True,
+        "confirmation_kind": "mutation-submit",
+        "markers": ("mutation-submit", "confirm"),
+    },
+    "raw-secret-handling": {
+        "confirmation_required": True,
+        "confirmation_kind": "raw-secret-handling",
+        "markers": ("raw-secret-handling", "exact"),
+    },
+    "case-writeback": {
+        "confirmation_required": True,
+        "confirmation_kind": "case-writeback",
+        "markers": ("case-writeback", "confirm"),
+    },
+    "shape-expansion": {
+        "confirmation_required": True,
+        "confirmation_kind": "scope-expansion",
+        "markers": ("scope-expansion", "shape"),
+    },
+    "budget-expansion": {
+        "confirmation_required": True,
+        "confirmation_kind": "scope-expansion",
+        "markers": ("scope-expansion", "budget"),
+    },
+}
 
 
 def load_json(path: Path) -> dict:
@@ -54,6 +107,66 @@ def load_json(path: Path) -> dict:
 
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _validate_policy_cases(
+    items: list[dict], label: str, expected_field: str
+) -> list[str]:
+    findings: list[str] = []
+    seen_policy_cases: set[str] = set()
+    confirmation_kinds: set[str] = set()
+    for index, item in enumerate(items):
+        confirmation_required = item.get("confirmation_required")
+        confirmation_kind = item.get("confirmation_kind")
+        if confirmation_required is True:
+            if confirmation_kind not in CONFIRMATION_KINDS:
+                findings.append(
+                    f"{label}[{index}] confirmation_required needs a valid confirmation_kind"
+                )
+            else:
+                confirmation_kinds.add(confirmation_kind)
+        elif confirmation_kind is not None:
+            findings.append(
+                f"{label}[{index}] confirmation_kind is forbidden when confirmation_required=false"
+            )
+
+        policy_case = item.get("policy_case")
+        if policy_case is None:
+            continue
+        contract = POLICY_CASE_CONTRACTS.get(policy_case)
+        if contract is None:
+            findings.append(f"{label}[{index}] unknown policy_case {policy_case!r}")
+            continue
+        if policy_case in seen_policy_cases:
+            findings.append(f"{label} duplicate policy_case {policy_case!r}")
+        seen_policy_cases.add(policy_case)
+        if confirmation_required is not contract["confirmation_required"]:
+            findings.append(
+                f"{label}[{index}] policy_case {policy_case!r} has wrong confirmation_required"
+            )
+        required_kind = contract.get("confirmation_kind")
+        if required_kind is not None and confirmation_kind != required_kind:
+            findings.append(
+                f"{label}[{index}] policy_case {policy_case!r} must use confirmation_kind {required_kind!r}"
+            )
+        text_parts = [item.get(expected_field, "")]
+        text_parts.extend(item.get("expectations") or [])
+        policy_text = " ".join(text_parts).lower()
+        for marker in contract["markers"]:
+            if marker not in policy_text:
+                findings.append(
+                    f"{label}[{index}] policy_case {policy_case!r} missing marker {marker!r}"
+                )
+
+    missing_cases = sorted(set(POLICY_CASE_CONTRACTS) - seen_policy_cases)
+    if missing_cases:
+        findings.append(f"{label} missing standing-policy cases: {', '.join(missing_cases)}")
+    missing_kinds = sorted(CONFIRMATION_KINDS - confirmation_kinds)
+    if missing_kinds:
+        findings.append(
+            f"{label} missing confirmation-kind coverage: {', '.join(missing_kinds)}"
+        )
+    return findings
 
 
 def validate_skill_creator_evals() -> list[str]:
@@ -103,7 +216,6 @@ def validate_skill_creator_evals() -> list[str]:
         findings.append("evals/evals.json must include at least 10 behavioral evals")
         evals = [] if not isinstance(evals, list) else evals
     seen_ids: set[int] = set()
-    confirmations = 0
     for index, item in enumerate(evals):
         eval_id = item.get("id")
         if not isinstance(eval_id, int):
@@ -117,13 +229,10 @@ def validate_skill_creator_evals() -> list[str]:
                 findings.append(f"evals[{index}].{field} is required")
         if not isinstance(item.get("confirmation_required"), bool):
             findings.append(f"evals[{index}].confirmation_required must be boolean")
-        elif item["confirmation_required"]:
-            confirmations += 1
         expectations = item.get("expectations")
         if not isinstance(expectations, list) or not expectations or not all(isinstance(value, str) and value for value in expectations):
             findings.append(f"evals[{index}].expectations must be a non-empty string array")
-    if confirmations < 3:
-        findings.append("behavioral evals must include confirmation-required protocol/tool cases")
+    findings.extend(_validate_policy_cases(evals, "evals", "expected_output"))
 
     trigger = data.get("trigger_benchmark")
     if not isinstance(trigger, dict):
@@ -788,7 +897,6 @@ def validate_test_prompts() -> list[str]:
         return ["test-prompts.json must be a list with at least 10 entries"]
     seen_ids: set[int] = set()
     types_seen: set[str] = set()
-    confirmation_count = 0
     for index, item in enumerate(data):
         item_id = item.get("id")
         if not isinstance(item_id, int):
@@ -807,13 +915,10 @@ def validate_test_prompts() -> list[str]:
             types_seen.add(prompt_type)
         if not isinstance(item.get("confirmation_required"), bool):
             findings.append(f"test-prompts[{index}].confirmation_required must be boolean")
-        elif item["confirmation_required"]:
-            confirmation_count += 1
     missing_types = sorted(PROMPT_TYPES - types_seen)
     if missing_types:
         findings.append("test-prompts.json missing type coverage: " + ", ".join(missing_types))
-    if confirmation_count == 0:
-        findings.append("test-prompts.json must mark tool/write/live prompts confirmation_required")
+    findings.extend(_validate_policy_cases(data, "test-prompts", "expected"))
     missing_ids = sorted(REQUIRED_TEST_PROMPT_IDS - seen_ids)
     if missing_ids:
         findings.append(
@@ -934,13 +1039,13 @@ def main() -> int:
             return 1
         print(
             f"PASS route regression evals: cases={len(cases)}; "
-            "behavioral_evals=metadata_ok; trigger_evals=metadata_ok; "
+            "behavioral_evals=standing_policy_contract_ok; trigger_evals=metadata_ok; "
             "full_model_benchmark=historical_summary_only_round1_full10"
         )
         return 0
     print(
         f"PASS route regression evals: cases={len(cases)}; "
-        "behavioral_evals=metadata_ok; trigger_evals=metadata_ok; "
+        "behavioral_evals=standing_policy_contract_ok; trigger_evals=metadata_ok; "
         "full_model_benchmark=deferred"
     )
     return 0

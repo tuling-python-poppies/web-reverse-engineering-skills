@@ -18,7 +18,7 @@ Internal Providers are internal skills owned by this skill, not peer top-level s
 Use this loop for every protocol task:
 
 1. **Shape**: choose `evidence`, `local-proof`, `compact-replay`, or `collector`.
-2. **Gate**: choose one primary gate family (`signer`, `challenge`, `verifier`, `decode`, `session`, or `transport`) and record only the authorization/scope/budget/execution fields needed before the next gated action.
+2. **Gate**: choose one primary gate family (`signer`, `challenge`, `verifier`, `decode`, `session`, or `transport`) and record only the authorization/scope/budget/execution fields needed before the next gated action. Standing approval applies only to routine actions inside the selected shape; business mutation, shape/budget expansion, raw-secret handling, case writeback, dependency installation, and local target-code execution remain explicit decisions.
 3. **Route**: select `evidence-reuse` or one active Provider ID. `route` is never a gate family, strategy, profile, or file path.
 4. **Layout**: before the first write, activate `project-layout.md` and bind one absolute `projectRoot` with `layout=web-protocol-recovery-simple`.
 5. **Work order**: issue one `provider-work-order` with exact allowed paths, active Provider role, optional protocol owner, optional implementation mode, and one acceptance test.
@@ -70,7 +70,7 @@ Forbidden generated roots/directories are defined in `project-layout.md`; Provid
 The chain is always sequential:
 
 ```text
-evidence/recon -> protocol recovery owner/technique -> one implementation Provider -> fixed-vector/local proof -> python-collector delivery -> approved live-egress replay -> optional scale
+evidence/recon -> protocol recovery owner/technique -> one implementation Provider -> fixed-vector/local proof -> python-collector delivery -> recorded live-egress replay -> optional scale inside the immutable budget
 ```
 
 Browser, JS, WASM, python-node strategies, pure-Python profiles, and iv8 may produce only narrow artifacts such as a sign/header dict, cookie value, encoded frame, decoded payload, or callable helper. Python owns all final live egress through delivery.

@@ -176,11 +176,10 @@ must reject ambiguity. Never choose a candidate from one field21 sample or
 rewrite only `feilinVersion`; validate Log2/token field21 equality and perform
 online `T001 / true` before publication.
 
-The updater is an updater, not a zero-state bootstrapper. It deep-copies an
-existing profile and requires the existing `combat511`/`combat504` Log3 base and
-the project's accepted movement/track seed. A fresh project must capture one
-coherent current verifier round first, extract those baselines and the seed,
-then run the updater.
+The updater copies an existing profile and requires the existing `combat511`/
+`combat504` Log3 base and the project's accepted movement/track seed. If those
+baselines are missing, capture one coherent current verifier round first,
+extract them, then run the updater.
 
 ## Gate Family
 
@@ -237,8 +236,8 @@ assets, and process/code primitives. It does not store project-local live state.
 
 ## Project Delivery Files
 
-When this case is used to generate a fresh collector, the stable project should
-be assembled in the `web-protocol-recovery-simple` layout:
+When this case is used to generate a collector, the stable project should be
+assembled in the `web-protocol-recovery-simple` layout:
 
 - root `main.py` as the default command (`python main.py`)
 - `utils/logger.py` for bounded progress logs
@@ -259,7 +258,7 @@ never a case asset. Stable helper modules should load FeiLin profile and session
 state through project-private paths, not from the case directory.
 
 Do not treat `fixtures/track-template.json` as a live-accepted trajectory. It is
-an offline shape guard. A fresh project must either carry a project-private
+an offline shape guard. The project must either carry a project-private
 accepted movement seed at `js_reverse_cache/private/pzds/track_seed.json` or
 capture one in a current verifier round before running the Python collector.
 The runtime may perturb timings, offsets, screen ratio, and `arg`, but it must
@@ -299,13 +298,13 @@ Vectors cover:
 - Verify no longer returns `T001/true` on a coherent same-round state
 - business success leaves `success=true`, `code=SUCCESS`, and `data.records`
 
-## Fresh Machine Shortest Path
+## Initial Chain Assembly Path
 
-When the project has no existing runner, profile, or updater (a new machine or a
-new target directory), assemble the full chain from this case's primitives and
-current live evidence. Routine browser recon, read-only live requests, and the
-protocol-needed verifier submit stay inside the selected collector shape; do not
-pause for those. Pause only for dependency installation, local execution of
+When the project starts without an existing runner, profile, or updater,
+assemble the full chain from this case's primitives and current live evidence.
+Routine browser recon, read-only live requests, and the protocol-needed
+verifier submit stay inside the selected collector shape; do not pause for
+those. Pause only for dependency installation, local execution of
 target-supplied JS/WASM/HTML, raw-secret persistence, or larger scope/budget.
 
 Order:

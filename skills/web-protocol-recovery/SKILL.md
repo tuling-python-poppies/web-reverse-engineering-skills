@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  先排除非协议任务：Camoufox/浏览器截图、点击、QA、回归测试、页面自动化，普通 REST/GraphQL API client，skill/opencode/MCP 配置，前端/CSS/格式化/重命名/安全头/市场介绍，都不触发；即使出现 Camoufox、GraphQL、WebSocket、protobuf、Imperva、AST 或浏览器字样，只要没有协议恢复目标，也不要触发。仅在用户明确要恢复、定位、验证、交付、逆向、还原、抓入口或协议复现 Web/小程序协议行为时触发；协议信号包括 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/Reese84/响应解码/字体映射/会话协议，或 browser-free Python collector。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、verifier、akamai、river-security、reese84、iv8、python-node、pure-python 或 Python delivery Provider。单点 hook/入口定位/已知 AST、Node/jsdom 补环境、iv8 工件、纯 Python signer、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机、Reese84 challenge/cookie/x-d-token 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。
+  先排除非协议任务：Camoufox/浏览器截图、点击、QA、回归测试、页面自动化，普通 REST/GraphQL API client，skill/opencode/MCP 配置，前端/CSS/格式化/重命名/安全头/市场介绍，都不触发；即使出现 Camoufox、GraphQL、WebSocket、protobuf、Imperva、AST 或浏览器字样，只要没有协议恢复目标，也不要触发。仅在用户明确要恢复、定位、验证、交付、逆向、还原、抓入口、从零实现或协议复现 Web/小程序协议行为时触发；协议信号包括 sign/token/header/cookie/challenge/JSVMP/WASM/验证码/Akamai Bot Manager/River Security/瑞数/Reese84/响应解码/字体映射/会话协议，或 browser-free Python collector。明确要求“实现/新机落地/不依赖现成实现代码”时，按 collector 交付处理，不因用户没有现成 runner 而退回 evidence。统一授权、分类、侦察路由后，再按需读取内部 Chromium+CloakBrowser、Camoufox、WeChat、hook、AST、verifier、akamai、river-security、reese84、iv8、python-node、pure-python 或 Python delivery Provider。单点 hook/入口定位/已知 AST、Node/jsdom 补环境、iv8 工件、纯 Python signer、完整验证码协议复现、River Security 412/$_ts/S-T Cookie、Akamai sensor/cookie 状态机、Reese84 challenge/cookie/x-d-token 状态机或已有抖音 BDMS 纯 Python 维护也从本入口走快速路径，不升全链路 collector。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -25,6 +25,7 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 8. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
 9. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
 10. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
+11. **从零实现请求的默认行为**：用户明确要求实现、完整代码、新机落地或不依赖现成 runner 时，直接选择 `shape: collector`；先生成稳定项目文件和离线向量证明，再处理当前 session/profile/track 等运行态。缺运行态只能阻塞 live acceptance，不能阻止先生成实现骨架。
 
 Plain terms:
 
@@ -74,6 +75,7 @@ First-turn routing rules choose `shape` and `route`. Under Non-Negotiables item 
 
 | Signal | First-turn decision |
 |---|---|
+| 明确要求“实现/写完整代码/新机落地/不依赖现成实现代码” | 选择 `shape: collector`；若命中已验证 implementation case，先用 `evidence-reuse` 读取案例原语和流程，再执行其 required current provider chain；没有现成项目代码不是 missing context。 |
 | Supplied artifacts or an exact registry case | Prefer `route: evidence-reuse`. A bare URL with no protocol-recovery intent is not enough; an explicit protocol-recovery request naming that URL may start bounded recon under standing approval unless the user requested offline/no-browser work. |
 | Explicit offline / local / fixed-vector wording | Use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider. |
 | Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
@@ -179,6 +181,22 @@ Selector: only `references/cases/registry.json`; only `status=verified` entries 
 
 Load one selected case as `case.json` -> `PROCESS.md` -> declared puller/fixtures/tests/entry/assets within the read budget. After the active case names a concrete missing implementation fact, at most one manifest-declared `historicalReferences` file may replace one implementation/asset slot in that same case bundle. It is study-only evidence: never import, execute, copy into delivery, install its historical dependencies, or treat its old live result as current acceptance. An iv8 implementation additionally requires the Provider's accepted `api-inventory.md` gate before code use. A `python-node` evidence case has no implementation entry until fresh verification produces one. Offline vectors first; stop reuse if current evidence disagrees. A failed case does not authorize a sibling case.
 
+`caseKind=implementation` is different from a historical reference. For a selected verified implementation case, a manifest-declared `entry.py` or equivalent implementation artifact is an allowed narrow starting point after the current case match; only files declared as `historicalReferences` are study-only and forbidden from delivery. The entry is still not the final collector unless the case explicitly says so: assemble the stable project files named by `PROCESS.md`, preserve the case's live-state gates, and run the current acceptance chain.
+
+## Fresh-Machine Case Delivery
+
+Implementation cases can provide protocol primitives without the user's current
+live state. Keep the split explicit:
+
+- `entry.py` is a narrow starting point, not the final collector.
+- `t001_profile_refresh.py` is an updater, not a bootstrapper; it still needs a
+  current profile package with `combat511`/`combat504` and an accepted movement
+  seed.
+- FeiLin127 `field21` needs at least twelve capture rounds; three rounds and
+  some six-round sets remain ambiguous.
+
+Run offline vectors first, then the current verifier and business replay.
+
 Writeback after eligible verified work: read `references/methodology/case-writeback.md`. Flow: candidate summary -> user yes -> sanitize/dedupe + exact allowlist -> second confirm -> change-control. No case stores raw account/browser/HAR/private bodies, cookie/token values, or absolute local paths; current authorized state is pulled at reproduction time and kept out of the library.
 
 ## Failure Recovery
@@ -189,6 +207,7 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 | About to install deps or run target JS/WASM | Put `executionPolicy` fields in `nextAsk`; stay blocked on that action only | Do not install or execute target code without confirm |
 | Recon empty / no target request | Re-check route signals; one more bounded capture | Name blocker; do not open second recon engine |
 | Provider `status!=complete` or acceptance fails | One corrective work order on same Provider | Switch only after naming a new mutation/gate blocker |
+| Selected PZDS implementation case has no project profile/track/session | Generate the stable collector and offline proof, then name the exact missing current-state gate and capture it | Do not claim live complete; do not discard the implementation because state is absent |
 | Case disagrees with current evidence | Stop reuse immediately | Return to normal evidence routing; no sibling case |
 | `requestBudget.remaining=0` | Continue offline and put the exact requested increase in `nextAsk: scope-expansion` only when more live work is necessary | Do not replenish or reset the budget without user confirmation |
 | `cleanup.complete=false` or live task resource remains | Cleanup or record approved retention IDs | Reject `status=complete` |

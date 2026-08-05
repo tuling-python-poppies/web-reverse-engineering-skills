@@ -140,7 +140,7 @@ project-local updater. Do not edit the version string only.
 
 ```text
 python utils/t001_profile_refresh.py --preflight-only --version-samples 1 --preflight-attempts 1 --timeout 30
-python utils/t001_profile_refresh.py --fast --rounds 3 --version-samples 1 --preflight-attempts 1 --online-attempts 5 --max-capture-attempts 8 --timeout 90 --headless
+python utils/t001_profile_refresh.py --fast --rounds 12 --version-samples 1 --preflight-attempts 1 --online-attempts 5 --max-capture-attempts 17 --timeout 90 --headless
 ```
 
 Requirements:
@@ -158,11 +158,29 @@ Requirements:
   live.
 - A fresh FeiLin generation must extend generation-local ignored fields before
   the stability check passes. Observed current generations:
-  - feilin123-126: `{52, 86, 136, 137}`
+  - feilin123-127: `{52, 86, 136, 137}` unless current captures prove a
+    generation-specific difference
 - Current accepted profile field counts are `111`, `133`, and `142`; reject
   other counts until a fixed vector or online `T001/true` proves the new shape.
 - Success is only an online `T001 / true` verification before an exclusive,
   approved write of the new profile under `js_reverse_cache/private/pzds/`.
+
+### FeiLin127 field21 inference
+
+The classic FeiLin `field21` formula is inferred from multiple same-cohort
+`session_id[-8:]` suffixes and captured field21 outputs. FeiLin127 is not safe
+to infer from the old three-round fast path: three rounds can leave multiple
+`sourceKey`/`xorMask` candidates, and some six-round samples still leave an
+equivalent pair. The updater therefore uses at least twelve capture rounds and
+must reject ambiguity. Never choose a candidate from one field21 sample or
+rewrite only `feilinVersion`; validate Log2/token field21 equality and perform
+online `T001 / true` before publication.
+
+The updater is an updater, not a zero-state bootstrapper. It deep-copies an
+existing profile and requires the existing `combat511`/`combat504` Log3 base and
+the project's accepted movement/track seed. A fresh project must capture one
+coherent current verifier round first, extract those baselines and the seed,
+then run the updater.
 
 ## Gate Family
 
@@ -301,10 +319,11 @@ Order:
    only after the exact raw-secret confirmation to
    `js_reverse_cache/private/pzds/session.json`.
 3. **Profile and movement bootstrap** - if no private FeiLin profile exists,
-   use CDP capture to collect current `DeviceConfig`, `InitCaptchaV2`, browser
-   `Log2`, sparse token, the combat baselines needed by Log3, and an accepted
-   movement seed. Store the coherent package only under project-private paths.
-   If a private seed profile exists, the CDP updater may refresh
+   first use a current CDP verifier round to collect `DeviceConfig`,
+   `InitCaptchaV2`, browser `Log2`, sparse token, the combat baselines needed by
+   Log3, and an accepted movement seed. Store the coherent package only under
+   project-private paths. The updater cannot create this package from an empty
+   profile. If a private seed profile exists, the CDP updater may refresh
    `fullDeviceFields`, `tokenFields`, `field21`, and version while retaining
    verified combat baselines and the accepted movement seed.
 4. **Refresh validation** - run preflight version sampling, then CDP capture.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 9,
+  "revision": 11,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -78,7 +78,7 @@
   "product": {
     "vendor": "Aliyun",
     "product": "Captcha V2 WAF",
-    "version": "FeiLin111/133/142 observed through feilin126 / PZDS X-Sign-Version v18",
+    "version": "FeiLin111/133/142 observed through feilin127 / PZDS X-Sign-Version v18",
     "subtype": "sliding-t001-pzds-goods-public"
   },
   "dependencies": {
@@ -102,7 +102,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "09adc067d8c4fedecbe93df22eea7c5f99d20608aab29f5929a77c5d04cbb6aa"
+      "sha256": "2563a23347ef0c0f235b418b44c9979a957337aef9fc380a251d542ad243afa2"
     },
     "entry": {
       "path": "entry.py",
@@ -162,7 +162,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-04T23:20:00+08:00",
+    "executedAt": "2026-08-05T19:25:23+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",

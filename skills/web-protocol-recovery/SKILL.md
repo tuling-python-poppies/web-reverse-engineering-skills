@@ -225,6 +225,13 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 1. **上下文压缩后恢复**：当上下文窗口被截断时，先读 `js_reverse_cache/checkpoint.md` 确认当前状态，而不是从记忆中重建
 2. **避免重复工作**：如果检查点显示 AK/SECRET 已提取，不要再次提取
 
+**浏览器残留进程恢复提示**：若任务因浏览器启动失败（进程残留）而暂停，checkpoint 需额外记录：
+```markdown
+- 浏览器状态：
+  - 残留进程：[有/无]（上次启动失败错误特征：exit code / 错误信息）
+  - 恢复步骤：先释放浏览器进程（杀 chrome.exe + 清理 profile 目录），再重新启动采集
+```
+
 
 Selector: only `references/cases/registry.json`; only `status=verified` entries are library-selectable. Read `verificationClass` and `selectableAs` on the registry row before load: `selectableAs=proof` (`freshly-verified`) means current checked-in offline vectors/tests prove the local artifact only; it is not live-current target acceptance. `selectableAs=template` (`historical-user-attested`) is shape/process evidence only and always requires fresh current-target verification before live reuse. Match a structured exact scheme/host/port/route scope **or** the declared minimum of independent high-confidence signals (normally ≥2; verifier cases need vendor/version/subtype). When `match.requiredSignalGroups` exists, non-scope selection must also match at least one observed signal from every disjoint group; labels and repeated observations cannot satisfy two groups. A user hypothesis such as "怀疑瑞数" is not an independent high-confidence signal. If more than one verified case matches the same exact scope or the same minimum signal set, do not select by registry order; stop case reuse until a discriminator such as runtime, algorithm, product subtype, or negative signal selects exactly one case. Never match on one generic param, status, `_0x`, or SDK string. All entries resolve to one hash-bound `web-protocol-recovery-case` manifest with typed historical and current Provider stages. `freshly-verified` cases must carry executed test/evidence artifacts.
 
@@ -286,6 +293,26 @@ CloakBrowser 失败 x2 → 切 Camoufox
 - Camoufox（camoufox-reverse-mcp）：Firefox 引擎，最后手段，对 WAF JS 有不同处理逻辑
 - 三者 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
 - **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**
+
+### 浏览器启动失败诊断流程
+
+启动浏览器（launch_browser / reset_browser_state）报错时，先分类错误特征：
+
+| 错误特征 | 诊断 | 动作 |
+|---|---|---|
+| exit code 21 / 进程启动后立即 graceful close / `Target page, context or browser has been closed` | Chrome/CloakBrowser 单实例机制：已有进程占用 user-data-dir，新实例立即退出 | **不要自动杀进程**（用户可能正用浏览器），也不要盲目重试——直接询问用户 |
+| 网络/连接错误、MCP server 未连接 | 环境问题 | 按 fallback 链切换引擎 |
+
+**Chrome exit code 21 机制**：Chrome 启动时若检测到相同 user-data-dir 已有实例在运行，会把请求转发给已有实例然后以 exit 21 退出。残留进程锁住了 profile 目录，导致后续启动全部失败。
+
+**用户决策选项**（发现进程残留时提问）：
+1. **释放浏览器进程**：杀残留 chrome.exe + 清理 profile 目录（如 `D:\develop_software\CloakBrowser\js-reverse-mcp-local-cloak\chrome-reverse-profile`），然后重新启动采集
+2. **暂停任务**：保留当前状态，用户自行处理后恢复
+
+**规则**：
+- 启动失败 ≤2 次且错误特征匹配进程残留 → 直接进入用户决策流程（不重试第 3 次）
+- 用户选择释放 → 执行清理 → 重新启动 → 继续采集
+- 用户选择暂停 → 记录 checkpoint，等待用户恢复
 
 ### MCP 浏览器操作纪律
 
@@ -350,6 +377,7 @@ Gate mapping (record vs confirm): read-only/verifier action ↔ `actionClass` re
 - Do not store raw cookies/tokens/HAR/private bodies or absolute local paths in the case library, and do not mix case-library edits with darwin `results.tsv` score rows in one commit when avoidable.
 - ❌ **禁止单引擎失败宣布「浏览器不可用」**：CloakBrowser 失败 2 次后必须尝试 Camoufox，全部引擎失败后才能记录 hard blocker（浏览器 fallback 链规则）。
 - ❌ **禁止清 cookie 后用 CloakBrowser + domcontentloaded 导航 WAF 页面**：此操作必定超时（WAF 导航策略规则）。
+- ❌ **禁止浏览器启动报错时盲目重试 3 次以上**：先诊断是否为进程残留（exit code 21 / 启动后立即 graceful close / `Target page, context or browser has been closed`），是则询问用户选择释放进程或暂停任务（浏览器启动失败诊断流程）。
 
 Also enforced in `references/anti-patterns-playbook.md` (read it for the temptation / false-progress / self-check form): bare `print` instead of `utils/logger.py` in iv8/collector delivery; pre-created empty `js_reverse_cache/**` trees; hardcoded rotating cookies; broad hooks before a clean baseline; reversing the visible helper instead of the wire mutation point; rung-skipping escalation.
 

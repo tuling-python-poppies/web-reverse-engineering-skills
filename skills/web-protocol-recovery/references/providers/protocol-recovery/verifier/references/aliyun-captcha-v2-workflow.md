@@ -329,8 +329,22 @@ UserCertifyId/traceid 当轮值
 
 Log3 的 `combat504` 和 Verify 的 `data` 都需要真实轨迹数据。此步骤不依赖 field21 结果，可与 field21 采集并行执行。捕获步骤：
 
+#### 浏览器用途速查
+
+| 目标 | 使用浏览器 | 原因 |
+|---|---|---|
+| InitCaptchaV2 + Log2 + field21 采集 | CloakBrowser 或 Camoufox | 需要好指纹才能进入验证码流程 |
+| 轨迹 fixture 采集（TrackList/combat504） | **普通 Chrome** | 滑块稳定出现；verify 失败不影响轨迹数据捕获 |
+
+**为什么轨迹采集用普通 Chrome 而不是 CloakBrowser/Camoufox**：
+- CloakBrowser/Camoufox 指纹太好，滑块大概率不出现（直接通过）→ 无法稳定采集
+- 普通 Chrome 指纹差，滑块**稳定出现** → 可以采集
+- 普通 Chrome 人工滑动后 verify 会失败，但这无关紧要——
+  hook 在 `VerifyCaptchaV2` 调用**之前**就已经捕获了 TrackList 数据，
+  verify 成功与否不影响 fixture 的有效性
+
 ```text
-1. 在 CloakBrowser 中导航到目标页，等待滑块出现
+1. 在普通 Chrome（chrome-devtools-mcp 或 js-reverse-mcp 普通模式）中导航到目标页，等待滑块出现
 
 2. 在 initAliyunCaptcha 的 success 回调前注入 hook：
    - 在页面 JS 中找到提交 Verify 的函数入口

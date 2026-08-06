@@ -275,15 +275,16 @@ MCP 环境中有多套浏览器引擎可用：
 **规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——立即切换到下一个可用引擎：
 
 ```
+Chrome 失败 x2      → 切 CloakBrowser
 CloakBrowser 失败 x2 → 切 Camoufox
-Camoufox 失败 x2  → 切 chrome-devtools
-全部失败           → 记录 hard blocker
+全部失败             → 记录 hard blocker
 ```
 
 注意事项：
-- CloakBrowser 是 Chromium 内核，对 WAF JS Challenge 页面可能有导航超时问题（WAF 阻塞 domcontentloaded）
-- Camoufox 是 Firefox 引擎，对 WAF JS 有不同的处理逻辑，可能在 CloakBrowser 失败的场景中成功
-- 两者的 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
+- Chrome（chrome-devtools-mcp 或 js-reverse-mcp 普通模式）：最简单稳定，优先使用
+- CloakBrowser（js-reverse-mcp Cloak 模式）：指纹伪装，Chrome 无法通过时使用
+- Camoufox（camoufox-reverse-mcp）：Firefox 引擎，最后手段，对 WAF JS 有不同处理逻辑
+- 三者 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
 - **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**
 
 ### MCP 浏览器操作纪律

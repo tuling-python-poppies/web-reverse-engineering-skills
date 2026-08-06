@@ -225,6 +225,137 @@ StaticPath / 当轮 sg 文件名（codec 不变时只当 URL）
 UserCertifyId/traceid 当轮值
 ```
 
+### 0.1 AK/SECRET 运行时提取食谱（从零场景必做）
+
+当没有已知 AK/SECRET 时，使用以下 XHR 断点法从浏览器运行时提取。**禁止花超过 2 轮在静态分析 AliyunCaptcha.js 的混淆字符串表上**——它是多层旋转+base64+XOR 混淆，静态分析成本极高。
+
+```text
+步骤：
+1. 在浏览器中设置 XHR 断点：
+   js_reverse_mcp_break_on_xhr(url="captcha-pro-open.aliyuncs.com")
+
+2. 导航到目标页（需触发 WAF challenge → InitCaptchaV2）：
+   js_reverse_mcp_navigate(url=目标页, waitUntil="domcontentloaded")
+
+3. 等待暂停（InitCaptchaV2 XHR 即将发送时会断住）
+
+4. 在暂停的执行上下文中求值：
+   js_reverse_mcp_evaluate_on_paused 或在断点 scope 中查找：
+   - 搜索调用栈中包含 "Signature" 的帧
+   - 在该帧的 scope 中读取 Er.KEY_SECRET、kr.KEY_SECRET
+   - 或者直接在 page context 搜索：
+     Object.keys(window).filter(k => {try{return window[k]?.KEY_SECRET}catch(e){}})
+
+5. 如果 evaluate_on_paused 不可用，备选方案：
+   - 在 AliyunCaptcha.js 加载前注入 init script：
+     hook XMLHttpRequest.prototype.send，在 body 包含 "Signature=" 时
+     同时 hook crypto.subtle.sign 或 CryptoJS.HmacSHA1
+   - 从捕获的两组不同 Timestamp/Nonce 的 Signature 做离线碰撞
+     （已知 StringToSign 格式，密钥长度 ≤30 字符）
+
+6. 验证：用提取的 SECRET 对已捕获的 InitCaptchaV2 请求重算 Signature，
+   必须与原始签名完全一致。
+```
+
+⚠️ 如果上述方法全部失败（如浏览器环境不可用），这构成一个 **hard blocker**——
+记录 blocker 并向用户索取：已解混淆的 AliyunCaptcha.js、或一组已知明文/密文对。
+
+### 0.2 实现前硬门：完整轮次证据清单
+
+**在编写任何 Python 协议代码之前**，必须在 `js_reverse_cache/aliyun_v2_evidence/` 中持有以下全部文件：
+
+```text
+□ ak_secrets.json        — {mainAk, mainSecret, deviceAk, deviceSecret}（验证通过）
+□ init_round.json        — InitCaptchaV2 完整 request body + response
+                           （含 DeviceConfig、StaticPath、CertifyId）
+□ log2_round.json        — Log2 完整 request body + response
+                           （response.Code=="200" && ResultObject==true）
+□ log3_round.json        — Log3 完整 request body + response（同上）
+□ verify_round.json      — VerifyCaptchaV2 完整 request body + response
+                           （含 T001/true 成功结果）
+□ device_config_decrypted.json — DeviceConfig AES 解密结果
+                           （含 session_id、encryption_key、version、ip）
+```
+
+**验证规则**：
+- init/log2/log3/verify 四份必须来自同一 CertifyId（同一轮 session）
+- ak_secrets.json 中的 mainSecret 能重算 init_round 的 Signature
+- device_config_decrypted.json 的 version 字段能映射到已知 FeiLin 版本表
+
+如果缺少任何一份，**停止**——回到浏览器采集，不要开始写 Python。
+
+### 0.3 sg codec 固定输入验证食谱
+
+`VerifyCaptchaV2` 的 `data` 参数由 `sg.xxx` 脚本的 stream codec 生成。验证步骤：
+
+```text
+1. 下载当前 StaticPath 对应的 sg 脚本：
+   curl -o sg_current.js "https://g.alicdn.com/captcha-frontend/aliyunCaptcha/{StaticPath}.js"
+
+2. 在浏览器中，在 VerifyCaptchaV2 发送前断住：
+   - 找到 build_data/stream 调用点
+   - 记录输入（compressed track JSON + key）和输出
+
+3. 在 Node.js 中对同一输入执行 helper：
+   echo '{"input":"<compressed>","key":"<16chars>"}' | node data_builder.js
+   输出必须与步骤 2 完全一致
+
+4. 如果不一致：
+   - 对比 runtime key 是否仍为 3e627e1b4c63f913
+   - 如果 key 变了，从断点 scope 提取新 key
+   - 如果 VM bytecode 变了（输出结构性不同），需重新提取 codec
+
+5. 验证通过后保存：
+   js_reverse_cache/aliyun_v2_evidence/codec_vector.json
+   {"input": ..., "key": ..., "expected_output": ...}
+```
+
+### 0.4 轨迹 fixture 捕获食谱
+
+Log3 的 `combat504` 和 Verify 的 `data` 都需要真实轨迹数据。捕获步骤：
+
+```text
+1. 在 CloakBrowser 中导航到目标页，等待滑块出现
+
+2. 在 initAliyunCaptcha 的 success 回调前注入 hook：
+   - 在页面 JS 中找到提交 Verify 的函数入口
+   - 在该入口前 hook：window.__trackCapture = {TrackList, arg, VerifyTime, ...}
+
+3. 人工完成一次真实滑动（不要用自动化，需要真人行为模式）
+
+4. 从 window.__trackCapture 导出完整 track state
+   保存到：js_reverse_cache/cloak_natural_np_full_input_output.json
+
+5. 该 fixture 的格式：
+   {"input": {"TrackList": {"mc":...,"mu":...,"mp":...,"mm":...,"si":...},
+              "TrackStartTime":..., "VerifyTime":..., "arg":...}}
+
+6. 后续协议实现中，通过时间缩放和坐标偏移复用此 fixture
+   （不需要每次都重新捕获，除非验证返回 F001 且其他因素已排除）
+```
+
+### 0.5 field21 版本快速检索
+
+在执行 field21 算法匹配之前，先确认当前 FeiLin 版本号：
+
+```text
+1. 从 DeviceConfig 解密结果的 version 字段读取完整版本路径
+   例："1.5.1/feilin127.4e6c0e94c6b6..." → feilin127
+
+2. 如果版本在已知 classic 表中（feilin106-112, 124-125）：
+   直接使用对应 sourceKey + xorMaskHex，跳过拟合
+
+3. 如果版本不在表中（如 feilin127）：
+   - 先用当前 session suffix + browser token/profile field21 收集 ≥12 样本
+   - 用 classic 公式尝试拟合
+   - 如果拟合出唯一 sourceKey/mask 且 holdout 通过 → 写入 profile
+   - 如果无法唯一确定 → 增加样本到 24 轮
+   - 如果 classic 穷举无解 → 可能是算法换代（如 feilin113）
+
+4. ⚠️ 不要用 ≤3 个样本就确定参数
+   不要在单样本上用暴力搜索得到多个等价候选后随意选一个
+```
+
 ### 1. 触发后立即执行（禁止插队）
 
 1. **写目录硬锁。** 只写用户目标目录。任何外部参考路径只读；默认不打开历史项目，当前 case bundle 之外的材料必须先满足 read budget 和授权边界。
@@ -916,6 +1047,33 @@ challenge/Init
 - [ ] HTTP 由 Python 发出，浏览器不在运行依赖中。
 - [ ] 用户只做验证层时没有业务接口回放。
 - [ ] 最终证据是 `T001 + VerifyResult=true`。
+
+## PZDS 站点适配注释
+
+以下为 PZDS (`api.pzds.com` / `www.pzds.com`) 目标的已验证特殊行为记录：
+
+| 项目 | 值/行为 | 注意 |
+|---|---|---|
+| WAF HTML 触发前提 | 需先带登录 `token` header + 业务签名头（Sign/PZTimestamp/Random/X-Sign-Version）| 无 token 时返回 `401 NOT_LOGGED_IN` 而非 WAF HTML |
+| Referer | 必须为 `https://www.pzds.com/goodsList/7/6` 或 `https://www.pzds.com/` | 详情页 referer 会被路由到 JSON 登录态错误 |
+| 业务签名 | `X-Sign-Version: v18` + WASM `505c6f51.wasm` | 需补 `Wasm-Sign: newTest` header |
+| prefix | `18152c0dc559302765e69a8f8bf3c191` | Init/Verify 子域名 |
+| sceneId | `19x5u7lo` | 固定 |
+| userId/userUserId | 加密值，固定不变 | 从 challenge HTML 提取 |
+| DeviceData | 固定值，不参与计算 | 从捕获的 Init 请求中复制 |
+| 业务重放 | POST 体来自 requestInfo.data（Base64 解码）| URL 附加 `u_atoken` + `u_asig` query |
+| decode__1174 | WAF JS Challenge 生成的动态参数 | 统一由 Cloak/iv8 窄工件生成；它不是 Captcha V2 的一部分 |
+| 统一 session | `curl_cffi` impersonate="chrome146" | 整条链路用同一个 TLS session |
+
+**流程分层**：
+```text
+Python 发送业务请求（带 token + 签名）
+  → 服务端返回 WAF HTML（包含 requestInfo）
+  → 解析 requestInfo 获取 sceneId/traceid/token/userId/userUserId
+  → 纯协议 T001：Init → Log2 → 合成轨迹 → Log3 → Verify
+  → 带 u_atoken + u_asig 重放业务接口
+  → 获得商品 JSON
+```
 
 ## 错误分支与反模式（必须避开）
 

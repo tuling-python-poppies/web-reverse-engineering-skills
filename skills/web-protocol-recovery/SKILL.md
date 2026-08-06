@@ -119,7 +119,28 @@ Before first save: read `references/methodology/project-layout.md`. If the user 
 
 ## Phase 2: Evidence Or Recon
 
-Prefer supplied artifacts or one registry case before opening a browser. Fresh recon picks exactly one route:
+Prefer supplied artifacts or one registry case before opening a browser.
+
+### WAF HTML 即时路由触发器
+
+当业务 API 返回以下信号时，该响应是 Aliyun WAF Captcha V2 Challenge，而非普通业务错误：
+
+- HTTP 200 但 `Content-Type: text/html`
+- 且 body 包含 `aliyun_waf_aa` / `aliyun_waf_bb` meta 标签
+- 或 body 包含 `var requestInfo = {` + 必需字段 `sceneId/traceid/token/userId/userUserId`
+- 或 body 包含 `<textarea id="renderData"`
+
+**立即动作**：不要猜测签名算法、不要尝试换 header、不要重试。直接切换到：
+```
+shape: collector
+route: verifier
+nextRead: references/providers/protocol-recovery/verifier/PROVIDER.md
+```
+然后由 verifier Provider 的 Family Router 按 `InitCaptchaV2` / `StaticPath sg.xxx` 信号选择 `aliyun-captcha-v2-workflow.md`。
+
+注意：某些站点（如 PZDS）需要先带登录 token + 业务签名头才能触发 WAF HTML 响应（否则返回 `NOT_LOGGED_IN` JSON 而非 WAF HTML）。如果业务 API 返回 `401/code=NOT_LOGGED_IN`，不要归因为 WAF 问题——先补齐登录态和业务签名。
+
+Fresh recon picks exactly one route:
 
 | Route | Signal | Provider entry |
 |---|---|---|
@@ -177,6 +198,34 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 ## Case Reuse And Writeback
 
+### 多轮上下文检查点
+
+每完成一个 Phase（或在 verifier 链路中每完成一个关键工件），必须输出一个检查点摘要（写入 `js_reverse_cache/checkpoint.md`）：
+
+```markdown
+## Checkpoint [timestamp]
+- shape: collector
+- route: verifier
+- gate: verifier (Aliyun V2)
+- 已有证据：
+  - [ ] AK/SECRET 提取完成
+  - [ ] Init+Log2+Log3+Verify 完整轮次捕获
+  - [ ] DeviceConfig AES 验证
+  - [ ] field21 算法确认
+  - [ ] stream codec 验证
+  - [ ] 轨迹 fixture 捕获
+- 当前阻塞：[xxx]
+- 下一步：[xxx]
+- 关键文件状态：
+  - js_reverse_cache/aliyun_v2_evidence/init_round.json: [存在/缺失]
+  - utils/aliyun_v2/t001_profile.json: [存在/缺失]
+```
+
+这个检查点服务于两个目的：
+1. **上下文压缩后恢复**：当上下文窗口被截断时，先读 `js_reverse_cache/checkpoint.md` 确认当前状态，而不是从记忆中重建
+2. **避免重复工作**：如果检查点显示 AK/SECRET 已提取，不要再次提取
+
+
 Selector: only `references/cases/registry.json`; only `status=verified` entries are library-selectable. Read `verificationClass` and `selectableAs` on the registry row before load: `selectableAs=proof` (`freshly-verified`) means current checked-in offline vectors/tests prove the local artifact only; it is not live-current target acceptance. `selectableAs=template` (`historical-user-attested`) is shape/process evidence only and always requires fresh current-target verification before live reuse. Match a structured exact scheme/host/port/route scope **or** the declared minimum of independent high-confidence signals (normally ≥2; verifier cases need vendor/version/subtype). When `match.requiredSignalGroups` exists, non-scope selection must also match at least one observed signal from every disjoint group; labels and repeated observations cannot satisfy two groups. A user hypothesis such as "怀疑瑞数" is not an independent high-confidence signal. If more than one verified case matches the same exact scope or the same minimum signal set, do not select by registry order; stop case reuse until a discriminator such as runtime, algorithm, product subtype, or negative signal selects exactly one case. Never match on one generic param, status, `_0x`, or SDK string. All entries resolve to one hash-bound `web-protocol-recovery-case` manifest with typed historical and current Provider stages. `freshly-verified` cases must carry executed test/evidence artifacts.
 
 Load one selected case as `case.json` -> `PROCESS.md` -> declared puller/fixtures/tests/entry/assets within the read budget. After the active case names a concrete missing implementation fact, at most one manifest-declared `historicalReferences` file may replace one implementation/asset slot in that same case bundle. It is study-only evidence: never import, execute, copy into delivery, install its historical dependencies, or treat its old live result as current acceptance. An iv8 implementation additionally requires the Provider's accepted `api-inventory.md` gate before code use. A `python-node` evidence case has no implementation entry until fresh verification produces one. Offline vectors first; stop reuse if current evidence disagrees. A failed case does not authorize a sibling case.
@@ -200,6 +249,21 @@ Run offline vectors first, then the current verifier and business replay.
 Writeback after eligible verified work: read `references/methodology/case-writeback.md`. Flow: candidate summary -> user yes -> sanitize/dedupe + exact allowlist -> second confirm -> change-control. No case stores raw account/browser/HAR/private bodies, cookie/token values, or absolute local paths; current authorized state is pulled at reproduction time and kept out of the library.
 
 ## Failure Recovery
+
+### 工具失败 vs 协议失败分类
+
+在诊断任何阻塞前，先分类失败来源：
+
+| 信号 | 分类 | 处理 |
+|---|---|---|
+| MCP 工具调用返回同一错误 ≥2 次（如 `Could not save file`、`Execution context destroyed`、`timed out`） | 工具环境问题 | **不要重试同一调用**。记录 blocker，切换替代方法（如：`save_script_source` 失败 → 改用 curl + write 保存；`evaluate_js` 超时 → 改用 `search_in_sources` + 浏览器外分析）|
+| 浏览器页面重置为 `about:blank` / 丢失上下文 | 工具环境问题 | 重新 `navigate` 后继续，不要归因为协议失败 |
+| 中文路径导致文件操作失败 | 工具环境问题 | 用纯 ASCII 路径替代（如 `/tmp/pi-*`），然后复制到目标目录 |
+| HTTP 响应 status/body 与预期不符 | 协议失败 | 按协议诊断顺序处理 |
+| HMAC/AES/签名与捕获包不一致 | 协议失败 | 检查参数/密钥/编码 |
+| 同一代码修复后运行结果不变 | 可能是工具失败（文件未真正写入） | 先确认文件状态（`cat`/`sha256sum`）再继续 |
+
+**核心原则**：工具失败消耗的轮次不应超过协议分析本身。如果连续 3 轮在处理工具问题而不是协议问题，停下来重新评估工具环境是否可用。
 
 | Trigger | First fix | Still fails → stop |
 |---|---|---|
@@ -231,6 +295,7 @@ Gate mapping (record vs confirm): read-only/verifier action ↔ `actionClass` re
 - Do not skip work-order accounting. Do not auto-approve `mutation-submit`, shape/budget expansion, raw-secret handling, case writeback, dependency installation, or local target-code execution. Do not invent credentials the user never supplied.
 - Do not put a gate family, strategy, profile, or file path in `route` (Non-Negotiables owns this).
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
+- 🛑 **HARD STOP — 滑块自动化**：如果你正在调用 `drag`/`click`/`evaluate_js` 来操作验证码滑块元素（如 `#aliyunCaptcha-sliding-slider`、`.geetest_slider_button`、任何 captcha DOM 元素），**立刻停止**。这是浏览器自动化，不是协议交付。恢复步骤：① 停止所有 DOM 操作 → ② 切换到 XHR 断点法采集协议证据 → ③ 按 verifier workflow 实现纯协议 T001。唯一例外：用户明确要求的一次性人工正样本采集（非交付主路径）。
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
 - Do not select `camoufox` or open a second recon engine without explicit Camoufox/SpiderMonkey/engine-level wording or recorded criteria. Fingerprint/Cloak/stealth wording, busy Chrome, a vendor name, `412`, Reese84 wording, and historical case provenance are all non-criteria (Phase 2 owns this).
 - Do not route a vendor family on one marker, a label, or a guess; require independent corroboration (Phase 0 owns this).

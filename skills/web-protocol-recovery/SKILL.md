@@ -265,6 +265,49 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 
 **核心原则**：工具失败消耗的轮次不应超过协议分析本身。如果连续 3 轮在处理工具问题而不是协议问题，停下来重新评估工具环境是否可用。
 
+### 浏览器 fallback 链
+
+MCP 环境中有多套浏览器引擎可用：
+1. `js-reverse-mcp`（CloakBrowser / Chromium）
+2. `camoufox-reverse-mcp`（Camoufox / Firefox SpiderMonkey）
+3. `chrome-devtools-mcp`（普通 Chrome DevTools）
+
+**规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——立即切换到下一个可用引擎：
+
+```
+CloakBrowser 失败 x2 → 切 Camoufox
+Camoufox 失败 x2  → 切 chrome-devtools
+全部失败           → 记录 hard blocker
+```
+
+注意事项：
+- CloakBrowser 是 Chromium 内核，对 WAF JS Challenge 页面可能有导航超时问题（WAF 阻塞 domcontentloaded）
+- Camoufox 是 Firefox 引擎，对 WAF JS 有不同的处理逻辑，可能在 CloakBrowser 失败的场景中成功
+- 两者的 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
+- **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**
+
+### MCP 浏览器操作纪律
+
+| 规则 | 说明 |
+|---|---|
+| 一次一个引擎 | 不要同时操作 CloakBrowser 和 Camoufox，状态会互相干扰 |
+| 调用批次上限 | 单次 tool call 批次不超过 3 个相关联的 MCP 调用；多了结果混乱无法追踪 |
+| network_capture 时机 | `network_capture(action='start', capture_body=true)` **必须在 navigate 之前**调用 |
+| pre_inject_hooks | 需要在页面加载前拦截网络请求时，使用 `navigate(pre_inject_hooks=[...])` 而不是 navigate 后 evaluate_js（后者在 reload 后会丢失） |
+| 操作前确认状态 | navigate 后先 `get_page_info` 确认当前 URL/title 再做后续操作 |
+| 清 cookie 导航策略 | 见下节 |
+
+### WAF 页面导航策略
+
+清 cookie 后导航到 WAF 保护的页面时，WAF JS Challenge 会阻塞 `domcontentloaded`（先执行 JS 验证、生成 cookie、再 302 重定向到真实页面）。
+
+**正确做法（按优先级）**：
+1. **不清 cookie**：保留 WAF session，通过业务请求头缺失/错误来触发 Captcha V2 层（而非 WAF JS 层）
+2. **如果必须清 cookie**：使用 Camoufox（对 WAF JS 有更好的通过率）而不是 CloakBrowser
+3. **WAF 页面导航参数**：对 WAF 页面用 `wait_until: 'networkidle'` 而非 `domcontentloaded`；如果 networkidle 也超时，设定 15s 超时后检查 `get_page_info` 判断页面是否已在目标域
+
+**绝不要**：清 cookie → CloakBrowser → `wait_until: domcontentloaded` → 超时 → 宣布失败。这是已验证的最大轮次浪费模式。
+
 | Trigger | First fix | Still fails → stop |
 |---|---|---|
 | Missing target URL / sample / technical context | Ask only those fields in `nextAsk` | Do not invent the target; return precise blocker |
@@ -304,6 +347,8 @@ Gate mapping (record vs confirm): read-only/verifier action ↔ `actionClass` re
 - Do not write task evidence outside `<projectRoot>/js_reverse_cache/**` when `projectRoot` is known, and do not treat OS temp as primary storage; if a tool forces an external absolute path, copy the artifact in immediately.
 - Do not treat non-empty sign/token, one HTTP `200`, or an expired cookie/session export as semantic success.
 - Do not store raw cookies/tokens/HAR/private bodies or absolute local paths in the case library, and do not mix case-library edits with darwin `results.tsv` score rows in one commit when avoidable.
+- ❌ **禁止单引擎失败宣布「浏览器不可用」**：CloakBrowser 失败 2 次后必须尝试 Camoufox，全部引擎失败后才能记录 hard blocker（浏览器 fallback 链规则）。
+- ❌ **禁止清 cookie 后用 CloakBrowser + domcontentloaded 导航 WAF 页面**：此操作必定超时（WAF 导航策略规则）。
 
 Also enforced in `references/anti-patterns-playbook.md` (read it for the temptation / false-progress / self-check form): bare `print` instead of `utils/logger.py` in iv8/collector delivery; pre-created empty `js_reverse_cache/**` trees; hardcoded rotating cookies; broad hooks before a clean baseline; reversing the visible helper instead of the wire mutation point; rung-skipping escalation.
 

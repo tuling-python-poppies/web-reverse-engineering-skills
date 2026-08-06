@@ -225,6 +225,21 @@ StaticPath / 当轮 sg 文件名（codec 不变时只当 URL）
 UserCertifyId/traceid 当轮值
 ```
 
+### WAF HTML 两层防护分层
+
+服务端返回的 WAF HTML 有两种类型，对应不同的处理路径：
+
+| 层 | 特征 | 处理 |
+|---|---|---|
+| WAF JS Challenge 层 | `aliyun_waf_aa`/`aliyun_waf_bb` meta + `renderData` 但**无 `var requestInfo`** | 浏览器自动通过（执行 WAF JS → 生成 `decode__1174` → 重发请求）。好指纹浏览器可直接通过，不需要协议恢复 |
+| Captcha V2 层 | 有 `var requestInfo = {sceneId, traceid, token, userId, userUserId}` | 需要纯协议 T001 恢复（Init → Log2 → Log3 → Verify） |
+
+**判断规则**：
+- Python (`curl_cffi`) 发请求→可能直接得到 Captcha V2 层（因为无法通过 JS Challenge）
+- 浏览器发请求→通常只触发 JS Challenge 层，自动通过后直接获得业务 JSON
+- 只有 `var requestInfo` 存在时才需要走 T001 路线
+- `decode__1174` 是 per-request 一次性 token，绑定 TLS session，不能跨浏览器/Python 复用
+
 ### 0.1 AK/SECRET 运行时提取食谱（从零场景必做）
 
 当没有已知 AK/SECRET 时，使用以下 XHR 断点法从浏览器运行时提取。**禁止花超过 2 轮在静态分析 AliyunCaptcha.js 的混淆字符串表上**——它是多层旋转+base64+XOR 混淆，静态分析成本极高。
@@ -310,9 +325,9 @@ UserCertifyId/traceid 当轮值
    {"input": ..., "key": ..., "expected_output": ...}
 ```
 
-### 0.4 轨迹 fixture 捕获食谱
+### 0.4 轨迹 fixture 捕获食谱（可与 field21 并行执行）
 
-Log3 的 `combat504` 和 Verify 的 `data` 都需要真实轨迹数据。捕获步骤：
+Log3 的 `combat504` 和 Verify 的 `data` 都需要真实轨迹数据。此步骤不依赖 field21 结果，可与 field21 采集并行执行。捕获步骤：
 
 ```text
 1. 在 CloakBrowser 中导航到目标页，等待滑块出现
@@ -355,6 +370,49 @@ Log3 的 `combat504` 和 Verify 的 `data` 都需要真实轨迹数据。捕获�
 4. ⚠️ 不要用 ≤3 个样本就确定参数
    不要在单样本上用暴力搜索得到多个等价候选后随意选一个
 ```
+
+#### field21 样本采集的正确 MCP 操作序列
+
+field21 的值由 FeiLin 在浏览器中计算，包含在 Log2 请求的 Data 字段中。采集步骤：
+
+```text
+前提：浏览器必须能成功导航到目标页（页面自动触发 AliyunCaptcha 初始化 → FeiLin 加载 → Log2 发送）
+
+步骤 1：启用网络捕获（必须在 navigate 之前）
+  camoufox_reverse_mcp_network_capture(action='start', capture_body=true)
+
+步骤 2：导航到目标页，带 pre_inject_hooks 拦截 XHR
+  camoufox_reverse_mcp_navigate(
+    url='https://www.pzds.com/goodsList/7',
+    wait_until='networkidle',
+    pre_inject_hooks=[
+      "(()=>{window.__log2_bodies=[];const o=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(b){if(this.__url&&this.__url.includes('device.captcha-open')&&b)window.__log2_bodies.push(b);return o.apply(this,arguments)};const p=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){this.__url=u;return p.apply(this,arguments)}})()"
+    ]
+  )
+
+步骤 3：等待 10s 让页面完成 captcha 初始化
+
+步骤 4：检查网络捕获中的 device.captcha-open 请求
+  camoufox_reverse_mcp_list_network_requests(url_filter='device.captcha-open')
+  - 如果找到 Log2 请求 → get_network_request(id=x, include_body=true) → 提取 Data 参数
+  - 如果网络捕获为空 → evaluate_js("window.__log2_bodies") → 从 hook 获取
+
+步骤 5：Python 解密 Data 字段
+  - AES-CBC 解密，key=DEVICE_UPLOAD_KEY (a549a55c60a39aa0)，IV=0123456789ABCDEF
+  - 解密后是 '#' 分隔的外层，其中 event_data 包含 Base64 编码的内层
+  - 内层再次 session AES 解密后得到 '#' 分隔的 133 字段
+  - fields[21] 就是 field21 值
+
+步骤 6：重复 12+ 轮（每次得到不同的 session_id suffix 和对应 field21）
+  - 每轮重新导航或刷新页面以获得新 session
+  - 收集 (suffix, field21) 对
+  - 用 classic 公式暴力拟合 sourceKey + xorMask
+```
+
+**如果步骤 4 网络捕获和 hooks 都为空**：
+说明页面未触发 AliyunCaptcha（可能浏览器直接通过了 WAF 而未进入 Captcha 层）。解决方法：
+1. 保留 WAF cookies，但在 evaluate_js 中用错误/缺失的业务签名头发起 API 请求→强制触发 Captcha V2 层
+2. 或者从 Python 已经签好的 InitCaptchaV2 响应中拿到 CertifyId，然后在浏览器中手动初始化 AliyunCaptcha SDK
 
 ### 1. 触发后立即执行（禁止插队）
 
@@ -1062,7 +1120,7 @@ challenge/Init
 | userId/userUserId | 加密值，固定不变 | 从 challenge HTML 提取 |
 | DeviceData | 固定值，不参与计算 | 从捕获的 Init 请求中复制 |
 | 业务重放 | POST 体来自 requestInfo.data（Base64 解码）| URL 附加 `u_atoken` + `u_asig` query |
-| decode__1174 | WAF JS Challenge 生成的动态参数 | 统一由 Cloak/iv8 窄工件生成；它不是 Captcha V2 的一部分 |
+| decode__1174 | WAF JS Challenge 生成的动态参数 | **per-request 一次性 token**，绑定 TLS session + cookie，几秒内过期，不能缓存或跨 session 复用；Python 无法使用浏览器生成的 decode__1174（TLS 指纹不同会被拒绝） |
 | 统一 session | `curl_cffi` impersonate="chrome146" | 整条链路用同一个 TLS session |
 
 **流程分层**：

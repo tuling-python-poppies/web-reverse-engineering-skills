@@ -13,6 +13,18 @@ Use this file when the next tool family is unclear. It selects one Provider or f
 7. Reproduce one stable request locally.
 8. Scale only after repeatability and semantic acceptance.
 
+## Capability Snapshot
+
+Before the first current-target browser action, record the available evidence surfaces without opening the target in more than one tool family:
+
+- required browser families present or missing: `chrome-devtools`, `js-reverse`, Camoufox, WeChat miniapp debugger when applicable
+- methods required by the selected Provider, including navigation, network list/detail/body, initiator/source, script export/search, breakpoints/hooks, storage/cookie inspection, and cleanup
+- configured browser mode: launch, attach, headless/headful, Cloak tier availability, explicit WebSocket/debug endpoint when known
+- optional passive or environment surfaces: HAR/Reqable, PCAP/Wire visibility, AdsPower/profile manager, local transport client
+- blockers that make one paired-pass half unavailable
+
+This snapshot is bookkeeping, not a permission grant. Source trees on disk do not prove MCP availability, and a local Python environment check cannot prove that an agent-side MCP server is mounted. Refresh the snapshot only when the tool registry, browser mode, target context, or control channel changes.
+
 ## Provider Selection
 
 | Need | Select | Do not combine with |
@@ -46,6 +58,7 @@ JS_ACTIVE_HEADLESS -> JS_CLOSED -> JS_CLOAK_VISIBLE
 JS_CLOSED + auto-launch headful -> RESIDUAL_HEADFUL (must relaunch; do not navigate)
 ```
 
+- Ownership states are explicit: `IDLE`, `CHROME_ACTIVE`, `CHROME_PARKED`, `JS_REVERSE_ACTIVE`, `JS_REVERSE_PARKED`, `JS_REVERSE_CLOSED`, `CAMOUFOX_ACTIVE`, `RETAINED_EXCEPTION`, and `CLOSED`. Process presence is not ownership.
 - Never place `chrome-devtools-mcp` and `js-reverse-mcp` browser calls in one parallel batch.
 - Keep profiles isolated unless the user explicitly accepts shared-state contamination.
 - Save approved evidence before a switch; old page/request/script IDs become stale.
@@ -59,6 +72,17 @@ JS_CLOSED + auto-launch headful -> RESIDUAL_HEADFUL (must relaunch; do not navig
 - Park Chrome with only a sacrificial `about:blank`; this isolates lifecycle but does not erase profile state.
 - Close js-reverse before returning to Chrome or escalating to Camoufox.
 - Clear task-owned hooks, routes, captures, cookies/storage/cache when the context is disposable; otherwise report owner, retained scope, reason, and deadline.
+
+### Sequential handoff gate
+
+Before switching browser families or returning to a parked family:
+
+1. save the clean request/response pair, redirect chain, final target URL, relevant page state, network identifiers, source coordinates, screenshots/snapshots when needed, and every artifact the next phase requires
+2. record whether the current session, verifier round, in-memory secret, manual interaction, or challenge state is replayable
+3. remove or disable invasive hooks when supported, resume paused runtimes, and quiesce target activity as far as the installed tool allows
+4. record the resulting lifecycle state before granting `TARGET_ACTIVE` to the next family
+
+Use `RETAINED_EXCEPTION` only when cleanup would destroy the only unreplayable session chain, verifier round, in-memory key, or manual verification result. A retained family must not be used while another family owns `TARGET_ACTIVE`; record why it cannot be rebuilt yet and the release deadline.
 
 ### Headless acceptance (`effective_headless`)
 
@@ -128,5 +152,6 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 - `scripts/transcript_diff.py`: report the first structural difference between normalized chains.
 - `scripts/transform_trace_diff.py`: report the first stage and byte divergence in runtime traces.
 - `scripts/transport_profile_diff.py`: validate and compare ordered TLS/H2/connection profiles.
+- `scripts/grpc_frame_inspector.py`: inspect bounded gRPC/grpc-web frame and trailer structure without decoding payloads.
 - `scripts/practice_lab.py`: run seven deterministic protocol cases with negative controls.
 - `scripts/providers/delivery/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple` paths.

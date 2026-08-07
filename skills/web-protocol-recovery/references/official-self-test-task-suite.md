@@ -11,6 +11,8 @@ For each task:
 3. verify the proposed delivery shape
 4. fail the test if the answer drifts into browser automation as final delivery
 
+Static preflight validates contracts and deterministic helpers only. Behavioral non-regression requires a fresh runner plus an independent reviewer under `references/methodology/forward-testing.md`; only a validated full report may claim full-suite behavioral PASS.
+
 Legacy `Expected route` headings below mean expected reference owners, never the canonical `route:` field and never permission to read every listed file in one dispatch window. Canonical routes are short Provider IDs or `evidence-reuse` only. Apply `references/methodology/read-budget.md`: a first response reads 0-2 paths, one named blocker may add exactly one path once, and later listed references require a new accepted Provider result, user answer, or blocker expansion.
 
 ## Pass criteria across the whole suite
@@ -241,7 +243,8 @@ Expected route:
 Must conclude:
 
 - run local environment checks without launching both browsers
-- confirm both `chrome-devtools` and `js-reverse` usability; report a real blocker if either half cannot run
+- record a capability snapshot without prewarming both targets; confirm both `chrome-devtools` and `js-reverse` usability and report a real blocker if either half cannot run
+- at most one browser family is `TARGET_ACTIVE`; record the handoff state before granting ownership to the next family
 - mandatory paired pass: Chrome DevTools visible clean baseline after internal recon accounting, park Chrome (`about:blank`, report `parked`, not `closed`), then js-reverse mutation/source pass before the final collector
 - skip only the visible DevTools window when the user explicitly requires no ordinary window / background-only recon; document that exception; js-reverse half remains required
 - js-reverse uses explicit `launch_browser({headless:true, cloakBinaryPath:""})` and Headless Acceptance; do not treat MCP auto-launch or CLI default as that pass
@@ -522,6 +525,25 @@ Must conclude:
 - prove the transform before tuning traces or blaming OCR
 - store the mapping explicitly in the collector
 
+## Task 9D: Automation-contaminated failure is not trajectory truth
+
+Prompt:
+
+```text
+A slider fails when manually dragged inside a remote-debugging browser after broad hooks and several rejects on the same exit IP. I have no clean ordinary-browser success or failure sample. Should I keep tuning trajectories?
+```
+
+Expected route:
+
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/references/positive-sample-hygiene-playbook.md`
+
+Must conclude:
+
+- grade the current round as contaminated-failure and treat it as environment evidence first
+- do not tune track or answer algorithms from contaminated failures alone
+- request only the missing clean contrast sample and keep live acceptance blocked until its boundaries are complete
+
 ## Task 10: GraphQL contract, not REST
 
 Prompt:
@@ -591,6 +613,25 @@ Must conclude:
 - exact body serialization can be part of the protocol contract
 - preserve field order, encoding, and frontend-style urlencoding when the route is legacy or wrapper-sensitive
 - do not assume that semantically equivalent key-value pairs are replay-equivalent on the wire
+
+## Task 12B: gRPC-web framing is a separate contract
+
+Prompt:
+
+```text
+The HTTP response is grpc-web-text with several independently padded Base64 chunks, two data messages, and a final trailer. HTTP 200 and grpc-status 0 are present, but my parser reads only the first payload.
+```
+
+Expected route:
+
+- `references/structured-transport-playbook.md`
+- `scripts/grpc_frame_inspector.py`
+
+Must conclude:
+
+- decode segmented Base64, then parse every five-byte gRPC frame header and declared payload length
+- distinguish data frames from the final grpc-web trailer and reject truncated or invalid boundaries
+- do not claim business success until the intended message is decoded and consumed
 
 ## Task 13: Environment mismatch
 

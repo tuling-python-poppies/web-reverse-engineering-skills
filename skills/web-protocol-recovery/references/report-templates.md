@@ -36,11 +36,14 @@ route: <chromium-recon|camoufox|wechat-miniapp>
 - Target URL:
 - Final landing URL:
 - Selected recon Provider and reason:
+- Capability snapshot: available/missing MCP families, required methods, configured modes, and fallback blockers
 - Evidence mode: fresh browser baseline / evidence reuse / blocked-tool limited path
 - Provider result: proved / skipped / blocked and why
 - Chromium paired pass, when selected: chrome-devtools baseline result; js-reverse-mcp mutation result; any missing-half blocker; optional Cloak tier if used
 - Direct route, when selected: Camoufox or WeChat ownership/lifecycle/cleanup result
 - Recon isolation: separate profiles / explicit profile reuse with contamination risk / not applicable
+- TARGET_ACTIVE transitions: owner -> parked/closed/retained -> next owner
+- Retained exception: none / resource + reason + release deadline
 - Page type: SSR / CSR / SPA / MPA / hybrid
 - Useful data source: HTML / XHR / Fetch / GraphQL / WebSocket / asset / binary / other
 
@@ -73,6 +76,7 @@ route: <Provider ID|evidence-reuse>
 ## Dynamic Validation
 - Target function or request:
 - Validation method: hook / diff / replay / fixed-input helper test
+- Sample grade when verifier-sensitive: clean-success / clean-failure / contaminated-failure / partial / not-applicable
 - Inputs:
 - Observed outputs:
 - Raw payload: hash/length/redacted sample by default; approved raw path only under artifactPolicy:
@@ -152,6 +156,7 @@ transportKind: <HTTP/WebSocket/GraphQL/etc.>
 decodeChain: <ordered steps or none>
 verification: <fixed parity + approved live-egress replay + semantic/data-shape checks>
 browserLifecycle: <engines opened/parked/closed and ID disposition>
+capabilitySnapshot: <available/missing families, modes, and material gaps>
 limits: <page/retry/concurrency/rate/duration bounds>
 caseWriteback: <not-eligible|offer-pending|declined|accepted>
 residualRisks: <bounded list or none>

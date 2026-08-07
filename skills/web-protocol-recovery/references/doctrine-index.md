@@ -34,9 +34,10 @@ Use this file only for family-level invariants when the target is still broad. I
 19. **Enumeration and hydration are separate contracts.** Preserve stable identifiers and normalized/raw decoded outputs so expensive details can be fetched or backfilled independently.
 20. **Stateful streams require transcripts.** Pairing/login, key schedules, acks, heartbeats, counters, reconnects, receipts, and media derivation belong to the protocol model.
 21. **Verifier failures must be split by surface.** Protocol, compute, perception, and behavior each need independent evidence; one failure must not masquerade as another.
-22. **Delivery must be local, explicit, and testable.** A browser profile, hidden refresh click, unexplained decoder, or pasted rotating state is not a browser-free collector.
+22. **Clean positive samples outrank contaminated failures.** A failed hooked/automation/browser-debug round is environment evidence first; do not tune tracks or answers until a clean success or clean failure bounds the verifier surface.
+23. **Delivery must be local, explicit, and testable.** A browser profile, hidden refresh click, unexplained decoder, or pasted rotating state is not a browser-free collector.
 
 ## Maintenance
 
-23. **Small facts age better than narrative.** Preserve routes, slots, shapes, decode order, state-chain rules, and acceptance checkpoints rather than copied credentials or long site stories.
-24. **Counterexamples constrain better than slogans.** Repeated tempting shortcuts belong in `anti-patterns-playbook.md` with one smallest honest move and one direct self-check.
+24. **Small facts age better than narrative.** Preserve routes, slots, shapes, decode order, state-chain rules, and acceptance checkpoints rather than copied credentials or long site stories.
+25. **Counterexamples constrain better than slogans.** Repeated tempting shortcuts belong in `anti-patterns-playbook.md` with one smallest honest move and one direct self-check.

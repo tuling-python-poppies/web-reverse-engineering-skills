@@ -14,7 +14,7 @@ Use this file only to place reusable web-protocol-recovery knowledge. Skill opti
 | Engine/tool/runtime API detail | selected Provider and its references |
 | Tempting shortcut plus corrective self-check | `references/anti-patterns-playbook.md` |
 | Compact target adaptation | root case registry through `case-writeback.md` |
-| Regression expectation | `references/official-self-test-task-suite.md` and local case/unit tests |
+| Regression expectation | `references/official-self-test-task-suite.md`, `references/methodology/forward-testing.md`, and local case/unit tests |
 
 Do not create a second doctrine index, symptom list, tool inventory, project tree, report template, case index, or Provider-local copy of root policy.
 

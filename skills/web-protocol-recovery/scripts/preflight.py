@@ -53,6 +53,8 @@ CASE_SELECTION_REGISTRY_KEYS = (
 CASE_IGNORED_DIR_NAMES = {".pytest_cache", "__pycache__"}
 CASE_IGNORED_FILE_NAMES = {".DS_Store", "Thumbs.db"}
 DIAGNOSTIC_SELF_TESTS = (
+    "scripts/check_reverse_env.py",
+    "scripts/forward_test_report.py",
     "scripts/evidence_normalizer.py",
     "scripts/transcript_diff.py",
     "scripts/transform_trace_diff.py",

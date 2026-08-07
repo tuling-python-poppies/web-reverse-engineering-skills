@@ -40,7 +40,7 @@ Plain terms:
 
 Cite stable section names, not line numbers; line numbers drift after edits.
 
-Skill self-check after edits: `python scripts/preflight.py` from this skill root.
+Skill self-check after edits: `python scripts/preflight.py` from this skill root. Claims about changed routing or agent behavior additionally require `references/methodology/forward-testing.md`; static preflight alone is not behavioral proof.
 
 ## Non-Negotiables
 
@@ -61,7 +61,7 @@ Policy overlays (case read, scope/budget accounting, Chrome auto-traffic **recor
 3. One `projectRoot` and `web-protocol-recovery-simple`. Default `projectRoot` to the current working directory when the user did not name a folder; do not re-ask cwd vs custom. Providers never choose another landing path or project shape.
 4. All dynamic evidence (recon dumps, challenge JS/HTML, screenshots, browser state, probes, net logs, MCP exports) writes only under `<projectRoot>/js_reverse_cache/**`. Never default to `%TEMP%`, `AppData\Local\Temp`, `opencode` temp roots, skill directories, or any path outside the approved project root.
 5. Load only the selected provider and at most one provider-local reference per work order. Case bundles and every expansion follow `references/methodology/read-budget.md`.
-6. Browser engines/profiles are lifecycle-serialized. IDs never cross engine/session/target boundaries.
+6. Browser engines/profiles are lifecycle-serialized. At most one browser family is `TARGET_ACTIVE`; capability snapshots do not prewarm multiple target browsers, and IDs never cross engine/session/target boundaries.
 7. **Standing approval (default for explicit protocol tasks, within the selected shape):** browser recon, read-only live egress, writes under `projectRoot`, use of user-supplied cookies/session, protocol-needed `verifier-submit`, and scale within the initially recorded immutable request budget are already approved—execute them, do not re-ask. Never auto-promote to `mutation-submit`, a larger shape, or a larger budget. Local target-code execution and dependency installation use `executionPolicy`; raw-secret handling and case-library writeback keep their governance confirmations.
 8. When delivery uses iv8 (or the iv8 silent helper), also create `utils/logger.py` (optional `loguru` with PrintLogger fallback). Progress logs use `logger.info`; do not paste loguru/print fallbacks into every main script.
 

@@ -51,6 +51,7 @@ Read only the selected family reference after the work order names a generation-
 10. `verify_has_w=true`, non-empty proof fields, or outer `status=success` with semantic verifier failure is current-round failure evidence, not success. Re-check perception, coordinate mapping, proof packaging, and current bundle entry before any retry.
 11. GT4 point-click/ordered-text code must treat public `captchaObj` as a wrapper until proven otherwise. Discover the current bundle's submitter/registry path from live/cache evidence; do not ship hardcoded old module IDs or stale `$_BEP -> $_BBFs` assumptions.
 12. Dynamic evidence, images, decoded payloads, forms, and responses must stay under assigned `js_reverse_cache/**`; do not write into this Provider directory.
+13. Behavior-sensitive failures require sample hygiene grading. Treat hooked automation, remote debugging, fresh empty profiles, and repeated rejects on one exit as environment evidence before changing trajectory, answer, or proof algorithms.
 
 ## Optional Scripts
 
@@ -81,6 +82,7 @@ All applicable checks must pass:
 |---|---|---|
 | Family unclassified | Use endpoint/field/image/success-marker signals and one reference | Return blocker for a new focused reference |
 | Round fields mixed or stale | Recapture one coherent round | Blocker: same-round state |
+| Automation-owned verifier round fails but ordinary or non-instrumented evidence is missing | Read `references/positive-sample-hygiene-playbook.md` and grade the sample | Do not tune track/answer from contaminated failure only |
 | OCR/CV weak or tied | Use platform-specific preprocessing/manual coordinate fallback/independent corroboration | No live verify |
 | Verify semantic fail | Diff state, coordinate space, behavior timeline, proof packaging, sidecar, and transport in that order | Do not submit repeated guesses on one challenge |
 | GT4 `w` generated but `data.result=fail` | Confirm current `gcaptcha4.js` version and submitter path before changing OCR only | Do not treat non-empty `w` or `status=success` as proof |

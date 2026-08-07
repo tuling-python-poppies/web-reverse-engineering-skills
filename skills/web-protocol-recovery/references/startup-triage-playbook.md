@@ -12,8 +12,8 @@ Complete these four checks first:
 
 1. reconnaissance route and tool sanity
     - select Chromium, Camoufox, or WeChat before launching; explicit Camoufox and WMPF requests bypass the Chromium ladder
-    - on Chromium: confirm whether both `chrome-devtools` and `js-reverse` are usable; fresh targets require a **mandatory lightweight paired pass** (DevTools baseline then js-reverse mutation) before the final collector unless a real blocker or documented exception applies
-    - run `scripts/check_reverse_env.py` when local execution is available
+    - on Chromium: record a capability snapshot for `chrome-devtools` and `js-reverse` without opening the target in both; fresh targets require a **mandatory lightweight paired pass** (DevTools baseline then js-reverse mutation) before the final collector unless a real blocker or documented exception applies
+    - run `scripts/check_reverse_env.py --project-root <projectRoot>` when local execution is available; add `--helper-lockfile <path>` only for explicitly selected public helper lockfiles
     - follow `references/tool-playbook.md` Browser Lifecycle for serialized Chromium phases, profile isolation, headful exceptions, Cloak tier, and cleanup
     - note local iv8 or transport-client availability only when host-bound bootstrap or transport admission is suspected
     - report blockers instead of warming multiple engines to test availability; do not skip a paired half silently
@@ -124,16 +124,17 @@ First move:
 
 - capture a clean untouched baseline before invasive instrumentation
 - diff requests and verifier outputs first
+- when behavior-sensitive samples are involved, grade the oracle quality before treating a failed round as track or answer evidence
 - only then add the narrowest hook that proves the boundary
 - if challenge HTML plus scripts appear to seed a cookie, URL suffix, or headers, switch `gateFamily` to `challenge` and use the confirmed family owner (River Security, Akamai, or Reese84) or the generic challenge-state playbook first
 - if a bootstrap runtime exposes a getter after init or self-issues the decisive request, route to `references/challenge-state-envelope-playbook.md`
 
 Primary references (pick one first path):
 
-- `references/providers/protocol-recovery/verifier/references/replay-playbook.md` when captcha/one-shot verification is the gate
+- `references/providers/protocol-recovery/verifier/PROVIDER.md` when captcha/one-shot verification is the gate; the Provider may then select its replay or positive-sample-hygiene reference
 - `references/challenge-state-envelope-playbook.md` when a bootstrap getter/egress already has the artifact
 - `references/troubleshooting-playbook.md` when replay is close but unstable
-- later only if needed: verifier PROVIDER, cookie-provenance, embedded-browser-runtime
+- later only if needed: one verifier-local reference, cookie-provenance, embedded-browser-runtime
 
 ### `decode` gate family
 

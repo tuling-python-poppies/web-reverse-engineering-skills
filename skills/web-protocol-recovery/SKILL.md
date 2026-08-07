@@ -76,13 +76,13 @@ First-turn routing rules choose `shape` and `route`. Under Non-Negotiables item 
 | Signal | First-turn decision |
 |---|---|
 | 明确要求“实现/写完整代码” | 选择 `shape: collector`；若命中已验证的稳定协议模式，先用 `evidence-reuse` 读取可复用原语和流程约束，再执行当前目标所需的 Provider 链。 |
-| Supplied artifacts or an exact reusable protocol profile | Prefer `route: evidence-reuse`. A bare URL with no protocol-recovery intent is not enough; an explicit protocol-recovery request naming that URL may start bounded recon under standing approval unless the user requested offline/no-browser work. |
+| Supplied artifacts or a registry-selected reusable case | Prefer `route: evidence-reuse`. A bare URL with no protocol-recovery intent is not enough; an explicit protocol-recovery request naming that URL may start bounded recon under standing approval unless the user requested offline/no-browser work. |
 | Explicit offline / local / fixed-vector wording | Use `shape: local-proof` and stay offline until a named blocker requires one implementation Provider. |
 | Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
 | Known implementation boundary or explicit implementation Provider request | Use the named Provider route only when the boundary/artifact is named, such as `route: browser-hooks`, `route: ast`, `route: python-node` with `strategy: env-patch`, `route: iv8`, or `route: pure-python`; otherwise stay evidence first. |
 | Captcha family signals | Named captcha vendors (Geetest, TCaptcha/TDC, Yidun, Shumei, Yunpian, Tianyu, Dingxiang, Ctrip, Aliyun Captcha, ByteDance VerifyCenter) are verifier-priority evidence. Choose `route: verifier` only when paired with a sampled captcha round, protocol endpoint/field, semantic verifier failure, or a named active verifier delivery artifact. A lone `w` / `data` / `token` param, or generic `403` plus the word captcha, is evidence first. Field-level detail: verifier `PROVIDER.md` `Select When`. |
 | Vendor-family signals (`akamai`, `river-security`, `reese84`) | Route to a protocol owner only when a vendor-native marker has independent corroboration from a second surface (network, script, cookie transition, transport, or business consumer); River Security needs two independent observed markers. Generic `403` / `412` / H2 reset, one cookie name, an Imperva label or error 15, an alias tag such as `alias:ruishu`, and a user guess ("怀疑瑞数") are never sufficient. Otherwise stay evidence first. Fresh URL recon starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. Marker lists and negative signals: each Provider's `Select When` / `Do Not Select When`. |
-| Existing Douyin Web BDMS pure-Python maintenance | Use `route: pure-python` with `profile: douyin-abogus-native` only when the named target, existing complete implementation, and fixed BDMS trace all hold; from-zero recovery or unknown version/entry/layout stays on normal routes. Conditions: `profiles/douyin-abogus-native.md` `Select When`. |
+| Existing Douyin Web BDMS pure-Python maintenance | Use `route: pure-python` with `profile: douyin-abogus-native` only when the named target, existing complete implementation, and fixed BDMS trace all hold; from-zero recovery or unknown version/entry/layout stays on normal routes. Conditions: `references/providers/implementation/pure-python/profiles/douyin-abogus-native.md` `Select When`. |
 
 Fallback rules:
 
@@ -143,31 +143,16 @@ nextRead: references/providers/protocol-recovery/verifier/PROVIDER.md
 
 ### PZDS Aliyun V2 商品采集专用触发器
 
-当任务同时出现以下信号时，直接收敛到 `shape: collector` + `route: verifier`：
+当任务同时出现以下信号时，直接收敛到 `shape: collector` + `route: verifier`。先读取
+`references/providers/protocol-recovery/verifier/PROVIDER.md`，再由 Family Router 在
+Aliyun V2 reference 与 PZDS case `PROCESS.md` 中选择一个下一读路径。详细协议步骤和
+私有状态合同由这些 canonical references 所有，根技能不复制。
 
 - 业务目标是 `goodsPublic/page` 或同类商品列表接口，最终要拿 JSON records，不接受页面渲染结果作为交付。
 - 验证链包含 `InitCaptchaV2`、`UploadLog`、`Log2`、`Log3`、`VerifyCaptchaV2`、`T001/F001` 中至少三个信号。
 - 验证成功后还要带 `u_atoken/u_asig` 或等价网关参数重放业务请求。
 
-专用执行目标：Python 最终发出 live HTTP；浏览器只用于采集正样本、刷新 FeiLin 画像或生成窄工件。完成条件必须同时满足：`VerifyCode=T001`、`VerifyResult=true`、业务 HTTP 200、`success=true`、`code=SUCCESS`、records 列表非空或分页结构明确。
-
-必需流程：
-
-1. 触发业务 WAF HTML，解析 `sceneId/traceid/token/userId/userUserId`。
-2. 执行 `InitCaptchaV2 -> UploadLog -> Log2 -> Log3 -> VerifyCaptchaV2`；若浏览器观测顺序包含 `UploadLog`，Python collector 也必须发送同类 sidecar。
-3. 构造 FeiLin profile、`field21`、Log2 full fields、sparse deviceToken、Log3 `combat511/combat504`、Verify `data/arg`。
-4. 验证成功后，把网关 token 与 CertifyId 绑定回原业务请求并重放。
-5. 若 profile 过期，刷新 profile；刷新结果必须在线 `T001/true` 后才可原子写入。
-
-同轮一致性硬约束：同一轮的 `sceneId`、`traceid/CertifyId`、DeviceConfig `sessionId/version/ip/timestamp/encryptionKey`、业务 token/cookie、Log2 profile、Log3 combat、Verify track、deviceToken counter 必须成套生成。禁止把不同轮次的 token、画像、轨迹、sidecar 或业务参数拼接后提交。
-
-失败分流顺序：
-
-1. `UploadLog` 传输层失败：先换 transport/session 或重试新轮；语义失败才改 payload。
-2. `missing_or_stale_profile` 或 FeiLin version mismatch：停止提交 Verify，刷新 profile。
-3. `F001`：按 `field21 -> profile字段数/非空索引 -> 72/74/87时间关系 -> Log2 record timestamp -> token counter/gatherCost -> Log3 combat同步 -> Verify data/arg/track -> 业务网关参数` 顺序 diff。
-4. Log2/Log3 `200/true` 不是成功，只说明 sidecar 被结构性接收。
-5. 不要把上一轮行为轨迹平移或轻微扰动当作稳定解；需要能生成与当前轮一致的行为包。
+路由输出必须注明：最终 live HTTP 由 Python collector 负责；浏览器只用于取证、正样本或窄工件；缺少当前 profile/session/track 时不得声明 live complete。
 
 Fresh recon picks exactly one route:
 
@@ -247,7 +232,7 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 - 下一步：[xxx]
 - 关键文件状态：
   - js_reverse_cache/aliyun_v2_evidence/init_round.json: [存在/缺失]
-  - utils/aliyun_v2/t001_profile.json: [存在/缺失]
+  - js_reverse_cache/private/pzds/t001_profile.json: [存在/缺失]
 ```
 
 这个检查点服务于两个目的：
@@ -258,7 +243,7 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 ```markdown
 - 浏览器状态：
   - 残留进程：[有/无]（上次启动失败错误特征：exit code / 错误信息）
-  - 恢复步骤：先释放浏览器进程（杀 chrome.exe + 清理 profile 目录），再重新启动采集
+  - 恢复步骤：暂停并记录 blocker；不得自动终止用户浏览器或清理未确认归属的 profile。只有用户明确确认任务自有 profile 后，才使用对应浏览器生命周期工具清理并重新启动采集
 ```
 
 
@@ -335,7 +320,7 @@ CloakBrowser 失败 x2 → 切 Camoufox
 **Chrome exit code 21 机制**：Chrome 启动时若检测到相同 user-data-dir 已有实例在运行，会把请求转发给已有实例然后以 exit 21 退出。残留进程锁住了 profile 目录，导致后续启动全部失败。
 
 **用户决策选项**（发现进程残留时提问）：
-1. **释放浏览器进程**：杀残留 chrome.exe + 清理 profile 目录（如 `D:\develop_software\CloakBrowser\js-reverse-mcp-local-cloak\chrome-reverse-profile`），然后重新启动采集
+1. **用户确认任务自有 profile**：仅清理当前任务明确归属的浏览器资源，然后重新启动采集；不得按进程名批量终止，也不得操作外部或未确认的 profile 路径
 2. **暂停任务**：保留当前状态，用户自行处理后恢复
 
 **规则**：
@@ -408,7 +393,7 @@ Gate mapping (record vs confirm): read-only/verifier action ↔ `actionClass` re
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - 🛑 **HARD STOP — 滑块自动化**：如果你正在调用 `drag`/`click`/`evaluate_js` 来操作验证码滑块元素（如 `#aliyunCaptcha-sliding-slider`、`.geetest_slider_button`、任何 captcha DOM 元素），**立刻停止**。这是浏览器自动化，不是协议交付。恢复步骤：① 停止所有 DOM 操作 → ② 切换到 XHR 断点法采集协议证据 → ③ 按 verifier workflow 实现纯协议 T001。唯一例外：用户明确要求的一次性人工正样本采集（非交付主路径）。
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
-- Do not select `camoufox` or open a second recon engine without explicit Camoufox/SpiderMonkey/engine-level wording, recorded tool-failure fallback, WAF navigation recovery, or other recorded criteria. Fingerprint/Cloak/stealth wording, busy Chrome, a vendor name, `412`, Reese84 wording, and archived bundle provenance are all non-criteria (Phase 2 owns this).
+- Do not select `camoufox` or open a second recon engine without explicit Camoufox/SpiderMonkey/engine-level wording, recorded tool-failure fallback, WAF navigation recovery, or other recorded criteria. Fingerprint/Cloak/stealth wording, busy Chrome, a vendor name, `412`, Reese84 wording, and archive metadata are all non-criteria (Phase 2 owns this).
 - Do not route a vendor family on one marker, a label, or a guess; require independent corroboration (Phase 0 owns this).
 - Do not load a sibling case after one registry match failed current evidence.
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.

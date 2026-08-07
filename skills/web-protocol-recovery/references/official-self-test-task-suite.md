@@ -471,6 +471,28 @@ Must conclude:
 - verifier output is the real dynamic parameter
 - replay the verifier in protocol form
 
+## Task 9E: PZDS Aliyun V2 collector stays Provider- and Case-owned
+
+Prompt:
+
+```text
+实现 PZDS goodsPublic/page browser-free collector。业务响应包含 InitCaptchaV2、UploadLog、Log2、Log3、VerifyCaptchaV2，验证成功后还要用 u_atoken/u_asig 重放业务请求。当前没有可提交的 profile/session/track 文件。
+```
+
+Expected route:
+
+- `references/providers/protocol-recovery/verifier/PROVIDER.md`
+- `references/providers/protocol-recovery/verifier/references/aliyun-captcha-v2-workflow.md`
+- `references/cases/python-node/pzds-aliyun-v2-goods-public/PROCESS.md`
+
+Must conclude:
+
+- emit `shape: collector`, `route: verifier`, and keep final live egress in Python
+- read the verifier Provider first, then choose only the one family reference or PZDS Case path required by the next blocker
+- use the selected PZDS Case for the private-state paths and acceptance chain; do not invent a profile under `utils/**`
+- missing or stale profile/session/track blocks `live complete` but does not invalidate the stable offline collector path
+- do not copy the detailed PZDS procedure into the root router or fall back to browser-backed final delivery
+
 ## Task 9A: One verifier round cannot be spliced
 
 Prompt:

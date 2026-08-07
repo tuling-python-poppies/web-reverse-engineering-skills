@@ -169,6 +169,18 @@
         "route": "evidence-reuse",
         "notProtocolOwner": "verifier"
       }
+    },
+    {
+      "id": "pzds-aliyun-v2-goods-public",
+      "prompt": "Implement a browser-free PZDS goodsPublic/page collector. The business response exposes an Aliyun V2 challenge with InitCaptchaV2, UploadLog, Log2, Log3, VerifyCaptchaV2, and the final replay needs u_atoken/u_asig.",
+      "expect": {
+        "shape": "collector",
+        "route": "verifier",
+        "gateFamily": "verifier",
+        "familyReference": "aliyun-captcha-v2-workflow.md",
+        "caseId": "pzds-aliyun-v2-goods-public",
+        "deliveryProvider": "python-collector"
+      }
     }
   ]
 }

@@ -1120,19 +1120,20 @@ challenge/Init
 - [ ] 用户只做验证层时没有业务接口回放。
 - [ ] 最终证据是 `T001 + VerifyResult=true`。
 
-## PZDS 站点适配注释
+## PZDS 站点适配检查点
 
-以下为 PZDS (`api.pzds.com` / `www.pzds.com`) 目标的已验证特殊行为记录：
+以下是 PZDS (`api.pzds.com` / `www.pzds.com`) 目标的适配检查点。表中具体值来自样本，
+只能作为当前目标取证后的候选；不得直接写死，也不能替代当前 Case 的同轮验收。
 
 | 项目 | 值/行为 | 注意 |
 |---|---|---|
 | WAF HTML 触发前提 | 需先带登录 `token` header + 业务签名头（Sign/PZTimestamp/Random/X-Sign-Version）| 无 token 时返回 `401 NOT_LOGGED_IN` 而非 WAF HTML |
-| Referer | 必须为 `https://www.pzds.com/goodsList/7/6` 或 `https://www.pzds.com/` | 详情页 referer 会被路由到 JSON 登录态错误 |
-| 业务签名 | `X-Sign-Version: v18` + WASM `505c6f51.wasm` | 需补 `Wasm-Sign: newTest` header |
-| prefix | `18152c0dc559302765e69a8f8bf3c191` | Init/Verify 子域名 |
-| sceneId | `19x5u7lo` | 固定 |
-| userId/userUserId | 加密值，固定不变 | 从 challenge HTML 提取 |
-| DeviceData | 固定值，不参与计算 | 从捕获的 Init 请求中复制 |
+| Referer | 样本使用 `https://www.pzds.com/goodsList/7/6` 或 `https://www.pzds.com/` | 当前目标以真实请求为准；详情页 referer 可能触发 JSON 登录态错误 |
+| 业务签名 | 样本使用 `X-Sign-Version: v18` + `505c6f51.wasm` | `Wasm-Sign` 等附加头必须从当前请求复核 |
+| prefix | 样本中的 Init/Verify 子域名前缀 | 从当前请求或 challenge 证据提取，不得硬编码样本值 |
+| sceneId | 当前轮 `requestInfo.sceneId` | 每轮从 challenge HTML 解析 |
+| userId/userUserId | 当前轮 challenge 中的加密字段 | 不假设跨目标或跨轮固定 |
+| DeviceData | 当前 Init 请求携带的设备数据 | 从同轮请求提取，不得复制旧样本 |
 | 业务重放 | POST 体来自 requestInfo.data（Base64 解码）| URL 附加 `u_atoken` + `u_asig` query |
 | decode__1174 | WAF JS Challenge 生成的动态参数 | **per-request 一次性 token**，绑定 TLS session + cookie，几秒内过期，不能缓存或跨 session 复用；Python 无法使用浏览器生成的 decode__1174（TLS 指纹不同会被拒绝） |
 | 统一 session | `curl_cffi` impersonate="chrome146" | 整条链路用同一个 TLS session |
@@ -1149,7 +1150,7 @@ Python 发送业务请求（带 token + 签名）
 
 ## 错误分支与反模式（必须避开）
 
-以下来自历史失败记录：目标被正确识别为阿里 V2，但执行路径把画像更新误做成了从零协议恢复。它只说明应先定位变化层，不能替代当前目标证据或授权。
+以下是失败诊断模式：目标已识别为阿里 V2，但执行路径把画像更新误做成了从零协议恢复。它只说明应先定位变化层，不能替代当前目标证据或授权。
 
 ### 错误分支长什么样
 
@@ -1174,7 +1175,7 @@ Python 发送业务请求（带 token + 签名）
 
 ### 禁止事项
 
-1. **禁止在用户已提供可跑通 V2 项目时从零重写协议。** 先只读确认其 runner/helper/profile 契约，再决定当前目标需要适配还是重建；历史项目代码不得直接复制进交付，也不得修改用户指定的参考路径。
+1. **禁止在用户已提供可跑通 V2 项目时从零重写协议。** 先只读确认其 runner/helper/profile 契约，再决定当前目标需要适配还是重建；外部参考项目代码不得直接复制进交付，也不得修改用户指定的参考路径。
 2. **禁止把 FeiLin 版本号上升当成“整条链失效”。** `DeviceConfig.version` 与历史成功样本并存时，先判断画像/field21/资源自证层是否变化，不要直接重做 RPC、Log 封装或 sg 算法；当前目标仍需重新取证。
 3. **禁止 `StaticPath` / `sg.xxx` 文件名轮换就重提 VM。** 多个脚本路径可能共享同一 stream codec 与 key。先对当前已确认 helper 做固定输入输出比较；只有输出或运行时 key 真变才更新实现。
 4. **禁止用长时间滑块 UI 自动化替代协议日更。** 浏览器只用于取证、人工 T001 正样本、更新器采集。合成 PointerEvent、CDP 拖滑块、反复“帮用户拖到底”不是交付主路径；用户已提供人工 T001 或已有更新器时，应立刻回到 profile/field21/data codec 对齐。

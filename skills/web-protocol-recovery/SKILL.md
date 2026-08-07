@@ -134,6 +134,7 @@ Prefer supplied artifacts or one registry case before opening a browser.
 ```
 shape: collector
 route: verifier
+nextAsk: none
 nextRead: references/providers/protocol-recovery/verifier/PROVIDER.md
 ```
 然后由 verifier Provider 的 Family Router 按 `InitCaptchaV2` / `StaticPath sg.xxx` 信号选择 `aliyun-captcha-v2-workflow.md`。
@@ -200,7 +201,7 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 ### 多轮上下文检查点
 
-每完成一个 Phase（或在 verifier 链路中每完成一个关键工件），必须输出一个检查点摘要（写入 `js_reverse_cache/checkpoint.md`）：
+每完成一个 Phase（或在 verifier 链路中每完成一个关键工件），必须输出一个检查点摘要；当 `writeMode` 已启用时写入 `js_reverse_cache/checkpoint.md`，纯只读 fast path / `writeMode=no-write` 阶段先在回复中报告，不为写 checkpoint 打破 no-write：
 
 ```markdown
 ## Checkpoint [timestamp]
@@ -265,7 +266,7 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 |---|---|---|
 | MCP 工具调用返回同一错误 ≥2 次（如 `Could not save file`、`Execution context destroyed`、`timed out`） | 工具环境问题 | **不要重试同一调用**。记录 blocker，切换替代方法（如：`save_script_source` 失败 → 改用 curl + write 保存；`evaluate_js` 超时 → 改用 `search_in_sources` + 浏览器外分析）|
 | 浏览器页面重置为 `about:blank` / 丢失上下文 | 工具环境问题 | 重新 `navigate` 后继续，不要归因为协议失败 |
-| 中文路径导致文件操作失败 | 工具环境问题 | 用纯 ASCII 路径替代（如 `/tmp/pi-*`），然后复制到目标目录 |
+| 中文路径导致文件操作失败 | 工具环境问题 | 优先在 `<projectRoot>/js_reverse_cache/ascii/**` 创建纯 ASCII 子路径；只有工具强制外部路径时才用临时 ASCII 路径，并立即复制回 `js_reverse_cache/**` 后清理外部副本 |
 | HTTP 响应 status/body 与预期不符 | 协议失败 | 按协议诊断顺序处理 |
 | HMAC/AES/签名与捕获包不一致 | 协议失败 | 检查参数/密钥/编码 |
 | 同一代码修复后运行结果不变 | 可能是工具失败（文件未真正写入） | 先确认文件状态（`cat`/`sha256sum`）再继续 |
@@ -279,7 +280,7 @@ MCP 环境中有多套浏览器引擎可用：
 2. `camoufox-reverse-mcp`（Camoufox / Firefox SpiderMonkey）
 3. `chrome-devtools-mcp`（普通 Chrome DevTools）
 
-**规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——立即切换到下一个可用引擎：
+**规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——记录为工具失败条件，并切换到下一个可用引擎。这个 fallback 是工具恢复，不是协议 route 升级；exit code 21 / profile 残留按「浏览器启动失败诊断流程」先问用户，不进入自动 fallback：
 
 ```
 Chrome 失败 x2      → 切 CloakBrowser
@@ -292,7 +293,7 @@ CloakBrowser 失败 x2 → 切 Camoufox
 - CloakBrowser（js-reverse-mcp Cloak 模式）：指纹伪装，Chrome 无法通过时使用
 - Camoufox（camoufox-reverse-mcp）：Firefox 引擎，最后手段，对 WAF JS 有不同处理逻辑
 - 三者 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
-- **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**
+- **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**；但启动残留类错误必须先走用户决策，不自动杀进程也不自动换引擎隐藏该问题
 
 ### 浏览器启动失败诊断流程
 
@@ -331,7 +332,7 @@ CloakBrowser 失败 x2 → 切 Camoufox
 
 **正确做法（按优先级）**：
 1. **不清 cookie**：保留 WAF session，通过业务请求头缺失/错误来触发 Captcha V2 层（而非 WAF JS 层）
-2. **如果必须清 cookie**：使用 Camoufox（对 WAF JS 有更好的通过率）而不是 CloakBrowser
+2. **如果必须清 cookie**：把 WAF JS navigation 恢复记录为工具/页面恢复条件，使用 Camoufox（对 WAF JS 有更好的通过率）而不是 CloakBrowser；这不改变协议 route，最终 live egress 仍归 Python
 3. **WAF 页面导航参数**：对 WAF 页面用 `wait_until: 'networkidle'` 而非 `domcontentloaded`；如果 networkidle 也超时，设定 15s 超时后检查 `get_page_info` 判断页面是否已在目标域
 
 **绝不要**：清 cookie → CloakBrowser → `wait_until: domcontentloaded` → 超时 → 宣布失败。这是已验证的最大轮次浪费模式。
@@ -368,7 +369,7 @@ Gate mapping (record vs confirm): read-only/verifier action ↔ `actionClass` re
 - Do not ship browser-backed page `fetch`/CDP as the final collector.
 - 🛑 **HARD STOP — 滑块自动化**：如果你正在调用 `drag`/`click`/`evaluate_js` 来操作验证码滑块元素（如 `#aliyunCaptcha-sliding-slider`、`.geetest_slider_button`、任何 captcha DOM 元素），**立刻停止**。这是浏览器自动化，不是协议交付。恢复步骤：① 停止所有 DOM 操作 → ② 切换到 XHR 断点法采集协议证据 → ③ 按 verifier workflow 实现纯协议 T001。唯一例外：用户明确要求的一次性人工正样本采集（非交付主路径）。
 - Do not scale page/retry/concurrency after one lucky HTTP `200`.
-- Do not select `camoufox` or open a second recon engine without explicit Camoufox/SpiderMonkey/engine-level wording or recorded criteria. Fingerprint/Cloak/stealth wording, busy Chrome, a vendor name, `412`, Reese84 wording, and historical case provenance are all non-criteria (Phase 2 owns this).
+- Do not select `camoufox` or open a second recon engine without explicit Camoufox/SpiderMonkey/engine-level wording, recorded tool-failure fallback, WAF navigation recovery, or other recorded criteria. Fingerprint/Cloak/stealth wording, busy Chrome, a vendor name, `412`, Reese84 wording, and historical case provenance are all non-criteria (Phase 2 owns this).
 - Do not route a vendor family on one marker, a label, or a guess; require independent corroboration (Phase 0 owns this).
 - Do not load a sibling case after one registry match failed current evidence.
 - Do not claim `complete` while task-owned resources remain live or `cleanup.complete=false`.

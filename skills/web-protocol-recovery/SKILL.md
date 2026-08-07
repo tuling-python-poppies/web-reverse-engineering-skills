@@ -143,14 +143,29 @@ nextRead: references/providers/protocol-recovery/verifier/PROVIDER.md
 
 ### PZDS Aliyun V2 商品采集专用触发器
 
-当任务同时出现以下信号时，直接收敛到 `shape: collector` + `route: verifier`。先读取
-`references/providers/protocol-recovery/verifier/PROVIDER.md`，再由 Family Router 在
-Aliyun V2 reference 与 PZDS case `PROCESS.md` 中选择一个下一读路径。详细协议步骤和
-私有状态合同由这些 canonical references 所有，根技能不复制。
+当任务同时出现以下信号时，直接收敛到 `shape: collector` + `route: verifier`：
 
 - 业务目标是 `goodsPublic/page` 或同类商品列表接口，最终要拿 JSON records，不接受页面渲染结果作为交付。
 - 验证链包含 `InitCaptchaV2`、`UploadLog`、`Log2`、`Log3`、`VerifyCaptchaV2`、`T001/F001` 中至少三个信号。
 - 验证成功后还要带 `u_atoken/u_asig` 或等价网关参数重放业务请求。
+
+独立执行目标：
+
+1. 先触发业务 WAF HTML，解析 `sceneId/traceid/token/userId/userUserId`。
+2. 发送 `InitCaptchaV2 -> UploadLog -> Log2 -> Log3 -> VerifyCaptchaV2`，其中 `UploadLog` 视为必发 sidecar，不是可省略装饰项。
+3. 若 `VerifyCode=T001 && VerifyResult=true`，立即重放业务请求并输出商品 JSON；若 `VerifyCode=F001`，先按 `field21 -> profile版本 -> 72/74/87 -> Log2 timestamp -> token counter/gatherCost -> Log3 combat -> Verify data/arg/track -> 业务网关参数` 顺序 diff，再决定是否重采新轮。
+4. 若当前 `DeviceConfig.version` 与本地 profile 不一致，停止提交 Verify，先刷新 profile。
+5. 若浏览器只给到正样本或旁证，Python 仍是最终 live egress 端，不允许把浏览器返回当作最终交付。
+
+同轮一致性约束：同一轮的 `sceneId`、`traceid/CertifyId`、`sessionId`、`version`、`ip`、`timestamp`、`encryptionKey`、业务 token/cookie、Log2 profile、Log3 combat、Verify track、deviceToken counter 必须成套生成；禁止把不同轮次的 token、画像、轨迹、sidecar 或业务参数拼接后提交。
+
+失败分流顺序：
+
+1. `UploadLog` 传输失败：先重启一轮或换 transport/session，不改协议 payload。
+2. `missing_or_stale_profile` 或 FeiLin version mismatch：停止 Verify，刷新 profile。
+3. `F001`：先把同轮数据 diff 完，再决定是否继续当前 cohort；不要把旧轨迹平移或轻微扰动当作稳定解。
+4. `Log2/Log3 200/true` 只代表 sidecar 被结构性接收，不代表最终成功。
+5. `records` 非空且业务 `success=true/code=SUCCESS` 才算完成。
 
 路由输出必须注明：最终 live HTTP 由 Python collector 负责；浏览器只用于取证、正样本或窄工件；缺少当前 profile/session/track 时不得声明 live complete。
 

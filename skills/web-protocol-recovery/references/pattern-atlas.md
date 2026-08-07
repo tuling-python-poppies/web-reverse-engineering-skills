@@ -27,7 +27,7 @@ Use this file only when a recurring symptom is already visible and you need the 
 | TLS/ALPN/UA/HTTP-version failure occurs before meaningful application data | map a narrow admission matrix | `transport-pre-gate-playbook.md` |
 | Admission still differs after the nearest maintained impersonation profile | capture structured TLS/H2 state and prove the first unexpressed field | `native-transport-profile-playbook.md` |
 | Normal HTTP status carries gibberish, compressed bytes, glyphs, or encoded strings | freeze raw payload and trace its first consumer | `response-decode-playbook.md` |
-| GraphQL operation, WebSocket frames, protobuf/msgpack, or binary envelope owns the contract | separate transport envelope from business fields | `structured-transport-playbook.md` |
+| GraphQL operation, WebSocket frames, gRPC/grpc-web, protobuf/msgpack, or binary envelope owns the contract | separate transport envelope from business fields | `structured-transport-playbook.md` |
 | One-shot captcha/verifier token gates the business request | select captcha family, preserve one coherent round, and split protocol/compute/perception/behavior | `references/providers/protocol-recovery/verifier/PROVIDER.md` |
 | Restored pixels look correct but submitted coordinates fail | select captcha family first, then map restored, displayed, and submitted coordinate spaces | `references/providers/protocol-recovery/verifier/PROVIDER.md` |
 | Early pages work but later pages switch route family | capture cutoff and use raw pager targets | `pagination-route-pivot-playbook.md` |

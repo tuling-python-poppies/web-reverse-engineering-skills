@@ -57,6 +57,7 @@ DIAGNOSTIC_SELF_TESTS = (
     "scripts/transcript_diff.py",
     "scripts/transform_trace_diff.py",
     "scripts/transport_profile_diff.py",
+    "scripts/grpc_frame_inspector.py",
     "scripts/practice_lab.py",
 )
 

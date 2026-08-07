@@ -90,20 +90,53 @@ Use for realtime upstream payloads.
 
 ```js
 (function () {
-  if (window.__restoreWebSocketSendHook) return console.warn('WebSocket send hook already installed');
+  const RESTORE_KEY = '__restoreWebSocketSendHook';
+  if (Object.prototype.hasOwnProperty.call(window, RESTORE_KEY)) {
+    return console.warn('WebSocket send hook already installed');
+  }
+  const URL_FILTER = '';
+  if (!URL_FILTER) return console.warn('[hook] set one WebSocket URL filter before installing');
   const rawSend = WebSocket.prototype.send;
-  WebSocket.prototype.send = function (data) {
-    console.log('[ws:send]', { type: typeof data, length: data && (data.length || data.byteLength) || 0 });
-    console.trace('[ws:send:stack]');
-    debugger;
-    return rawSend.apply(this, arguments);
+  const wrappedSend = function (data) {
+    const result = rawSend.apply(this, arguments);
+    try {
+      if (typeof this.url === 'string' && this.url.includes(URL_FILTER)) {
+        console.log('[ws:send]', {
+          url: this.url.split('?')[0],
+          type: typeof data,
+          length: typeof data === 'string' ? data.length : 0,
+        });
+        console.trace('[ws:send:stack]');
+        debugger;
+      }
+    } catch (error) {}
+    return result;
   };
-  window.__restoreWebSocketSendHook = function () {
-    WebSocket.prototype.send = rawSend;
-    delete window.__restoreWebSocketSendHook;
+  const restore = function () {
+    if (WebSocket.prototype.send === wrappedSend) {
+      WebSocket.prototype.send = rawSend;
+    } else {
+      console.warn('[hook] WebSocket send slot changed; current owner was preserved');
+    }
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
   };
+  try {
+    WebSocket.prototype.send = wrappedSend;
+    Object.defineProperty(window, RESTORE_KEY, {
+      configurable: true,
+      writable: false,
+      value: restore,
+    });
+  } catch (error) {
+    if (WebSocket.prototype.send === wrappedSend) WebSocket.prototype.send = rawSend;
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.warn('[hook] WebSocket send installation failed:', error.name);
+  }
 })();
 ```
+
+Calling `this.send(data)` from the replacement is recursive. Always retain the
+prototype method and call it with `rawSend.apply(this, arguments)`.
 
 ## WebSocket Message
 
@@ -111,31 +144,62 @@ Use only when downstream message provenance matters; otherwise prefer the browse
 
 ```js
 (function () {
-  if (window.__restoreWebSocketMessageHook) return console.warn('WebSocket message hook already installed');
+  const RESTORE_KEY = '__restoreWebSocketMessageHook';
+  if (Object.prototype.hasOwnProperty.call(window, RESTORE_KEY)) {
+    return console.warn('WebSocket message hook already installed');
+  }
+  const URL_FILTER = '';
+  if (!URL_FILTER) return console.warn('[hook] set one WebSocket URL filter before installing');
   const rawAddEventListener = WebSocket.prototype.addEventListener;
   const rawRemoveEventListener = WebSocket.prototype.removeEventListener;
   const loggers = new WeakMap();
   const sockets = new Set();
-  WebSocket.prototype.addEventListener = function (type, listener) {
-    if (type === 'message' && !loggers.has(this)) {
-      const logger = function (event) {
-        console.log('[ws:message]', { type: typeof event.data, length: event.data && (event.data.length || event.data.byteLength) || 0 });
-      };
-      loggers.set(this, logger);
-      sockets.add(this);
-      rawAddEventListener.call(this, type, logger, true);
-    }
-    return rawAddEventListener.apply(this, arguments);
+  const wrappedAddEventListener = function (type, listener) {
+    const result = rawAddEventListener.apply(this, arguments);
+    try {
+      if (type === 'message' && typeof this.url === 'string' && this.url.includes(URL_FILTER) && !loggers.has(this)) {
+        const logger = function (event) {
+          try {
+            console.log('[ws:message]', {
+              type: typeof event.data,
+              length: typeof event.data === 'string' ? event.data.length : 0,
+            });
+          } catch (error) {}
+        };
+        loggers.set(this, logger);
+        sockets.add(this);
+        rawAddEventListener.call(this, type, logger, true);
+      }
+    } catch (error) {}
+    return result;
   };
-  window.__restoreWebSocketMessageHook = function () {
+  const restore = function () {
     sockets.forEach(function (socket) {
       const logger = loggers.get(socket);
       if (logger) rawRemoveEventListener.call(socket, 'message', logger, true);
     });
-    WebSocket.prototype.addEventListener = rawAddEventListener;
+    if (WebSocket.prototype.addEventListener === wrappedAddEventListener) {
+      WebSocket.prototype.addEventListener = rawAddEventListener;
+    } else {
+      console.warn('[hook] WebSocket listener slot changed; current owner was preserved');
+    }
     sockets.clear();
-    delete window.__restoreWebSocketMessageHook;
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
   };
+  try {
+    WebSocket.prototype.addEventListener = wrappedAddEventListener;
+    Object.defineProperty(window, RESTORE_KEY, {
+      configurable: true,
+      writable: false,
+      value: restore,
+    });
+  } catch (error) {
+    if (WebSocket.prototype.addEventListener === wrappedAddEventListener) {
+      WebSocket.prototype.addEventListener = rawAddEventListener;
+    }
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.warn('[hook] WebSocket message installation failed:', error.name);
+  }
 })();
 ```
 
@@ -205,6 +269,121 @@ Use for iframe, extension bridge, page bridge, or worker wrapper traffic.
   };
 })();
 ```
+
+## MessagePort Send
+
+Use when a worker, iframe, or page bridge carries the target artifact through
+`MessagePort` rather than `window.postMessage`.
+
+```js
+(function () {
+  'use strict';
+
+  if (typeof MessagePort === 'undefined') {
+    return console.warn('[hook] MessagePort unavailable');
+  }
+  const RESTORE_KEY = '__restoreBrowserHookMessagePort';
+  if (Object.prototype.hasOwnProperty.call(window, RESTORE_KEY)) {
+    return console.warn('[hook] MessagePort hook already installed');
+  }
+
+  const TARGET_PORT = window.targetPort;
+  const MESSAGE_TYPE = '';
+  if (!TARGET_PORT || !MESSAGE_TYPE) {
+    return console.warn('[hook] set TARGET_PORT and MESSAGE_TYPE before installing');
+  }
+
+  const originalOwnDescriptor = Object.getOwnPropertyDescriptor(TARGET_PORT, 'postMessage');
+  if ((originalOwnDescriptor && !originalOwnDescriptor.configurable)
+      || (!originalOwnDescriptor && !Object.isExtensible(TARGET_PORT))) {
+    return console.warn('[hook] target port cannot accept a reversible own wrapper');
+  }
+  const rawPostMessage = TARGET_PORT.postMessage;
+  if (typeof rawPostMessage !== 'function') {
+    return console.warn('[hook] target port postMessage unavailable');
+  }
+  const rawAddEventListener = EventTarget.prototype.addEventListener;
+  const rawRemoveEventListener = EventTarget.prototype.removeEventListener;
+  const messageKind = function (message) {
+    if (typeof message === 'string') return 'string';
+    if (!message || typeof message !== 'object') return '';
+    try {
+      const descriptor = Object.getOwnPropertyDescriptor(message, 'type');
+      return descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value')
+        && typeof descriptor.value === 'string' ? descriptor.value : '';
+    } catch (error) {
+      return '';
+    }
+  };
+  const messageLength = function (message) {
+    if (typeof message === 'string') return message.length;
+    if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(message)) return message.byteLength;
+    if (typeof ArrayBuffer !== 'undefined' && message instanceof ArrayBuffer) return message.byteLength;
+    return 0;
+  };
+
+  const wrappedPostMessage = function (message) {
+    const result = rawPostMessage.apply(this, arguments);
+    if (this === TARGET_PORT) {
+      try {
+        const kind = messageKind(message);
+        if (kind === MESSAGE_TYPE) {
+          console.log('[messagePort:send]', { type: kind, length: messageLength(message) });
+          console.trace('[messagePort:send:stack]');
+        }
+      } catch (error) {}
+    }
+    return result;
+  };
+  const onMessage = function (event) {
+    try {
+      const kind = messageKind(event.data);
+      if (kind === MESSAGE_TYPE) {
+        console.log('[messagePort:receive]', { type: kind, length: messageLength(event.data) });
+      }
+    } catch (error) {}
+  };
+  let listenerAdded = false;
+  const restore = function () {
+    if (TARGET_PORT.postMessage === wrappedPostMessage) {
+      if (originalOwnDescriptor) Object.defineProperty(TARGET_PORT, 'postMessage', originalOwnDescriptor);
+      else delete TARGET_PORT.postMessage;
+    } else {
+      console.warn('[hook] MessagePort slot changed; current owner was preserved');
+    }
+    if (listenerAdded) rawRemoveEventListener.call(TARGET_PORT, 'message', onMessage, true);
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.log('[hook] MessagePort restored');
+  };
+  try {
+    Object.defineProperty(TARGET_PORT, 'postMessage', {
+      configurable: true,
+      enumerable: originalOwnDescriptor ? originalOwnDescriptor.enumerable : false,
+      writable: true,
+      value: wrappedPostMessage,
+    });
+    rawAddEventListener.call(TARGET_PORT, 'message', onMessage, true);
+    listenerAdded = true;
+    Object.defineProperty(window, RESTORE_KEY, {
+      configurable: true,
+      writable: false,
+      value: restore,
+    });
+  } catch (error) {
+    if (TARGET_PORT.postMessage === wrappedPostMessage) {
+      if (originalOwnDescriptor) Object.defineProperty(TARGET_PORT, 'postMessage', originalOwnDescriptor);
+      else delete TARGET_PORT.postMessage;
+    }
+    if (listenerAdded) rawRemoveEventListener.call(TARGET_PORT, 'message', onMessage, true);
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    return console.warn('[hook] MessagePort installation failed:', error.name);
+  }
+})();
+```
+
+The port must already be known and started by the page; this example does not
+call `start()` or alter the port's lifecycle. It observes both directions but
+does not read or print complete payloads by default.
 
 ## Page-Main-World Injection
 

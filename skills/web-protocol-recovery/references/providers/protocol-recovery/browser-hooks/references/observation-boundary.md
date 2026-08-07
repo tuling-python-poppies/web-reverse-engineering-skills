@@ -4,7 +4,7 @@ Use this reference only when the work order already names a concrete hook target
 
 ## Choose The Smallest Surface
 
-1. Prefer the final observable boundary: URL-filtered `fetch`/XHR, one header setter, one cookie/storage key, one crypto API, one DOM/canvas/export boundary, one dynamic-code boundary, or one message type.
+1. Prefer the final observable boundary: URL-filtered `fetch`/XHR, one header setter, one cookie/storage key, one crypto API, one DOM/canvas/export boundary, one event registration, one known object property/method, one known module loader/chunk global, one dynamic-code boundary, or one message type.
 2. Hook a wrapper such as `$.ajax`, SDK interceptors, Worker, `MessagePort`, `postMessage`, Blob/object URL, or timer APIs only when initiator evidence shows that wrapper owns the mutation or schedule.
 3. Use page-main-world injection only when isolated-world globals differ from the target world. Otherwise return the Console/Snippets script.
 4. Do not install broad `window`, `document`, `navigator`, all-XHR, all-fetch, or proxy-style probes to discover an unknown entry. Return to reconnaissance instead.
@@ -14,9 +14,9 @@ Use this reference only when the work order already names a concrete hook target
 Every log entry should identify the target and event before showing data:
 
 ```text
-target=<fetch|xhr|cookie|storage|crypto|websocket|worker|postMessage>
-event=<open|send|set-header|write|read|call|message>
-method/url/key/api/field=<bounded identifier when available>
+target=<fetch|xhr|cookie|storage|crypto|websocket|worker|messagePort|event|property|module>
+event=<open|send|set-header|write|read|call|message|register|load>
+method/url/key/api/field/moduleId=<bounded identifier when available>
 value=<type + length + hash or redacted marker by default>
 stack=<only when it answers the acceptance test>
 ```

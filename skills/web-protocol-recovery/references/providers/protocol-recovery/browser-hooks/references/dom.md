@@ -149,3 +149,184 @@ For export results:
   };
 })();
 ```
+
+## Targeted Attribute Writes
+
+Use when a known script, iframe, or worker URL is assembled through
+`setAttribute`. Configure the value filter before installing the hook.
+
+```js
+(function () {
+  'use strict';
+
+  const RESTORE_KEY = '__restoreBrowserHookSetAttribute';
+  if (Object.prototype.hasOwnProperty.call(window, RESTORE_KEY)) {
+    return console.warn('[hook] setAttribute hook already installed');
+  }
+
+  const TAG_NAME = 'script';
+  const ATTRIBUTE_NAME = 'src';
+  const VALUE_FRAGMENT = '';
+  if (!VALUE_FRAGMENT) {
+    return console.warn('[hook] set one VALUE_FRAGMENT before installing');
+  }
+  const rawSetAttribute = Element.prototype.setAttribute;
+
+  const wrappedSetAttribute = function (name, value) {
+    const result = rawSetAttribute.apply(this, arguments);
+    try {
+      if (
+        typeof this.tagName === 'string'
+        && this.tagName.toLowerCase() === TAG_NAME
+        && typeof name === 'string'
+        && name.toLowerCase() === ATTRIBUTE_NAME
+        && typeof value === 'string'
+        && value.includes(VALUE_FRAGMENT)
+      ) {
+        console.log('[dom:setAttribute]', {
+          tag: TAG_NAME,
+          attribute: ATTRIBUTE_NAME,
+          valueType: typeof value,
+          valueLength: value.length,
+        });
+        console.trace('[dom:setAttribute:stack]');
+        debugger;
+      }
+    } catch (error) {}
+    return result;
+  };
+  const restore = function () {
+    if (Element.prototype.setAttribute === wrappedSetAttribute) {
+      Element.prototype.setAttribute = rawSetAttribute;
+    } else {
+      console.warn('[hook] setAttribute slot changed; current owner was preserved');
+    }
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.log('[hook] setAttribute restored');
+  };
+  try {
+    Element.prototype.setAttribute = wrappedSetAttribute;
+    Object.defineProperty(window, RESTORE_KEY, {
+      configurable: true,
+      writable: false,
+      value: restore,
+    });
+  } catch (error) {
+    if (Element.prototype.setAttribute === wrappedSetAttribute) {
+      Element.prototype.setAttribute = rawSetAttribute;
+    }
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.warn('[hook] setAttribute installation failed:', error.name);
+  }
+})();
+```
+
+The filter is used only to decide whether to log; the attribute value is
+forwarded unchanged and is not printed.
+
+## Targeted `getElementById`
+
+Use when a known field or state container is located by one specific ID.
+
+```js
+(function () {
+  'use strict';
+
+  const RESTORE_KEY = '__restoreBrowserHookGetElementById';
+  if (typeof Document === 'undefined' || Object.prototype.hasOwnProperty.call(window, RESTORE_KEY)) {
+    return console.warn('[hook] getElementById unavailable or already installed');
+  }
+
+  const TARGET_ID = '';
+  if (!TARGET_ID) {
+    return console.warn('[hook] set one TARGET_ID before installing');
+  }
+  const rawGetElementById = Document.prototype.getElementById;
+  const wrappedGetElementById = function (id) {
+    const result = rawGetElementById.apply(this, arguments);
+    try {
+      if (typeof id === 'string' && id === TARGET_ID) {
+        console.log('[dom:getElementById]', { id: TARGET_ID });
+        console.trace('[dom:getElementById:stack]');
+      }
+    } catch (error) {}
+    return result;
+  };
+  const restore = function () {
+    if (Document.prototype.getElementById === wrappedGetElementById) {
+      Document.prototype.getElementById = rawGetElementById;
+    } else {
+      console.warn('[hook] getElementById slot changed; current owner was preserved');
+    }
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.log('[hook] getElementById restored');
+  };
+  try {
+    Document.prototype.getElementById = wrappedGetElementById;
+    Object.defineProperty(window, RESTORE_KEY, {
+      configurable: true,
+      writable: false,
+      value: restore,
+    });
+  } catch (error) {
+    if (Document.prototype.getElementById === wrappedGetElementById) {
+      Document.prototype.getElementById = rawGetElementById;
+    }
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.warn('[hook] getElementById installation failed:', error.name);
+  }
+})();
+```
+
+Pair this with the input descriptor example in `storage.md` when the question
+is whether the returned element is subsequently read or overwritten.
+
+## Same-Origin Iframe Load
+
+Use when a named same-origin iframe owns a challenge or bridge document.
+
+```js
+(function () {
+  'use strict';
+
+  const RESTORE_KEY = '__restoreBrowserHookFrameLoad';
+  const frame = document.querySelector('#target-frame');
+  if (!frame || Object.prototype.hasOwnProperty.call(window, RESTORE_KEY)) {
+    return console.warn('[hook] target iframe unavailable or already installed');
+  }
+
+  const onLoad = function () {
+    let locationMeta = { sameOrigin: false };
+    try {
+      const url = new URL(frame.contentWindow.location.href);
+      locationMeta = { sameOrigin: true, origin: url.origin, pathname: url.pathname };
+    } catch (error) {
+      locationMeta.error = error.name;
+    }
+    console.log('[iframe:load]', locationMeta);
+    console.trace('[iframe:load:stack]');
+  };
+
+  const restore = function () {
+    frame.removeEventListener('load', onLoad, true);
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.log('[hook] iframe load restored');
+  };
+  try {
+    frame.addEventListener('load', onLoad, true);
+    Object.defineProperty(window, RESTORE_KEY, {
+      configurable: true,
+      writable: false,
+      value: restore,
+    });
+  } catch (error) {
+    frame.removeEventListener('load', onLoad, true);
+    if (window[RESTORE_KEY] === restore) delete window[RESTORE_KEY];
+    console.warn('[hook] iframe load installation failed:', error.name);
+  }
+})();
+```
+
+Do not use this to bypass same-origin policy or inject code into a cross-origin
+frame. A cross-origin result is a boundary observation, not a failure to work
+around.

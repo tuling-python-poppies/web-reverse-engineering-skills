@@ -81,6 +81,40 @@ Use these as target log shapes when generating one-off hook snippets.
   DataURL: <redacted>
 ```
 
+## Event And Property Hooks
+
+```text
+[Event Hook] register target=document type=keydown capture=false
+=== Call Stack ===
+  at EventTarget.addEventListener (native)
+  at installProtection (https://domain.com/static/challenge.js:80:3)
+
+[Property Hook] set window._knownState type=object length=1
+=== Call Stack ===
+  at Object.<anonymous> (https://domain.com/static/challenge.js:123:5)
+```
+
+## Module And Timer Hooks
+
+```text
+[Webpack Hook] moduleId="12345" chunkIdCount=1
+=== Call Stack ===
+  at Array.push (native)
+  at loadChunk (https://domain.com/static/runtime.js:45:9)
+
+[Timer Hook] id=17 kind=interval delayType=number callbackType=function sourceLength=48
+[Timer Cancel] id=17 kind=interval
+```
+
+## MessagePort Hook
+
+```text
+[MessagePort Hook] send type=challenge length=128
+=== Call Stack ===
+  at MessagePort.postMessage (native)
+  at workerBridge.send (https://domain.com/static/bridge.js:55:7)
+```
+
 ## Noise Control
 
 High-frequency hooks should start with an explicit config:
@@ -90,7 +124,10 @@ const HOOK_CONFIG = {
   FULL_LOG: false,
   MAX_BODY_LENGTH: 0,
   MAX_STACK_DEPTH: 5,
+  MAX_HITS: 20,
   URL_FILTER: null,
+  EVENT_FILTER: null,
+  MODULE_FILTER: null,
   DUPLICATE_SUPPRESS: true,
 };
 ```

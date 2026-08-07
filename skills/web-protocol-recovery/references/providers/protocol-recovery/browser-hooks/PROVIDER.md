@@ -22,15 +22,19 @@ Canonical executable templates:
 - `scripts/crypto_api.js`
 - `scripts/storage.js`
 
-If the observation boundary is concrete but the safest hook surface, log fields, restore strategy, or adjacent hook family is unclear, read `references/observation-boundary.md` first, then only the relevant topic file from `references/index.md`. Do not read topic files for routine template use.
+If the observation boundary is concrete but the safest hook surface, log fields, restore strategy, or adjacent hook family is unclear, read `references/observation-boundary.md` first, then only the relevant topic file from `references/index.md`. The index includes network, storage, crypto, DOM, event, object-property, runtime, and module-loader examples. Do not read topic files for routine template use.
 
 Additional boundaries stay target-driven rather than becoming a second snippet library:
 
 - hook jQuery transport only when initiator evidence proves `$.ajax`, `ajaxPrefilter`, or `beforeSend` owns the mutation
 - observe WebSocket, Worker, `MessagePort`, or `postMessage` at the narrow message type and direction that carries the target artifact
+- observe keyboard/mouse registrations, legacy `on*` assignments, or DOM attribute writes only for one named event/property/attribute
+- observe a known webpack chunk global or loader only after source/initiator evidence names it; never enumerate every global or dump every module factory
 - inject in the page's main world when isolated-world globals differ from the target's world
 - treat cookie and storage observations as provenance evidence; direct property assignment and sibling writers can bypass one setter hook
 - intercept direct `eval` through a local wrapper at its call site when code identity matters; replacing global `eval` changes direct-eval scope semantics
+
+Broad anti-debug rewrites are not browser-hook examples. Do not clear every timer, replace global `RegExp`/`Date`/`console`, rewrite `Function.prototype.constructor`, or globally spoof `Function.prototype.toString`. Use the targeted timer/dynamic-code examples in `references/runtime.md`; if they are insufficient, return a blocker for debugger controls, source-level instrumentation, or offline extraction.
 
 Every hook must preserve original `this`, arguments, return value, exceptions, and Promise behavior; install idempotently; bind logs to target/event/method/URL/field; default to types, lengths, hashes, and redaction; and expose a named restore function. Canonical templates fail closed until their target URL/key/API/cookie/header filter is configured. Do not consume Request/Response bodies by default.
 

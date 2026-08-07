@@ -39,7 +39,7 @@ autoresearch 的精髓：
 | 3 | **失败模式编码** | 12 | **必须显式编码失败模式**（写出"如果 X 失败 → Y"的明确分支）；有fallback路径、错误恢复；**只写正向流程而不写失败分支扣 ≥3 分**（SkillLens meta-skill 维度） |
 | 4 | **检查点设计** | 6 | 关键决策前有用户确认、防止自主失控；**检查点必须显性标记（🔴/STOP/CHECKPOINT），仅靠"如果...建议..."措辞不算** |
 | 5 | **可执行具体性** | 17 | 不模糊、有具体参数/格式/示例、可直接执行；**禁止"建议/可以考虑/根据情况/灵活把握/视情况而定"等软化措辞**——出现 ≥3 处扣 ≥3 分（SkillLens actionable specificity 维度） |
-| 6 | **资源整合度** | 4 | references/scripts/assets引用正确、路径可达 |
+| 6 | **资源整合度** | 5 | references/scripts/assets引用正确、路径可达 |
 
 ### 效果维度（35分）— 需要实测
 
@@ -475,7 +475,7 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
    - data-field="improvement-1/2/3" → 实际改进摘要
    - data-field="date" → 当前日期
 3. 随机选择风格：hash 设为 swiss/terminal/newspaper 之一
-4. 用 scripts/screenshot.mjs 截图（2x 高清，只截 .card 元素，自动 open 图片）：
+4. 用 scripts/screenshot.mjs 截图（2x 高清，只截 .card 元素；需要打开图片时加 `--open`）：
    node <darwinRoot>/scripts/screenshot.mjs \
      /abs/path/to/card.html /abs/path/to/output.png
    # 回退方案（脚本失败时）：
@@ -490,7 +490,7 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 |---|---|
 | `templates/result-card.html` | 3风格主模板（swiss/terminal/newspaper，hash切换） |
 | `templates/result-card-dark.html` / `-white.html` | 单一风格替代模板（需要锁定风格时用） |
-| `scripts/screenshot.mjs` | 2x 高清截图，只截 .card，自动 open |
+| `scripts/screenshot.mjs` | 2x 高清截图，只截 .card；`--open` 时打开图片 |
 | `results.tsv` | 历次优化日志（9列含 eval_mode） |
 | `{skill目录}/test-prompts.json` | 每个 skill 的测试 prompt 集（用于维度8实测） |
 

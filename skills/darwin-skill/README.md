@@ -58,15 +58,15 @@ npx skills add alchaincyf/darwin-skill
 
 - 多评委独立审查：每轮启动 2 个独立评委
 - 评委不复用：下一轮启动全新评委，避免锚定效应
-- 早停机制：单轮涨幅 < 1 分自动停手，避免凑分堆冗余
+- 早停机制：连续 2 轮边际收益 < 2 分自动停手，避免凑分堆冗余
 - 干跑模式控制：干跑比例 > 30% 自动告警
 
 **3. Human in the Loop 三层守关**（达尔文区别于 SkillOpt 全自动设计的核心）
 
 - Phase 1 基线评估：自动 + 人工审报告，决定改什么
 - Phase 2 单维度优化：🔴 CHECKPOINT 强制暂停，等用户确认
-- Phase 2.5 测试提示词跑（可选）
-- Phase 3 回归测试：🛑 STOP 涨幅低于阈值强制停手
+- Phase 2.5 探索性重写（按需触发）：🔴 CHECKPOINT 征得用户同意后才执行
+- Phase 3 汇总报告：展示 diff、分数变化、验证模式和结果卡片
 
 **4. 反例黑名单 8 条**（明文禁止的反模式）
 
@@ -82,7 +82,7 @@ npx skills add alchaincyf/darwin-skill
 **5. 实测验证数据**
 
 - huashu-gpt-image skill：**80.8 → 91.5 → 91.65**（+10.85，6 个独立评委共识）
-- darwin-skill 自评：**86.05 → 92.05 → 92.7**
+- darwin-skill 历史自评：**86.05 → 92.05 → 92.7**（当前版本需重新 `full_test` 后才作为 current score）
 
 ---
 
@@ -162,7 +162,7 @@ Agent Skill 生态在快速扩张。Claude Code、Codex、OpenClaw、Trae、Code
 3. 编辑 SKILL.md，git commit
 4. 启动 **2 个独立子 agent** 重新评分（下一轮换全新评委，避免锚定）
 5. 新分 > 旧分 → 保留；否则 → `git revert`（禁用 `git reset --hard`，反例黑名单第 2 条）
-6. 单轮涨幅 < 1 分 → 自动早停（避免凑分堆冗余）
+6. 连续 2 轮涨幅 < 2 分 → 自动早停（避免凑分堆冗余）
 7. 🔴 CHECKPOINT 暂停，展示 diff + 分数变化，等用户确认
 
 ---

@@ -52,15 +52,15 @@ v2.0 is not a patch release. It's a structural upgrade absorbing two Microsoft R
 
 - Multi-judge independent review: 2 independent judges per round
 - Judges never reused: each new round spawns fresh judges to avoid anchoring bias
-- Early stopping: if a round's score gain < 1 point, automatically halt to prevent padding for score
+- Early stopping: halt after two consecutive rounds with score gain < 2 points to prevent padding for score
 - Dry-run control: warn when dry-run ratio exceeds 30%
 
 **3. Human-in-the-loop at three checkpoints** (the core differentiator from SkillOpt's fully autonomous design)
 
 - Phase 1 baseline eval: auto + human review the report, decide what to optimize
 - Phase 2 single-dimension edit: 🔴 CHECKPOINT mandatory pause for user confirmation
-- Phase 2.5 test-prompt run (optional)
-- Phase 3 regression test: 🛑 STOP if gain falls below threshold
+- Phase 2.5 exploratory rewrite (when needed): 🔴 CHECKPOINT requires user approval before execution
+- Phase 3 summary report: show diff, score delta, validation mode, and result card
 
 **4. Anti-pattern blacklist with 8 explicit forbidden behaviors**
 
@@ -76,7 +76,7 @@ v2.0 is not a patch release. It's a structural upgrade absorbing two Microsoft R
 **5. Empirical validation data**
 
 - huashu-gpt-image skill: **80.8 → 91.5 → 91.65** (+10.85, consensus across 6 independent judges)
-- darwin-skill self-eval: **86.05 → 92.05 → 92.7**
+- darwin-skill historical self-eval: **86.05 → 92.05 → 92.7** (current versions require a fresh `full_test` before quoting as current score)
 
 ---
 
@@ -158,7 +158,7 @@ Five phases. The system runs autonomously within each phase but pauses between p
 3. Edit SKILL.md, git commit
 4. **Spawn 2 independent sub-agents** to re-score (next round spawns fresh judges to avoid anchoring)
 5. Score up → keep. Score down → `git revert` (never `git reset --hard`, blacklist #2)
-6. Round gain < 1 point → early-stop automatically (no padding for score)
+6. Two consecutive rounds with score gain < 2 points → early-stop automatically (no padding for score)
 7. 🔴 CHECKPOINT pauses, shows diff + score delta, waits for human confirmation
 
 ---

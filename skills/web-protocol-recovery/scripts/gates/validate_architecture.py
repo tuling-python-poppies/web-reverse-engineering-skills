@@ -34,6 +34,7 @@ EXPECTED_PROVIDER_IDS = {
     "akamai",
     "river-security",
     "reese84",
+    "kasada",
     "iv8",
     "python-node",
     "pure-python",
@@ -125,7 +126,7 @@ def provider_registry_findings() -> list[str]:
             findings.append("python-collector must have role=delivery")
         if pid in {"iv8", "python-node", "pure-python"} and role != "implementation":
             findings.append(f"{pid} must have role=implementation")
-        if pid in {"verifier", "akamai", "river-security", "reese84"}:
+        if pid in {"verifier", "akamai", "river-security", "reese84", "kasada"}:
             if role != "protocol-recovery":
                 findings.append(f"{pid} must have role=protocol-recovery")
             if not provider.get("ownsProtocolAcceptance"):

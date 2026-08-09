@@ -181,6 +181,14 @@
         "caseId": "pzds-aliyun-v2-goods-public",
         "deliveryProvider": "python-collector"
       }
+    },
+    {
+      "id": "kasada-protocol-owner",
+      "prompt": "A capture returns 429 with x-kpsdk-ct headers and KP_UIDz cookies, a window.KPSDK bootstrap, a double-UUID /ips.js collector path, and a /tl sensor POST. Recover a browser-free x-kpsdk-ct on a coherent egress before business replay.",
+      "expect": {
+        "shape": "local-proof",
+        "route": "kasada"
+      }
     }
   ]
 }

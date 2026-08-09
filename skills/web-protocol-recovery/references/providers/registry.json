@@ -86,6 +86,15 @@
       "profiles": []
     },
     {
+      "id": "kasada",
+      "role": "protocol-recovery",
+      "entry": "references/providers/protocol-recovery/kasada/PROVIDER.md",
+      "ownsProtocolAcceptance": true,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
       "id": "iv8",
       "role": "implementation",
       "entry": "references/providers/implementation/iv8/PROVIDER.md",

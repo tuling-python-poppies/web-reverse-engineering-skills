@@ -371,6 +371,30 @@ Self-check:
 
 - can a second same-target run or the target's own body shape falsify this number or constant?
 
+## Anti-pattern: Retype a fixed string from memory instead of byte-exact from the source
+
+Temptation:
+
+- rekey a constant string, key-value blob, or field template by hand from a screenshot or memory
+- silently "correct" what looks like a typo in an extracted fixed string (e.g. `function` where the source actually has `fnuction`)
+- assume a fixed string is standard English/JSON and normalize its spelling, spacing, or key order
+
+Why it is false progress:
+
+- VMP/bytecode targets deliberately plant misspellings, odd casing, or reordered fields in fixed strings that feed a hash
+- a single changed byte flips the entire digest, so `md5_body`/`sign` diverges while every other field looks correct
+- the failure surfaces as a generic rejection with no hint that one character in a constant is the cause
+
+Smallest honest next move:
+
+- extract the fixed string byte-exact from the source (concatenate the real bytecode/string fragments, do not paraphrase)
+- freeze it as a fixed vector and hash it once to lock the exact bytes
+- treat any "obvious typo" as intentional until a byte-diff against the source proves otherwise
+
+Self-check:
+
+- if you byte-diff your fixed string against the extracted source, is it identical, including spelling and field order?
+
 ## Entry format for new anti-patterns
 
 When a shortcut recurs across more than one job, add it in this shape:

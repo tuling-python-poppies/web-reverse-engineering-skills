@@ -125,6 +125,17 @@ Recover the signature by combining, not by full devirtualization. Each technique
 3. **Analyse the logs.** From hundreds of trace records, isolate the signature chain by keyword (signature prefix), time window (1–2s before the request), type (string args over numeric VM scheduling), length (>8 chars), and cross-request variance. Use **reverse-tracing** (from the signature value back to its input plaintext, hop by hop) and **multi-request diffing** (fixed factors = keys, changing factors = timestamp/nonce/business params).
 4. **Source-level instrumentation.** For self-contained VMs (Ruishu 5/6, Akamai sensor_data, webmssdk, obfuscator.io) where the algorithm lives entirely inside `switch/case`, rewrite the VMP source at the transport layer to tap every `obj[key]` read and `fn(args)` call, exposing the hottest environment keys, methods, and functions the VM actually touches. This is the general weapon when the first three techniques are blocked or too noisy.
 
+### Instruction-pointer-gated tracing (dynamic, low-noise)
+
+When technique 2 is too noisy — a near-complete VM where a full exec-trace buries the target algorithm under whole-program scheduling, or the bytecode array is assembled at runtime so static reading is blocked — gate the trace by the VM's own instruction pointer instead of reading every step:
+
+1. **Dump to lock the address.** First resolve the target function to its bytecode address range. The VM instruction-pointer range is stabler across runs than a script id or function id, which drift per build.
+2. **Gate exec-trace by IP range.** Trace only while the instruction pointer sits inside the target range, and record only the arithmetic/state operations there. This reads the one algorithm's operations and skips the surrounding VM dispatch noise.
+3. **Deep-expand the operand stack.** Read full operand values (not truncated previews) so intermediate state is exact.
+4. **Reverse the transition formula from I/O pairs.** Reconstruct the state-transition formula from input/output pairs of the gated region rather than reading opcodes one by one — faster and less error-prone than full disassembly.
+
+This keeps the observer surface tiny (a bounded IP window) so it disturbs timing and challenge behaviour less than broad hooks. A same-value fixed vector still gates acceptance: a plausible reconstructed formula is a hypothesis until it reproduces captured output on frozen inputs. Runtime-assembled bytecode still requires reproducing the bootstrap before the address range is meaningful.
+
 ### Technique selection matrix
 
 | VM characteristic | Preferred techniques |

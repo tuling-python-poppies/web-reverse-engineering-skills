@@ -23,6 +23,16 @@ Use this file when signatures, encryption, or helper outputs look suspicious.
 - a UUID, nonce, or session value looks standard at first glance but contains an inserted fixed-width segment, prefix, or checksum-derived fragment
 - the apparent key, iv, seed, or hash source comes from slicing, concatenating, trimming, or decorating a config field instead of using it directly
 
+## Modified standard algorithms: verify magic constants and round structure
+
+A helper can use a real algorithm's skeleton with one altered internal, which passes shape checks but produces wrong output. Before assuming a standard implementation, verify the internals against the specification:
+
+- **Magic constants / offset basis.** Compare seed and initialization values against the spec exactly, including off-by-one traps. Example: a hash marked as FNV-1a but seeded with `0x811C9DC4` differs from the true FNV-1a offset basis `0x811C9DC5` by 1; a djb2 variant may keep seed `5381` but change the combine step. One wrong constant is enough to break parity.
+- **Round structure / permutation.** Stream and block ciphers can keep the quarter-round or S-box intact while swapping the index schedule. Example: a ChaCha20-style block keeps the standard quarter-round but alters diagonal-round index tuples (RFC 8439 diagonal rounds are `(0,5,10,15)(1,6,11,12)(2,7,8,13)(3,4,9,14)`; a variant relocates indexes in some tuples). Confirm the exact tuples from the target, never assume standard.
+- **Confirm with an official vector.** Run one published test vector (e.g. RFC 8439 for ChaCha20) against your standard implementation first. If the target diverges on a frozen input while your standard code matches the vector, the target is modified — capture the exact internal from the source, do not force stdlib.
+
+Treat every constant, tuple, and round count as unverified until a same-source fixed vector confirms it.
+
 ## Fixed-input validation loop (name-lie helpers)
 
 When a helper is named `md5`, `btoa`, `sha1`, or similar but may be patched:

@@ -17,8 +17,31 @@
  * Adjust the CONFIG section below for your target site.
  */
 
-import { EdgeSandbox } from 'file:///D:/develop_software/edge_node_sandbox/src/index.js';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { resolve } from 'node:path';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EdgeSandbox path — set EDGE_SANDBOX_ROOT env var or adjust default below
+// Python auto-detects and passes this via env; fallback to common install path
+// ═══════════════════════════════════════════════════════════════════════════
+const EDGE_SANDBOX_ROOT = process.env.EDGE_SANDBOX_ROOT || 'D:/develop_software/edge_node_sandbox';
+const EDGE_SANDBOX_INDEX = `file:///${EDGE_SANDBOX_ROOT.replace(/\\/g, '/')}/src/index.js`;
+
+// Auto-install dependencies if missing
+const acornMarker = resolve(EDGE_SANDBOX_ROOT, 'node_modules', 'acorn', 'package.json');
+if (!existsSync(acornMarker)) {
+  console.log('[sensor] EdgeSandbox deps not installed, running npm install...');
+  try {
+    execSync('npm install --ignore-scripts', { cwd: EDGE_SANDBOX_ROOT, stdio: 'pipe' });
+    console.log('[sensor] EdgeSandbox deps installed OK');
+  } catch (e) {
+    console.error('[sensor] Failed to install EdgeSandbox deps:', e.message?.slice(0, 100));
+    process.exit(1);
+  }
+}
+
+const { EdgeSandbox } = await import(EDGE_SANDBOX_INDEX);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIG — Adjust for your target site

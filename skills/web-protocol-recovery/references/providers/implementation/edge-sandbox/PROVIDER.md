@@ -26,21 +26,45 @@ EdgeSandbox provides:
 - **Configurable fingerprint**: navigator, screen, DPR, WebGL vendor/renderer, timing resolution, locale/timezone, sensors, media devices.
 - **Network capture**: `sandbox.networkRequests()` returns all fetch/XHR requests with method/URL/headers/body.
 
-## Node 24 Auto-Detection
+## Environment Auto-Detection and Auto-Install
 
-EdgeSandbox requires Node.js 24.11.0. Python scripts automatically locate Node 24 via:
-1. `NVM_HOME` environment variable + `v24.*` directory
+EdgeSandbox requires Node.js 24.11.0 and a single npm dependency (`acorn`). Both are handled automatically:
+
+### Node 24 Auto-Detection
+
+Python scripts automatically locate Node 24 via:
+1. `NVM_HOME` environment variable + `v24.*` directory (Windows nvm-windows)
 2. FNM-activated `node` (checks `node --version`)
 3. System `node` in PATH (checks `node --version`)
 
 Users do not need to manually run `nvm use 24` before execution — Python handles this.
 
-**If Node 24 is not installed:**
+### Dependency Auto-Install
+
+When the Python/Node script detects that `node_modules/acorn` is missing:
+1. It automatically runs `npm install --ignore-scripts` in the EdgeSandbox root directory.
+2. Uses the same Node 24 binary for npm resolution.
+3. Prints a message confirming installation, then proceeds normally.
+
+No manual `npm install` step is needed on first use.
+
+### EdgeSandbox Root Path
+
+The `EDGE_SANDBOX_ROOT` environment variable points to the EdgeSandbox installation directory. If not set, defaults to `D:\develop_software\edge_node_sandbox`.
+
+Set it if your installation is elsewhere:
+```bash
+set EDGE_SANDBOX_ROOT=C:\path\to\edge_node_sandbox
+```
+
+### If Node 24 is not installed
+
 - NVM: `nvm install 24`
 - FNM: `fnm install 24`
 - Manual: Download from https://nodejs.org/ (LTS 24.x)
 
-**Diagnostic tool (optional):**
+### Diagnostic tool (optional)
+
 ```bash
 node references/providers/implementation/edge-sandbox/node-version-check.js
 ```

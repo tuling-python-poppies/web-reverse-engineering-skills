@@ -8,7 +8,7 @@ Runs offline checks that should pass before committing skill edits:
 3. architecture/document/read-plan contracts (validate_architecture.py)
 4. offline route regression metadata (validate_evals.py)
 5. all case unit tests discovered under references/cases/*/*/tests
-6. preflight unit tests (scripts/test_preflight.py) for alias/from-import/main-guard scan rules
+6. preflight unit tests (scripts/tests/test_preflight.py) for alias/from-import/main-guard scan rules
 7. bundled diagnostic self-tests for evidence, chain, transform, transport, and local controls
 8. discipline scans on case Python files:
    - bare top-level `import iv8`
@@ -19,7 +19,7 @@ Runs offline checks that should pass before committing skill edits:
 10. HEAD commit-body policy for high-impact case edits when Git metadata exists
 
 `--skip-tests` skips only discovered case unit tests. Step 3 always runs, and a
-missing scripts/test_preflight.py is a hard failure (fail closed).
+missing scripts/tests/test_preflight.py is a hard failure (fail closed).
 
 Exit 0 when no hard failures. Exit 1 on hash/test failures.
 Warnings alone do not fail unless --strict.
@@ -41,7 +41,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 
-SKILL_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = Path(__file__).resolve().parents[2]
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
 
 HISTORICAL_VERIFICATION_CLASS = "historical-user-attested"
@@ -53,16 +53,16 @@ CASE_SELECTION_REGISTRY_KEYS = (
 CASE_IGNORED_DIR_NAMES = {".pytest_cache", "__pycache__"}
 CASE_IGNORED_FILE_NAMES = {".DS_Store", "Thumbs.db"}
 DIAGNOSTIC_SELF_TESTS = (
-    "scripts/check_reverse_env.py",
-    "scripts/forward_test_report.py",
-    "scripts/evidence_normalizer.py",
-    "scripts/transcript_diff.py",
-    "scripts/transform_trace_diff.py",
-    "scripts/transport_profile_diff.py",
-    "scripts/grpc_frame_inspector.py",
-    "scripts/protobuf_inspect.py",
-    "scripts/wasm_module_inspect.py",
-    "scripts/practice_lab.py",
+    "scripts/tools/check_reverse_env.py",
+    "scripts/gates/forward_test_report.py",
+    "scripts/tools/evidence_normalizer.py",
+    "scripts/tools/transcript_diff.py",
+    "scripts/tools/transform_trace_diff.py",
+    "scripts/tools/transport_profile_diff.py",
+    "scripts/tools/grpc_frame_inspector.py",
+    "scripts/tools/protobuf_inspect.py",
+    "scripts/tools/wasm_module_inspect.py",
+    "scripts/tools/practice_lab.py",
 )
 
 ProviderGuardContract = tuple[str, tuple[str, ...], str]
@@ -307,32 +307,32 @@ def check_commit_body_policy() -> tuple[bool, str]:
 
 
 def check_hashes() -> tuple[bool, str]:
-    code, out = run([sys.executable, "-B", "scripts/verify_case_hashes.py"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/gates/verify_case_hashes.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
 def check_case_registry_projection() -> tuple[bool, str]:
-    code, out = run([sys.executable, "-B", "scripts/build_case_registry.py", "--check"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/gates/build_case_registry.py", "--check"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
 def check_architecture_contract() -> tuple[bool, str]:
-    code, out = run([sys.executable, "-B", "scripts/validate_architecture.py"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/gates/validate_architecture.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
 def check_schema_contract() -> tuple[bool, str]:
-    code, out = run([sys.executable, "-B", "scripts/validate_schemas.py"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/gates/validate_schemas.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
 def check_markdown_contract() -> tuple[bool, str]:
-    code, out = run([sys.executable, "-B", "scripts/validate_markdown.py"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/gates/validate_markdown.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
 def check_route_regression_evals() -> tuple[bool, str]:
-    code, out = run([sys.executable, "-B", "scripts/validate_evals.py"], SKILL_ROOT)
+    code, out = run([sys.executable, "-B", "scripts/gates/validate_evals.py"], SKILL_ROOT)
     return code == 0, out.strip()
 
 
@@ -360,9 +360,9 @@ def check_case_tests(rel_case: str) -> tuple[bool, str]:
 
 
 def check_preflight_unit_tests() -> tuple[bool, str]:
-    test_path = SKILL_ROOT / "scripts" / "test_preflight.py"
+    test_path = SKILL_ROOT / "scripts" / "tests" / "test_preflight.py"
     if not test_path.is_file():
-        return False, "MISSING scripts/test_preflight.py"
+        return False, "MISSING scripts/tests/test_preflight.py"
     code, out = run([sys.executable, str(test_path), "-v"], SKILL_ROOT)
     return code == 0, out.strip()
 
@@ -388,9 +388,9 @@ def check_diagnostic_self_tests(
 
 def check_acceptance_unit_tests() -> tuple[bool, str]:
     tests = [
-        SKILL_ROOT / "scripts" / "test_architecture_contract.py",
-        SKILL_ROOT / "scripts" / "test_scaffold_project.py",
-        SKILL_ROOT / "scripts" / "test_line_endings.py",
+        SKILL_ROOT / "scripts" / "tests" / "test_architecture_contract.py",
+        SKILL_ROOT / "scripts" / "tests" / "test_scaffold_project.py",
+        SKILL_ROOT / "scripts" / "tests" / "test_line_endings.py",
         SKILL_ROOT
         / "references"
         / "providers"
@@ -842,7 +842,7 @@ def main(argv: list[str] | None = None) -> int:
     ok, out = check_preflight_unit_tests()
     print(out)
     if not ok:
-        failures.append("scripts/test_preflight.py failed")
+        failures.append("scripts/tests/test_preflight.py failed")
 
     print("\n== diagnostic self-tests ==")
     ok, out = check_diagnostic_self_tests()

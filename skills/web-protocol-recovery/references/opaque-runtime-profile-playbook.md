@@ -49,7 +49,7 @@ Use this minimal shape:
 Compare traces with:
 
 ```text
-python scripts/transform_trace_diff.py accepted-trace.json local-trace.json --json
+python scripts/tools/transform_trace_diff.py accepted-trace.json local-trace.json --json
 ```
 
 Raw descriptors are allowed only in the approved private task namespace. Reviewable reports should use length and SHA-256 descriptors.

@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 
-SKILL_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = Path(__file__).resolve().parents[2]
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
 REGISTRY_PATH = CASES_ROOT / "registry.json"
 

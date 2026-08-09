@@ -13,7 +13,7 @@ disassembly is expensive and only justified in two cases named below.
 
 ## Layer 1: structure inspection (default, offline, no dependencies)
 
-`scripts/wasm_module_inspect.py` reads the preamble, section table, import
+`scripts/tools/wasm_module_inspect.py` reads the preamble, section table, import
 table, export table, and function/memory/table/global counts. It does not
 disassemble function bodies. Use it to answer:
 
@@ -59,7 +59,7 @@ inventing a decode.
 
 ## executionPolicy boundary
 
-- Reading module bytes with `scripts/wasm_module_inspect.py` is a read
+- Reading module bytes with `scripts/tools/wasm_module_inspect.py` is a read
   operation. It does not instantiate the module and does not trigger the
   target-code execution gate.
 - `WebAssembly.instantiate`, running an export, or executing disassembled logic

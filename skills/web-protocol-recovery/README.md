@@ -56,7 +56,7 @@ The root registry indexes 23 hash-bound `web-protocol-recovery-case` manifests g
 
 ## Gates
 
-`python scripts/preflight.py --strict` runs every check below and is the single
+`python scripts/gates/preflight.py --strict` runs every check below and is the single
 entry point after any edit. Each one is fail-closed; none of them are advisory.
 
 | Gate | Asserts |

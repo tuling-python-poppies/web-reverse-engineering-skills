@@ -8,14 +8,14 @@ from pathlib import Path
 from unittest import mock
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-SPEC = importlib.util.spec_from_file_location("preflight", SCRIPT_DIR / "preflight.py")
+GATES_DIR = Path(__file__).resolve().parents[1] / "gates"
+SPEC = importlib.util.spec_from_file_location("preflight", GATES_DIR / "preflight.py")
 assert SPEC is not None
 preflight = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(preflight)
 VERIFY_SPEC = importlib.util.spec_from_file_location(
-    "verify_case_hashes", SCRIPT_DIR / "verify_case_hashes.py"
+    "verify_case_hashes", GATES_DIR / "verify_case_hashes.py"
 )
 assert VERIFY_SPEC is not None
 verify_case_hashes = importlib.util.module_from_spec(VERIFY_SPEC)
@@ -81,7 +81,7 @@ class EntryDisciplineScanTests(unittest.TestCase):
 
 class PreflightSelfTestGateTests(unittest.TestCase):
     def test_missing_self_test_file_fails_closed(self) -> None:
-        missing = preflight.SKILL_ROOT / "scripts" / "test_preflight.py"
+        missing = preflight.SKILL_ROOT / "scripts" / "tests" / "test_preflight.py"
         with mock.patch.object(Path, "is_file", return_value=False):
             ok, out = preflight.check_preflight_unit_tests()
         self.assertFalse(ok)

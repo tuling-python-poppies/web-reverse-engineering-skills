@@ -12,7 +12,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS = ROOT / "references" / "schemas"
 WORK_ORDER_DOC = ROOT / "references" / "methodology" / "provider-work-order.md"
 

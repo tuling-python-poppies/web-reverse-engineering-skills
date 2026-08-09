@@ -145,13 +145,13 @@ If the selected Provider returns a new blocker, add one Provider/reference. Do n
 
 ## Local Helpers
 
-- `scripts/check_reverse_env.py`: verify local reverse dependencies.
-- `scripts/crypto_fingerprint.py`: classify suspicious digest/alphabet output.
-- `scripts/protocol_diff.py`: compare captured wire structures.
-- `scripts/evidence_normalizer.py`: normalize HAR/transcript chains into secret-free ordered evidence.
-- `scripts/transcript_diff.py`: report the first structural difference between normalized chains.
-- `scripts/transform_trace_diff.py`: report the first stage and byte divergence in runtime traces.
-- `scripts/transport_profile_diff.py`: validate and compare ordered TLS/H2/connection profiles.
-- `scripts/grpc_frame_inspector.py`: inspect bounded gRPC/grpc-web frame and trailer structure without decoding payloads.
-- `scripts/practice_lab.py`: run seven deterministic protocol cases with negative controls.
+- `scripts/tools/check_reverse_env.py`: verify local reverse dependencies.
+- `scripts/tools/crypto_fingerprint.py`: classify suspicious digest/alphabet output.
+- `scripts/tools/protocol_diff.py`: compare captured wire structures.
+- `scripts/tools/evidence_normalizer.py`: normalize HAR/transcript chains into secret-free ordered evidence.
+- `scripts/tools/transcript_diff.py`: report the first structural difference between normalized chains.
+- `scripts/tools/transform_trace_diff.py`: report the first stage and byte divergence in runtime traces.
+- `scripts/tools/transport_profile_diff.py`: validate and compare ordered TLS/H2/connection profiles.
+- `scripts/tools/grpc_frame_inspector.py`: inspect bounded gRPC/grpc-web frame and trailer structure without decoding payloads.
+- `scripts/tools/practice_lab.py`: run seven deterministic protocol cases with negative controls.
 - `scripts/providers/delivery/python-collector/scaffold_project.py`: create only approved missing `web-protocol-recovery-simple` paths.

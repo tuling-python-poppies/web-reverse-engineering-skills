@@ -25,7 +25,7 @@ A historical reference is never a preload or executable asset. Open at most one 
 
 Provider work orders carry a `readPlan` object with `window`, `required`, and `optional` paths. Required paths must fit the active window cap before the handoff is issued. Optional paths are blockers, not preloads: the Provider may open at most one optional path only after naming the missing fact and only if the whole-task cap still has room.
 
-`scripts/validate_architecture.py` keeps this contract executable by simulating the official routing chains as explicit path lists, including evidence reuse, Chromium/hooks, Chromium→AST→env-patch→collector, AST/env-patch, verifier implementation variants, Akamai, River Security→iv8, River Security→env-patch, `Reese84 -> iv8/python-node -> python-collector`, selected cases, and iv8 API inventory gates. Each simulated chain must reference existing files, keep every window within its cap, and stay within the 24-path whole-task cap after de-duplication.
+`scripts/gates/validate_architecture.py` keeps this contract executable by simulating the official routing chains as explicit path lists, including evidence reuse, Chromium/hooks, Chromium→AST→env-patch→collector, AST/env-patch, verifier implementation variants, Akamai, River Security→iv8, River Security→env-patch, `Reese84 -> iv8/python-node -> python-collector`, selected cases, and iv8 API inventory gates. Each simulated chain must reference existing files, keep every window within its cap, and stay within the 24-path whole-task cap after de-duplication.
 
 ## First Load Rules
 

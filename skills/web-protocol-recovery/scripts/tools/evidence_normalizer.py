@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 from urllib.parse import parse_qsl, urlsplit
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from providers.path_safety import PlainPathGuard, absolute_no_resolve
 
 

@@ -20,7 +20,7 @@ A reusable proof package contains:
 Run the normalizer only on an approved local capture path. Keep the HMAC key in an environment variable or file outside version control.
 
 ```text
-python scripts/evidence_normalizer.py input.har output.json --project-root <project-root> --hmac-key-env WPR_EVIDENCE_HMAC_KEY
+python scripts/tools/evidence_normalizer.py input.har output.json --project-root <project-root> --hmac-key-env WPR_EVIDENCE_HMAC_KEY
 ```
 
 The input and output must stay under the approved project root; the output parent must already exist. The output uses `web-protocol-recovery-evidence/v1`. It preserves names, order, duplicate header positions, lengths, hashes, and state-write surfaces while replacing query values, variable path segments, non-structural header values, and state values with keyed fingerprints.
@@ -32,7 +32,7 @@ Do not publish the key or raw input. Store raw captures only in the approved pri
 Compare two normalized packages with:
 
 ```text
-python scripts/transcript_diff.py accepted.json rejected.json --json
+python scripts/tools/transcript_diff.py accepted.json rejected.json --json
 ```
 
 Start at the first reported difference. Inspect that writer and its first consumer before changing later signers, bodies, or verifier fields. A changed redirect, `Set-Cookie`, counter, storage write, or duplicate-header position can explain rejection even when the final body hash matches.
@@ -44,8 +44,8 @@ The diff tool prints fingerprints and structural descriptors, not raw changed va
 Use the local fixture to verify that a proposed implementation rejects plausible shortcuts:
 
 ```text
-python scripts/practice_lab.py describe
-python scripts/practice_lab.py --self-test
+python scripts/tools/practice_lab.py describe
+python scripts/tools/practice_lab.py --self-test
 ```
 
 The fixture covers:

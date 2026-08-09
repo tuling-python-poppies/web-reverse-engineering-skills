@@ -980,13 +980,13 @@ def main(argv: list[str] | None = None) -> int:
         "--skill-root",
         type=Path,
         default=None,
-        help="skill root containing references/cases (default: parent of scripts/)",
+        help="skill root containing references/cases (default: parent of scripts/gates/)",
     )
     args = parser.parse_args(argv)
     if args.skill_root and args.skill_root_arg:
         parser.error("pass either positional skill_root or --skill-root, not both")
 
-    skill_root = (args.skill_root or args.skill_root_arg or Path(__file__).resolve().parents[1]).resolve()
+    skill_root = (args.skill_root or args.skill_root_arg or Path(__file__).resolve().parents[2]).resolve()
     cases_root = skill_root / "references" / "cases"
     if not cases_root.is_dir():
         print(f"cases directory not found: {cases_root}", file=sys.stderr)

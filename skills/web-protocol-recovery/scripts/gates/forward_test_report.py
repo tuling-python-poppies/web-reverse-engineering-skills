@@ -17,7 +17,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 
-SKILL_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = Path(__file__).resolve().parents[2]
 SUITE_PATH = SKILL_ROOT / "references" / "official-self-test-task-suite.md"
 SKILL_PATH = SKILL_ROOT / "SKILL.md"
 MAX_REPORT_BYTES = 2 * 1024 * 1024

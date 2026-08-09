@@ -40,7 +40,7 @@ Plain terms:
 
 Cite stable section names, not line numbers; line numbers drift after edits.
 
-Skill self-check after edits: `python scripts/preflight.py` from this skill root. Claims about changed routing or agent behavior additionally require `references/methodology/forward-testing.md`; static preflight alone is not behavioral proof.
+Skill self-check after edits: `python scripts/gates/preflight.py` from this skill root. Claims about changed routing or agent behavior additionally require `references/methodology/forward-testing.md`; static preflight alone is not behavioral proof.
 
 ## Non-Negotiables
 
@@ -430,4 +430,4 @@ Also enforced in `references/anti-patterns-playbook.md` (read it for the temptat
 
 ## References
 
-By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Discipline mini suite: `references/discipline-self-test-min.md`. Preflight: `python scripts/preflight.py`. Methodology: `architecture.md`, `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, layout, or verification.
+By symptom: `references/reference-router.md`. Anti-patterns: `references/anti-patterns-playbook.md`. Discipline mini suite: `references/discipline-self-test-min.md`. Preflight: `python scripts/gates/preflight.py`. Methodology: `architecture.md`, `provider-work-order.md`, `project-layout.md`, `case-writeback.md`, `success-shape-scripts.md`, `read-budget.md`. Providers: `references/providers/`; cases: `references/cases/`. Nothing below overrides this file's scope, safety, lifecycle, layout, or verification.

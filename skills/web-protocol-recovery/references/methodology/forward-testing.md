@@ -34,9 +34,9 @@ Only a valid `full` report has `full_pass=true`. Static preflight, validator sel
 ## Validation
 
 ```text
-python -B scripts/forward_test_report.py --print-contract
-python -B scripts/forward_test_report.py --self-test
-python -B scripts/forward_test_report.py <forward-run/forward-test-report.json>
+python -B scripts/gates/forward_test_report.py --print-contract
+python -B scripts/gates/forward_test_report.py --self-test
+python -B scripts/gates/forward_test_report.py <forward-run/forward-test-report.json>
 ```
 
 The validator rejects stale skill/suite bindings, missing or reused response files, path traversal, symlink/reparse/hard-link aliases, self-review, partial full scope, failed checks, and unbound review evidence. Route checks cite a response span containing the exact route. Conclusion checks may cite a paraphrase, but the independent review rationale must explicitly contain both the expected conclusion and the exact cited response quote, while the quote must share a small non-generic lexical signal with the expected conclusion. This lexical check is a false-positive guard, not a replacement for independent semantic review.

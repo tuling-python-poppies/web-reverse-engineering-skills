@@ -647,7 +647,7 @@ The HTTP response is grpc-web-text with several independently padded Base64 chun
 Expected route:
 
 - `references/structured-transport-playbook.md`
-- `scripts/grpc_frame_inspector.py`
+- `scripts/tools/grpc_frame_inspector.py`
 
 Must conclude:
 

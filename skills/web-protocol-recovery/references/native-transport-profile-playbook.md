@@ -66,7 +66,7 @@ Do not implement a TLS stack or HTTP/2 stack from scratch. Python owns applicati
 Compare an observed profile and candidate profile with:
 
 ```text
-python scripts/transport_profile_diff.py observed.json candidate.json --json
+python scripts/tools/transport_profile_diff.py observed.json candidate.json --json
 ```
 
 Use `--ignore-grease-values` only when repeated captures prove the GREASE slots are stable while values rotate. The tool preserves list and SETTINGS order.

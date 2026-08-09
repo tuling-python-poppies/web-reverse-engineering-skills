@@ -13,7 +13,7 @@ Complete these four checks first:
 1. reconnaissance route and tool sanity
     - select Chromium, Camoufox, or WeChat before launching; explicit Camoufox and WMPF requests bypass the Chromium ladder
     - on Chromium: record a capability snapshot for `chrome-devtools` and `js-reverse` without opening the target in both; fresh targets require a **mandatory lightweight paired pass** (DevTools baseline then js-reverse mutation) before the final collector unless a real blocker or documented exception applies
-    - run `scripts/check_reverse_env.py --project-root <projectRoot>` when local execution is available; add `--helper-lockfile <path>` only for explicitly selected public helper lockfiles
+    - run `scripts/tools/check_reverse_env.py --project-root <projectRoot>` when local execution is available; add `--helper-lockfile <path>` only for explicitly selected public helper lockfiles
     - follow `references/tool-playbook.md` Browser Lifecycle for serialized Chromium phases, profile isolation, headful exceptions, Cloak tier, and cleanup
     - note local iv8 or transport-client availability only when host-bound bootstrap or transport admission is suspected
     - report blockers instead of warming multiple engines to test availability; do not skip a paired half silently

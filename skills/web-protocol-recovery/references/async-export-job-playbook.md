@@ -58,7 +58,7 @@ Fail closed when a file opens but contains fewer fields than requested.
 
 ## Local Control
 
-`scripts/practice_lab.py --self-test` includes empty-create, wrong-task selection, and thin-field negative controls. It does not contact an external service.
+`scripts/tools/practice_lab.py --self-test` includes empty-create, wrong-task selection, and thin-field negative controls. It does not contact an external service.
 
 ## Completion Gate
 

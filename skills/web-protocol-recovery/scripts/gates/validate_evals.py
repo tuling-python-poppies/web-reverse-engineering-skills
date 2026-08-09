@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 
-SKILL_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = Path(__file__).resolve().parents[2]
 EVAL_PATH = SKILL_ROOT / "evals" / "route-regression.json"
 REGISTRY_PATH = SKILL_ROOT / "references" / "providers" / "registry.json"
 SCHEMA_VERSION = "web-protocol-recovery-route-regression"

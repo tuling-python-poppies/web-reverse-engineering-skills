@@ -26,9 +26,35 @@ EdgeSandbox provides:
 - **Configurable fingerprint**: navigator, screen, DPR, WebGL vendor/renderer, timing resolution, locale/timezone, sensors, media devices.
 - **Network capture**: `sandbox.networkRequests()` returns all fetch/XHR requests with method/URL/headers/body.
 
-## Environment Auto-Detection and Auto-Install
+## Environment Setup (Local npm install)
 
-EdgeSandbox requires Node.js 24.11.0 and a single npm dependency (`acorn`). Both are handled automatically:
+EdgeSandbox is installed as a **project-local npm dependency**, not a global singleton. Each project maintains its own `node_modules/edge-sandbox/`.
+
+### Installation
+
+In the project's `package.json`, declare edge-sandbox as a local file dependency:
+
+```json
+{
+  "dependencies": {
+    "edge-sandbox": "file:D:/develop_software/edge_node_sandbox"
+  },
+  "type": "module",
+  "engines": { "node": ">=24.0.0" }
+}
+```
+
+Then run:
+
+```bash
+npm install
+```
+
+This creates a symlink at `node_modules/edge-sandbox/` pointing to the EdgeSandbox installation. The import becomes standard Node.js:
+
+```js
+import { createSandbox, EdgeSandbox } from 'edge-sandbox';
+```
 
 ### Node 24 Auto-Detection
 
@@ -39,29 +65,15 @@ Python scripts automatically locate Node 24 via:
 
 Users do not need to manually run `nvm use 24` before execution — Python handles this.
 
-### Dependency Auto-Install
-
-When the Python/Node script detects that `node_modules/acorn` is missing:
-1. It automatically runs `npm install --ignore-scripts` in the EdgeSandbox root directory.
-2. Uses the same Node 24 binary for npm resolution.
-3. Prints a message confirming installation, then proceeds normally.
-
-No manual `npm install` step is needed on first use.
-
-### EdgeSandbox Root Path
-
-The `EDGE_SANDBOX_ROOT` environment variable points to the EdgeSandbox installation directory. If not set, defaults to `D:\develop_software\edge_node_sandbox`.
-
-Set it if your installation is elsewhere:
-```bash
-set EDGE_SANDBOX_ROOT=C:\path\to\edge_node_sandbox
-```
-
 ### If Node 24 is not installed
 
 - NVM: `nvm install 24`
 - FNM: `fnm install 24`
 - Manual: Download from https://nodejs.org/ (LTS 24.x)
+
+### Environment Validation
+
+Python `ensure_node_modules()` checks `node_modules/edge-sandbox/package.json` exists. If not, it tells the user to run `npm install`.
 
 ### Diagnostic tool (optional)
 
@@ -81,50 +93,69 @@ Use this only for troubleshooting Node version issues.
 ## Core Rules
 
 1. Check Node 24 before any EdgeSandbox work; exit with clear error if version mismatch.
-2. EdgeSandbox binary lives outside the skill tree (user-installed, typically `D:\develop_software\edge_node_sandbox` or similar). Skill code uses absolute import paths or env vars pointing to the installation.
-3. All EdgeSandbox scripts must use `import { EdgeSandbox } from 'file:///<edge-sandbox-root>/src/index.js'` (absolute file:// URL).
+2. EdgeSandbox is installed as a **local npm dependency** in each project. Use `npm install` to set up `node_modules/edge-sandbox/`.
+3. Import EdgeSandbox using standard Node.js module syntax: `import { createSandbox, EdgeSandbox } from 'edge-sandbox';`
 4. Fingerprint profiles should be exported from real browsers (Camoufox/CloakBrowser `export_fingerprint_profile`) when plausibility matters (Kasada cdndex beacon, Akamai canvas/WebGL checks).
-5. Network capture is enabled by default; use `sandbox.networkRequests()` to retrieve outbound requests after execution.
+5. Network capture is enabled by default; use `sandbox.requests()` (createSandbox) or `sandbox.networkRequests()` (EdgeSandbox) to retrieve outbound requests after execution.
 6. Use `replay: [...]` to provide offline HTTP responses (Worker scripts, fetch data, XHR endpoints).
-7. Final live egress is Python HTTP; EdgeSandbox only generates sensor/collector bodies through `networkRequests()` capture.
+7. Final live egress is Python HTTP; EdgeSandbox only generates sensor/collector bodies through network capture.
 8. Close the sandbox after each use: `await sandbox.close()` or `await using sandbox = ...` (Node 24 explicit resource management).
 
 ## Execution Pattern
 
-Typical EdgeSandbox workflow:
+Typical EdgeSandbox workflow (use `createSandbox` quick API for most cases):
 
 ```javascript
-import { EdgeSandbox } from 'file:///D:/develop_software/edge_node_sandbox/src/index.js';
+import { createSandbox } from 'edge-sandbox';
 
-const sandbox = await EdgeSandbox.create({
-  page: {
-    url: 'https://target.example/',
-    html: challengeHtml, // or minimal HTML
-  },
+const sb = await createSandbox('https://target.example/', {
   fingerprint: {
     locale: 'zh-HK',
     timezone: 'Asia/Shanghai',
     screen: { width: 1680, height: 1050, availWidth: 1680, availHeight: 1002, colorDepth: 24, pixelDepth: 24 },
   },
-  networkCapture: { enabled: true, maxEntries: 100 },
-  limits: { timeoutMs: 20_000 },
+  timeout: 20_000,
 });
 
 try {
   // Execute sensor/collector
-  await sandbox.evaluate(sensorScript);
+  await sb.run(sensorScript);
   
   // Keep event loop alive for async POST (if sensor uses setTimeout)
-  await sandbox.evaluate('new Promise(resolve => setTimeout(resolve, 10000))');
+  await sb.run('new Promise(resolve => setTimeout(resolve, 10000))');
   
   // Capture outbound requests
-  const requests = await sandbox.networkRequests();
+  const requests = await sb.requests();
   const sensorPost = requests.find(r => r.method === 'POST');
   
   console.log(JSON.stringify({
     body: sensorPost.bodyText,
     headers: Object.fromEntries(sensorPost.headers),
   }));
+} finally {
+  await sb.close();
+}
+```
+
+For advanced use cases requiring full control, use `EdgeSandbox`:
+
+```javascript
+import { EdgeSandbox } from 'edge-sandbox';
+
+const sandbox = await EdgeSandbox.create({
+  page: {
+    url: 'https://target.example/',
+    html: challengeHtml,
+  },
+  fingerprint: { /* ... */ },
+  networkCapture: { enabled: true, maxEntries: 100 },
+  limits: { timeoutMs: 20_000 },
+});
+
+try {
+  await sandbox.evaluate(sensorScript);
+  const requests = await sandbox.networkRequests();
+  // ...
 } finally {
   await sandbox.close();
 }
@@ -153,7 +184,8 @@ All applicable checks must pass:
 | Trigger | First fix | Still fails -> stop |
 |---------|-----------|---------------------|
 | Node version is not 24.11.0 | User must switch Node version via nvm/fnm/system | Stop; cannot proceed without Node 24 |
-| EdgeSandbox import fails with module error | Verify `file:///` absolute path is correct | Check EdgeSandbox installation integrity |
+| `node_modules/edge-sandbox` missing | Run `npm install` in project directory | Check `package.json` has correct file: path |
+| EdgeSandbox import fails | Verify `npm install` completed successfully | Check EdgeSandbox installation integrity |
 | Sensor throws in sandbox | Fill missing environment surfaces (navigator, canvas, timing) | If fingerprint plausibility ceiling reached, use real browser export |
 | No POST captured | Extend event loop pump timeout (sensor POST is async) | Verify sensor actually triggers POST in real browser first |
 | POST captured but server rejects | Check transport coherence (UA, TLS, IP binding) and fingerprint plausibility | Report egress/fingerprint residual risk |

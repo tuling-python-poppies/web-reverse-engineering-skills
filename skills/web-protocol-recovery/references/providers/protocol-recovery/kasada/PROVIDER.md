@@ -11,7 +11,7 @@
 - The only evidence is a generic `403`, `429`, or one cookie name with no `x-kpsdk-*` / `KPSDK` / double-UUID / `/tl` corroboration.
 - The user only wants a browser hook, generic signer entry trace, AST deobfuscation, CAPTCHA solving, or final browser automation.
 - Live business replay is requested without exact authorization, scope, and request budget.
-- The only requirement is `x-kpsdk-cd` (per-request proof-of-work) with no path to the parent-side seed; see `references/cd-open-problem.md` before committing.
+- The only requirement is `x-kpsdk-cd` (per-request proof-of-work) without willingness to run `p.js` in the sandbox or perform AST extraction of the cd producer; see `references/cd-open-problem.md` for solution paths.
 
 web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, case selection, and final delivery status. This Provider owns Kasada family proof, `p.js` vs `ips.js` role separation, the `/fp` execution-context model, sensor-to-`/tl` submission modeling, `x-kpsdk-*` token/cookie transition, browserless VM sandbox execution constraints, the `cd` proof-of-work boundary, and Kasada-specific report shape.
 
@@ -41,7 +41,7 @@ Read only the selected reference after a work order names the current blocker.
 | Short end-to-end Kasada execution map | `references/workflow.md` |
 | Family confirmation, marker set, `p.js` vs `ips.js` triage | `references/recognition.md` |
 | Browser-free VM sandbox strategy and the environment surfaces to fill | `references/browserless-sandbox-strategy.md` |
-| `x-kpsdk-cd` proof-of-work: what is known and what is unsolved | `references/cd-open-problem.md` |
+| `x-kpsdk-cd` proof-of-work: mechanism, solution paths, and scoping | `references/cd-open-problem.md` |
 | Final report format | `references/report-template.md` |
 
 ## Core Rules
@@ -52,7 +52,7 @@ Read only the selected reference after a work order names the current blocker.
 4. Any embedded string cipher, opcode arity, or constant recovered from one `p.js`/`ips.js` build is version-locked. Re-solve per build; never freeze it into stable code.
 5. `x-kpsdk-ct` is bound to the IP, User-Agent, and TLS it was minted on. Replay it only through the same session/egress; a `ct` minted on a different exit is not a valid credential.
 6. Treat `reload=true`, `cr=true`, and a non-empty `ct` as distinct signals. No single one proves success.
-7. A telemetry beacon to `reporting.cdndex.io` (often `/error`) means the collector detected an environment or integrity anomaly. Treat it as a fail signal for the sandbox, not as neutral traffic.
+7. A telemetry beacon to `reporting.cdndex.io` (`POST /error`, ~33-34KB) fires on **every** init — it is a fixed-size environment-fingerprint report, not a JS-error report. Its presence alone is NOT a fail signal. The real acceptance signal is whether the minted ct passes business replay on clean egress. If ct is minted but business still 429, the blocker is egress reputation or fingerprint-plausibility ceiling, not the beacon itself.
 8. Browser and MCP tools are evidence only. Final live egress is Python HTTP; a local JS/VM sandbox only generates or settles the sensor through an allowlisted bridge.
 9. If a real browser on the same exit is also blocked, classify the blocker as egress reputation before rewriting sensor or environment code.
 10. Business replay and parsed response are the success criteria; a non-empty `ct` or a `200` on `/tl` alone is not success.
@@ -73,10 +73,10 @@ All applicable checks must pass:
 
 1. Family proof includes a Kasada-native marker (`x-kpsdk-*`, `KPSDK` bootstrap, or double-UUID collector path) plus an independent corroborating surface.
 2. `p.js` and `ips.js` responsibilities are separated; the `/tl` sensor submission is attributed to the collector.
-3. The browser-free run assembles the runtime bytecode and submits a plausible sensor body to `/tl` without firing a `reporting.cdndex.io` anomaly beacon.
+3. The browser-free run assembles the runtime bytecode and submits a plausible sensor body to `/tl` without unrecoverable VM exceptions (the cdndex beacon fires on every init and is expected; it is a fingerprint report, not a fail signal).
 4. The server returns a non-empty `x-kpsdk-ct` (and the expected `cr`/`st`/cookie transition) under the same IP/UA/TLS session that will carry the business request.
 5. The protected business endpoint returns the expected application envelope/data under that session, repeated on a fresh session.
-6. If `x-kpsdk-cd` is in scope, its status is stated honestly per `references/cd-open-problem.md`; an unsolved `cd` is reported as a bounded blocker, not hidden.
+6. If `x-kpsdk-cd` is in scope, use the full-lifecycle sandbox (Path A in `references/cd-open-problem.md`) as default approach; if AST extraction (Path B) is used instead, verify PoW output against captured samples. Report cd status honestly; an unverified `cd` is not a delivery.
 7. Final delivery has no browser/profile dependency and writes task artifacts only under assigned project paths.
 
 ## Failure Recovery
@@ -85,11 +85,11 @@ All applicable checks must pass:
 |---|---|---|
 | Only a generic `429`/cookie name | Return to evidence/recon and collect a second surface | Do not select Kasada |
 | Captured integer array does not disassemble | Reproduce the bootstrap so the runtime-assembled bytecode exists first | Blocker: bytecode not yet assembled |
-| Sandbox fires `reporting.cdndex.io/error` | Fill the environment surface the collector read as anomalous (see browserless-sandbox-strategy) | Blocker: sandbox detected |
+| Sandbox fires `reporting.cdndex.io/error` | This is expected (fires every init as a fingerprint report). If ct mints but business 429: fill remaining env surfaces, check egress, verify fingerprint plausibility (canvas/webgl/audio) | Blocker: fingerprint-plausibility ceiling reached (see browserless-sandbox-strategy § Fingerprint plausibility ceiling) |
 | `/tl` returns `ct` but business still blocked | Re-check IP/UA/TLS coherence and same-session replay; compare `reload`/`cr` signals | Do not claim success from `ct` alone |
-| Business needs `x-kpsdk-cd` | Consult `references/cd-open-problem.md`; scope the PoW seed gap | Report `cd` as an open blocker |
+| Business needs `x-kpsdk-cd` | Use full-lifecycle sandbox (run `p.js` + `ips.js` together, Path A); if architectural constraints prevent that, use AST extraction (Path B) per `references/cd-open-problem.md` | Report `cd` as bounded blocker only if both Path A and Path B fail |
 | `ct` minted on a different exit than replay | Mint and replay on one coherent egress | Report egress-binding residual risk |
 
 ## Exit
 
-Return: Kasada evidence surfaces, deployment shape (embedded / interstitial / direct), `p.js`/`ips.js` roles, collector path and `/tl` submission, sandbox run outcome (bytecode assembled? beacon fired?), `x-kpsdk-ct` mint result and session binding, `cd` status per the open-problem reference, business endpoint contract/result, artifact paths/hashes, budget consumed/remaining, cleanup state, and residual egress/version risk.
+Return: Kasada evidence surfaces, deployment shape (embedded / interstitial / direct), `p.js`/`ips.js` roles, collector path and `/tl` submission, sandbox run outcome (bytecode assembled? beacon fired?), `x-kpsdk-ct` mint result and session binding, `cd` status per `cd-open-problem.md`, business endpoint contract/result, artifact paths/hashes, budget consumed/remaining, cleanup state, and residual egress/version risk.

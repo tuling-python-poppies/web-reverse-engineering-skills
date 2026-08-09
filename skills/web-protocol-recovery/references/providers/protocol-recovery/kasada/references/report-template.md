@@ -20,19 +20,19 @@ kasada-result:
     value: <present | absent>   # do not paste the token
     signals: { reload: <t/f>, cr: <t/f>, st: <present/absent> }
     sessionBinding: { ip: <exit>, ua: <major>, tls: <profile> }
-  cdStatus: <not-in-scope | open-blocker | reproduced-verified>   # per cd-open-problem.md
+  cdStatus: <not-in-scope | full-lifecycle-sandbox | ast-extracted | bounded-blocker>   # per cd-open-problem.md
   business:
     endpoint: <method + path>
     result: <parsed-data | blocked>
     repeatedFreshSession: <yes | no>
   artifacts: [{ path: <projectRoot-relative>, sha256: <hash> }, ...]
   budget: { used: <n>, remaining: <n> }
-  residualRisk: <egress-binding | version-rotation | cd-unsolved | none>
+  residualRisk: <egress-binding | version-rotation | cd-bounded-blocker | none>
 ```
 
 ## Acceptance restatement
 
 - Non-empty `ct` or a `/tl` `200` alone is not success.
 - Success is a parsed business response on the same IP/UA/TLS session, repeated fresh.
-- An unsolved `cd` is reported as `open-blocker`, never hidden or faked.
+- A `cd` that cannot be produced via full-lifecycle sandbox or AST extraction is reported as `bounded-blocker`, never hidden or faked.
 - Any recovered cipher/opcode/constant is version-locked; note the captured build.

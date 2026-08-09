@@ -11,7 +11,7 @@ Confirm the family from concrete surfaces, not a vendor guess:
 | Inline bootstrap | `window.KPSDK={}`, `KPSDK.now`, `KPSDK.start`, `KPSDK.configure(...)` |
 | Script path | double-UUID prefix `/<uuid>/<uuid>/p.js` or `/.../ips.js` (the leading UUID is often shared across customers) |
 | Submission | `POST /tl` with a binary sensor body; `/mfc` for `x-kpsdk-h` |
-| Telemetry | beacon to `reporting.cdndex.io` (e.g. `/error`) |
+| Telemetry | beacon to `reporting.cdndex.io` (`POST /error`, ~33-34KB body); this is a **fixed-size environment-fingerprint dump**, not a JS-error report — fires on every init regardless of error count |
 | Interstitial | `429` carrier page (~sub-1KB) that regenerates a token per request |
 
 Require at least two independent surfaces before selecting the Provider.
@@ -38,3 +38,17 @@ The collector cross-checks many surfaces; a gap in any is a likely anomaly-beaco
 
 - A generic `403`/`429`, an H2 reset, or one cookie name with no `x-kpsdk-*`/`KPSDK`/double-UUID/`/tl` corroboration.
 - An exception in a sandbox run is not automatically a missing environment: Kasada also runs deliberate negative tests expecting native errors. Separate "collector took a normal path and failed on a real gap" from "collector forced an illegal call and the runtime correctly threw".
+- **Random-property probes**: if the thrown property name is a 20+ char random lowercase string (e.g. `xhvxfcvewcwbbptcqfwqblnlruky`), it's a deliberate detection probe (anti-sandbox consistency check), not a fillable environment gap. It tests whether `window[X]` → undefined when `X in window` said true — a Proxy with `has: ()=>true` fails this.
+
+## Empirical findings (browser-free sandbox)
+
+Tested: Node.js `vm` + happy-dom, Kasada ips.js v2024-2025, direct CN/US egress.
+
+| Observation | Implication |
+|---|---|
+| cdndex beacon body ~33-34KB whether 0, 1, or 2 JS errors | beacon = fingerprint report, NOT error report; eliminating JS exceptions does NOT suppress it |
+| ct minted successfully on every run with real ips.js | browser-free minting works; ct format/signing is not the blocker |
+| Business still 429 with valid ct | egress reputation OR fingerprint-plausibility flag on the ct |
+| Real browser on same egress doesn't even POST /tl | browser-free is MORE diagnostic/productive than a real browser on bad egress |
+| Datacenter proxy receives empty ips.js (len=0) | Kasada rate-limits script delivery to known datacenter ranges |
+| Hiding happy-dom internals (Proxy `has`/`ownKeys`/`getOwnPropertyDescriptor` masking `_` prefix) eliminates library-detection signals | emulation-library detection is fixable; the residual is fingerprint plausibility |

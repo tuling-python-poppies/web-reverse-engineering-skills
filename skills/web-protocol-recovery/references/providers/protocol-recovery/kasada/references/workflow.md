@@ -8,7 +8,7 @@
 4. Record the initial cookie jar, the double-UUID script path, and the exact outbound headers on `/tl`.
 5. Probe raw HTTP admission with a small `curl_cffi` matrix on one coherent egress; confirm the interstitial and script fetch succeed.
 6. Recover the collector: reproduce the bootstrap so the runtime-assembled bytecode exists, then locate the sensor build and `/tl` submission (use `ast` + the JSVMP interpreter-shape technique when the VM is opaque).
-7. Run the collector browser-free (see `browserless-sandbox-strategy.md`): assemble the VM, fill the environment surfaces it reads, and let it attempt `/tl` without firing a `reporting.cdndex.io` anomaly beacon.
+7. Run the collector browser-free (see `browserless-sandbox-strategy.md`): assemble the VM, fill the environment surfaces it reads, and let it attempt `/tl`. Note: the `reporting.cdndex.io` beacon fires on EVERY init (it is a fixed-size fingerprint report, not an error report); its presence alone is not a fail signal. The real signal is whether the minted ct is accepted for business replay.
 8. Bridge collector network calls to the same Python session on one coherent IP/UA/TLS egress; mint `x-kpsdk-ct` on that session.
 9. Carry the minted `ct`, cookies, and headers into the protected business request on the same session; parse the business response.
 10. Validate response shape and repeat with a fresh session. State `x-kpsdk-cd` status honestly if it is in scope.
@@ -37,9 +37,10 @@ Required:
 Required:
 
 - runtime bytecode assembled from the reproduced bootstrap (not a raw captured array)
-- environment surfaces filled enough that no `reporting.cdndex.io` anomaly beacon fires
+- environment surfaces filled enough that no unrecoverable JS exceptions halt the VM (note: the cdndex beacon fires regardless — it is a fingerprint report, not an error report; its presence is expected)
 - a plausible sensor body POSTed to `/tl`
 - `x-kpsdk-ct` returned non-empty with expected `cr`/`st`/cookie continuity
+- if business still 429 with valid ct on clean egress: fingerprint-plausibility ceiling reached (see `browserless-sandbox-strategy.md § Fingerprint plausibility ceiling`)
 
 ### Checkpoint D: business API
 
@@ -54,9 +55,10 @@ Required:
 Stop and report a blocker when:
 
 - only a real browser can mint a usable `ct` after bootstrap reproduction and environment work
-- the sandbox keeps firing `reporting.cdndex.io` anomaly beacons after the known environment surfaces are filled
-- the business path requires `x-kpsdk-cd` and the proof-of-work seed gap is unresolved (see `cd-open-problem.md`)
+- ct is minted but business still 429 on clean residential egress after environment surfaces are filled (fingerprint-plausibility ceiling — see `browserless-sandbox-strategy.md`)
+- the business path requires `x-kpsdk-cd` and the full-lifecycle sandbox (Path A) is blocked or the cd producer cannot be located via AST extraction (Path B); see `cd-open-problem.md` for resolution paths before declaring a blocker
 - a real browser on the same exit is also blocked (egress reputation)
+- datacenter proxy receives empty ips.js (len=0) — egress is blocked at script-delivery layer
 - required authorization or account state is unavailable
 
 While blocked on pure protocol, it is valid to capture a headed recon success packet and parse business data for immediate needs, but label that output as recon-assisted, not pure-protocol completion.

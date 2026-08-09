@@ -89,6 +89,7 @@ Fallback rules:
 1. Generic `403`, `412`, CAPTCHA, obfuscation, GraphQL, WebSocket, or protobuf wording is not a Camoufox criterion; use `shape: evidence` and the smallest matching route/gate.
 2. Mixed signals resolve to the smallest offline step when samples are enough; otherwise start the smallest live recon under standing approval. Do not paste a full intake form or invent missing target URLs/samples.
 3. Non-protocol tasks such as public API client generation, ordinary HTTP debugging, browser QA/screenshot/click tests, ordinary AST format/rename, Camoufox regression without protocol recovery, MCP/OpenCode config, UI/CSS work, or skill create/optimize/score are non-triggers; return the boundary instead of forcing a route.
+4. Non-web reverse targets are out of scope: native binary/ELF/PE, `.so`/DLL, APK/Android, iOS/IPA, desktop or thick-client executables, firmware images, PCAP/raw TCP-UDP without a Web/miniapp surface, and native-only OLLVM/VM deobfuscation. Name the general domain plainly (for example "this is native binary reverse engineering, outside this skill") without pointing to a specific external skill or router; do not force a Web protocol route onto it.
 
 Read-Only Evidence Fast Path:
 

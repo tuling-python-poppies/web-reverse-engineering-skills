@@ -25,7 +25,7 @@ Freeze the raw payload identity before touching the decoder. Default to an in-me
    - decompression
    - Base64 or alphabet conversion
    - byte or char remapping
-   - protobuf, msgpack, or JSON parse
+   - protobuf, msgpack, or JSON parse (for protobuf, prefer `protoc --decode_raw` or the `protobuf` package with a schema; fall back to `scripts/protobuf_inspect.py` for a schema-free field view — see `structured-transport-playbook.md`)
    - font or glyph translation
 4. rebuild each layer locally
 5. verify the final local decode on the captured payload before scaling

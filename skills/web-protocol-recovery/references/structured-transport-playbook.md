@@ -72,6 +72,23 @@ Use `scripts/grpc_frame_inspector.py` for a bounded structural check. By default
 
 If compression, encryption, or signing wraps the protobuf payload, record the exact order. A common shape is frame parse -> decompress -> protobuf, but captured bytes and the active parser remain authoritative.
 
+## Protobuf payload decode
+
+Once one payload's exact bytes are frozen, decode fields in this preference order:
+
+1. **`protoc --decode_raw`** (schema-free) when `protoc` is on PATH. Best structural output, no `.proto` needed. Feed it the exact payload bytes on stdin.
+2. **`protoc --decode <Message>` or the `protobuf` Python package** when a `.proto` or FileDescriptorSet is available. This is the only path that yields real field names and typed values; use it whenever the schema can be recovered from the bundle, a descriptor set, or grpc reflection.
+3. **`scripts/protobuf_inspect.py`** as the portable fallback that always runs offline. It emits field number, wire type, and a best-effort value (varint / i32 / i64 hex / string / bytes / nested message) and never invents field names.
+
+Wire-type reminder for manual reads: `0` varint, `1` 64-bit, `2` length-delimited (string / bytes / nested message / packed), `5` 32-bit. A length-delimited field is ambiguous; try nested-message decode first, then UTF-8 string, then keep raw bytes.
+
+Verification gates:
+
+- when the schema is unknown or partial, keep unknown fields and raw length-delimited bytes rather than discarding them
+- decode the message and re-encode it separately; compare both against captured bytes, because a lossy raw view can still round-trip wrong
+- prove single-field and nested-message decode with fixed bytes, plus one negative control (truncated varint or a length that overruns the buffer)
+- do not treat a successful raw decode as semantic success until the intended business field is located and consumed
+
 ## Acceptable handoff
 
 The final collector must still be local protocol code:

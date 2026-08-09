@@ -26,12 +26,20 @@ TOOLS = [
     "npm",
     "curl",
     "git",
+    "protoc",
 ]
 
 PYTHON_MODULES = [
     "iv8",
     "curl_cffi",
+    "google.protobuf",
 ]
+
+# Import name differs from the distribution name for some modules. Status is
+# resolved by import name (find_spec); version by distribution name (metadata).
+MODULE_DISTRIBUTIONS = {
+    "google.protobuf": "protobuf",
+}
 
 MIN_PYTHON = (3, 9)
 MODULE_NAME_RE = re.compile(r"^[A-Za-z_]\w*$")
@@ -287,7 +295,9 @@ def build_report(
     modules = {
         name: {
             "status": module_status(name),
-            "version": module_version(name) if module_status(name) == "available" else "missing",
+            "version": module_version(MODULE_DISTRIBUTIONS.get(name, name))
+            if module_status(name) == "available"
+            else "missing",
             "required": name in required_modules,
         }
         for name in module_names

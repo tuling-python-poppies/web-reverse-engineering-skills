@@ -60,6 +60,8 @@ DIAGNOSTIC_SELF_TESTS = (
     "scripts/transform_trace_diff.py",
     "scripts/transport_profile_diff.py",
     "scripts/grpc_frame_inspector.py",
+    "scripts/protobuf_inspect.py",
+    "scripts/wasm_module_inspect.py",
     "scripts/practice_lab.py",
 )
 

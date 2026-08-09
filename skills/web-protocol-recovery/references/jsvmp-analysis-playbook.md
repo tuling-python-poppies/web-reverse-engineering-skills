@@ -34,6 +34,80 @@ function run() {
 
 Core principle: **do not decompile the bytecode.** Bound the signature from both I/O ends plus middle-layer observation, and prefer executing the VM over recovering it.
 
+## Interpreter shape appendix
+
+Use this appendix only to **recognise and locate** the interpreter, not to devirtualise it. Recognition and export location are cheap; full opcode recovery is not, and it is rarely on the shortest path to the artifact.
+
+### Entry and constant mapping
+
+```javascript
+// IIFE entry with single-letter constants standing in for numbers
+!function () {
+  var U = void 0, y = parseInt, E0 = Function, AN = Uint8Array;
+  var E = 15, l = 10, m = 12, x = 16, S = 13, $ = 11; // number->name aliases
+}
+```
+
+- Grep the first ~2KB for `var <name>=<number>` pairs; these alias numeric opcodes/table indexes behind letters.
+- A large numeric array elsewhere in the file is the bytecode program, not data.
+
+### Dispatch loop
+
+```javascript
+function DG(C, d) {
+  for (d[7] = x; d[7] !== U;) {
+    var op  = d[7] & 31;        // low 5 bits  = opcode
+    var sub = d[7] >> 5 & 31;   // next 5 bits = sub-operation
+    switch (op) {
+      case 0: d[7] = 612; break;      // BRANCH
+      case 1: /* W(C[Y], null, ...) */ break; // CALL
+      // dozens to hundreds of cases
+    }
+  }
+}
+```
+
+### Opcode bit-encoding
+
+A common 32-bit instruction packs three fields:
+
+```
+bit 0-4    opcode          (op  = word & 31)
+bit 5-9    sub-operation   (sub = word >> 5 & 31)
+bit 10-31  operand/immediate (word >> 10)
+```
+
+Extract the **current** interpreter's shift/mask from its own dispatch line. Never copy PC, stack, opcode, or accumulator indexes from another version or another site; they drift per build.
+
+### Constant table
+
+- Calls route through an indexed table such as `C[9][idx]`: strings, function indexes, and parameter descriptors all live behind one index space.
+- `W = Function.prototype.call.bind(call)` style shims mean every builtin call looks like `W(C[idx], null, ...)`.
+- Enumerate distinct `C[9][n]` indexes and read ~50 chars of context per index to label string vs function-index vs descriptor.
+
+### Opcode classification hints
+
+| Class | Body markers |
+|---|---|
+| BRANCH | rewrites the PC word (`d[7]=...`), or `d[7]=cond?a:b` |
+| CALL | `W(C[idx], null, ...)`, `.apply` / `.call` |
+| ARITH | `d[a]=d[b]-d[c]`, comparisons, bit ops |
+| STORE | `P[d[i]]=...`, `d[a][C[k]]=d[b]`, `in` checks |
+| ALLOC | `d[i]=[]`, local var declaration, arg-frame setup |
+| STRING | `new fh(...)` regex, `+` concat, `join('')` finalisation |
+| RETURN | `return ...`, `throw ...` |
+| EXCEPTION | `try {...} catch (...) {}` around a state transition |
+
+### Export location
+
+The exported signer name is usually absent from the source because it is encoded in the table. Find it through the registration path, not by text search:
+
+1. Locate the module registration call (a `register(name, module, factory)` shape).
+2. Follow the factory's returned object to the exposed method.
+3. That method dispatches into the interpreter via `W(C[funcIdx], null, ...)`.
+
+Once the export is located, prefer executing it for one artifact (`route: python-node` wasm/vm sidecar or `route: iv8`) over reconstructing the opcode table. Final live egress stays browser-free and Python-owned.
+
 ## Pre-classification: which anti-bot type
 
 Observe the redirect/status behaviour before any hook, then branch:

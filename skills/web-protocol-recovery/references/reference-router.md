@@ -58,6 +58,7 @@ Read focused generic references when the symptom matches. First response loads 0
 - `references/native-transport-profile-playbook.md` only after the transport pre-gate proves the nearest maintained impersonation backend cannot express one observed TLS/H2/connection field
 - `references/response-decode-playbook.md` when the payload needs local decode before it becomes usable data
 - `references/structured-transport-playbook.md` when GraphQL, WebSocket, gRPC/grpc-web, protobuf, msgpack, or binary envelopes carry the real contract
+- `references/wasm-static-analysis-playbook.md` when a `.wasm` module owns a signer/token/checksum/encoder/decoder and you must locate the export or decide execute-vs-port
 - `references/jsvmp-analysis-playbook.md` when a custom VM or bytecode interpreter hides the logic
 
 ## Verifiers, Pagination, And Narrow Exceptions

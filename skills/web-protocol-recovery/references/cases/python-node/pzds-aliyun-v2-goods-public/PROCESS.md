@@ -156,12 +156,27 @@ Requirements:
   terminate the browser process; on Windows, kill the process tree if normal
   termination times out. Do not claim complete while a refresh browser remains
   live.
+- On Windows, never put the full `1.5.1/feilinNNN.<64 hex>` version string in
+  nested artifact directory names. Use a short generation/hash slug and write a
+  manifest that preserves the full `serverVersion`. `WinError 206` during
+  `capture_attempts` creation is a tooling/path-length failure, not a captcha
+  protocol failure and not a reason to switch browser engines.
+- `resume-artifact` readers must accept both historical
+  `attempt_001_accepted_...` and current `attempt_001_chrome_accepted_...` /
+  `attempt_001_cloak_accepted_...` directory names. Reuse archived same-cohort
+  captures for offline candidate construction before spending another browser
+  capture budget.
 - A fresh FeiLin generation must extend generation-local ignored fields before
   the stability check passes. Observed current generations:
   - feilin123-127: `{52, 86, 136, 137}` unless current captures prove a
     generation-specific difference
 - Current accepted profile field counts are `111`, `133`, and `142`; reject
   other counts until a fixed vector or online `T001/true` proves the new shape.
+- The same FeiLin generation can occasionally produce mixed accepted field
+  counts (for example mostly `142` with one `111`). Filter to the dominant
+  same-count sample set before stability, field21 inference, and representative
+  selection. If no field count has a strict majority, reject the refresh rather
+  than merging fields from different shapes.
 - Success is only an online `T001 / true` verification before an exclusive,
   approved write of the new profile under `js_reverse_cache/private/pzds/`.
 
@@ -180,6 +195,33 @@ The updater copies an existing profile and requires the existing `combat511`/
 `combat504` Log3 base and the project's accepted movement/track seed. If those
 baselines are missing, capture one coherent current verifier round first,
 extract them, then run the updater.
+
+### FeiLin128/131 field21 algorithm drift
+
+FeiLin128 and FeiLin131 moved away from the classic `sourceKey/xorMask`
+formula. If `field21_candidates()` fails with `field21 no longer matches the
+known formula at byte 0`, do not keep increasing classic-inference rounds as the
+primary fix. Decode the archived captures into `(session_id[-8:], field21)`
+pairs, split by dominant field count, and fit a generation-specific per-position
+digit/letter transform.
+
+Acceptance for a new non-classic generation:
+
+- add an explicit `field21` algorithm label such as `feilin128` or `feilin131`
+  instead of storing a fake classic `sourceKey/xorMask`
+- add fixed vectors from redacted suffix/output pairs for the new generator and
+  for updater inference short-circuiting
+- require `Log2` and token field21 equality on every selected capture
+- require all selected same-shape captures to be inliers before publication; if
+  a candidate initially has partial inliers, identify the mismatch byte/branch
+  before live validation
+- validate with `resume-artifact --dry-run` and online `T001/true`, then run the
+  full collector path and business replay
+
+FeiLin131 maintenance note: `field21` can be a per-position nibble map. A first
+pass may produce partial inliers if one letter branch is fitted too broadly. The
+successful gate is full inliers on the selected archived captures, then online
+`T001/true`, then `goodsPublic/page` returns `success=true` and `code=SUCCESS`.
 
 ## Gate Family
 
@@ -210,6 +252,9 @@ WASM only returns narrow artifacts (`Sign`, `PZTimestamp`, `Random`, captcha
   collector path.
 - Spending captcha retries while trigger still returns `NOT_LOGGED_IN`.
 - Changing only `feilinVersion` text when server cohort changes.
+- Treating Windows artifact path-length errors as verifier/browser failures.
+- Publishing a non-classic `field21` generator after one lucky online `T001`
+  while archived captures still contain unexplained mismatch branches.
 
 ## Implementation Notes
 
@@ -274,6 +319,8 @@ Vectors cover:
 
 - goods body SHA-256 and request shape
 - field21 classic vectors
+- FeiLin generation-specific non-classic field21 vectors (`feilin128`,
+  `feilin131`, etc.)
 - Aliyun RPC HMAC-SHA1
 - deviceToken checksum / AES roundtrip
 - `data_builder.js` fixed output
@@ -295,6 +342,8 @@ Vectors cover:
   headers + root referer
 - `DeviceConfig.version` diverges from project profile and full profile refresh
   is not performed
+- `field21_candidates()` no longer matches the known formula, or a
+  generation-specific field21 builder has unexplained non-inlier captures
 - Verify no longer returns `T001/true` on a coherent same-round state
 - business success leaves `success=true`, `code=SUCCESS`, and `data.records`
 

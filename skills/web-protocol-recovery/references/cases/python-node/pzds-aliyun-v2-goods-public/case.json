@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 12,
+  "revision": 14,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -78,7 +78,7 @@
   "product": {
     "vendor": "Aliyun",
     "product": "Captcha V2 WAF",
-    "version": "FeiLin111/133/142 observed through feilin127 / PZDS X-Sign-Version v18",
+    "version": "FeiLin111/133/142 observed through feilin131 / PZDS X-Sign-Version v18",
     "subtype": "sliding-t001-pzds-goods-public"
   },
   "dependencies": {
@@ -102,7 +102,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "bf08e0e7a5089aa0fd37f89b6bdf60cdd109c706ae9d8cc2d1da45cd49f0c73d"
+      "sha256": "2cbd616c1ebc62bb7adebdd1eb3c75c6112fc1bebe378aa0c0909dcc0ca98712"
     },
     "entry": {
       "path": "entry.py",
@@ -162,7 +162,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-05T19:59:01.1077139+08:00",
+    "executedAt": "2026-08-09T20:28:00+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -174,7 +174,7 @@
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "request, field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
+      "offlineAcceptance": "request, classic and generation-specific field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
       "caseLocalTests": "python -m unittest discover -s tests -v",
       "currentEntrySha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40",
       "currentTestArtifactSha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95",

@@ -56,3 +56,15 @@ these as `scripts/...` relative to that Provider's own directory.
    (root is two levels above `scripts/<category>/`).
 5. Keep scripts offline and dependency-light; final live egress belongs to the
    `python-collector` delivery Provider.
+
+## Enforcement (not just convention)
+
+`gates/validate_architecture.py` (run by `gates/preflight.py`) fails closed when:
+
+1. any `.py` file sits directly under `scripts/` (must be categorized), or
+2. a `scripts/tools/*.py` exposing `--self-test` is missing from
+   `gates/preflight.py` `DIAGNOSTIC_SELF_TESTS`.
+
+So a scattered or unregistered script breaks preflight instead of drifting
+silently. Tests: `tests/test_architecture_contract.py`
+(`ScriptPlacementContractTests`).

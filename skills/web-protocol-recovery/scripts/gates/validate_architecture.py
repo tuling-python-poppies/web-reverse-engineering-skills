@@ -12,6 +12,10 @@ from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[2]
+SCRIPTS_ROOT = SKILL_ROOT / "scripts"
+PREFLIGHT_DOC = SKILL_ROOT / "scripts" / "gates" / "preflight.py"
+SCRIPT_CATEGORY_DIRS = {"tools", "gates", "tests", "providers"}
+SCRIPTS_ROOT_ALLOWED_FILES = {"README.md"}
 PROVIDER_REGISTRY = SKILL_ROOT / "references" / "providers" / "registry.json"
 CASES_ROOT = SKILL_ROOT / "references" / "cases"
 WORK_ORDER_SCHEMA = SKILL_ROOT / "references" / "schemas" / "provider-work-order.schema.json"
@@ -924,6 +928,51 @@ def live_egress_findings() -> list[str]:
     return findings
 
 
+def script_placement_findings(
+    scripts_root: Path = SCRIPTS_ROOT,
+    preflight_path: Path = PREFLIGHT_DOC,
+) -> list[str]:
+    """Every script must be categorized. Fail closed on scatter and missed registration.
+
+    1. No Python file may sit directly under scripts/. It must go in
+       tools/ (task diagnostics), gates/ (skill gates), tests/ (gate unit
+       tests), or providers/ (provider-scoped helpers). scripts/README.md
+       documents the taxonomy.
+    2. Any scripts/tools/*.py that exposes a --self-test option must be
+       registered in scripts/gates/preflight.py DIAGNOSTIC_SELF_TESTS, so a
+       new diagnostic cannot be added and then silently skipped by the gate.
+    """
+    findings: list[str] = []
+    if not scripts_root.is_dir():
+        return findings
+
+    for entry in sorted(scripts_root.iterdir()):
+        if entry.is_file() and entry.suffix == ".py":
+            findings.append(
+                f"scripts/{entry.name}: scripts root must not hold scripts; "
+                "move it under tools/, gates/, tests/, or providers/ (see scripts/README.md)"
+            )
+
+    preflight_text = (
+        preflight_path.read_text(encoding="utf-8", errors="replace")
+        if preflight_path.is_file()
+        else ""
+    )
+    tools_root = scripts_root / "tools"
+    if tools_root.is_dir():
+        for path in sorted(tools_root.glob("*.py")):
+            text = path.read_text(encoding="utf-8", errors="replace")
+            if "--self-test" not in text:
+                continue
+            registration = f"scripts/tools/{path.name}"
+            if registration not in preflight_text:
+                findings.append(
+                    f"{registration}: exposes --self-test but is not registered in "
+                    "scripts/gates/preflight.py DIAGNOSTIC_SELF_TESTS"
+                )
+    return findings
+
+
 def main() -> int:
     checks = [
         ("provider registry", provider_registry_findings),
@@ -935,6 +984,7 @@ def main() -> int:
         ("live egress", live_egress_findings),
         ("residue", residue_findings),
         ("line endings", line_ending_findings),
+        ("script placement", script_placement_findings),
     ]
     failures: list[str] = []
     for name, func in checks:

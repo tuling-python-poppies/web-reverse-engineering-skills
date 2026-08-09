@@ -313,5 +313,52 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertTrue(any("raw request/response" in item for item in findings))
 
 
+class ScriptPlacementContractTests(unittest.TestCase):
+    def _make_tree(self, base: Path) -> tuple[Path, Path]:
+        scripts = base / "scripts"
+        (scripts / "tools").mkdir(parents=True)
+        (scripts / "gates").mkdir()
+        preflight = scripts / "gates" / "preflight.py"
+        preflight.write_text(
+            'DIAGNOSTIC_SELF_TESTS = (\n    "scripts/tools/registered.py",\n)\n',
+            encoding="utf-8",
+        )
+        return scripts, preflight
+
+    def test_current_tree_passes(self) -> None:
+        self.assertEqual(validate_architecture.script_placement_findings(), [])
+
+    def test_python_file_at_scripts_root_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scripts, preflight = self._make_tree(Path(tmp))
+            (scripts / "stray_tool.py").write_text("pass\n", encoding="utf-8")
+            findings = validate_architecture.script_placement_findings(scripts, preflight)
+            self.assertTrue(any("stray_tool.py" in f and "scripts root" in f for f in findings))
+
+    def test_selftest_tool_must_be_registered(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scripts, preflight = self._make_tree(Path(tmp))
+            (scripts / "tools" / "registered.py").write_text(
+                'add_argument("--self-test")\n', encoding="utf-8"
+            )
+            (scripts / "tools" / "unregistered.py").write_text(
+                'add_argument("--self-test")\n', encoding="utf-8"
+            )
+            findings = validate_architecture.script_placement_findings(scripts, preflight)
+            self.assertTrue(
+                any("scripts/tools/unregistered.py" in f and "DIAGNOSTIC_SELF_TESTS" in f for f in findings)
+            )
+            self.assertFalse(any("scripts/tools/registered.py" in f for f in findings))
+
+    def test_tool_without_selftest_is_not_required(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scripts, preflight = self._make_tree(Path(tmp))
+            (scripts / "tools" / "plain_helper.py").write_text(
+                "def main():\n    return 0\n", encoding="utf-8"
+            )
+            findings = validate_architecture.script_placement_findings(scripts, preflight)
+            self.assertEqual(findings, [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,7 @@
 
 - Ordinary Web reconnaissance (default route).
 - Explicit CloakBrowser / 指纹浏览器 / fingerprint / anti-detection / stealth browser wording (Cloak tier via js-reverse, not Camoufox).
+- Explicit Cloudflare Turnstile managed / 五秒盾 + CloakBrowser browser-automation delivery. Read `references/cloakbrowser-turnstile-managed.md` after the Browser Runtime Dependency Gate.
 - First fingerprint or observer-effect escalation after the mandatory DevTools + js-reverse paired pass (or after a documented tool-blocker half-pass).
 
 ## Do Not Select When
@@ -41,6 +42,12 @@ Before the first navigation, require `browserReconAllowed=true`, `browserNavigat
 4. **Visible CloakBrowser** (optional fingerprint tier): only after explicit user wording or recorded fingerprint, automation, environment, headless/headful, or observer-effect evidence — ideally after both paired halves have evidence. Call `browser_binary_info` first; launch with `launch_browser({headless:false, cloakBinaryPath:<configured path>})` unless the user asks for hidden Cloak. Never invent the path.
 
 Explicit `CloakBrowser`, `指纹浏览器`, `fingerprint browser`, or `stealth browser` wording may enter the Cloak tier once exact scope is recorded; under standing approval that recording needs no user pause. This is an engine selection, not permission for account state, verifier submission, mutation, or broad collection, and not a substitute for reporting a blocked DevTools or js-reverse half when those tools were required for the task.
+
+## Provider-Local References
+
+| Signal | Reference | Boundary |
+|---|---|---|
+| Cloudflare Turnstile managed / 五秒盾 + explicit CloakBrowser code delivery | `references/cloakbrowser-turnstile-managed.md` | Browser runtime automation pattern only; not browser-free collector proof and not case-library eligible by itself. |
 
 ## Headless Acceptance (js-reverse normal Chrome only)
 

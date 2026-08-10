@@ -21,11 +21,12 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 4. 用户说小程序、Camoufox、Cloak、WebSocket、protobuf 等，只决定 `route` 或 gate，不自动升级到完整采集器。
 5. **已选 shape 内的常规动作默认执行、不打断确认**：隔离浏览器 recon、只读 live 请求、写 `projectRoot`（未指定则用 cwd）、使用用户已给的 cookie/session、协议所需 verifier submit、首次记录预算内的合理规模采集。内部记账即可，不要把这些写进 `nextAsk`。
 6. **`executionPolicy` 有两个 hard stop**：装依赖（`pip`/`npm` 等）、在本地 runtime 主动执行目标站 JS/WASM/HTML。普通隔离 recon 浏览器按页面正常加载目标代码属于 browser recon，不重复触发本地 target-code gate。
-7. **scope/governance 仍需确认**：业务 `mutation-submit`（表单、下单、支付、账号变更等）、扩大 success shape、提高已记录预算、raw secret 持久化/导出、case-library 写回。
-8. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
-9. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
-10. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
-11. **实现请求的默认行为**：用户明确要求实现或完整代码时，直接选择 `shape: collector`；先生成稳定项目文件和离线向量证明，再处理当前 session/profile/track 等运行态。缺运行态只能阻塞 live acceptance，不能阻止先生成实现骨架。
+7. **Browser Runtime Gate 只按需触发**：只有下一步确实要启动本地浏览器 runtime（Chromium/Cloak/Camoufox/miniapp debugger/正样本/用户明确浏览器自动化）时，才询问用户是否已有浏览器；有则要浏览器根目录，无则走对应 Provider/package 默认解析。纯协议、`evidence-reuse`、`local-proof`、`pure-python`、离线样本任务不问；依赖安装仍是 `executionPolicy`。
+8. **scope/governance 仍需确认**：业务 `mutation-submit`（表单、下单、支付、账号变更等）、扩大 success shape、提高已记录预算、raw secret 持久化/导出、case-library 写回。
+9. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
+10. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
+11. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
+12. **实现请求的默认行为**：用户明确要求实现或完整代码时，直接选择 `shape: collector`；先生成稳定项目文件和离线向量证明，再处理当前 session/profile/track 等运行态。缺运行态只能阻塞 live acceptance，不能阻止先生成实现骨架。
 
 Plain terms:
 
@@ -96,6 +97,20 @@ Read-Only Evidence Fast Path:
 Use this path when all conditions hold: `shape: evidence`; supplied artifact, request snippet, source sample, registry metadata, or static question is enough for the next step; no browser navigation, live egress, target-code execution, dependency install, or file write is needed yet.
 
 Allowed actions: emit the four-line header, use `route: evidence-reuse` unless reading one selected Provider `PROVIDER.md` or one bounded Provider-local reference is the smallest next read, inspect supplied text/files and bounded references, name the request/function/state source/blocker, and ask only missing sample/context fields. Do **not** ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization on this path.
+
+Browser Runtime Dependency Gate:
+
+Trigger this gate **only** when the next selected action requires launching a local browser runtime, such as `chromium-recon`, a Cloak tier, `camoufox`, WeChat miniapp debugger attachment, a browser positive-sample capture, or a user-explicit browser automation delivery. Do not trigger it for pure protocol work, `evidence-reuse`, offline `local-proof`, supplied artifacts that can be inspected statically, `pure-python`, or fixed-vector proof.
+
+When the gate triggers, ask the smallest browser-runtime question under `nextAsk: missing sample/context`:
+
+```text
+This step needs a local browser runtime. Do you already have one installed?
+1. Yes: provide the browser root directory, not the executable path.
+2. No: use the selected Provider/package default resolution, such as the `cloakbrowser` package default for CloakBrowser.
+```
+
+If the user supplies a browser root, record it as runtime configuration for the active Provider and let that Provider resolve the binary inside the root. Do not put a root path in `route`, do not treat it as a gate family, and do not copy it into case-library artifacts. If the package default path requires installing `pip`/`npm` dependencies, stop with `nextAsk: executionPolicy`; package defaults are not dependency-install approval.
 
 When the next step needs routine browser/live/write work inside the selected shape, leave the fast path and **just do it** under standing approval (record work-order fields internally; do not pause for user confirmation). Stop only when the next exact action matches one of the declared `nextAsk` confirmation kinds.
 
@@ -179,6 +194,8 @@ Fresh recon picks exactly one route:
 | `wechat-miniapp` | WMPF / WeChatAppEx / AppService / miniapp WebView / `127.0.0.1:62000` / WMPFDebugger | `references/providers/reconnaissance/wechat-miniapp/PROVIDER.md` |
 
 CloakBrowser is a Chromium recon tier, not a `route`. Fingerprint-browser, Cloak, stealth, anti-detection, or busy-Chrome wording does not select `camoufox`; it selects `chromium-recon` with an optional Cloak tier. Use `camoufox` only for explicit Camoufox/SpiderMonkey/engine-level criteria or after a Cloak result is captured and recorded as untrustworthy. A busy Chrome profile or an occupied visible Chrome is a tool blocker, not target evidence; record it and do not touch that browser. Final live egress still belongs to Python.
+
+Cloudflare Turnstile managed / 五秒盾 with explicit CloakBrowser browser-automation delivery stays `route: chromium-recon`; after Browser Runtime Dependency Gate, read the provider-local reference `references/providers/reconnaissance/chromium-recon/references/cloakbrowser-turnstile-managed.md`. This is a user-explicit browser runtime delivery pattern, not a browser-free protocol collector and not case-library eligible unless a later protocol artifact proves browser-free acceptance.
 
 Chromium recon (standing approval already covers launch; no user gate pause):
 

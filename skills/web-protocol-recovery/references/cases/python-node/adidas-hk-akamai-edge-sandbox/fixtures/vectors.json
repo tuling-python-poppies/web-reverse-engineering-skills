@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "web-protocol-recovery-vector",
+  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "target": {
+    "site": "adidas-hk",
+    "host": "www.adidas.com.hk",
+    "category": "summer_cs_promotion_2"
+  },
+  "runtime": {
+    "nodeMajor": 24,
+    "npmPackage": "edge-sandbox",
+    "importShape": "import { EdgeSandbox } from 'edge-sandbox'",
+    "api": "EdgeSandbox.create"
+  },
+  "sensor": {
+    "scriptUrlMarker": "pomCpnC",
+    "scriptQuery": "v=<uuid>",
+    "postMethod": "POST",
+    "postContentType": "application/json",
+    "bodyJsonKeys": ["body"],
+    "minObservedBodyBytes": 4000,
+    "derivedEndpointRule": "sensor script URL without query data"
+  },
+  "business": {
+    "endpoint": "https://www.adidas.com.hk/on/demandware.store/Sites-adidas-HK-Site/zh_HK/Search-UpdateGrid",
+    "query": {
+      "cgid": "summer_cs_promotion_2",
+      "format": "ajax",
+      "start": 0,
+      "sz": 48
+    },
+    "responseContentType": "text/html",
+    "observedBodyBytesApprox": 593000,
+    "observedProductCount": 82
+  },
+  "acceptance": {
+    "offlineProductCount": 3,
+    "rejectsLiveEgress": true,
+    "requiresCurrentLiveVerification": true
+  }
+}

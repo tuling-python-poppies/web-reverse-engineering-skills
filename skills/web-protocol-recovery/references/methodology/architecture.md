@@ -47,12 +47,12 @@ The canonical Provider inventory is `references/providers/registry.json`.
 |---|---|---|
 | `reconnaissance` | `chromium-recon`, `camoufox`, `wechat-miniapp` | Locate requests, initiators, moving state, scripts, runtime blockers, and precise next capability. |
 | `protocol-recovery` | `browser-hooks`, `ast`, `verifier`, `akamai`, `river-security`, `reese84` | Recover rules or own protocol-family state and acceptance criteria. |
-| `implementation` | `iv8`, `python-node`, `pure-python` | Produce one local protocol artifact. |
+| `implementation` | `iv8`, `python-node`, `edge-sandbox`, `pure-python` | Produce one local protocol artifact. |
 | `delivery` | `python-collector` | Perform final Python-owned HTTP/WebSocket live egress and bounded collection. |
 
-There are exactly three implementation modes: `iv8`, `python-node`, and `pure-python`. `env-patch` is a `python-node` strategy. `douyin-abogus-native` is a `pure-python` profile. `python-collector` is delivery, not an implementation mode.
+There are exactly three implementation modes: `iv8`, `python-node`, and `pure-python`. `edge-sandbox` is an implementation Provider backed by `python-node` delivery projects, not a fourth implementation mode. `env-patch` is a `python-node` strategy. `douyin-abogus-native` is a `pure-python` profile. `python-collector` is delivery, not an implementation mode.
 
-Protocol owners stay active while implementation Providers run. Example: `akamai -> iv8 -> python-collector` means Akamai remains the protocol owner and acceptance owner while iv8 generates the collector artifact, then python-collector performs final egress. The same ownership rule applies to `reese84 -> iv8/python-node -> python-collector`: Reese84 owns challenge-cookie and business-admission acceptance while the implementation Provider produces only a narrow artifact.
+Protocol owners stay active while implementation Providers run. Example: `akamai -> edge-sandbox -> python-collector` means Akamai remains the protocol owner and acceptance owner while EdgeSandbox generates the sensor artifact, then python-collector performs final egress. The same ownership rule applies to `reese84 -> iv8/python-node -> python-collector`: Reese84 owns challenge-cookie and business-admission acceptance while the implementation Provider produces only a narrow artifact.
 
 ## Unified Project Layout
 

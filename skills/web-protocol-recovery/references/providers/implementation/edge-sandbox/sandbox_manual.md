@@ -37,10 +37,10 @@
 
 ### 1.1 Node 版本
 
-必须使用 Node 24.11.0。Python 宿主脚本通过 `NVM_HOME` 自动定位，无需手动切换：
+必须使用 Node 24.x。Python 宿主脚本通过 `NVM_HOME` 自动定位，无需手动切换：
 
 ```powershell
-node --version   # 期望: v24.11.0
+node --version   # 期望: v24.x
 ```
 
 Node 版本错误时会出现 `module.hasTopLevelAwait is not a function` 等报错，这不是项目问题，先修正 Node 版本。
@@ -77,17 +77,9 @@ npm install <edge-sandbox-root>
 "edge-sandbox": "file:<edge-sandbox-root>"
 ```
 
-### 2.2 全局 link（所有项目共用）
+### 2.2 禁止全局 link 作为默认方案
 
-```powershell
-# 步骤1：在 edge-sandbox 目录注册
-cd <edge-sandbox-root>
-npm link
-
-# 步骤2：在任意项目里链接
-cd <your-project>
-npm link edge-sandbox
-```
+不要用全局 `npm link` 作为默认安装方式。每个协议恢复项目都应在自己的 `package.json` 中声明 `edge-sandbox`，并在项目目录执行 `npm install`，这样 `node_modules/edge-sandbox/package.json` 可以作为运行前检查点。
 
 ### 2.3 在脚本里导入
 
@@ -636,7 +628,7 @@ Remove-Item Env:EDGE_SANDBOX_CHILD_STDERR      -ErrorAction SilentlyContinue
 ## 16. 常见问题
 
 ### Q: `module.hasTopLevelAwait is not a function`
-Node 版本不对，必须是 24.11.0。
+Node 版本不对，必须是 24.x。
 
 ### Q: `fingerprint userAgent must describe Chrome ...`
 UA 必须包含 `Chrome/150.` 或 `Chrome/151.`，不能包含 `Edg/`。

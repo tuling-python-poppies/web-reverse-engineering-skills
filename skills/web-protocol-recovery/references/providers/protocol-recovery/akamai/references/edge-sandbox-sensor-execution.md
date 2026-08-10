@@ -45,7 +45,7 @@ Python
  * Called by Python which auto-locates Node 24 via NVM_HOME.
  */
 
-import { EdgeSandbox } from 'file:///<edge-sandbox-root>/src/index.js';
+import { EdgeSandbox } from 'edge-sandbox';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -222,13 +222,9 @@ except ImportError:
 from bs4 import BeautifulSoup
 
 
-# ─── EdgeSandbox Environment Auto-Detection ───────────────────────────────────
+# ─── EdgeSandbox Environment Validation ────────────────────────────────────────
 
-# Path to EdgeSandbox installation (adjust for your environment)
-EDGE_SANDBOX_ROOT = Path(os.environ.get(
-    'EDGE_SANDBOX_ROOT',
-    'D:/develop_software/edge_node_sandbox'
-))
+HERE = Path(__file__).resolve().parent
 
 
 def find_node24() -> str:
@@ -259,50 +255,23 @@ def find_node24() -> str:
 
 
 def ensure_edge_sandbox(node24_path: str) -> None:
-    """Check EdgeSandbox installation; auto-install dependencies if missing."""
-    if not EDGE_SANDBOX_ROOT.exists():
-        raise RuntimeError(
-            f"EdgeSandbox not found at: {EDGE_SANDBOX_ROOT}\n"
-            f"Set EDGE_SANDBOX_ROOT env var or install EdgeSandbox."
-        )
+    """Check project-local EdgeSandbox npm dependency."""
+    result = subprocess.run(
+        [node24_path, '-e', 'process.exit(0)'],
+        capture_output=True,
+        timeout=5,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"Node 24 binary not functional: {node24_path}")
 
-    pkg_json = EDGE_SANDBOX_ROOT / 'package.json'
+    pkg_json = HERE / 'node_modules' / 'edge-sandbox' / 'package.json'
     if not pkg_json.exists():
         raise RuntimeError(
-            f"EdgeSandbox package.json not found at: {EDGE_SANDBOX_ROOT}\n"
-            f"Verify installation integrity."
+            "node_modules/edge-sandbox/package.json not found.\n"
+            "Declare edge-sandbox in this project's package.json and run npm install."
         )
 
-    # Check if dependencies are installed (acorn is the only runtime dep)
-    acorn_marker = EDGE_SANDBOX_ROOT / 'node_modules' / 'acorn' / 'package.json'
-    if not acorn_marker.exists():
-        print(f"[+] EdgeSandbox dependencies not installed, running npm install...")
-        result = subprocess.run(
-            [node24_path, '-e', 'process.exit(0)'],  # verify node24 works
-            capture_output=True, timeout=5,
-        )
-        if result.returncode != 0:
-            raise RuntimeError(f"Node 24 binary not functional: {node24_path}")
-
-        # Find npm (should be alongside node)
-        node_dir = Path(node24_path).parent if node24_path != 'node' else None
-        npm_cmd = [str(node_dir / 'npm.cmd')] if node_dir and (node_dir / 'npm.cmd').exists() else ['npm']
-
-        install_result = subprocess.run(
-            npm_cmd + ['install', '--ignore-scripts'],
-            cwd=str(EDGE_SANDBOX_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=30,
-            env={**os.environ, 'PATH': f"{node_dir};{os.environ.get('PATH', '')}"} if node_dir else None,
-        )
-        if install_result.returncode != 0:
-            print(f"    npm install stderr: {install_result.stderr[:300]}")
-            raise RuntimeError("Failed to install EdgeSandbox dependencies")
-
-        print(f"[+] EdgeSandbox dependencies installed successfully")
-    else:
-        print(f"[+] EdgeSandbox: {EDGE_SANDBOX_ROOT} (deps OK)")
+    print(f"[+] EdgeSandbox npm package: {pkg_json.parent}")
 
 
 # ─── Sensor Generation ─────────────────────────────────────────────────────────

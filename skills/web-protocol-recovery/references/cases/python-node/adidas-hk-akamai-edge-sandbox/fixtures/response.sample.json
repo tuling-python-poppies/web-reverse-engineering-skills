@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "web-protocol-recovery-response-shape",
+  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "business": {
+    "endpoint": "https://www.adidas.com.hk/on/demandware.store/Sites-adidas-HK-Site/zh_HK/Search-UpdateGrid",
+    "contentType": "text/html",
+    "observedBodyBytesApprox": 593000,
+    "observedProductCount": 82
+  },
+  "html": "<div class=\"product-tile\" data-pid=\"JI1234\" data-product-name=\"Adizero Running Shoes\" data-price=\"HK$899\" data-url=\"/zh/adizero-running-shoes/JI1234.html\" data-image=\"/images/JI1234.jpg\"></div><div class=\"product-tile\" data-pid=\"IX5678\" data-product-name=\"Essentials Tee\" data-price=\"HK$229\" data-url=\"/zh/essentials-tee/IX5678.html\" data-image=\"/images/IX5678.jpg\"></div><div class=\"product-tile\" data-pid=\"JP9012\" data-price=\"HK$499\" data-url=\"/zh/classic-track-pants/JP9012.html\"><a class=\"product-name\" href=\"/zh/classic-track-pants/JP9012.html\">Classic Track Pants</a><img src=\"/images/JP9012.jpg\"></div>",
+  "expected": {
+    "productCount": 3,
+    "firstSku": "JI1234",
+    "requiredFields": ["sku", "name", "price", "url", "image"]
+  }
+}

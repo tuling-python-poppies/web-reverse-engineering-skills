@@ -1,0 +1,17 @@
+[
+  {
+    "id": "evidence-sign-entry",
+    "prompt": "帮我看这个 Web 请求里的 sign/token 是谁写进去的，只要入口和状态来源，不要写采集器。样本里有一个 XHR URL、请求头和一段混淆 JS。",
+    "expected": "触发 web-protocol-recovery；输出四行协议头；shape=evidence；route 选择 evidence-reuse 或最小可读 Provider；只定位请求入口、writer、状态来源或 blocker，不升级 collector。"
+  },
+  {
+    "id": "adidas-akamai-collector",
+    "prompt": "实现 adidas.com.hk summer_cs_promotion_2 的 browser-free collector。页面有 Akamai sensor，传感器脚本路径包含 pomCpnC，业务接口是 Search-UpdateGrid，最终要 Python 拿商品 JSON。",
+    "expected": "触发 web-protocol-recovery；shape=collector；先以 akamai 作为协议 owner，再由 edge-sandbox 生成窄传感器工件，最终 live egress 属于 python-collector；复用 adidas-hk-akamai-edge-sandbox case 前必须说明当前目标仍需 fresh verification。"
+  },
+  {
+    "id": "non-protocol-boundary",
+    "prompt": "给我生成一个普通 GraphQL REST client，顺便用浏览器截图检查页面按钮有没有对齐。没有 sign、cookie challenge、验证码或反爬协议问题。",
+    "expected": "不触发 web-protocol-recovery；不输出四行协议头；说明这是普通 API/client 或浏览器 QA 工作流，不能强行选择 Camoufox、GraphQL、AST 或 protocol Provider。"
+  }
+]

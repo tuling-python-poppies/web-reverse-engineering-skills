@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "web-protocol-recovery-case",
+  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "revision": 1,
+  "status": "verified",
+  "family": "challenge",
+  "runtime": "python-node",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "vendor:akamai",
+      "cookie:ak_bmsc",
+      "script:pomCpnC-sensor",
+      "runtime:edge-sandbox",
+      "api:sfcc-search-updategrid",
+      "site:adidas-hk"
+    ],
+    "minimumIndependentSignals": 3,
+    "negativeSignals": [
+      "vendor:river-security",
+      "vendor:reese84",
+      "alias:ruishu",
+      "sdk:webmssdk",
+      "runtime:iv8",
+      "site:twayair",
+      "queue:netfunnel"
+    ]
+  },
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "www.adidas.com.hk",
+      "port": 443,
+      "routePrefix": "/zh/summer_cs_promotion_2"
+    },
+    {
+      "scheme": "https",
+      "host": "www.adidas.com.hk",
+      "port": 443,
+      "routePrefix": "/pomCpnC"
+    },
+    {
+      "scheme": "https",
+      "host": "www.adidas.com.hk",
+      "port": 443,
+      "routePrefix": "/on/demandware.store/Sites-adidas-HK-Site/zh_HK/Search-UpdateGrid"
+    }
+  ],
+  "protocolPatterns": [
+    "vendor:akamai",
+    "cookie:ak_bmsc",
+    "script:pomCpnC-sensor",
+    "runtime:edge-sandbox",
+    "sensor-body:json-body-field",
+    "api:sfcc-search-updategrid",
+    "site:adidas-hk"
+  ],
+  "product": {
+    "vendor": "Akamai",
+    "product": "Bot Manager",
+    "version": "web-sensor",
+    "subtype": "adidas-hk-sfcc-edge-sandbox"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "node": "24.x for delivery",
+    "edge-sandbox": "project-local npm dependency for delivery",
+    "curl_cffi": "delivery only",
+    "beautifulsoup4": "delivery parser option"
+  },
+  "entryScope": {
+    "kind": "offline-proof",
+    "implementsLiveEgress": false,
+    "implementsTargetCodeExecution": false,
+    "proves": "Akamai sensor request shape, endpoint derivation, SFCC product parsing, and live-egress refusal"
+  },
+  "liveState": {
+    "mode": "browser-export-json",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [
+      "ak_bmsc",
+      "_abck",
+      "bm_sz",
+      "bm_sv"
+    ],
+    "cookieNamePatterns": [
+      "^ak_",
+      "^bm_",
+      "^_abck$"
+    ],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "c01f20e7d499b23fb1e90769e228c84e3d0b6d7b3e25a4c97d6fa7cd77008cb4"
+    },
+    "pullLiveState": {
+      "path": "pull_live_state.py",
+      "sha256": "af304f314327746fe61ed215d2f4ec3127044f201c9e0ff44ce7bc15be26e840"
+    },
+    "assets": [
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "3f5d0919862df2551be8cfdaabecaea40541e2c5580aec947e0f0457f33a9205"
+      },
+      {
+        "path": "fixtures/request.sample.json",
+        "sha256": "899d11b8517a9d56982a52fccf3bb57e87b2b87ddb4e10de9223c297e2f0221f"
+      },
+      {
+        "path": "fixtures/response.sample.json",
+        "sha256": "d76c127b6d1aa29b458c77040c0d7312aa4b7e4cd3ebf401845a8ff94240de6f"
+      },
+      {
+        "path": "fixtures/offline-proof.summary.json",
+        "sha256": "580840553052d3218f92a886be0fb2d936259ed39720912a2e318301eb60db7d"
+      }
+    ],
+    "entry": {
+      "path": "entry.py",
+      "sha256": "084f3170da6d1a6f8b6009ce82d8b94f05995e078766f05bd9e37843c8a38335"
+    }
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-08-10T00:00:00+08:00",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "e9e520d4b27683ac6b0c8ca2c03d5678ccd5a0cb7d507fd5ffb3d60273bfed46"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/offline-proof.summary.json",
+      "sha256": "580840553052d3218f92a886be0fb2d936259ed39720912a2e318301eb60db7d"
+    },
+    "proof": {
+      "activeScope": "offline-only",
+      "offlineAcceptance": "case tests validate sensor endpoint derivation, redacted request shape, SFCC product parsing, and live-egress refusal",
+      "caseLocalTests": "python -m unittest discover -s tests -v",
+      "currentEntrySha256": "084f3170da6d1a6f8b6009ce82d8b94f05995e078766f05bd9e37843c8a38335",
+      "currentTestArtifactSha256": "e9e520d4b27683ac6b0c8ca2c03d5678ccd5a0cb7d507fd5ffb3d60273bfed46"
+    }
+  },
+  "implementation": {
+    "mode": "python-node",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "edge-sandbox",
+    "role": "implementation",
+    "purpose": "EdgeSandbox sensor artifact proof",
+    "implementationMode": "python-node"
+  },
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "chromium-recon",
+      "role": "reconnaissance",
+      "purpose": "current-target evidence"
+    },
+    {
+      "provider": "akamai",
+      "role": "protocol-recovery",
+      "purpose": "protocol owner"
+    },
+    {
+      "provider": "edge-sandbox",
+      "role": "implementation",
+      "purpose": "EdgeSandbox sensor artifact",
+      "implementationMode": "python-node",
+      "ownerProvider": "akamai"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "delivery"
+    }
+  ]
+}

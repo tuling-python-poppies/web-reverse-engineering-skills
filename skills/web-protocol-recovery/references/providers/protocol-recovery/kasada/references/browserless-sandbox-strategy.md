@@ -23,7 +23,7 @@ Python automatically locates Node 24 via `NVM_HOME` environment variable — no 
 ## Architecture
 
 ```javascript
-import { EdgeSandbox } from 'file:///<edge-sandbox-root>/src/index.js';
+import { EdgeSandbox } from 'edge-sandbox';
 import { readFileSync } from 'node:fs';
 
 // Load real fingerprint from Camoufox export

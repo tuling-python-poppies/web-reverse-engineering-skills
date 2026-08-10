@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "web-protocol-recovery-offline-proof",
+  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "activeScope": "offline-only",
+  "passed": true,
+  "entrySha256": "084f3170da6d1a6f8b6009ce82d8b94f05995e078766f05bd9e37843c8a38335",
+  "testArtifactSha256": "e9e520d4b27683ac6b0c8ca2c03d5678ccd5a0cb7d507fd5ffb3d60273bfed46",
+  "acceptance": {
+    "command": "python -m unittest discover -s tests -v",
+    "checks": [
+      "sensor endpoint derivation removes query data",
+      "redacted sensor request shape validates",
+      "SFCC product fixture parses into three products",
+      "live egress guard rejects run(live=True)"
+    ]
+  },
+  "result": {
+    "productCount": 3,
+    "derivedSensorEndpoint": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js"
+  }
+}

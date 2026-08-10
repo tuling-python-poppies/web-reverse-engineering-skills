@@ -113,6 +113,15 @@
       "profiles": []
     },
     {
+      "id": "edge-sandbox",
+      "role": "implementation",
+      "entry": "references/providers/implementation/edge-sandbox/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
       "id": "pure-python",
       "role": "implementation",
       "entry": "references/providers/implementation/pure-python/PROVIDER.md",

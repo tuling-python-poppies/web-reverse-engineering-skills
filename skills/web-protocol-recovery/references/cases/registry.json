@@ -2,6 +2,88 @@
     "schemaVersion": "web-protocol-recovery-case-registry",
     "cases": [
         {
+            "caseId": "adidas-hk-akamai-edge-sandbox",
+            "family": "challenge",
+            "status": "verified",
+            "runtime": "python-node",
+            "caseKind": "implementation",
+            "implementation": {
+                "mode": "python-node",
+                "strategy": null,
+                "profile": null
+            },
+            "exactScopes": [
+                {
+                    "scheme": "https",
+                    "host": "www.adidas.com.hk",
+                    "port": 443,
+                    "routePrefix": "/zh/summer_cs_promotion_2"
+                },
+                {
+                    "scheme": "https",
+                    "host": "www.adidas.com.hk",
+                    "port": 443,
+                    "routePrefix": "/pomCpnC"
+                },
+                {
+                    "scheme": "https",
+                    "host": "www.adidas.com.hk",
+                    "port": 443,
+                    "routePrefix": "/on/demandware.store/Sites-adidas-HK-Site/zh_HK/Search-UpdateGrid"
+                }
+            ],
+            "match": {
+                "signals": [
+                    "vendor:akamai",
+                    "cookie:ak_bmsc",
+                    "script:pomCpnC-sensor",
+                    "runtime:edge-sandbox",
+                    "api:sfcc-search-updategrid",
+                    "site:adidas-hk"
+                ],
+                "minimumIndependentSignals": 3,
+                "negativeSignals": [
+                    "vendor:river-security",
+                    "vendor:reese84",
+                    "alias:ruishu",
+                    "sdk:webmssdk",
+                    "runtime:iv8",
+                    "site:twayair",
+                    "queue:netfunnel"
+                ]
+            },
+            "providerPlan": [
+                {
+                    "provider": "chromium-recon",
+                    "role": "reconnaissance",
+                    "purpose": "current-target evidence"
+                },
+                {
+                    "provider": "akamai",
+                    "role": "protocol-recovery",
+                    "purpose": "protocol owner"
+                },
+                {
+                    "provider": "edge-sandbox",
+                    "role": "implementation",
+                    "purpose": "EdgeSandbox sensor artifact",
+                    "implementationMode": "python-node",
+                    "ownerProvider": "akamai"
+                },
+                {
+                    "provider": "python-collector",
+                    "role": "delivery",
+                    "purpose": "delivery"
+                }
+            ],
+            "manifest": {
+                "path": "python-node/adidas-hk-akamai-edge-sandbox/case.json",
+                "sha256": "f2f23760ebac8096ac011e2a3be9717cddafacac30cb8aacf4b64774f2c527d3"
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
+        },
+        {
             "caseId": "camoufox-jsvmp-dual-sign-cacheopts",
             "family": "signer",
             "status": "verified",

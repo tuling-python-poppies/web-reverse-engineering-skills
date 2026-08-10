@@ -15,7 +15,7 @@
  *   3. Import: import { EdgeSandbox } from 'edge-sandbox';
  * 
  * Architecture:
- * 1. Fetch challenge page + sensor script
+ * 1. Load approved challenge page + sensor script inputs
  * 2. EdgeSandbox: evaluate sensor → capture POST/GET body
  * 3. Output JSON for Python to forward via curl_cffi
  * 
@@ -23,7 +23,7 @@
  * Adjust the CONFIG section below for your target site.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,9 +56,11 @@ const CONFIG = {
   
   // Regex pattern to find sensor script URL in challenge HTML
   sensorScriptPattern: /src="([^"]*sensor-path[^"]*)"/,
-  
-  // User-Agent for HTTP requests (fetching challenge + sensor)
-  fetchUA: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0',
+
+  // Offline inputs prepared by Python delivery after approval and request accounting
+  challengeHtmlFile: 'challenge.html',
+  sensorScriptFile: 'sensor.js',
+  cookiesFile: 'cookies.json',
   
   // Fingerprint (default EdgeSandbox profile or custom)
   fingerprint: {
@@ -74,62 +76,32 @@ const CONFIG = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Step 1: Fetch Challenge Page
+// Step 1: Load Challenge Page Fixture
 // ═══════════════════════════════════════════════════════════════════════════
-async function fetchChallengePage() {
-  console.log('[sensor] GET challenge page...');
-  const resp = await fetch(CONFIG.targetUrl, {
-    method: 'GET',
-    headers: {
-      'User-Agent': CONFIG.fetchUA,
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    },
-    redirect: 'manual',
-  });
-
-  const status = resp.status;
-  const html = await resp.text();
-  
-  // Parse Set-Cookie
-  const setCookies = resp.headers.getSetCookie?.() || [];
-  const cookies = {};
-  for (const sc of setCookies) {
-    const [kv] = sc.split(';');
-    const [k, ...vParts] = kv.split('=');
-    cookies[k.trim()] = vParts.join('=').trim();
-  }
+function loadChallengePage() {
+  console.log('[sensor] loading approved challenge HTML...');
+  const html = readFileSync(resolve(__dirname, CONFIG.challengeHtmlFile), 'utf-8');
+  const cookies = JSON.parse(readFileSync(resolve(__dirname, CONFIG.cookiesFile), 'utf-8'));
 
   // Extract sensor script URL
   const scriptMatch = html.match(CONFIG.sensorScriptPattern);
   const sensorScriptUrl = scriptMatch ? `https://${CONFIG.host}${scriptMatch[1]}` : null;
 
-  console.log(`[sensor] status=${status} cookies=${Object.keys(cookies).join(',')} sensorScript=${sensorScriptUrl ? 'found' : 'NOT FOUND'}`);
+  console.log(`[sensor] cookies=${Object.keys(cookies).join(',')} sensorScript=${sensorScriptUrl ? 'found' : 'NOT FOUND'}`);
   
   if (!sensorScriptUrl) {
     throw new Error('Sensor script URL not found in challenge page');
   }
 
-  return { status, html, cookies, sensorScriptUrl };
+  return { html, cookies, sensorScriptUrl };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Step 2: Fetch Sensor Script
+// Step 2: Load Sensor Script Fixture
 // ═══════════════════════════════════════════════════════════════════════════
-async function fetchSensorScript(url, cookies) {
-  console.log('[sensor] GET sensor script...');
-  const cookieStr = Object.entries(cookies).map(([k, v]) => `${k}=${v}`).join('; ');
-  
-  const resp = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'User-Agent': CONFIG.fetchUA,
-      'Accept': '*/*',
-      'Referer': CONFIG.targetUrl,
-      'Cookie': cookieStr,
-    },
-  });
-
-  const scriptText = await resp.text();
+function loadSensorScript() {
+  console.log('[sensor] loading approved sensor script...');
+  const scriptText = readFileSync(resolve(__dirname, CONFIG.sensorScriptFile), 'utf-8');
   console.log(`[sensor] sensor script fetched: ${(scriptText.length / 1024).toFixed(0)}KB`);
   return scriptText;
 }
@@ -228,8 +200,8 @@ async function runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies) {
 async function main() {
   console.log('[sensor] Generic sensor generator (EdgeSandbox)');
 
-  const { cookies, sensorScriptUrl } = await fetchChallengePage();
-  const sensorScript = await fetchSensorScript(sensorScriptUrl, cookies);
+  const { cookies, sensorScriptUrl } = loadChallengePage();
+  const sensorScript = loadSensorScript();
   const result = await runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies);
 
   if (!result) {

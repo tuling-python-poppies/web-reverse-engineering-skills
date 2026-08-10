@@ -37,7 +37,7 @@ In the project's `package.json`, declare edge-sandbox as a local file dependency
 ```json
 {
   "dependencies": {
-    "edge-sandbox": "file:D:/develop_software/edge_node_sandbox"
+    "edge-sandbox": "file:<edge-sandbox-root>"
   },
   "type": "module",
   "engines": { "node": ">=24.0.0" }
@@ -173,7 +173,7 @@ Output is JSON for Python to consume; Python forwards the body via `curl_cffi` o
 
 All applicable checks must pass:
 
-1. Node 24.11.0 is active before EdgeSandbox import.
+1. Node 24.x is active before EdgeSandbox import.
 2. EdgeSandbox successfully creates a sandbox and evaluates the target script without unrecoverable VM exceptions.
 3. `networkRequests()` captures the expected outbound POST/GET with plausible body size and structure.
 4. Python forwards the captured request body to the real endpoint and receives the expected response (cookies, tokens, business data).
@@ -183,7 +183,7 @@ All applicable checks must pass:
 
 | Trigger | First fix | Still fails -> stop |
 |---------|-----------|---------------------|
-| Node version is not 24.11.0 | User must switch Node version via nvm/fnm/system | Stop; cannot proceed without Node 24 |
+| Node version is not 24.x | User must switch Node version via nvm/fnm/system | Stop; cannot proceed without Node 24 |
 | `node_modules/edge-sandbox` missing | Run `npm install` in project directory | Check `package.json` has correct file: path |
 | EdgeSandbox import fails | Verify `npm install` completed successfully | Check EdgeSandbox installation integrity |
 | Sensor throws in sandbox | Fill missing environment surfaces (navigator, canvas, timing) | If fingerprint plausibility ceiling reached, use real browser export |

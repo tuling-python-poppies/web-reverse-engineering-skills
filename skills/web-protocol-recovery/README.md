@@ -42,17 +42,18 @@ references/providers/
     iv8/PROVIDER.md
     python-node/PROVIDER.md
     python-node/strategies/env-patch/STRATEGY.md
+    edge-sandbox/PROVIDER.md
     pure-python/PROVIDER.md
     pure-python/profiles/douyin-abogus-native.md
   delivery/
     python-collector/PROVIDER.md
 ```
 
-Internal skills are Providers under this tree (not peer top-level skills). Roles are explicit: reconnaissance locates evidence; protocol-recovery owns family rules and acceptance; implementation Providers generate one local artifact; delivery owns final browser-free Python egress. A typical Reese84 chain is `reese84 -> iv8/python-node -> python-collector`: Reese84 keeps protocol acceptance while the implementation Provider produces a narrow artifact. `env-patch` is a `python-node` strategy, not a route. `douyin-abogus-native` is a `pure-python` profile, not a route. Providers receive `web-protocol-recovery-provider-work-order` and return `web-protocol-recovery-provider-result`; schemas live in `references/schemas/` and the explanatory contract is `references/methodology/provider-work-order.md`.
+Internal skills are Providers under this tree (not peer top-level skills). Roles are explicit: reconnaissance locates evidence; protocol-recovery owns family rules and acceptance; implementation Providers generate one local artifact; delivery owns final browser-free Python egress. A typical Reese84 chain is `reese84 -> iv8/python-node -> python-collector`: Reese84 keeps protocol acceptance while the implementation Provider produces a narrow artifact. Akamai/Kasada sensor chains may use `edge-sandbox` as the implementation Provider when full browser-compatible local execution is required. `env-patch` is a `python-node` strategy, not a route. `douyin-abogus-native` is a `pure-python` profile, not a route. Providers receive `web-protocol-recovery-provider-work-order` and return `web-protocol-recovery-provider-result`; schemas live in `references/schemas/` and the explanatory contract is `references/methodology/provider-work-order.md`.
 
 ## Cases
 
-The root registry indexes 23 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 5 `python-node`, and 2 `pure-python`. All historical cases require fresh current-target verification. Each manifest declares its own `secretPolicy`; raw project-state persistence requires the hub's `raw-secret-handling` gate and never adds cookie/token values to the case library.
+The root registry indexes 24 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 6 `python-node`, and 2 `pure-python`. Template cases require fresh current-target verification. Each manifest declares its own `secretPolicy`; raw project-state persistence requires the hub's `raw-secret-handling` gate and never adds cookie/token values to the case library.
 
 ## Gates
 
@@ -61,7 +62,7 @@ entry point after any edit. Each one is fail-closed; none of them are advisory.
 
 | Gate | Asserts |
 |---|---|
-| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 23 cases |
+| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 24 cases |
 | `build_case_registry.py --check` | `registry.json` is exactly the generated projection |
 | `validate_architecture.py` | Provider registry, route literals, hub and case-process contracts, read plans, case manifests, live-egress boundary, build residue, and LF-only line endings |
 | `validate_schemas.py` | Work-order and result schemas |

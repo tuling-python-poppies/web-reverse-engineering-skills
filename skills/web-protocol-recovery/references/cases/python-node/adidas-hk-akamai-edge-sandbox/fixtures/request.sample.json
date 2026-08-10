@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "web-protocol-recovery-request-shape",
+  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "challenge": {
+    "targetUrl": "https://www.adidas.com.hk/zh/summer_cs_promotion_2",
+    "sensorScriptUrlShape": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js?v=00000000-0000-4000-8000-000000000000",
+    "initialCookieNames": ["_abck", "bm_sz"]
+  },
+  "edgeSandboxCapture": {
+    "capturedNetworkRequests": 63,
+    "eventLoopPumpSeconds": 10
+  },
+  "sensorPost": {
+    "method": "POST",
+    "endpoint": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js",
+    "headers": {
+      "content-type": "application/json"
+    },
+    "bodyShape": {
+      "jsonObject": true,
+      "keys": ["body"],
+      "bodyField": "encoded string",
+      "observedBytesApprox": 4152
+    }
+  },
+  "forwardResult": {
+    "expectedCookieNamesAnyOf": ["ak_bmsc", "bm_sv", "bm_sz"]
+  }
+}

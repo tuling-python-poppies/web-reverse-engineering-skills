@@ -13,5 +13,35 @@
     "id": "non-protocol-boundary",
     "prompt": "给我生成一个普通 GraphQL REST client，顺便用浏览器截图检查页面按钮有没有对齐。没有 sign、cookie challenge、验证码或反爬协议问题。",
     "expected": "不触发 web-protocol-recovery；不输出四行协议头；说明这是普通 API/client 或浏览器 QA 工作流，不能强行选择 Camoufox、GraphQL、AST 或 protocol Provider。"
+  },
+  {
+    "id": "kasada-edge-sandbox-collector",
+    "prompt": "一个目标返回 429，响应里有 KP_UIDz、x-kpsdk-ct、window.KPSDK bootstrap、双 UUID /ips.js 路径和 /tl POST。我要 browser-free Python collector，先证明 x-kpsdk-ct 再打业务接口。",
+    "expected": "触发 web-protocol-recovery；shape=collector 或 local-proof 到 collector；route=kasada 作为协议 owner；只有两类 Kasada 独立信号成立后才读 Provider；实现工件可走 edge-sandbox，最终 live egress 属于 python-collector；不能把 429 单独当 Kasada 证明。"
+  },
+  {
+    "id": "river-security-minimum-evidence",
+    "prompt": "站点 412，页面里有 $_ts.nsd 和 $_ts.cd，响应设置了 XxxS/XxxT Cookie，还看到 r=\"m\" 的脚本。请复现挑战 Cookie，再做 Python 请求。",
+    "expected": "触发 web-protocol-recovery；shape=evidence 或 compact-replay；route=river-security；说明 River Security 需要两个独立标记，先恢复 challenge 状态和 Cookie 转换，再由 python-node env-patch 或 iv8 产出窄工件，最终 Python 发包。"
+  },
+  {
+    "id": "reese84-corroboration-boundary",
+    "prompt": "我只抓到一个 reese84 cookie 和 x-d-token，页面像 Imperva。帮我直接写 Python 绕过。",
+    "expected": "触发 web-protocol-recovery 但保持 evidence-first；route=evidence-reuse 或拒绝直接 reese84；指出只有 cookie/header 不足以选择 Reese84，需要 challenge path、solution response、cookie transition 或 business consumer 等独立佐证；不能直接写绕过 collector。"
+  },
+  {
+    "id": "pzds-aliyun-v2-collector",
+    "prompt": "实现 PZDS goodsPublic/page browser-free collector。业务响应里出现 InitCaptchaV2、UploadLog、Log2、Log3、VerifyCaptchaV2，最终重放需要 u_atoken 和 u_asig。",
+    "expected": "触发 web-protocol-recovery；shape=collector；route=verifier 并选择 Aliyun Captcha V2 workflow；可复用 PZDS case 但必须拉取当前目标 live state；最终由 python-collector 做业务发包，不能把 verifier 当最终 delivery。"
+  },
+  {
+    "id": "camoufox-not-for-qa",
+    "prompt": "用 Camoufox 帮我打开页面点一下按钮，截图看看 CSS 有没有错位。这不是逆向，只是 QA。",
+    "expected": "不触发 web-protocol-recovery；不输出四行协议头；明确这是浏览器 QA/页面自动化，不因为出现 Camoufox 就进入协议恢复。"
+  },
+  {
+    "id": "offline-fixed-vector-proof",
+    "prompt": "我有固定请求样本、JS 文件和 expected sign，只要离线验证 signer 是否能复现，不允许联网，不允许浏览器。",
+    "expected": "触发 web-protocol-recovery；shape=local-proof；route=evidence-reuse 或最小实现 Provider；只跑固定向量和离线 proof，记录 acceptanceTest/result；不做 live replay、不启动浏览器、不升级 collector。"
   }
 ]

@@ -38,6 +38,7 @@ references/providers/
     akamai/scripts/*
     river-security/PROVIDER.md
     reese84/PROVIDER.md
+    kasada/PROVIDER.md
   implementation/
     iv8/PROVIDER.md
     python-node/PROVIDER.md
@@ -84,9 +85,9 @@ CRLF on Windows while its own `--check` read back with universal newlines.
 Reverse-engineering helpers under `scripts/` are optional aids, not gates:
 
 ```cmd
-python scripts\check_reverse_env.py
-python scripts\crypto_fingerprint.py <sample>
-python scripts\protocol_diff.py <capture-a> <capture-b>
+python scripts\tools\check_reverse_env.py
+python scripts\tools\crypto_fingerprint.py <sample>
+python scripts\tools\protocol_diff.py <capture-a> <capture-b>
 python scripts\providers\delivery\python-collector\scaffold_project.py <project-root> --entry --cache
 ```
 

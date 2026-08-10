@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "web-protocol-recovery-case",
+  "caseId": "pure-python-bandai-card-miniapp-home-goods-aes-sign",
+  "revision": 1,
+  "status": "verified",
+  "family": "signer",
+  "runtime": "pure-python",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
+  "selectableAs": "proof",
+  "requiresFreshVerification": true,
+  "secretPolicy": "redacted-pull-live",
+  "match": {
+    "signals": [
+      "platform:wechat-miniapp",
+      "site:windoent",
+      "product:bandai-card",
+      "api:/h5/goods/index",
+      "header:Mini-User-Agent",
+      "algorithm:aes-cbc-server-time"
+    ],
+    "minimumIndependentSignals": 3,
+    "negativeSignals": [
+      "vendor:akamai",
+      "vendor:river-security",
+      "vendor:reese84",
+      "runtime:browser-required",
+      "flow:authenticated-order-payment"
+    ]
+  },
+  "exactScopes": [
+    {
+      "scheme": "https",
+      "host": "bdmatchapi.windoent.com",
+      "port": 443,
+      "routePrefix": "/h5/goods/index"
+    },
+    {
+      "scheme": "https",
+      "host": "appsevice.windoent.com",
+      "port": 443,
+      "routePrefix": "/ct"
+    }
+  ],
+  "protocolPatterns": [
+    "platform:wechat-miniapp",
+    "api:h5/goods/index",
+    "state:server-time",
+    "header:Mini-User-Agent",
+    "algorithm:aes-cbc-pkcs7-base64",
+    "response:data-array-goods"
+  ],
+  "product": {
+    "vendor": "Windoent",
+    "product": "Bandai Card miniapp",
+    "version": "36",
+    "subtype": "homepage-goods-aes-sign"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "pycryptodome": "offline signer and vectors",
+    "requests": "project live replay only"
+  },
+  "liveState": {
+    "mode": "none-required-for-tested-endpoint",
+    "retention": "memory-only",
+    "requiredCookies": [],
+    "optionalCookies": [],
+    "storageKeys": []
+  },
+  "artifacts": {
+    "process": {
+      "path": "PROCESS.md",
+      "sha256": "a5cd0395082e8676900a23bb68e108f05a128b53117a3520cbfe3ec224943f73"
+    },
+    "entry": {
+      "path": "entry.py",
+      "sha256": "e5e591b31f0e78dbfdb1677e6de5f2ceb5c09da8226a61192c2f668dd07140ee"
+    },
+    "assets": [
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "322b2a495acdc8801802314a5e57d6269e1a36afa2b5709f4319fc8e9f48a91a"
+      },
+      {
+        "path": "fixtures/response.sample.json",
+        "sha256": "ab4150651d2efde158f832a9609cf988e423364bae9f58d1310912c4782b166b"
+      },
+      {
+        "path": "fixtures/live-proof.summary.json",
+        "sha256": "17677bf6c8a107dbd78a2d390edd5828aa39fdaf673b8be30559a23453c3ab31",
+        "classification": "historical-provenance",
+        "currentAcceptance": false
+      },
+      {
+        "path": "fixtures/offline-proof.summary.json",
+        "sha256": "4137cc4d0ada2b07bdd7e471b8261fe583b91e8aac791924e15756c397531325"
+      }
+    ]
+  },
+  "verification": {
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-08-10",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "1f2495ed4b4b4323cfeb7e0814a3005a93494d2a4b3e58f41039508abd587de8"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/offline-proof.summary.json",
+      "sha256": "4137cc4d0ada2b07bdd7e471b8261fe583b91e8aac791924e15756c397531325"
+    },
+    "proof": {
+      "activeScope": "offline-only",
+      "offlineAcceptance": "AES-CBC signature, homepage query/header construction, and synthetic goods response parsing pass offline",
+      "caseLocalTests": "python -m unittest discover -s tests -v",
+      "currentEntrySha256": "e5e591b31f0e78dbfdb1677e6de5f2ceb5c09da8226a61192c2f668dd07140ee",
+      "currentTestArtifactSha256": "1f2495ed4b4b4323cfeb7e0814a3005a93494d2a4b3e58f41039508abd587de8",
+      "historicalLiveProof": {
+        "classification": "historical-archive-provenance",
+        "executedAt": "2026-08-10",
+        "summary": "Project main.py fetched homepage goods with HTTP 200 and observed 15 product rows",
+        "currentAcceptance": false
+      }
+    }
+  },
+  "implementation": {
+    "mode": "pure-python",
+    "strategy": null,
+    "profile": null
+  },
+  "sourceStage": {
+    "provider": "wechat-miniapp",
+    "role": "reconnaissance",
+    "purpose": "current target package and request evidence"
+  },
+  "historicalProviderChain": [
+    {
+      "provider": "wechat-miniapp",
+      "role": "reconnaissance"
+    },
+    {
+      "provider": "pure-python",
+      "role": "implementation"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery"
+    }
+  ],
+  "requiredCurrentProviderChain": [
+    {
+      "provider": "wechat-miniapp",
+      "role": "reconnaissance",
+      "purpose": "fresh target API and package evidence"
+    },
+    {
+      "provider": "pure-python",
+      "role": "implementation",
+      "purpose": "deterministic artifact"
+    },
+    {
+      "provider": "python-collector",
+      "role": "delivery",
+      "purpose": "live egress outside case entry"
+    }
+  ]
+}

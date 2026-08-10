@@ -1,0 +1,11 @@
+{
+  "caseId": "pure-python-bandai-card-miniapp-home-goods-aes-sign",
+  "runtime": "pure-python",
+  "endpoint": "https://bdmatchapi.windoent.com/h5/goods/index",
+  "responseCode": 200,
+  "businessRowsObserved": 15,
+  "passed": true,
+  "capturedAt": "2026-08-10",
+  "secretPolicy": "no live signature, token, cookie, or private response body persisted",
+  "currentTargetReuse": "requires fresh target verification; this is historical provenance only"
+}

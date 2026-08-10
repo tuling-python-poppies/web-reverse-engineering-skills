@@ -1,0 +1,24 @@
+{
+  "signature": {
+    "serverTime": 1720000000000,
+    "plaintext": "1720000000000FQAziVSKNT1Th5wi",
+    "expectedBase64": "ryDz+l4yMrnIU6osxFLNoZrUZz2Ku8gcsQG3mVCDtoU="
+  },
+  "request": {
+    "page": 1,
+    "limit": 10,
+    "categoryId": 0,
+    "isHome": 1,
+    "expected": {
+      "page": 1,
+      "limit": 10,
+      "categoryId": 0,
+      "isHome": 1
+    }
+  },
+  "headers": {
+    "serverTime": 1720000000000,
+    "miniVersion": "1.0.0",
+    "expectedMiniUserAgent": "windoentMini/1.0.0"
+  }
+}

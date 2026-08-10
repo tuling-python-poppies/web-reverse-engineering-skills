@@ -1,0 +1,23 @@
+{
+  "code": 200,
+  "message": "成功",
+  "count": 2,
+  "data": [
+    {
+      "id": 1001,
+      "image": "https://example.invalid/bandai-card/goods-1001.png",
+      "price": 30,
+      "name": "Synthetic Starter Deck",
+      "minBuy": 1,
+      "type": 1
+    },
+    {
+      "id": 1002,
+      "image": "https://example.invalid/bandai-card/goods-1002.png",
+      "price": 90,
+      "name": "Synthetic Booster Pack",
+      "minBuy": 1,
+      "type": 1
+    }
+  ]
+}

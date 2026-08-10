@@ -1122,6 +1122,73 @@
             "selectableAs": "template"
         },
         {
+            "caseId": "pure-python-bandai-card-miniapp-home-goods-aes-sign",
+            "family": "signer",
+            "status": "verified",
+            "runtime": "pure-python",
+            "caseKind": "implementation",
+            "implementation": {
+                "mode": "pure-python",
+                "strategy": null,
+                "profile": null
+            },
+            "exactScopes": [
+                {
+                    "scheme": "https",
+                    "host": "bdmatchapi.windoent.com",
+                    "port": 443,
+                    "routePrefix": "/h5/goods/index"
+                },
+                {
+                    "scheme": "https",
+                    "host": "appsevice.windoent.com",
+                    "port": 443,
+                    "routePrefix": "/ct"
+                }
+            ],
+            "match": {
+                "signals": [
+                    "platform:wechat-miniapp",
+                    "site:windoent",
+                    "product:bandai-card",
+                    "api:/h5/goods/index",
+                    "header:Mini-User-Agent",
+                    "algorithm:aes-cbc-server-time"
+                ],
+                "minimumIndependentSignals": 3,
+                "negativeSignals": [
+                    "vendor:akamai",
+                    "vendor:river-security",
+                    "vendor:reese84",
+                    "runtime:browser-required",
+                    "flow:authenticated-order-payment"
+                ]
+            },
+            "providerPlan": [
+                {
+                    "provider": "wechat-miniapp",
+                    "role": "reconnaissance",
+                    "purpose": "fresh target API and package evidence"
+                },
+                {
+                    "provider": "pure-python",
+                    "role": "implementation",
+                    "purpose": "deterministic artifact"
+                },
+                {
+                    "provider": "python-collector",
+                    "role": "delivery",
+                    "purpose": "live egress outside case entry"
+                }
+            ],
+            "manifest": {
+                "path": "pure-python/bandai-card-miniapp-home-goods-aes-sign/case.json",
+                "sha256": "8fef3a46d40f8f8999ed378cc7238a4fdfe8a75b05d6cf656cce17e2352edc2a"
+            },
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
+        },
+        {
             "caseId": "pure-python-geetest-v4-nine-grid",
             "family": "verifier",
             "status": "verified",

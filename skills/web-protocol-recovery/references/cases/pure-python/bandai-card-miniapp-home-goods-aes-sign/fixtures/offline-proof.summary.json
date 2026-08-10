@@ -1,0 +1,10 @@
+{
+  "caseId": "pure-python-bandai-card-miniapp-home-goods-aes-sign",
+  "passed": true,
+  "activeScope": "offline-only",
+  "historicalLiveProofIsCurrentAcceptance": false,
+  "entrySha256": "e5e591b31f0e78dbfdb1677e6de5f2ceb5c09da8226a61192c2f668dd07140ee",
+  "testArtifactSha256": "1f2495ed4b4b4323cfeb7e0814a3005a93494d2a4b3e58f41039508abd587de8",
+  "evidenceArtifact": "fixtures/offline-proof.summary.json",
+  "acceptance": "AES-CBC signature, request parameters, header shape, and synthetic product response parsing pass offline"
+}

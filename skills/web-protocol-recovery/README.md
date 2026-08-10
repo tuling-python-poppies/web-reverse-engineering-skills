@@ -54,7 +54,7 @@ Internal skills are Providers under this tree (not peer top-level skills). Roles
 
 ## Cases
 
-The root registry indexes 24 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 6 `python-node`, and 2 `pure-python`. Template cases require fresh current-target verification. Each manifest declares its own `secretPolicy`; raw project-state persistence requires the hub's `raw-secret-handling` gate and never adds cookie/token values to the case library.
+The root registry indexes 25 hash-bound `web-protocol-recovery-case` manifests grouped by implementation runtime: 16 `iv8`, 6 `python-node`, and 3 `pure-python`. Template cases require fresh current-target verification. Each manifest declares its own `secretPolicy`; raw project-state persistence requires the hub's `raw-secret-handling` gate and never adds cookie/token values to the case library.
 
 ## Gates
 

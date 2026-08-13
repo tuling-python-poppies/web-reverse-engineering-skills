@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "xhs-mnsv2-offline-vectors",
+  "caseId": "iv8-xhs-homefeed",
+  "activeScope": "offline-only",
+  "passed": true,
+  "entrySha256": "38d5d3742d77ce572f1158b3ac11bb1eb8320e176030f676af79a22a6831cf84",
+  "testArtifactSha256": "a6e9e2e592f9b092fb6a267f779eab75ec8fa3754347b997a563f4c4e12fe42b",
+  "vectors": [
+    {
+      "id": "user-me-get",
+      "url": "/api/sns/web/v2/user/me",
+      "data": null,
+      "u": "e66aa8f9e80c2f74fda53620925c6723",
+      "p": "e66aa8f9e80c2f74fda53620925c6723",
+      "x3_prefix": "mns",
+      "x3_min_length": 32,
+      "body_policy": "empty"
+    },
+    {
+      "id": "homefeed-post-shape",
+      "url": "/api/sns/web/v1/homefeed",
+      "data": {
+        "cursor_score": "",
+        "num": 1,
+        "refresh_type": 1,
+        "note_index": 0,
+        "unread_begin_note_id": "",
+        "unread_end_note_id": "",
+        "unread_note_count": 0,
+        "category": "homefeed_recommend",
+        "search_key": "",
+        "need_num": 0,
+        "image_formats": ["jpg", "webp", "avif"],
+        "need_filter_image": false
+      },
+      "method": "POST",
+      "body_policy": "compact-json",
+      "header_names": ["x-s", "x-t", "x-s-common"]
+    },
+    {
+      "id": "comment-page-get",
+      "url": "/api/sns/web/v2/comment/page?note_id=000000000000000000000000&cursor=&top_comment_id=&image_formats=jpg,webp,avif",
+      "data": null,
+      "method": "GET",
+      "body_policy": "empty",
+      "header_names": ["x-s", "x-t", "x-s-common"]
+    }
+  ]
+}

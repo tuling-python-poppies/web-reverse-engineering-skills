@@ -1,12 +1,12 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-xhs-homefeed",
-  "revision": 5,
+  "revision": 6,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
-  "caseKind": "evidence",
-  "verificationClass": "historical-user-attested",
+  "caseKind": "implementation",
+  "verificationClass": "freshly-verified",
   "requiresFreshVerification": true,
   "secretPolicy": "redacted-pull-live",
   "match": {
@@ -18,20 +18,30 @@
       "site:xhs"
     ],
     "minimumIndependentSignals": 2,
-    "negativeSignals": []
+    "negativeSignals": [
+      "runtime:browser-only",
+      "runtime:low-level-6545-only"
+    ]
   },
   "protocolPatterns": [
     "header:x-s",
     "header:x-t",
     "header:x-s-common",
     "runtime:mnsv2",
+    "api:homefeed",
+    "api:comment-page",
     "site:xhs"
   ],
   "product": {
     "vendor": "Xiaohongshu",
-    "product": "homefeed signing",
+    "product": "PC homefeed and comment signing",
     "version": "legacy",
-    "subtype": "mnsv2"
+    "subtype": "mnsv2-iv8-runtime"
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "iv8": "installed runtime",
+    "requests": "installed for project delivery"
   },
   "preRead": [
     {
@@ -42,86 +52,102 @@
   "liveState": {
     "mode": "browser-export-json",
     "retention": "memory-only",
-    "requiredCookies": [
-      "a1"
-    ],
-    "optionalCookies": [
-      "id_token",
-      "web_session",
-      "acw_tc",
-      "unread"
-    ],
+    "requiredCookies": ["a1"],
+    "optionalCookies": ["id_token", "web_session", "acw_tc", "unread"],
     "cookieNamePatterns": [],
-    "storageKeys": [
-      "b1",
-      "b1b1",
-      "dsllt",
-      "dsl",
-      "sc"
-    ]
+    "storageKeys": ["b1", "b1b1", "dsllt", "dsl", "sc"]
   },
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "f6b49b1bc29a8bc2e1b5b1866c0deb42b885ae344976988c20997d6725ed0d06"
+      "sha256": "b621346e729e7c153603d169f2e5db3366e2a3513b18215a04d12f9cf098ed42"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
       "sha256": "a7a09d9914a511a8c9a0ae6366600073ad189c7fe793c0d21f96a548f47d8666"
     },
+    "entry": {
+      "path": "entry.py",
+      "sha256": "38d5d3742d77ce572f1158b3ac11bb1eb8320e176030f676af79a22a6831cf84"
+    },
     "assets": [
       {
-        "path": "assets/signV2Init_function.json",
-        "sha256": "1d9c3f3c104779060c08f730836a4ae71ba8ce18736eb0caaa3e3a7abadbe2c5",
-        "bytes": 577352,
-        "readHint": "Large single-line artifact (~564 KB). Do not read whole-file into context. Grep for the symbol you need, or slice by offset; treat it as study-only archived source."
-      },
-      {
-        "path": "assets/xhs_header_sign.js",
-        "sha256": "dddcad548c35a5100326c8ac6c2696c53fda7ed8419a640ed2d9c9f689e9faba"
+        "path": "assets/mnsv2_runtime.js",
+        "sha256": "f6c626a6b090bc3524bd1f6780ab97a9caede2921777d3dd15510787136e9c88",
+        "bytes": 288442,
+        "readHint": "Large single-line runtime artifact. Read by bounded slices or execute only through the case offline test; do not whole-file load into context."
       },
       {
         "path": "fixtures/runtime_seed.sample.json",
         "sha256": "e29fdcc66dfc921da1189e0e2e029a3e573f2bf03faea917467084217064833b"
+      },
+      {
+        "path": "fixtures/vectors.json",
+        "sha256": "3a375701d671e8deeff0a0dd2d5b709ec89c7af20aa2ad52f2d10f849857aa62"
+      },
+      {
+        "path": "assets/signV2Init_function.json",
+        "sha256": "1d9c3f3c104779060c08f730836a4ae71ba8ce18736eb0caaa3e3a7abadbe2c5",
+        "bytes": 577352,
+        "readHint": "Historical module evidence only; do not use as the current executable entry or read whole-file into context."
+      },
+      {
+        "path": "assets/xhs_header_sign.js",
+        "sha256": "dddcad548c35a5100326c8ac6c2696c53fda7ed8419a640ed2d9c9f689e9faba"
       }
     ]
   },
   "verification": {
-    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
-    "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
-    "activeCaseScope": "template-evidence-only",
-    "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only. rev4: metadata only, added bytes + readHint to the 564 KB signV2Init_function.json asset so reuse does not whole-file read it; no evidence or verification claim changed.",
-    "lineEndingCorrection": "rev5: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
+    "executed": true,
+    "passed": true,
+    "executedAt": "2026-08-13T00:00:00+08:00",
+    "testCommand": "python -m unittest discover -s tests -v",
+    "testArtifact": {
+      "path": "tests/test_vectors.py",
+      "sha256": "a6e9e2e592f9b092fb6a267f779eab75ec8fa3754347b997a563f4c4e12fe42b"
+    },
+    "evidenceArtifact": {
+      "path": "fixtures/vectors.json",
+      "sha256": "3a375701d671e8deeff0a0dd2d5b709ec89c7af20aa2ad52f2d10f849857aa62"
+    },
+    "proof": {
+      "activeScope": "offline-only",
+      "offlineAcceptance": "redacted synthetic vectors parse; canonical u/p hashes match; frozen mnsv2 runtime mounts in iv8 and returns an mns-prefixed value; live state and HTTP are rejected by the case entry",
+      "caseLocalTests": "python -m unittest discover -s tests -v",
+      "currentAcceptance": "project-level browser-free homefeed and comment requests returned HTTP 200, success=true, and non-empty business data; live cookies/state are excluded from the case",
+      "currentEntrySha256": "38d5d3742d77ce572f1158b3ac11bb1eb8320e176030f676af79a22a6831cf84",
+      "currentTestArtifactSha256": "a6e9e2e592f9b092fb6a267f779eab75ec8fa3754347b997a563f4c4e12fe42b",
+      "historicalLiveProof": {
+        "classification": "historical-archive-provenance",
+        "executedAt": "2026-08-13",
+        "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+        "archivePaths": [
+          "references/case-live-reference-archive/iv8/xhs-homefeed/entry.py"
+        ],
+        "summary": "historical browser reconstruction and current project browser-free live acceptance are separate provenance; current cookies and responses are excluded",
+        "currentAcceptance": false
+      }
+    }
   },
-  "implementation": null,
+  "implementation": {
+    "mode": "iv8",
+    "strategy": "frozen-mnsv2-runtime",
+    "profile": "xhs-pc-web-legacy"
+  },
   "sourceStage": {
     "provider": "iv8",
     "role": "implementation",
-    "purpose": "source evidence"
+    "purpose": "frozen browser-generated runtime artifact"
   },
   "historicalProviderChain": [
-    {
-      "provider": "iv8",
-      "role": "implementation"
-    },
-    {
-      "provider": "python-collector",
-      "role": "delivery"
-    }
+    {"provider": "chromium-recon", "role": "reconnaissance"},
+    {"provider": "iv8", "role": "implementation"},
+    {"provider": "python-collector", "role": "delivery"}
   ],
   "requiredCurrentProviderChain": [
-    {
-      "provider": "iv8",
-      "role": "implementation",
-      "purpose": "artifact implementation"
-    },
-    {
-      "provider": "python-collector",
-      "role": "delivery",
-      "purpose": "delivery"
-    }
+    {"provider": "chromium-recon", "role": "reconnaissance", "purpose": "fresh runtime/state capture when invalidated"},
+    {"provider": "iv8", "role": "implementation", "purpose": "frozen mnsv2 runtime artifact"},
+    {"provider": "python-collector", "role": "delivery", "purpose": "Python-owned API egress and pagination"}
   ],
   "historicalReferences": [
     {

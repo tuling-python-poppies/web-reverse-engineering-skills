@@ -1,97 +1,116 @@
 # Xiaohongshu Homefeed Reverse Process
 
-Historical process evidence only. This case has no active implementation; code
-declared by `case.json.historicalReferences` is study-only and requires fresh
-current-target verification.
+Current implementation evidence for the Xiaohongshu PC `mnsv2` signer. The
+historical `signV2Init_function.json` and archived entry remain study-only;
+the current implementation is the frozen local iv8 runtime plus a Python-owned
+HTTP collector.
 
-## Goal
+## Match And Scope
 
-Rebuild the Xiaohongshu PC homefeed signing flow from a real browser session, then reproduce it in iv8 + `requests`.
+Select only with at least two independent signals:
 
-This notes file records the browser-side analysis path used to reconstruct the case after the workspace cache was deleted.
+- `site:xhs`
+- `runtime:mnsv2`
+- headers `x-s`, `x-t`, and `x-s-common`
+- legacy PC signer version `4.4.1`
 
-## What Was Observed In The Browser
+Current business routes proven by the project are:
 
-The live page at `https://www.xiaohongshu.com/explore?language=zh-CN&channel_id=homefeed.food_v3` loads these relevant script classes:
+- `POST https://edith.xiaohongshu.com/api/sns/web/v1/homefeed`
+- `GET https://edith.xiaohongshu.com/api/sns/web/v2/comment/page`
 
-- Page chunk bundle scripts under `https://fe-static.xhscdn.com/formula-static/xhs-pc-web/public/resource/js/...`
-- Security/runtime scripts under `https://as.xiaohongshu.com/api/sec/v1/ds?appId=xhs-pc-web`
-- Additional `as/v1/...` and `as/v2/...` scripts that populate the anti-spam runtime
+The comment route is a business consumer of the same signer, not a separate
+case or signer family.
 
-The important live globals exposed on the page are:
+## Recovered Wire Flow
 
-- `window.mnsv2`
-- `window._dsf`
-- `window._dsn`
-- `window._dsl`
-- `window._webmsxyw`
-- `window.anti_hp_sign_config`
+1. Build the canonical path and compact UTF-8 JSON body.
+2. Compute `u = MD5(path + body)` and `p = MD5(path)`.
+3. Load the frozen `assets/mnsv2_runtime.js` into iv8.
+4. Apply the narrow `Node.prototype.removeChild` compatibility wrapper needed
+   by the runtime's initialization cleanup.
+5. Call `window.mnsv2(c, u, p)` locally, where `c = path + body`.
+6. Assemble `x-s`, `x-t`, and `x-s-common` in Python.
+7. Send the request with Python `requests`; the local runtime never performs
+   network I/O.
 
-The browser also holds the page seed in:
+`x-s-common` uses current in-memory state selected by `pull_live_state.py`:
+`a1`, `b1`, `b1b1`, `dsllt`, `dsl`, and optional session cookies. Do not persist
+those values in the case.
 
-- Cookie keys such as `a1`, `webId`, `gid`, `webBuild`, `websectiga`, `loadts`, `sec_poison_id`
-- LocalStorage keys such as `b1`, `b1b1`, `dsllt`, `dsl`, `sc`
+## Runtime Recovery
 
-## Analysis Flow
+The current page bundle exported module `63552` for `signV2Init`; the older
+historical notes naming module `62380` are retained as provenance only. The
+browser page generated an anonymous eval runtime containing the complete
+`mnsv2` closure. Running only the extracted low-level `6545.js` exports is not
+equivalent: it produces internal 144-byte transforms, not the accepted public
+`window.mnsv2(c,u,p)` entry.
 
-1. Open the real page with `js-reverse-mcp`.
-2. Reload the page and list loaded scripts.
-3. Confirm the page exposes `window.mnsv2`, `window._dsf`, `window._dsl`, and related anti-spam globals.
-4. Save `vendor-dynamic.ad4eaf21.js` locally and search it for `window.mnsv2` and `X-S-Common`.
-5. Locate the signing call site in that bundle: `window.mnsv2(u, m, w)`.
-6. Find the exported module that defines `signV2Init`.
-7. Confirm the module id is `62380` and that it exports `signV2Init`.
-8. Verify that `https://as.xiaohongshu.com/api/sec/v1/ds?appId=xhs-pc-web` initializes `_dsf/_dsn/_dsl/_webmsxyw` but does not itself directly produce `mnsv2`.
-9. Capture the current browser cookie/localStorage shape and save it as workspace runtime seed material.
-10. Extract the `signV2Init()` source from the webpack module and store it in `js_reverse_cache/signV2Init_function.json`.
-11. Build a minimal iv8 browser-like environment and call `signV2Init()` so `window.mnsv2` is available in iv8.
-12. Recreate the `X-s`, `X-t`, and `X-S-Common` headers in a compact helper JS file.
-13. Replay the real POST request with one `requests.Session`, rebuilding payload and headers on every page.
+The accepted local runtime is `assets/mnsv2_runtime.js`. It is frozen, checked
+by SHA-256, and must not be refreshed from the network by the case entry.
 
-## Why The Cache Is Required
+## Homefeed Request Shape
 
-The main Python file does not auto-download everything needed for a fresh run.
+The first request uses a JSON body shaped like:
 
-The browser runtime split is:
+```json
+{
+  "cursor_score": "",
+  "num": 30,
+  "refresh_type": 1,
+  "note_index": 0,
+  "unread_begin_note_id": "",
+  "unread_end_note_id": "",
+  "unread_note_count": 0,
+  "category": "homefeed_recommend",
+  "search_key": "",
+  "need_num": 0,
+  "image_formats": ["jpg", "webp", "avif"],
+  "need_filter_image": false
+}
+```
 
-- `api/sec/v1/ds` and the `as/v1` / `as/v2` scripts provide the anti-spam runtime pieces such as `_dsf`, `_dsn`, `_dsl`, and `_webmsxyw`
-- `vendor-dynamic.ad4eaf21.js` contains the module that exports `signV2Init`
-- `signV2Init()` in turn initializes `window.mnsv2`
+The response is accepted only when HTTP 200, `success=true`, and `data.items`
+contains business records. Each note is read from `item.id`, `item.note_card`,
+and `item.xsec_token`; pagination advances with `data.cursor_score`.
 
-So if `js_reverse_cache/` is deleted, you must re-run the browser capture flow above to rebuild the cached seed and entry source.
+## Comment Request Shape
 
-## Reconstructed Workspace Artifacts
+Comments use query parameters `note_id`, `cursor`, `top_comment_id`,
+`image_formats`, and optional `xsec_token`. A page is accepted only when HTTP
+200, `success=true`, and `data.comments` is structurally valid. The default
+collector boundary is one page per feed note; later cursors remain session-
+dependent and must be re-accepted before scale.
 
-The bundled case uses these frozen assets:
+## Verification
 
-- `assets/signV2Init_function.json`
-- `assets/xhs_header_sign.js`
-- `fixtures/runtime_seed.sample.json`
+Offline proof:
 
-The sample seed file only shows the expected structure. It does not store account secrets.
+- `tests/test_vectors.py` parses redacted vectors.
+- Canonical `u/p` hashes match fixed synthetic input.
+- The frozen runtime mounts `window.mnsv2` in iv8 and returns an `mns*` value.
+- The project-level signer tests prove the captured 144-byte low-level parity
+  and the full runtime mount.
 
-## iv8 Reconstruction Notes
+Current-target proof, historical provenance only and not stored here:
 
-The compact case script rebuilds the page runtime in this order:
+- browser-free homefeed returned HTTP 200, `success=true`, and a non-empty note
+- browser-free comments returned HTTP 200, `success=true`, main comments, and
+  nested comments
 
-1. Construct a browser-like `location`, `navigator`, `screen`, `window`, and storage environment.
-2. Patch minimal DOM methods that the sign runtime checks, especially `removeChild` / `appendChild`.
-3. Load the frozen `signV2Init_function.json` source into iv8.
-4. Call `signV2Init()` and verify `window.mnsv2` exists.
-5. Evaluate the header generation helper and expose `{payload, seed}`.
-6. Build fresh headers for every page request and send the POST using `requests.Session`.
+## False Leads And Exclusions
 
-## Things Not To Copy Into Skill
+- Do not use the old `signV2Init_function.json` as the current executable entry.
+- Do not treat low-level `_1619d7` output as the public `mnsv2` result.
+- Do not load live scripts, cookies, b1 values, tokens, full responses, or
+  absolute workstation paths into this case.
+- Do not let iv8 send business HTTP; Python owns final egress.
 
-- Real account cookies or personal tokens
-- Full response JSON dumps
-- One-off debug reports
-- Absolute paths outside the skill case directory
+## Artifacts
 
-## Short Takeaway
-
-The `mnsv2` entry is not recovered from `api/sec/v1/ds` alone.
-
-The real browser chain is:
-
-`page bundle + anti-spam scripts -> vendor-dynamic module 62380 -> signV2Init() -> window.mnsv2 -> X-s / X-S-Common`
+- `entry.py`: offline-only case entry and vector helpers
+- `assets/mnsv2_runtime.js`: frozen current runtime
+- `fixtures/vectors.json`: synthetic canonical vectors and accepted shapes
+- `tests/test_vectors.py`: executable offline proof
+- `pull_live_state.py`: memory-only current state selector

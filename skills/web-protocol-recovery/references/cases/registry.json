@@ -1052,8 +1052,12 @@
             "family": "signer",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "evidence",
-            "implementation": null,
+            "caseKind": "implementation",
+            "implementation": {
+                "mode": "iv8",
+                "strategy": "frozen-mnsv2-runtime",
+                "profile": "xhs-pc-web-legacy"
+            },
             "exactScopes": [],
             "match": {
                 "signals": [
@@ -1064,26 +1068,34 @@
                     "site:xhs"
                 ],
                 "minimumIndependentSignals": 2,
-                "negativeSignals": []
+                "negativeSignals": [
+                    "runtime:browser-only",
+                    "runtime:low-level-6545-only"
+                ]
             },
             "providerPlan": [
                 {
+                    "provider": "chromium-recon",
+                    "role": "reconnaissance",
+                    "purpose": "fresh runtime/state capture when invalidated"
+                },
+                {
                     "provider": "iv8",
                     "role": "implementation",
-                    "purpose": "artifact implementation"
+                    "purpose": "frozen mnsv2 runtime artifact"
                 },
                 {
                     "provider": "python-collector",
                     "role": "delivery",
-                    "purpose": "delivery"
+                    "purpose": "Python-owned API egress and pagination"
                 }
             ],
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
-                "sha256": "af4661beea80227162102ccfc176347ac3b8867f4da4f080dec0d9f314c6d454"
+                "sha256": "e8af95f9f136b8a70772be4f03a1f40f3645399dd5a8d970846385a9ed509c31"
             },
-            "verificationClass": "historical-user-attested",
-            "selectableAs": "template"
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
         },
         {
             "caseId": "iv8-zhipin-stoken",

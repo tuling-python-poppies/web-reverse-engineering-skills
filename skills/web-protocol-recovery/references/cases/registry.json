@@ -2,7 +2,7 @@
     "schemaVersion": "web-protocol-recovery-case-registry",
     "cases": [
         {
-            "caseId": "adidas-hk-akamai-edge-sandbox",
+            "caseId": "adidas-hk-akamai-nv8",
             "family": "challenge",
             "status": "verified",
             "runtime": "python-node",
@@ -37,7 +37,7 @@
                     "vendor:akamai",
                     "cookie:ak_bmsc",
                     "script:pomCpnC-sensor",
-                    "runtime:edge-sandbox",
+                    "runtime:nv8",
                     "api:sfcc-search-updategrid",
                     "site:adidas-hk"
                 ],
@@ -64,9 +64,9 @@
                     "purpose": "protocol owner"
                 },
                 {
-                    "provider": "edge-sandbox",
+                    "provider": "nv8",
                     "role": "implementation",
-                    "purpose": "EdgeSandbox sensor artifact",
+                    "purpose": "NV8 sensor artifact",
                     "implementationMode": "python-node",
                     "ownerProvider": "akamai"
                 },
@@ -77,8 +77,8 @@
                 }
             ],
             "manifest": {
-                "path": "python-node/adidas-hk-akamai-edge-sandbox/case.json",
-                "sha256": "f2f23760ebac8096ac011e2a3be9717cddafacac30cb8aacf4b64774f2c527d3"
+                "path": "python-node/adidas-hk-akamai-nv8/case.json",
+                "sha256": "94158f6b403f876abddfe0fcae7ba7e1f65686f2253c861f66c6c7bbf66795a6"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

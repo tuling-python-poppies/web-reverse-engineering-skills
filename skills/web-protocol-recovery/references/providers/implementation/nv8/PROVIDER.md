@@ -1,4 +1,4 @@
-# EdgeSandbox Provider
+# NV8 Provider
 
 ## Select When
 
@@ -14,11 +14,11 @@
 - The task is hook-only observation, AST deobfuscation, or pure source recovery.
 - Live browser automation is required (use Camoufox/CloakBrowser directly).
 
-web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, case selection, and final delivery status. This Provider owns EdgeSandbox lifecycle, Node 24 environment validation, fingerprint profile construction, network replay configuration, and EdgeSandbox-specific execution constraints.
+web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, allowed paths, acceptance, runtime lifecycle, live-egress budget, case selection, and final delivery status. This Provider owns the NV8 lifecycle, Node 24 environment validation, fingerprint profile construction, network replay configuration, and NV8-specific execution constraints.
 
 ## Core Capabilities
 
-EdgeSandbox provides:
+NV8 provides:
 - **Full Edge 150 compatibility surface**: 1232 Window properties, 11449 browser functions, exact descriptor/order match.
 - **Real rendering state machines**: Canvas 2D (getComputedStyle/measureText work), WebGL (vendor/renderer/extensions), AudioContext.
 - **Offline network replay**: configure exact HTTP responses via `replay` array; no socket access.
@@ -28,16 +28,16 @@ EdgeSandbox provides:
 
 ## Environment Setup (Local npm install)
 
-EdgeSandbox is installed as a **project-local npm dependency**, not a global singleton. Each project maintains its own `node_modules/edge-sandbox/`.
+NV8 is installed as a **project-local npm dependency**, not a global singleton. Each project maintains its own `node_modules/nv8/`.
 
 ### Installation
 
-In the project's `package.json`, declare edge-sandbox as a local file dependency:
+In the project's `package.json`, declare nv8 as a local file dependency:
 
 ```json
 {
   "dependencies": {
-    "edge-sandbox": "file:<edge-sandbox-root>"
+    "nv8": "file:<nv8-root>"
   },
   "type": "module",
   "engines": { "node": ">=24.0.0" }
@@ -50,10 +50,10 @@ Then run:
 npm install
 ```
 
-This creates a symlink at `node_modules/edge-sandbox/` pointing to the EdgeSandbox installation. The import becomes standard Node.js:
+This creates a symlink at `node_modules/nv8/` pointing to the NV8 installation. The import becomes standard Node.js:
 
 ```js
-import { createSandbox, EdgeSandbox } from 'edge-sandbox';
+import { createSandbox, EdgeSandbox } from 'nv8';
 ```
 
 ### Node 24 Auto-Detection
@@ -73,12 +73,12 @@ Users do not need to manually run `nvm use 24` before execution — Python handl
 
 ### Environment Validation
 
-Python `ensure_node_modules()` checks `node_modules/edge-sandbox/package.json` exists. If not, it tells the user to run `npm install`.
+Python `ensure_node_modules()` checks `node_modules/nv8/package.json` exists. If not, it tells the user to run `npm install`.
 
 ### Diagnostic tool (optional)
 
 ```bash
-node references/providers/implementation/edge-sandbox/node-version-check.js
+node references/providers/implementation/nv8/node-version-check.js
 ```
 Use this only for troubleshooting Node version issues.
 
@@ -92,21 +92,21 @@ Use this only for troubleshooting Node version issues.
 
 ## Core Rules
 
-1. Check Node 24 before any EdgeSandbox work; exit with clear error if version mismatch.
-2. EdgeSandbox is installed as a **local npm dependency** in each project. Use `npm install` to set up `node_modules/edge-sandbox/`.
-3. Import EdgeSandbox using standard Node.js module syntax: `import { createSandbox, EdgeSandbox } from 'edge-sandbox';`
+1. Check Node 24 before any NV8 work; exit with clear error if version mismatch.
+2. NV8 is installed as a **local npm dependency** in each project. Use `npm install` to set up `node_modules/nv8/`.
+3. Import NV8's API using standard Node.js module syntax: `import { createSandbox, EdgeSandbox } from 'nv8';`
 4. Fingerprint profiles should be exported from real browsers (Camoufox/CloakBrowser `export_fingerprint_profile`) when plausibility matters (Kasada cdndex beacon, Akamai canvas/WebGL checks).
 5. Network capture is enabled by default; use `sandbox.requests()` (createSandbox) or `sandbox.networkRequests()` (EdgeSandbox) to retrieve outbound requests after execution.
 6. Use `replay: [...]` to provide offline HTTP responses (Worker scripts, fetch data, XHR endpoints).
-7. Final live egress is Python HTTP; EdgeSandbox only generates sensor/collector bodies through network capture.
+7. Final live egress is Python HTTP; NV8 only generates sensor/collector bodies through network capture.
 8. Close the sandbox after each use: `await sandbox.close()` or `await using sandbox = ...` (Node 24 explicit resource management).
 
 ## Execution Pattern
 
-Typical EdgeSandbox workflow (use `createSandbox` quick API for most cases):
+Typical NV8 workflow (use `createSandbox` quick API for most cases):
 
 ```javascript
-import { createSandbox } from 'edge-sandbox';
+import { createSandbox } from 'nv8';
 
 const sb = await createSandbox('https://target.example/', {
   fingerprint: {
@@ -140,7 +140,7 @@ try {
 For advanced use cases requiring full control, use `EdgeSandbox`:
 
 ```javascript
-import { EdgeSandbox } from 'edge-sandbox';
+import { EdgeSandbox } from 'nv8';
 
 const sandbox = await EdgeSandbox.create({
   page: {
@@ -167,14 +167,14 @@ Output is JSON for Python to consume; Python forwards the body via `curl_cffi` o
 
 - Fingerprint export from real browser uses `camoufox` or `chromium-recon`.
 - Final HTTP delivery uses `python-collector`.
-- If EdgeSandbox execution fails due to Node version mismatch, stop immediately with clear Node 24 requirement message.
+- If NV8 execution fails due to Node version mismatch, stop immediately with clear Node 24 requirement message.
 
 ## Acceptance
 
 All applicable checks must pass:
 
-1. Node 24.x is active before EdgeSandbox import.
-2. EdgeSandbox successfully creates a sandbox and evaluates the target script without unrecoverable VM exceptions.
+1. Node 24.x is active before importing NV8.
+2. NV8 successfully creates a sandbox and evaluates the target script without unrecoverable VM exceptions.
 3. `networkRequests()` captures the expected outbound POST/GET with plausible body size and structure.
 4. Python forwards the captured request body to the real endpoint and receives the expected response (cookies, tokens, business data).
 5. Final delivery has no browser/profile dependency and writes artifacts only under assigned project paths.
@@ -184,12 +184,12 @@ All applicable checks must pass:
 | Trigger | First fix | Still fails -> stop |
 |---------|-----------|---------------------|
 | Node version is not 24.x | User must switch Node version via nvm/fnm/system | Stop; cannot proceed without Node 24 |
-| `node_modules/edge-sandbox` missing | Run `npm install` in project directory | Check `package.json` has correct file: path |
-| EdgeSandbox import fails | Verify `npm install` completed successfully | Check EdgeSandbox installation integrity |
+| `node_modules/nv8` missing | Run `npm install` in project directory | Check `package.json` has correct file: path |
+| NV8 import fails | Verify `npm install` completed successfully | Check NV8 installation integrity |
 | Sensor throws in sandbox | Fill missing environment surfaces (navigator, canvas, timing) | If fingerprint plausibility ceiling reached, use real browser export |
 | No POST captured | Extend event loop pump timeout (sensor POST is async) | Verify sensor actually triggers POST in real browser first |
 | POST captured but server rejects | Check transport coherence (UA, TLS, IP binding) and fingerprint plausibility | Report egress/fingerprint residual risk |
 
 ## Exit
 
-Return: EdgeSandbox version/path, Node version, fingerprint source (default/exported), sandbox execution outcome, captured request count/methods, sensor/collector body size/structure, Python forwarding result, business endpoint response, artifact paths/hashes, and residual risk.
+Return: NV8 version/path, Node version, fingerprint source (default/exported), sandbox execution outcome, captured request count/methods, sensor/collector body size/structure, Python forwarding result, business endpoint response, artifact paths/hashes, and residual risk.

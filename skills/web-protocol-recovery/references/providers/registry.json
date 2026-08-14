@@ -113,9 +113,9 @@
       "profiles": []
     },
     {
-      "id": "edge-sandbox",
+      "id": "nv8",
       "role": "implementation",
-      "entry": "references/providers/implementation/edge-sandbox/PROVIDER.md",
+      "entry": "references/providers/implementation/nv8/PROVIDER.md",
       "ownsProtocolAcceptance": false,
       "mayOwnFinalLiveEgress": false,
       "strategies": [],

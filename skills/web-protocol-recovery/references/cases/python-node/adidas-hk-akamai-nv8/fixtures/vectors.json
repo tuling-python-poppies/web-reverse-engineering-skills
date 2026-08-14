@@ -1,6 +1,6 @@
 {
   "schemaVersion": "web-protocol-recovery-vector",
-  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "caseId": "adidas-hk-akamai-nv8",
   "target": {
     "site": "adidas-hk",
     "host": "www.adidas.com.hk",
@@ -8,8 +8,8 @@
   },
   "runtime": {
     "nodeMajor": 24,
-    "npmPackage": "edge-sandbox",
-    "importShape": "import { EdgeSandbox } from 'edge-sandbox'",
+    "npmPackage": "nv8",
+    "importShape": "import { EdgeSandbox } from 'nv8'",
     "api": "EdgeSandbox.create"
   },
   "sensor": {

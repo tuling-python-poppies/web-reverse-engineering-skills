@@ -37,7 +37,7 @@ EXPECTED_PROVIDER_IDS = {
     "kasada",
     "iv8",
     "python-node",
-    "edge-sandbox",
+    "nv8",
     "pure-python",
     "python-collector",
 }

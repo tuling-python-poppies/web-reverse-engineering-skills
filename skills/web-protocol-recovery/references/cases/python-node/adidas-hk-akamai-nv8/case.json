@@ -1,6 +1,6 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
-  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "caseId": "adidas-hk-akamai-nv8",
   "revision": 1,
   "status": "verified",
   "family": "challenge",
@@ -14,7 +14,7 @@
       "vendor:akamai",
       "cookie:ak_bmsc",
       "script:pomCpnC-sensor",
-      "runtime:edge-sandbox",
+      "runtime:nv8",
       "api:sfcc-search-updategrid",
       "site:adidas-hk"
     ],
@@ -53,7 +53,7 @@
     "vendor:akamai",
     "cookie:ak_bmsc",
     "script:pomCpnC-sensor",
-    "runtime:edge-sandbox",
+    "runtime:nv8",
     "sensor-body:json-body-field",
     "api:sfcc-search-updategrid",
     "site:adidas-hk"
@@ -62,12 +62,12 @@
     "vendor": "Akamai",
     "product": "Bot Manager",
     "version": "web-sensor",
-    "subtype": "adidas-hk-sfcc-edge-sandbox"
+    "subtype": "adidas-hk-sfcc-nv8"
   },
   "dependencies": {
     "python": ">=3.9",
     "node": "24.x for delivery",
-    "edge-sandbox": "project-local npm dependency for delivery",
+    "nv8": "project-local npm dependency for delivery",
     "curl_cffi": "delivery only",
     "beautifulsoup4": "delivery parser option"
   },
@@ -97,7 +97,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "c01f20e7d499b23fb1e90769e228c84e3d0b6d7b3e25a4c97d6fa7cd77008cb4"
+      "sha256": "bc25b68f86ba39b39283d630ed3d89dd243765d2bb386261e0e0e3e682a2d55a"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -106,24 +106,24 @@
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "3f5d0919862df2551be8cfdaabecaea40541e2c5580aec947e0f0457f33a9205"
+        "sha256": "b38ea96706b43a0ecff52edf7c3cac9c9da864bba621a292f2d424e3462dbc8a"
       },
       {
         "path": "fixtures/request.sample.json",
-        "sha256": "899d11b8517a9d56982a52fccf3bb57e87b2b87ddb4e10de9223c297e2f0221f"
+        "sha256": "e5405bb91849ac36d8b64bf20bc64aaa22aaf49fb26981f655dd92731c6f7a50"
       },
       {
         "path": "fixtures/response.sample.json",
-        "sha256": "d76c127b6d1aa29b458c77040c0d7312aa4b7e4cd3ebf401845a8ff94240de6f"
+        "sha256": "964cce40420429bebee6469b91f4875bf1d1c08083703e796b527848af00ccca"
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "580840553052d3218f92a886be0fb2d936259ed39720912a2e318301eb60db7d"
+        "sha256": "74f93875368dc3f85bb0773d903cd7381ccdf4c74b68158c9cb9a9538fcdbfbb"
       }
     ],
     "entry": {
       "path": "entry.py",
-      "sha256": "084f3170da6d1a6f8b6009ce82d8b94f05995e078766f05bd9e37843c8a38335"
+      "sha256": "cc311bbc5a8693b9aba3f3ff16c1b5b78ec29ce09cc3cc6510fe7411584101a5"
     }
   },
   "verification": {
@@ -133,18 +133,18 @@
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "e9e520d4b27683ac6b0c8ca2c03d5678ccd5a0cb7d507fd5ffb3d60273bfed46"
+      "sha256": "151552555f7e1997641d6de51ed84b51ecafecd61f0a0d0e5496c4c7cbc84764"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "580840553052d3218f92a886be0fb2d936259ed39720912a2e318301eb60db7d"
+      "sha256": "74f93875368dc3f85bb0773d903cd7381ccdf4c74b68158c9cb9a9538fcdbfbb"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "case tests validate sensor endpoint derivation, redacted request shape, SFCC product parsing, and live-egress refusal",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "084f3170da6d1a6f8b6009ce82d8b94f05995e078766f05bd9e37843c8a38335",
-      "currentTestArtifactSha256": "e9e520d4b27683ac6b0c8ca2c03d5678ccd5a0cb7d507fd5ffb3d60273bfed46"
+      "currentEntrySha256": "cc311bbc5a8693b9aba3f3ff16c1b5b78ec29ce09cc3cc6510fe7411584101a5",
+      "currentTestArtifactSha256": "151552555f7e1997641d6de51ed84b51ecafecd61f0a0d0e5496c4c7cbc84764"
     }
   },
   "implementation": {
@@ -153,9 +153,9 @@
     "profile": null
   },
   "sourceStage": {
-    "provider": "edge-sandbox",
+    "provider": "nv8",
     "role": "implementation",
-    "purpose": "EdgeSandbox sensor artifact proof",
+    "purpose": "NV8 sensor artifact proof",
     "implementationMode": "python-node"
   },
   "requiredCurrentProviderChain": [
@@ -170,9 +170,9 @@
       "purpose": "protocol owner"
     },
     {
-      "provider": "edge-sandbox",
+      "provider": "nv8",
       "role": "implementation",
-      "purpose": "EdgeSandbox sensor artifact",
+      "purpose": "NV8 sensor artifact",
       "implementationMode": "python-node",
       "ownerProvider": "akamai"
     },

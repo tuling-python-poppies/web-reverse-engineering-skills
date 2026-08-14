@@ -1,6 +1,6 @@
 {
   "schemaVersion": "web-protocol-recovery-response-shape",
-  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "caseId": "adidas-hk-akamai-nv8",
   "business": {
     "endpoint": "https://www.adidas.com.hk/on/demandware.store/Sites-adidas-HK-Site/zh_HK/Search-UpdateGrid",
     "contentType": "text/html",

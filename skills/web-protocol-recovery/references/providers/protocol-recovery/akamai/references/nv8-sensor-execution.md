@@ -1,4 +1,4 @@
-# EdgeSandbox-Based Sensor Execution
+# NV8-Based Sensor Execution
 
 Run Bot Manager sensor scripts in a browser-free Edge 150 compatibility sandbox. This reference contains a verified end-to-end implementation.
 
@@ -14,9 +14,9 @@ Run Bot Manager sensor scripts in a browser-free Edge 150 compatibility sandbox.
 ```
 Python entry (main.py)
   ↓ subprocess.run([node24_path, 'sensor_generator.mjs'])
-Node.js EdgeSandbox script
+Node.js NV8 script
   ├── Native fetch (Firefox UA) → GET 403 challenge + sensor script
-  ├── EdgeSandbox.create() → Edge 150 sandbox (1232 Window props)
+  ├── EdgeSandbox.create() → NV8 Edge 150 sandbox (1232 Window props)
   ├── sandbox.evaluate(sensorScript) → sensor synchronous execution
   ├── setTimeout pump (10s) → async POST fires
   └── sandbox.networkRequests() → capture POST body + headers
@@ -31,21 +31,21 @@ Python
 
 1. **Sensor POST target**: The sensor internally POSTs to `location.href` (the page URL). In Python, override to the correct endpoint: sensor script URL path without query params.
 2. **Async POST**: The sensor schedules POST via `setTimeout`. After `evaluate(sensorScript)`, pump the event loop: `sandbox.evaluate('new Promise(r => setTimeout(r, 10000))')`.
-3. **UA split**: Use Firefox UA for HTTP fetches (CDN serves sensor to Firefox); EdgeSandbox internally presents Chrome 150 UA (what sensor sees via `navigator.userAgent`).
+3. **UA split**: Use Firefox UA for HTTP fetches (CDN serves sensor to Firefox); NV8 internally presents Chrome 150 UA (what sensor sees via `navigator.userAgent`).
 4. **Cookie injection**: Inject challenge page cookies via `document.cookie = "..."` BEFORE evaluating sensor.
-5. **Fingerprint**: Default EdgeSandbox Edge 150 profile usually passes. For stricter targets, inject real browser export.
+5. **Fingerprint**: The default NV8 Edge 150 profile usually passes. For stricter targets, inject real browser export.
 
 ## Verified Node.js Sensor Generator
 
 ```javascript
 /**
- * Bot Manager sensor generator — EdgeSandbox
+ * Bot Manager sensor generator - NV8
  *
  * Pure protocol: no browser runtime dependency.
  * Called by Python which auto-locates Node 24 via NVM_HOME.
  */
 
-import { EdgeSandbox } from 'edge-sandbox';
+import { EdgeSandbox } from 'nv8';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -131,9 +131,9 @@ async function getSensorScript(url, cookies) {
   return scriptText;
 }
 
-// ─── Step 3: Run in EdgeSandbox ────────────────────────────────────────────────
-async function runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies) {
-  console.log('[sensor] creating EdgeSandbox...');
+// ─── Step 3: Run in NV8 ────────────────────────────────────────────────────────
+async function runSensorInNv8(sensorScriptUrl, sensorScript, cookies) {
+  console.log('[sensor] creating NV8 sandbox...');
 
   const fingerprint = loadFingerprint();
 
@@ -179,13 +179,13 @@ async function runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies) {
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log('[sensor] Bot Manager sensor generator (EdgeSandbox)');
+  console.log('[sensor] Bot Manager sensor generator (NV8)');
 
   const { cookies, sensorScriptUrl } = await getChallengePage();
   if (!sensorScriptUrl) { console.log('[sensor] FATAL: script URL not found'); process.exit(1); }
 
   const sensorScript = await getSensorScript(sensorScriptUrl, cookies);
-  const result = await runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies);
+  const result = await runSensorInNv8(sensorScriptUrl, sensorScript, cookies);
   if (!result) { console.log('[sensor] generation failed'); process.exit(1); }
 
   // Derive correct POST endpoint (script path without query)
@@ -204,7 +204,7 @@ main().catch(err => { console.error('[sensor] fatal:', err); process.exit(1); })
 
 ```python
 #!/usr/bin/env python3
-"""Browser-free collector with EdgeSandbox sensor generation."""
+"""Browser-free collector with NV8 sensor generation."""
 
 import json
 import os
@@ -222,7 +222,7 @@ except ImportError:
 from bs4 import BeautifulSoup
 
 
-# ─── EdgeSandbox Environment Validation ────────────────────────────────────────
+# ─── NV8 Environment Validation ────────────────────────────────────────────────
 
 HERE = Path(__file__).resolve().parent
 
@@ -255,7 +255,7 @@ def find_node24() -> str:
 
 
 def ensure_edge_sandbox(node24_path: str) -> None:
-    """Check project-local EdgeSandbox npm dependency."""
+    """Check project-local NV8 npm dependency."""
     result = subprocess.run(
         [node24_path, '-e', 'process.exit(0)'],
         capture_output=True,
@@ -264,20 +264,20 @@ def ensure_edge_sandbox(node24_path: str) -> None:
     if result.returncode != 0:
         raise RuntimeError(f"Node 24 binary not functional: {node24_path}")
 
-    pkg_json = HERE / 'node_modules' / 'edge-sandbox' / 'package.json'
+    pkg_json = HERE / 'node_modules' / 'nv8' / 'package.json'
     if not pkg_json.exists():
         raise RuntimeError(
-            "node_modules/edge-sandbox/package.json not found.\n"
-            "Declare edge-sandbox in this project's package.json and run npm install."
+            "node_modules/nv8/package.json not found.\n"
+            "Declare nv8 in this project's package.json and run npm install."
         )
 
-    print(f"[+] EdgeSandbox npm package: {pkg_json.parent}")
+    print(f"[+] NV8 npm package: {pkg_json.parent}")
 
 
 # ─── Sensor Generation ─────────────────────────────────────────────────────────
 
 def generate_sensor_post(sensor_script_path: Path, proxy: str = None) -> dict:
-    """Call Node.js EdgeSandbox to generate sensor POST body."""
+    """Call Node.js NV8 to generate sensor POST body."""
     node24 = find_node24()
     print(f"[+] Node 24: {node24}")
     
@@ -452,13 +452,13 @@ def collect_products(cookies: dict, pages: int = 1, proxy: str = None) -> list[d
 
 | Step | Action | Result |
 |------|--------|--------|
-| 1 | Node 24 + EdgeSandbox evaluate 534KB sensor | 4123 bytes POST body generated |
+| 1 | Node 24 + NV8 evaluates 534KB sensor | 4123 bytes POST body generated |
 | 2 | curl_cffi forward POST to pomCpnC endpoint | 200 OK, `ak_bmsc` cookie received |
 | 3 | Business API with validated cookies | 200 OK, 584KB HTML, 82 products |
 
-## EdgeSandbox Advantages
+## NV8 Advantages
 
-| Surface | env-patch (basic) | iv8 | EdgeSandbox |
+| Surface | env-patch (basic) | iv8 | NV8 |
 |---------|-------------------|-----|-------------|
 | Window properties | ~200 | ~800 | 1232 (exact Edge 150) |
 | Canvas 2D | Stub | Basic stub | Full state machine |

@@ -7,7 +7,7 @@
   {
     "id": "adidas-akamai-collector",
     "prompt": "实现 adidas.com.hk summer_cs_promotion_2 的 browser-free collector。页面有 Akamai sensor，传感器脚本路径包含 pomCpnC，业务接口是 Search-UpdateGrid，最终要 Python 拿商品 JSON。",
-    "expected": "触发 web-protocol-recovery；shape=collector；先以 akamai 作为协议 owner，再由 edge-sandbox 生成窄传感器工件，最终 live egress 属于 python-collector；复用 adidas-hk-akamai-edge-sandbox case 前必须说明当前目标仍需 fresh verification。"
+    "expected": "触发 web-protocol-recovery；shape=collector；先以 akamai 作为协议 owner，再由 nv8 生成窄传感器工件，最终 live egress 属于 python-collector；复用 adidas-hk-akamai-nv8 case 前必须说明当前目标仍需 fresh verification。"
   },
   {
     "id": "non-protocol-boundary",
@@ -15,9 +15,9 @@
     "expected": "不触发 web-protocol-recovery；不输出四行协议头；说明这是普通 API/client 或浏览器 QA 工作流，不能强行选择 Camoufox、GraphQL、AST 或 protocol Provider。"
   },
   {
-    "id": "kasada-edge-sandbox-collector",
+    "id": "kasada-nv8-collector",
     "prompt": "一个目标返回 429，响应里有 KP_UIDz、x-kpsdk-ct、window.KPSDK bootstrap、双 UUID /ips.js 路径和 /tl POST。我要 browser-free Python collector，先证明 x-kpsdk-ct 再打业务接口。",
-    "expected": "触发 web-protocol-recovery；shape=collector 或 local-proof 到 collector；route=kasada 作为协议 owner；只有两类 Kasada 独立信号成立后才读 Provider；实现工件可走 edge-sandbox，最终 live egress 属于 python-collector；不能把 429 单独当 Kasada 证明。"
+    "expected": "触发 web-protocol-recovery；shape=collector 或 local-proof 到 collector；route=kasada 作为协议 owner；只有两类 Kasada 独立信号成立后才读 Provider；实现工件可走 nv8，最终 live egress 属于 python-collector；不能把 429 单独当 Kasada 证明。"
   },
   {
     "id": "river-security-minimum-evidence",

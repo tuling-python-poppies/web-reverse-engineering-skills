@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * EdgeSandbox Node.js version diagnostic tool
+ * NV8 Node.js version diagnostic tool
  *
- * EdgeSandbox requires Node.js 24.x due to VM module APIs
+ * NV8 requires Node.js 24.x due to VM module APIs
  * and explicit resource management support.
  *
  * Python scripts automatically find Node 24 via NVM_HOME/FNM/PATH,
@@ -23,7 +23,7 @@ if (!match) {
 const [_, major, minor, patch] = match.map(Number);
 
 if (major !== 24) {
-  console.error(`EdgeSandbox requires Node.js 24.x`);
+  console.error(`NV8 requires Node.js 24.x`);
   console.error(`Current version: ${nodeVersion}`);
   console.error('');
   console.error('Install Node 24:');

@@ -63,7 +63,7 @@ Read only the selected reference after a work order names the current blocker.
 - Clean baseline capture of the interstitial, `p.js`/`ips.js`, and `/tl` uses `chromium-recon` (or `camoufox` when anti-detect capture is needed).
 - Hook-only observation of `KPSDK`/`/tl` uses `browser-hooks`.
 - Whole-source recovery of `p.js`/`ips.js` (string cipher, dispatch loop, export location) uses `ast`, with the JSVMP interpreter-shape technique from `references/jsvmp-analysis-playbook.md`.
-- Browser-free VM execution of `ips.js` uses `edge-sandbox` (primary, requires Node 24; provides full Edge 150 DOM/Canvas/WebGL/Audio state machines) or `python-node` with `strategy: env-patch` (fallback for simpler targets), with Kasada acceptance still owned by this Provider.
+- Browser-free VM execution of `ips.js` uses `nv8` (primary, requires Node 24; provides full Edge 150 DOM/Canvas/WebGL/Audio state machines) or `python-node` with `strategy: env-patch` (fallback for simpler targets), with Kasada acceptance still owned by this Provider.
 - Local browser-like collector execution uses `iv8` when host JS semantics are required.
 - Stable final HTTP delivery uses `python-collector` after Kasada proof is accepted.
 

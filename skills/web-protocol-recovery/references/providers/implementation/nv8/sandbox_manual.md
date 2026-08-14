@@ -1,8 +1,8 @@
-# EdgeSandbox 操作说明书
+# NV8 操作说明书
 
 本地 Edge V8 JavaScript Sandbox，基于 Node.js vm 隔离，提供完整浏览器 API 兼容层。
 
-**说明：** 本文档中 `<edge-sandbox-root>` 指 EdgeSandbox 安装目录。npm 包名：`edge-sandbox`。
+**说明：** 本文档中 `<nv8-root>` 指 NV8 安装目录。npm 包名：`nv8`。
 
 当前基线：
 
@@ -18,7 +18,7 @@
 2. [安装到项目](#2-安装到项目)
 3. [公共 API 一览](#3-公共-api-一览)
 4. [createSandbox 快捷 API](#4-createsandbox-快捷-api)
-5. [EdgeSandbox 完整 API](#5-edgesandbox-完整-api)
+5. [NV8 完整 API](#5-nv8-完整-api)
 6. [指纹 profile](#6-指纹-profile)
 7. [时钟和调度 profile](#7-时钟和调度-profile)
 8. [执行后端](#8-执行后端)
@@ -47,7 +47,7 @@ Node 版本错误时会出现 `module.hasTopLevelAwait is not a function` 等报
 
 ### 1.2 实验性标志
 
-所有使用 edge-sandbox 的脚本都需要加 `--experimental-vm-modules`：
+所有使用 nv8 的脚本都需要加 `--experimental-vm-modules`：
 
 ```powershell
 node --experimental-vm-modules your-script.js
@@ -56,7 +56,7 @@ node --experimental-vm-modules your-script.js
 ### 1.3 依赖
 
 ```powershell
-cd <edge-sandbox-root>
+cd <nv8-root>
 npm install --ignore-scripts
 ```
 
@@ -67,24 +67,24 @@ npm install --ignore-scripts
 ### 2.1 在你的项目里安装本地包
 
 ```powershell
-# 在你的项目目录执行（使用绝对路径指向 EdgeSandbox 安装目录）
-npm install <edge-sandbox-root>
+# 在你的项目目录执行（使用绝对路径指向 NV8 安装目录）
+npm install <nv8-root>
 ```
 
 安装后 `package.json` 会写入：
 
 ```json
-"edge-sandbox": "file:<edge-sandbox-root>"
+"nv8": "file:<nv8-root>"
 ```
 
 ### 2.2 禁止全局 link 作为默认方案
 
-不要用全局 `npm link` 作为默认安装方式。每个协议恢复项目都应在自己的 `package.json` 中声明 `edge-sandbox`，并在项目目录执行 `npm install`，这样 `node_modules/edge-sandbox/package.json` 可以作为运行前检查点。
+不要用全局 `npm link` 作为默认安装方式。每个协议恢复项目都应在自己的 `package.json` 中声明 `nv8`，并在项目目录执行 `npm install`，这样 `node_modules/nv8/package.json` 可以作为运行前检查点。
 
 ### 2.3 在脚本里导入
 
 ```js
-import { createSandbox, edge151Fingerprint } from 'edge-sandbox';
+import { createSandbox, edge151Fingerprint } from 'nv8';
 ```
 
 ---
@@ -106,7 +106,7 @@ import { createSandbox, edge151Fingerprint } from 'edge-sandbox';
 ### 4.1 基础用法
 
 ```js
-import { createSandbox, edge151Fingerprint } from 'edge-sandbox';
+import { createSandbox, edge151Fingerprint } from 'nv8';
 
 const sb = await createSandbox('https://example.com', {
   fingerprint: edge151Fingerprint,
@@ -160,7 +160,7 @@ createSandbox.drain();
 | `sb.trace()` | 读取 trace 记录 |
 | `sb.clearTrace()` | 清空 trace |
 | `sb.close()` | 关闭沙箱 |
-| `sb.raw` | 访问底层 EdgeSandbox 实例 |
+| `sb.raw` | 访问底层 `EdgeSandbox` 实例 |
 
 ### 4.4 `Symbol.asyncDispose` 支持
 
@@ -180,12 +180,12 @@ createSandbox.drain();
 
 ---
 
-## 5. EdgeSandbox 完整 API
+## 5. NV8 完整 API
 
 ### 5.1 创建
 
 ```js
-import { EdgeSandbox, edge151Fingerprint } from 'edge-sandbox';
+import { EdgeSandbox, edge151Fingerprint } from 'nv8';
 
 const sandbox = await EdgeSandbox.create({
   page: {
@@ -255,7 +255,7 @@ await sandbox.close();
 ### 6.1 选择 profile
 
 ```js
-import { edge150Fingerprint, edge151Fingerprint } from 'edge-sandbox';
+import { edge150Fingerprint, edge151Fingerprint } from 'nv8';
 
 // Edge 150（默认）
 const sb = await createSandbox(url, { fingerprint: edge150Fingerprint });
@@ -530,7 +530,7 @@ Trace 观察兼容层 API 调用，不是真实 Chromium DevTools 调用栈。
 修改了 `src/` 里的 realm 模块后必须重建：
 
 ```powershell
-cd <edge-sandbox-root>
+cd <nv8-root>
 node tools/build-module-bundle.mjs
 ```
 
@@ -636,7 +636,7 @@ UA 必须包含 `Chrome/150.` 或 `Chrome/151.`，不能包含 `Edg/`。
 ### Q: `fetch()` 返回 `TypeError`
 没有匹配的 replay 记录。检查 method、URL（含协议/路径/query）是否完全一致。
 
-### Q: 返回值是 `{ type: "other" }`（使用 EdgeSandbox 时）
+### Q: 返回值是 `{ type: "other" }`（使用底层 `EdgeSandbox` API 时）
 复杂对象不能跨 IPC 传输，在沙箱内用 `JSON.stringify()` 序列化后再返回。
 
 ### Q: `createSandbox` 的 `sb.run()` 返回 undefined

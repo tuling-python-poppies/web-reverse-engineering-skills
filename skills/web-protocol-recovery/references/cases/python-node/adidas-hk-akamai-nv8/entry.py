@@ -8,7 +8,7 @@ from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 
-CASE_ID = "adidas-hk-akamai-edge-sandbox"
+CASE_ID = "adidas-hk-akamai-nv8"
 CASE_DIR = Path(__file__).resolve().parent
 FIXTURE_DIR = CASE_DIR / "fixtures"
 TARGET_URL = "https://www.adidas.com.hk/zh/summer_cs_promotion_2"

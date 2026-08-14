@@ -14,7 +14,7 @@ entry = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(entry)
 
 
-class AdidasHkAkamaiEdgeSandboxCaseTests(unittest.TestCase):
+class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
     def test_sensor_endpoint_derivation_removes_query_data(self) -> None:
         url = (
             "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/"
@@ -42,7 +42,7 @@ class AdidasHkAkamaiEdgeSandboxCaseTests(unittest.TestCase):
     def test_run_offline(self) -> None:
         result = entry.run(live=False)
         self.assertEqual(result["status"], "offline")
-        self.assertEqual(result["caseId"], "adidas-hk-akamai-edge-sandbox")
+        self.assertEqual(result["caseId"], "adidas-hk-akamai-nv8")
         self.assertEqual(result["productCount"], 3)
         self.assertTrue(result["acceptance"]["rejectsLiveEgress"])
 

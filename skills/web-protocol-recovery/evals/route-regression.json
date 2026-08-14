@@ -31,11 +31,11 @@
       }
     },
     {
-      "id": "edge-sandbox-full-browser-runtime",
+      "id": "nv8-full-browser-runtime",
       "prompt": "An Akamai sensor or Kasada ips.js collector needs full DOM, Canvas, WebGL, Audio, Worker, and network-capture surfaces in a browser-free Node 24 runtime.",
       "expect": {
         "shape": "local-proof",
-        "route": "edge-sandbox",
+        "route": "nv8",
         "implementationMode": "python-node"
       }
     },

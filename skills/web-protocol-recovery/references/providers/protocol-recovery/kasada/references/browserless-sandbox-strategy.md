@@ -1,10 +1,10 @@
 # Browserless Sandbox Strategy
 
-Run the `ips.js` collector without a full browser using EdgeSandbox — a Node 24 Edge 150 compatibility sandbox with full DOM/Canvas/WebGL/Audio state machines and 1232 Window properties.
+Run the `ips.js` collector without a full browser using NV8, a Node 24 Edge 150 compatibility sandbox with full DOM/Canvas/WebGL/Audio state machines and 1232 Window properties.
 
-## EdgeSandbox Runtime
+## NV8 Runtime
 
-EdgeSandbox provides an exact Edge 150 browser environment surface in an isolated Node.js process:
+NV8 provides an exact Edge 150 browser environment surface in an isolated Node.js process:
 
 - **1232 Window properties, 11449 browser functions**: exact Edge 150 match with correct descriptor order.
 - **Canvas 2D state machine**: `getComputedStyle`, `measureText`, `getImageData`, `toDataURL` driven by configurable fingerprint.
@@ -23,7 +23,7 @@ Python automatically locates Node 24 via `NVM_HOME` environment variable — no 
 ## Architecture
 
 ```javascript
-import { EdgeSandbox } from 'edge-sandbox';
+import { EdgeSandbox } from 'nv8';
 import { readFileSync } from 'node:fs';
 
 // Load real fingerprint from Camoufox export
@@ -83,9 +83,9 @@ try {
 
 ## Environment Surfaces
 
-EdgeSandbox provides all surfaces `ips.js` reads natively:
+NV8 provides all surfaces `ips.js` reads natively:
 
-| Surface | EdgeSandbox Coverage |
+| Surface | NV8 Coverage |
 |---------|---------------------|
 | `navigator` (userAgent, platform, hardwareConcurrency, deviceMemory, languages, userAgentData, vendor, connection, mediaDevices, storage, serviceWorker, getBattery) | Full — driven by `fingerprint.navigator` config |
 | Standard Chrome constructors (ImageData, Worker, RTCPeerConnection, IntersectionObserver, etc.) | All 1232 Window properties present |
@@ -100,17 +100,17 @@ EdgeSandbox provides all surfaces `ips.js` reads natively:
 
 ## `has()` and Introspection
 
-EdgeSandbox handles all introspection paths correctly:
+NV8 handles all introspection paths correctly:
 
 - `has` / `in` operator returns `true` only for genuinely existing properties (1232 Window names).
 - `ownKeys` / `Object.keys` returns the correct Edge 150 property set in correct order.
 - `getOwnPropertyDescriptor` returns accurate descriptors.
-- Kasada's `randomName in window` consistency probes pass because EdgeSandbox does not lie about non-existent properties.
+- Kasada's `randomName in window` consistency probes pass because NV8 does not lie about non-existent properties.
 - No internal `_`-prefixed keys, random-hex session fields, or emulation library internals leak through.
 
 ## Fingerprint Plausibility
 
-EdgeSandbox state machines produce rendering values driven by the `fingerprint` config:
+NV8 state machines produce rendering values driven by the `fingerprint` config:
 
 - **Canvas pixel data**: state machine produces consistent patterns per fingerprint seed.
 - **WebGL readback**: GPU vendor/renderer/extensions and parameter queries return coherent values.
@@ -130,7 +130,7 @@ For maximum server-side acceptance:
    fp = await camoufox.export_fingerprint_profile(include_heavy=True)
    # Save to fingerprint.json
    ```
-4. Inject into EdgeSandbox via `fingerprint` config.
+4. Inject into NV8 via `fingerprint` config.
 5. Same-version `ips.js` uses fixed drawing instructions → one export covers all sessions until `ips.js` updates.
 6. When `ips.js` updates (new drawing commands), re-run the export.
 
@@ -145,7 +145,7 @@ If fingerprint injection is impractical (`ips.js` varies challenge per session, 
 ## Reading the Run
 
 - **`reporting.cdndex.io` beacon fired** (`POST /error`, ~34KB): This is a **fingerprint report**, NOT an error. It fires on every init, carrying canvas hash/WebGL/audio/timing. Its presence is expected. The real acceptance signal is whether the minted `ct` passes business replay on clean egress.
-- **Threw inside VM handler**: A concrete environment gap. Check `sandbox.evaluate` error message for the accessed property. With EdgeSandbox, most gaps are already filled by the 1232-property surface. Kasada also runs **random-property probes** (`undefined[randomName]`); these are deliberate anti-instrumentation checks — do not chase them.
+- **Threw inside VM handler**: A concrete environment gap. Check `sandbox.evaluate` error message for the accessed property. With NV8, most gaps are already filled by the 1232-property surface. Kasada also runs **random-property probes** (`undefined[randomName]`); these are deliberate anti-instrumentation checks — do not chase them.
 - **Reached `/tl` with plausible sensor + non-empty `ct`**: Sandbox is minting. Move to same-session business replay. A minted `ct` does NOT guarantee acceptance — the `ct` may be flagged server-side based on fingerprint plausibility.
 
 ## Hard Constraints
@@ -153,6 +153,6 @@ If fingerprint injection is impractical (`ips.js` varies challenge per session, 
 - The runtime bytecode is assembled during bootstrap; let `ips.js` build it, do not inject a captured integer array.
 - String cipher/opcode/constants are version-locked to the captured `p.js`/`ips.js`; re-solve per build.
 - `x-kpsdk-ct` is bound to IP + UA + TLS. Mint and replay on one coherent egress.
-- Do not chase environment gaps indefinitely. If the beacon persists after EdgeSandbox fills the known surfaces, the remaining signal is fingerprint plausibility — re-export from real browser or report "fingerprint plausibility ceiling reached."
+- Do not chase environment gaps indefinitely. If the beacon persists after NV8 fills the known surfaces, the remaining signal is fingerprint plausibility — re-export from real browser or report "fingerprint plausibility ceiling reached."
 - Datacenter proxies may receive empty `ips.js` (len=0) — Kasada rate-limits known DC IP ranges at script-delivery layer (egress-reputation gate).
-- Browser-free reaches `/tl` and mints `ct` more reliably than a real browser on flagged egress. The EdgeSandbox path is the preferred diagnostic and production path for this provider.
+- Browser-free reaches `/tl` and mints `ct` more reliably than a real browser on flagged egress. The NV8 path is the preferred diagnostic and production path for this provider.

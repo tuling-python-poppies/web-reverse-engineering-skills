@@ -29,7 +29,7 @@ Read only the selected reference after a work order names the current blocker.
 | T'way modern `bm_s` / `ak_bmsc` field case | `references/case-twayair-iv8.md` |
 | Public Akamai repo or old generator evaluation | `references/public-project-triage.md` |
 | Final report format | `references/report-template.md` |
-| EdgeSandbox-based sensor execution (full DOM/Web API) | `references/edge-sandbox-sensor-execution.md` |
+| NV8-based sensor execution (full DOM/Web API) | `references/nv8-sensor-execution.md` |
 
 ## Core Rules
 
@@ -54,7 +54,7 @@ Read only the selected reference after a work order names the current blocker.
 - Hook-only observation uses `browser-hooks`.
 - Whole-source recovery uses `ast`.
 - Generic environment patching uses `python-node` with `strategy: env-patch`.
-- Browser-free sensor execution with full Edge 150 DOM/Web API surface (1232 Window props, Canvas/WebGL/Audio) uses `edge-sandbox`, with Akamai acceptance still owned by this Provider.
+- Browser-free sensor execution with full Edge 150 DOM/Web API surface (1232 Window props, Canvas/WebGL/Audio) uses `nv8`, with Akamai acceptance still owned by this Provider.
 - Local browser-like collector execution uses `iv8`, with Akamai acceptance still owned by this Provider.
 - CAPTCHA or interactive verification uses `verifier`.
 - Stable final HTTP delivery uses `python-collector` after Akamai proof is accepted.

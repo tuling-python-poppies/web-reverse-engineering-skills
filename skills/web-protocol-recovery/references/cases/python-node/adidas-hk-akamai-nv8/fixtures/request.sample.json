@@ -1,6 +1,6 @@
 {
   "schemaVersion": "web-protocol-recovery-request-shape",
-  "caseId": "adidas-hk-akamai-edge-sandbox",
+  "caseId": "adidas-hk-akamai-nv8",
   "challenge": {
     "targetUrl": "https://www.adidas.com.hk/zh/summer_cs_promotion_2",
     "sensorScriptUrlShape": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js?v=00000000-0000-4000-8000-000000000000",

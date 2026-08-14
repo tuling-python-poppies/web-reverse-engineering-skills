@@ -1,5 +1,5 @@
 /**
- * Generic Sensor Generator Template — EdgeSandbox reference implementation
+ * Generic Sensor Generator Template - NV8 reference implementation
  * 
  * This script is called by Python, which automatically locates Node 24 via:
  * - NVM_HOME environment variable + v24.* directory
@@ -9,14 +9,14 @@
  * Users do NOT need to manually run `nvm use 24` before execution.
  * 
  * INSTALLATION:
- * EdgeSandbox is installed as a local npm dependency:
- *   1. Add to package.json: "edge-sandbox": "file:<path-to-edge-sandbox>"
+ * NV8 is installed as a local npm dependency:
+ *   1. Add to package.json: "nv8": "file:<path-to-nv8>"
  *   2. Run: npm install
- *   3. Import: import { EdgeSandbox } from 'edge-sandbox';
+ *   3. Import: import { EdgeSandbox } from 'nv8';
  * 
  * Architecture:
  * 1. Load approved challenge page + sensor script inputs
- * 2. EdgeSandbox: evaluate sensor → capture POST/GET body
+ * 2. NV8: evaluate sensor -> capture POST/GET body
  * 3. Output JSON for Python to forward via curl_cffi
  * 
  * USAGE:
@@ -30,18 +30,18 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Verify edge-sandbox is installed via npm
+// Verify nv8 is installed via npm
 // ═══════════════════════════════════════════════════════════════════════════
-const edgeSandboxPkg = resolve(__dirname, 'node_modules', 'edge-sandbox', 'package.json');
-const parentEdgeSandboxPkg = resolve(__dirname, '..', 'node_modules', 'edge-sandbox', 'package.json');
-if (!existsSync(edgeSandboxPkg) && !existsSync(parentEdgeSandboxPkg)) {
-  console.error('[sensor] edge-sandbox not found in node_modules.');
+const nv8Pkg = resolve(__dirname, 'node_modules', 'nv8', 'package.json');
+const parentNv8Pkg = resolve(__dirname, '..', 'node_modules', 'nv8', 'package.json');
+if (!existsSync(nv8Pkg) && !existsSync(parentNv8Pkg)) {
+  console.error('[sensor] nv8 not found in node_modules.');
   console.error('[sensor] Run: npm install');
-  console.error('[sensor] Ensure package.json has: "edge-sandbox": "file:<path-to-edge-sandbox>"');
+  console.error('[sensor] Ensure package.json has: "nv8": "file:<path-to-nv8>"');
   process.exit(1);
 }
 
-const { EdgeSandbox } = await import('edge-sandbox');
+const { EdgeSandbox } = await import('nv8');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIG — Adjust for your target site
@@ -62,7 +62,7 @@ const CONFIG = {
   sensorScriptFile: 'sensor.js',
   cookiesFile: 'cookies.json',
   
-  // Fingerprint (default EdgeSandbox profile or custom)
+  // Fingerprint (default NV8 profile or custom)
   fingerprint: {
     locale: 'en-US',
     timezone: 'America/New_York',
@@ -107,10 +107,10 @@ function loadSensorScript() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Step 3: Run Sensor in EdgeSandbox
+// Step 3: Run Sensor in NV8
 // ═══════════════════════════════════════════════════════════════════════════
-async function runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies) {
-  console.log('[sensor] creating EdgeSandbox...');
+async function runSensorInNv8(sensorScriptUrl, sensorScript, cookies) {
+  console.log('[sensor] creating NV8 sandbox...');
 
   // Minimal HTML — sensor only needs location, document.cookie, navigator, screen
   const sensorPath = new URL(sensorScriptUrl).pathname;
@@ -198,11 +198,11 @@ async function runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies) {
 // Main
 // ═══════════════════════════════════════════════════════════════════════════
 async function main() {
-  console.log('[sensor] Generic sensor generator (EdgeSandbox)');
+  console.log('[sensor] Generic sensor generator (NV8)');
 
   const { cookies, sensorScriptUrl } = loadChallengePage();
   const sensorScript = loadSensorScript();
-  const result = await runSensorInEdgeSandbox(sensorScriptUrl, sensorScript, cookies);
+  const result = await runSensorInNv8(sensorScriptUrl, sensorScript, cookies);
 
   if (!result) {
     console.log('[sensor] sensor POST generation failed');

@@ -46,6 +46,27 @@
       "expected": "fGEff0UdLyo="
     },
     {
+      "suffix": "3ce85192",
+      "sourceKey": "68fded68",
+      "xorMaskAscii": "6070d095",
+      "expected": "f0t7TB5Fdn8=",
+      "family": "feilin137"
+    },
+    {
+      "suffix": "a3976087",
+      "sourceKey": "68fded68",
+      "xorMaskAscii": "6070d095",
+      "expected": "QXsXSx9Ed3o=",
+      "family": "feilin137"
+    },
+    {
+      "suffix": "95602757",
+      "sourceKey": "68fded68",
+      "xorMaskAscii": "6070d095",
+      "expected": "eX1LRBNLcno=",
+      "family": "feilin137"
+    },
+    {
       "suffix": "75546758",
       "sourceKey": "uEDwHIvF",
       "xorMaskHex": "0000000000000000",

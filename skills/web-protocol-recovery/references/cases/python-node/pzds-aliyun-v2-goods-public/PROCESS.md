@@ -218,6 +218,31 @@ Acceptance for a new non-classic generation:
 - validate with `resume-artifact --dry-run` and online `T001/true`, then run the
   full collector path and business replay
 
+### FeiLin137 classic field21 ambiguity
+
+FeiLin137 in the current PZDS capture remains in the classic
+`sourceKey`/`xorMask` family. Twelve accepted same-cohort captures produced
+the validated candidate:
+
+```text
+sourceKey=68fded68
+xorMaskBytes=6070d095
+xorMaskHex=3630373064303935
+```
+
+Do not resolve this case by increasing rounds indefinitely. The observed
+`session_id[-8:]` suffixes can have decimal-only positions, leaving multiple
+classic candidates that agree on the observed domain. After normal candidate
+search, allow the generation-family constraint of an eight-character
+lowercase-hex source key plus an ASCII-hex mask to select the candidate, then
+require the existing gates: Log2/token field21 equality, online `T001 / true`,
+and a successful `goodsPublic/page` replay. This is a generic candidate-family
+rule, not a hardcoded version-string replacement.
+
+The refresh artifact path must remain Windows-safe: shorten the full
+`1.5.1/feilinNNN.<64 hex>` directory slug, preserve the full version in a
+manifest, and accept browser-labelled attempt directories during resume.
+
 FeiLin131 maintenance note: `field21` can be a per-position nibble map. A first
 pass may produce partial inliers if one letter branch is fitted too broadly. The
 successful gate is full inliers on the selected archived captures, then online

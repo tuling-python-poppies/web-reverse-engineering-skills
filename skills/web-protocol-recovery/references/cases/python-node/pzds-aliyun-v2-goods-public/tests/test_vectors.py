@@ -29,6 +29,12 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
 
     def test_field21_vectors(self) -> None:
         for item in self.vectors["field21"]:
+            if "algorithm" in item:
+                self.assertEqual(
+                    entry.build_field21(item["suffix"], "", b"", algorithm=item["algorithm"]),
+                    item["expected"],
+                )
+                continue
             if "xorMaskAscii" in item:
                 mask = item["xorMaskAscii"].encode("ascii")
             else:

@@ -248,6 +248,33 @@ pass may produce partial inliers if one letter branch is fitted too broadly. The
 successful gate is full inliers on the selected archived captures, then online
 `T001/true`, then `goodsPublic/page` returns `success=true` and `code=SUCCESS`.
 
+### FeiLin142 field21 lookup maps
+
+FeiLin142 moved away from the classic `sourceKey/xorMask` family entirely. The
+automatic refresh fails with `field21 no longer matches the known formula at
+byte 0` because `field21_candidates()` only brute-forces the classic formula.
+Decode the archived captures into `(session_id[-8:], field21)` pairs and fit
+per-position transforms. The validated rule for `1.5.1/feilin142.<64 hex>`
+(suffix = last 8 hex chars of `session_id`):
+
+```text
+position 0  digit  n^5 ;        letter  0x60|{a:5,b:8,c:7,d:2,e:1,f:4}
+position 1  digit  n^2 ;        letter  0x30|{a:7,c:5,e:11,f:8}
+position 2  digit  n^3 ;        letter  0x60|{a:8,b:7,c:6,d:13,e:12,f:11}
+position 3  digit  97+(n^2) ;   letter  ord(char)^0x62
+position 4  n^3 ; position 5  n (identity)
+position 6  55+(n^5) ; position 7  n^6
+```
+
+Positions 4..7 are decimal-only on every observed session suffix (consistent
+across generations), so those branches only need digit transforms. The
+representative-round selector also ignores generation-142 dynamic fields
+`{38, 52, 86, 88, 130, 136, 137}` (browser ratio, combat counter string, SDK
+version, timing fields) which otherwise make the pre-warm profile look
+unstable. Fix, in order: add the non-classic label, add redacted vectors,
+validate with `resume-artifact --dry-run` and online `T001/true`, then run the
+full collector path and business replay.
+
 ## Gate Family
 
 Primary: **verifier** (`T001/true`).
@@ -345,7 +372,7 @@ Vectors cover:
 - goods body SHA-256 and request shape
 - field21 classic vectors
 - FeiLin generation-specific non-classic field21 vectors (`feilin128`,
-  `feilin131`, etc.)
+  `feilin131`, `feilin142`, etc.)
 - Aliyun RPC HMAC-SHA1
 - deviceToken checksum / AES roundtrip
 - `data_builder.js` fixed output

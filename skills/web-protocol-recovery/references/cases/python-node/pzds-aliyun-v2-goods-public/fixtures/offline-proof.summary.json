@@ -1,17 +1,17 @@
 {
-  "schemaVersion": "web-protocol-recovery-offline-proof-summary",
-  "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "executedAt": "2026-08-04",
-  "passed": true,
-  "activeScope": "offline-only",
-  "entrySha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40",
-  "testArtifactSha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95",
-  "assertions": [
-    "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
-    "entry import and case-local tests perform no live network egress",
-    "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation",
-    "profile refresh process uses CDP with ordinary Chrome first and optional CloakBrowser fallback; legacy browser automation stacks are not part of this case",
-    "track-template.json is an offline shape guard only; live runs require a project-private accepted track seed or a freshly captured seed"
-  ],
-  "historicalLiveProofIsCurrentAcceptance": false
+ "schemaVersion": "web-protocol-recovery-offline-proof-summary",
+ "caseId": "python-node-pzds-aliyun-v2-goods-public",
+ "executedAt": "2026-08-20",
+ "passed": true,
+ "activeScope": "offline-only",
+ "entrySha256": "92361858c84600e2efd7b369c0867c15a4200145e772412a7ff277b631067fb1",
+ "testArtifactSha256": "2cf2377c4059da48eaa1a836c67d91e24a44a7f194c11034347d3eb7b8ce1136",
+ "assertions": [
+  "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
+  "entry import and case-local tests perform no live network egress",
+  "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation",
+  "profile refresh process uses CDP with ordinary Chrome first and optional CloakBrowser fallback; legacy browser automation stacks are not part of this case",
+  "track-template.json is an offline shape guard only; live runs require a project-private accepted track seed or a freshly captured seed"
+ ],
+ "historicalLiveProofIsCurrentAcceptance": false
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 15,
+  "revision": 16,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -78,7 +78,7 @@
   "product": {
     "vendor": "Aliyun",
     "product": "Captcha V2 WAF",
-    "version": "FeiLin111/133/142 observed through feilin137 / PZDS X-Sign-Version v18",
+    "version": "FeiLin111/133/142 observed through feilin142 / PZDS X-Sign-Version v18",
     "subtype": "sliding-t001-pzds-goods-public"
   },
   "dependencies": {
@@ -102,11 +102,11 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "8a2827e0146897421ec2872d052e160a4388eb6f7e3d9da4589af1e53d14d2e4"
+      "sha256": "3836fc73a24360dc77a2c72ad1c55e43a39f4f36b0ca05a1db6e2eeee8b80bee"
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40"
+      "sha256": "92361858c84600e2efd7b369c0867c15a4200145e772412a7ff277b631067fb1"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -115,7 +115,7 @@
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "6e13d9495b46340948bb274375eae832c498e4489a0b42fb75bf99fce83523b3"
+        "sha256": "05868c68c1f98419f9ec923138c36dc37046bcb80e03c0ab34b82a83c90d5c68"
       },
       {
         "path": "fixtures/track-template.json",
@@ -135,7 +135,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "d6ce933a07b19ae6cacb8d52a56d917b6d3f060a2bbc6dc266cdf188c0cc2a62"
+        "sha256": "82540faedfcb7f7e5986f961ae8bddef1c2e90bc67a0f180ade7aa398087ef53"
       },
       {
         "path": "assets/data_builder.js",
@@ -162,22 +162,22 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-20T19:22:28+08:00",
+    "executedAt": "2026-08-20T22:43:17+0800",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95"
+      "sha256": "2cf2377c4059da48eaa1a836c67d91e24a44a7f194c11034347d3eb7b8ce1136"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "d6ce933a07b19ae6cacb8d52a56d917b6d3f060a2bbc6dc266cdf188c0cc2a62"
+      "sha256": "82540faedfcb7f7e5986f961ae8bddef1c2e90bc67a0f180ade7aa398087ef53"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "request, classic and generation-specific field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "00b7fcbd531a3ff73c3bb95e114876bf5fa7c47776c4955c37f81e7ddb3baf40",
-      "currentTestArtifactSha256": "04f4741f518479c63f629aa19b6bd7a3e2e2ed7d7fc53256db9802c53f985c95",
+      "currentEntrySha256": "92361858c84600e2efd7b369c0867c15a4200145e772412a7ff277b631067fb1",
+      "currentTestArtifactSha256": "2cf2377c4059da48eaa1a836c67d91e24a44a7f194c11034347d3eb7b8ce1136",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-08-03",

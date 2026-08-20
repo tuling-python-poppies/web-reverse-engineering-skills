@@ -94,14 +94,53 @@ def rpc_base_params(action: str, access_key_id: str, version: str) -> dict[str, 
     }
 
 
-def build_field21(local_suffix: str, source_key: str, xor_mask: bytes) -> str:
+def build_field21(
+    local_suffix: str,
+    source_key: str,
+    xor_mask: bytes,
+    algorithm: str | None = None,
+) -> str:
     if len(local_suffix) != 8 or any(ch not in "0123456789abcdef" for ch in local_suffix):
         raise ValueError("local_suffix must be 8 lowercase hexadecimal chars")
+    if algorithm == "feilin142":
+        return build_field21_feilin142(local_suffix)
+    if algorithm is not None:
+        raise ValueError(f"unknown field21 algorithm {algorithm!r}")
     mixed = bytes(
         32 + ((ord(source) - 32 + ord(suffix) - 32) % 95)
         for source, suffix in zip(source_key, local_suffix)
     )
     return base64.b64encode(bytes(value ^ mask for value, mask in zip(mixed, xor_mask))).decode("ascii")
+
+
+def build_field21_feilin142(local_suffix: str) -> str:
+    """FeiLin142 field21: lookup maps for positions 0..3 and digit maps."""
+    if len(local_suffix) != 8 or any(ch not in "0123456789abcdef" for ch in local_suffix):
+        raise ValueError("local_suffix must be 8 lowercase hexadecimal chars")
+    lookup = (
+        (5, 4, 7, 6, 1, 0, 3, 2, 13, 12, 101, 104, 103, 98, 97, 100),
+        (2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 55, 52, 53, 58, 59, 56),
+        (3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 104, 103, 102, 109, 108, 107),
+        (99, 100, 97, 98, 103, 104, 101, 102, 107, 108, 3, 0, 1, 6, 7, 4),
+    )
+    out = bytearray()
+    for pos, char in enumerate(local_suffix):
+        nibble = int(char, 16)
+        if pos < 4:
+            out.append(lookup[pos][nibble])
+        elif not char.isdigit():
+            raise ValueError(f"feilin142 position {pos} currently only supports digits")
+        elif pos == 4:
+            out.append(nibble ^ 3)
+        elif pos == 5:
+            out.append(nibble)
+        elif pos == 6:
+            out.append(55 + (nibble ^ 5))
+        elif pos == 7:
+            out.append(nibble ^ 6)
+        else:
+            raise AssertionError("unreachable")
+    return base64.b64encode(bytes(out)).decode("ascii")
 
 
 @dataclass(frozen=True)

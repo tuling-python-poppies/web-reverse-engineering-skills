@@ -94,6 +94,90 @@
       "xorMaskHex": "0000000000000000",
       "expected": "bjxtaGZuaW0=",
       "family": "feilin125"
+    },
+    {
+      "suffix": "caf82288",
+      "expected": "ZzdrawECRA4=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "febd2579",
+      "expected": "ZDtnBgEFOQ8=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "4f807082",
+      "expected": "ATgLYwQARAQ=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "2fae8093",
+      "expected": "BzhoBwsAQwU=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "e9235557",
+      "expected": "YQsBYgYFNwE=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "d01a7998",
+      "expected": "YgICAwQJQw4=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "eeea3142",
+      "expected": "YTtsAwABOAQ=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "1a3a0226",
+      "expected": "BDcAAwMCPgA=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "57a59045",
+      "expected": "AAVoaAoAOAM=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "5c508458",
+      "expected": "ADUGYwsENw4=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "b73b2735",
+      "expected": "aAUAAAEHPQM=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "24c12807",
+      "expected": "BwZmZAEIPAE=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "aa2c9431",
+      "expected": "ZTcBAQoEPQc=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
+    },
+    {
+      "suffix": "d0e76897",
+      "expected": "YgJsZgUIQwE=",
+      "family": "feilin142",
+      "algorithm": "feilin142"
     }
   ],
   "rpcSignature": {

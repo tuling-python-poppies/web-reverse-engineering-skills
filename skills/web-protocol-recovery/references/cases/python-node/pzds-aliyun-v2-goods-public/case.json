@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 14,
+  "revision": 15,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -78,7 +78,7 @@
   "product": {
     "vendor": "Aliyun",
     "product": "Captcha V2 WAF",
-    "version": "FeiLin111/133/142 observed through feilin131 / PZDS X-Sign-Version v18",
+    "version": "FeiLin111/133/142 observed through feilin137 / PZDS X-Sign-Version v18",
     "subtype": "sliding-t001-pzds-goods-public"
   },
   "dependencies": {
@@ -102,7 +102,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "2cbd616c1ebc62bb7adebdd1eb3c75c6112fc1bebe378aa0c0909dcc0ca98712"
+      "sha256": "8a2827e0146897421ec2872d052e160a4388eb6f7e3d9da4589af1e53d14d2e4"
     },
     "entry": {
       "path": "entry.py",
@@ -115,7 +115,7 @@
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "1d16266801dccf1a81cd1e2d23ab10b8068375ab69b05950ae0117f46a5cafbb"
+        "sha256": "6e13d9495b46340948bb274375eae832c498e4489a0b42fb75bf99fce83523b3"
       },
       {
         "path": "fixtures/track-template.json",
@@ -162,7 +162,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-09T20:28:00+08:00",
+    "executedAt": "2026-08-20T19:22:28+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",

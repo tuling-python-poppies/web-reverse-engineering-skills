@@ -227,6 +227,18 @@ Required at `<projectRoot>/分析报告.md` for Full completion of `compact-repl
 3.
 ```
 
+## Protocol State Branch
+
+Use this section in `compact-replay` and `collector` reports when the same route can return different protocol states:
+
+- Response branch: challenge/degraded / trusted/full / business
+- Classifier: semantic page marker, business form/data marker, and response size only as supporting evidence
+- Stage-specific state: cookie or header writer, next consumer, and whether the assertion applies on this branch
+- Branch transition: challenge/degraded -> stage state -> trusted/full, or trusted/full -> challenge-only gate skipped
+- Final wire body: submit-time fields appended or normalized by page code, with sensitive values represented by hashes/lengths
+- Business acceptance: endpoint, status, content type, business marker/data shape, and repeat result
+- False failure ruled out: absent stage-specific cookie, collector script on a full page, static-form-only reconstruction, or generic HTTP 200
+
 ## Minimal verifiable facts
 
 ```markdown

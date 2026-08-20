@@ -38,6 +38,15 @@ Do not store only final values. The transition order is the protocol.
 7. Route-local sensor POSTs may advance it again.
 8. Business API uses the final same-session jar plus route-local server context.
 
+## State-aware gates
+
+The response branch is part of the cookie state machine. A repeated document URL can return a degraded challenge page or a trusted/full page depending on the current session, landing sensor result, and route context.
+
+- Classify the response before running the next sensor or requiring a cookie: use semantic page markers and the expected business structure, not only the presence of a collector script or HTTP 200.
+- Require `bm_sc`, `sbsd_c`, or another second-verification cookie only when the observed challenge/degraded branch emits it and the next request consumes it.
+- If the same request already returns the trusted/full business page, skip challenge-only assertions and validate the page plus its next business request. A full page may still contain a collector script and rotate `bm_s` without producing `bm_sc`.
+- Record the branch in the transition table so a missing stage-specific cookie is distinguishable from a failed cookie refresh.
+
 ## Rules
 
 - Do not seed the Python session from reconnaissance-browser cookies.
@@ -53,6 +62,8 @@ Do not store only final values. The transition order is the protocol.
 - Pixel succeeds but `_abck` stays seed-shaped: Pixel and main collector were confused.
 - Business refresh 403 with valid sensor chain: missing route context, application-session initialization, Referer, or XHR header.
 - Homepage/main/sensor 200 but business document POST Access Denied: incomplete multi-stage sensor settle or low-confidence `bm_s` trust, not necessarily missing CSRF.
+- Full page returned where a degraded page was expected: do not force the degraded branch or infer failure from an absent challenge-only cookie; classify the full-page branch and continue with its business contract.
+- Business form 400 after Akamai admission: compare submit-time serialization, including runtime-added fields, date normalization, and branch-specific hidden inputs before changing sensor logic.
 - Local run reuses foreign canvas/WebGL cache: sensor may still 200 while business gate rejects; recapture host fingerprints.
 - `429` with `cpr_chlge`: classify as a second-verification challenge and preserve the CPR, collector, and response-Cookie chain.
 - A `~`-segmented Cookie shape is a triage clue only; acceptance still requires the business replay and response contract.

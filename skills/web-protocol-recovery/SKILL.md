@@ -242,8 +242,9 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 2. For `compact-replay`, one recorded minimal live replay succeeds on a coherent session; for `collector`, the minimal request repeats successfully or the next cursor/page is proved before scale.
 3. Content type, challenge markers, business result, and data shape pass.
 4. Signatures, cookies, headers, and wrapped bodies regenerate at the canonical request boundary.
-5. Page/retry/concurrency/duration scale only after a repeatable first request and only within the initially recorded `requestBudget`; exhaustion or any larger shape/budget requires `scope-expansion` confirmation.
-6. Preserve the delivery invariant from Non-Negotiables: Python owns final live egress; local runtimes only produce narrow artifacts.
+5. State-dependent assertions must follow the observed response branch: classify a response as challenge/degraded, trusted/full, or business before enforcing stage-specific cookies. A cookie such as `bm_sc` is required only on the branch that produces it; a trusted/full page should be validated by its business markers and next request instead. For form workflows, compare the final serialized wire body, including fields appended by page code immediately before submit, rather than the static HTML form alone.
+6. Page/retry/concurrency/duration scale only after a repeatable first request and only within the initially recorded `requestBudget`; exhaustion or any larger shape/budget requires `scope-expansion` confirmation.
+7. Preserve the delivery invariant from Non-Negotiables: Python owns final live egress; local runtimes only produce narrow artifacts.
 
 ## Case Reuse And Writeback
 

@@ -93,6 +93,52 @@ Self-check:
 
 - does the same single-page request still succeed on a fresh repeat?
 
+## Anti-pattern: Treat a stage-specific cookie as a universal gate
+
+Temptation:
+
+- require `bm_sc` after every sensor POST
+- assume that a collector script on a full page means the page is still in the degraded challenge branch
+- treat an absent challenge-only cookie as proof that the sensor failed
+
+Why it is false progress:
+
+- the same URL can return a degraded challenge page or an already trusted/full page
+- full-page sensor activity may rotate ordinary session state without issuing a second-verification cookie
+- the failure is in response classification, but further sensor changes are made as if it were a cookie-generation bug
+
+Smallest honest next move:
+
+- classify the response by semantic page state before applying cookie assertions
+- require each stage-specific cookie only on the branch that observed its writer and next consumer
+- validate the trusted/full branch with its business marker and downstream request
+
+Self-check:
+
+- does the current response contain the expected challenge/degraded marker, or did it already contain the business page?
+
+## Anti-pattern: Reconstruct a static form instead of the final wire body
+
+Temptation:
+
+- serialize only the inputs visible in the initial HTML
+- omit fields appended by page code immediately before `submit()`
+- infer that a valid CSRF token means the business form contract is complete
+
+Why it is false progress:
+
+- page code can add route codes, schedules, analytics context, repeated passenger fields, or normalized dates at submit time
+- the server may reject the request at the business binder even after Akamai admission succeeds
+
+Smallest honest next move:
+
+- capture or reconstruct the final submit-time serialization
+- diff field names, multiplicity, ordering-sensitive wrappers, and date semantics against a fresh accepted request
+
+Self-check:
+
+- can every non-static field in the submitted body be traced to the page code that appended or normalized it?
+
 ## Anti-pattern 4: Jump multiple rungs because the current one is frustrating
 
 Temptation:

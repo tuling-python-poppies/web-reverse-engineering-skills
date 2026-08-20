@@ -80,3 +80,4 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-08-10T15:30	workspace	web-protocol-recovery	-	-	keep	intake/browser-runtime	add on-demand Browser Runtime Gate; pure protocol/offline paths do not ask; package-default install still executionPolicy; preflight PASS	dry_run
 2026-08-10T15:50	workspace	web-protocol-recovery	-	-	keep	chromium-recon/turnstile	add self-contained CloakBrowser Turnstile managed reference with browser-root gate, Python 3.9 template, acceptance and case-boundary notes; preflight PASS	dry_run
 2026-08-10T16:05	workspace	web-protocol-recovery	-	-	keep	chromium-recon/turnstile-template	fix embedded Turnstile template annotations to Python 3.9 Optional style; code-block AST check PASS; preflight PASS	dry_run
+2026-08-20T11:03	pending	web-protocol-recovery	-	-	keep	akamai-state-branch	state-aware response gates and final wire-body rules	maintenance

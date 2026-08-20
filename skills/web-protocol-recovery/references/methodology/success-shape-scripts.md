@@ -59,6 +59,15 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 5. Final path is browser-free Python; Python owns live egress. Scale after a repeatable first request within the initially recorded budget. Exhaustion or a larger budget requires `nextAsk: scope-expansion`.
 6. Write root `分析报告.md` before claiming Full complete; scaffold may use `--report`.
 
+## Stateful Response And Wire-Body Overlay
+
+Apply this overlay to `compact-replay` and `collector` work whenever a request can move between challenge and trusted states:
+
+1. Classify each response before applying the next gate: challenge/degraded, trusted/full, or business. A collector script or HTTP 200 alone does not identify the branch.
+2. Tie each cookie assertion to its observed writer and next consumer. Do not require a challenge-only cookie on an already trusted/full response.
+3. Compare the final serialized request body, including fields appended or normalized by page code immediately before submit, against the accepted wire request.
+4. Accept the branch only after its semantic business marker/data shape passes; do not substitute a stage cookie, collector 200, or generic page shell for business success.
+
 ## WeChat Route Overlay
 
 WeChat is a route, not a success shape. Keep the selected `evidence`, `local-proof`, `compact-replay`, or `collector` shape.

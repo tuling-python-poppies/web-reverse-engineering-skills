@@ -43,6 +43,8 @@ Read only the selected reference after a work order names the current blocker.
 8. Browser and MCP tools are evidence only. Final live egress is Python HTTP; local JS/iv8 only generates/settles collector artifacts through an allowlisted bridge.
 9. If a real browser on the same exit also gets Access Denied, classify the blocker as egress reputation before rewriting sensor or form code.
 10. Business replay, response shape, cookie transition, and sensor stage parity are success criteria; `_abck`/`bm_s` length or collector 200 alone is not success.
+11. Classify each route response before applying stage assertions. The same URL may return a challenge/degraded page or a trusted/full business page depending on current state; challenge-only cookies such as `bm_sc` are required only on the branch whose observed transition produces them.
+12. Reproduce the final form wire body, not just the static HTML controls. Include fields appended by page code immediately before serialization and remove fields that are present only in local helpers or alternate branches.
 
 ## Optional Script
 
@@ -70,6 +72,8 @@ All applicable checks must pass:
 5. Transport tuple is coherent and proxy/egress behavior is recorded.
 6. Business endpoint returns the expected application envelope/data under a fresh session.
 7. Final delivery has no browser/profile dependency and writes task artifacts only under assigned project paths.
+8. The accepted state branch is recorded: challenge/degraded -> stage cookie -> trusted page, or already-trusted/full page -> challenge-only gate skipped, with the corresponding business result proved.
+9. Form submissions match the final serialized browser wire body, including runtime-added fields, before business acceptance is claimed.
 
 ## Failure Recovery
 
@@ -78,6 +82,8 @@ All applicable checks must pass:
 | Only generic 403/reset/cookie name | Return to evidence/recon and collect a second surface | Do not select Akamai |
 | Sensor POST 2 sends seed cookie | Mirror response cookies before runtime callback | Blocker: cookie transition continuity |
 | Collector 200 but route/business 403 | Compare multi-stage count, Pixel, transport, route context, and egress | Do not claim sensor success |
+| Full business page appears during a degraded-stage check but a challenge-only cookie is absent | Classify the page first, skip the degraded-only cookie assertion, and validate the full-page/business branch | Do not fail solely because `bm_sc` or another stage-specific cookie is absent |
+| Akamai admission succeeds but a form POST returns 400/validation failure | Diff the final serialized body against the browser's submit-time body, including runtime-added hidden fields and date values | Do not blame the sensor until the business wire contract matches |
 | Browser on same exit also Access Denied | Change node/exit and rerun full chain | Report egress-gated residual risk |
 | Foreign fingerprint cache in use | Recapture host-local fingerprint surfaces | Reject cache reuse |
 | Business body is a privacy shell or collector verification is incomplete | Separate challenge page, collector POST, and business response; use the SBSD reference to classify the body variant | Do not claim protocol success from a shell or generated body |

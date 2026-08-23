@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-twayair-akamai-availability",
-  "revision": 5,
+  "revision": 7,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
@@ -93,6 +93,9 @@
     "flightDateDefault": "date.today() + 7 days on host clock; same-day often empty inventory",
     "flightDateOverrideEnv": "AKAMAI_FLIGHT_DATE=YYYY-MM-DD",
     "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL",
+    "proxyFallbackEnv": "AKAMAI_DIRECT_FALLBACK=0 disables direct fallback when the default local Mihomo controller is absent",
+    "proxyOwnership": "Default local proxy may fall back to proxy=None when Mihomo is absent; explicit AKAMAI_PROXY is never silently replaced",
+    "batchExtension": "Optional delivery extension: max 2 routes x 2 dates, max concurrency 2, independent sessions/workers, shared process-wide budget, local-only result pagination",
     "transportLesson": "A lower Chrome TLS/UA override changed chkSaleRoute from 200 to 403 on the same exit; preserve the verified current tuple."
   },
   "preRead": [
@@ -131,7 +134,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "55f40dafc835767e5475927422edc9200f6b9bc747eb6f093785879b12f52402"
+      "sha256": "ddbce0e49ad38df4f708d0f6743cd7b020d4e90d4dac5f92da804048ae31949b"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -152,7 +155,7 @@
       },
       {
         "path": "LIVE_DELIVERY.md",
-        "sha256": "4999903c9826bd48e89a5e2ac3a376255f2763f049c16bb17dd05211f81e81af"
+        "sha256": "689b429e8c09c49a70b01de562c57b7f146c371a72cbc40ace5287fbbd89c7bf"
       }
     ],
     "entry": {
@@ -163,7 +166,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-23T15:26:01+08:00",
+    "executedAt": "2026-08-23T16:46:58+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -181,9 +184,9 @@
       "currentTestArtifactSha256": "3983aee528af765f3ace8a718769b1c76e05fe7fb917634c08b1224a96aed728",
       "currentLiveAcceptance": {
         "classification": "current-source-live-acceptance",
-        "executedAt": "2026-08-23T15:26:01+08:00",
+        "executedAt": "2026-08-23T16:43:22+08:00",
         "currentAcceptance": true,
-        "summary": "chooseItinerary 200, layerAvailabilityList 200, five parsed flights, repeated date verification passed"
+        "summary": "single-task and batch acceptance passed: chooseItinerary 200, layerAvailabilityList 200, four independent route/date tasks at concurrency 2, local result pagination and repeated date verification passed"
       },
       "historicalLiveProof": {
         "classification": "historical-project-provenance",

@@ -12,7 +12,7 @@ This case's `entry.py` is an **offline probe** for the reusable iv8 sensor-bridg
 
 It is **not** the full live T'way delivery script. Live egress (`curl_cffi` TLS profile, flight date, route, proxy) lives in project delivery code guided by this PROCESS, not in the offline `entry.py`.
 
-Env names below (`AKAMAI_CURL_PROFILE`, `AKAMAI_UA_MAJOR`, `AKAMAI_FLIGHT_DATE`, `AKAMAI_DEPARTURE`, `AKAMAI_ARRIVAL`, `AKAMAI_PROXY`, `AKAMAI_AUTO_SWITCH_EXIT`, `AKAMAI_EXIT_PREFIX`, `AKAMAI_MAX_EXIT_ATTEMPTS`, `AKAMAI_MAX_TOTAL_REQUESTS`) are **recommended delivery knobs**. They are not implemented by this offline `entry.py`.
+Env names below (`AKAMAI_CURL_PROFILE`, `AKAMAI_UA_MAJOR`, `AKAMAI_FLIGHT_DATE`, `AKAMAI_DEPARTURE`, `AKAMAI_ARRIVAL`, `AKAMAI_PROXY`, `AKAMAI_DIRECT_FALLBACK`, `AKAMAI_AUTO_SWITCH_EXIT`, `AKAMAI_EXIT_PREFIX`, `AKAMAI_MAX_EXIT_ATTEMPTS`, `AKAMAI_MAX_TOTAL_REQUESTS`, `AKAMAI_BATCH`, `AKAMAI_BATCH_ROUTES`, `AKAMAI_BATCH_DATES`, `AKAMAI_BATCH_CONCURRENCY`, `AKAMAI_RESULT_PAGE_SIZE`, `AKAMAI_RESULT_PAGE_NUM`) are **recommended delivery knobs**. They are not implemented by this offline `entry.py`.
 
 Read `LIVE_DELIVERY.md` after this offline entry and before writing project delivery
 code. It is the complete from-zero live assembly contract for the current case.

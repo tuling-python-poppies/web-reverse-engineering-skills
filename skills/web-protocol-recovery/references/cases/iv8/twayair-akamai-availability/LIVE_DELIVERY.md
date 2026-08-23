@@ -30,7 +30,7 @@ as the delivery path.
   Client Hints
 - default one-way query: `ICN -> KIX`, host date plus seven days
 - overrides: `AKAMAI_PROXY`, `AKAMAI_DEPARTURE`, `AKAMAI_ARRIVAL`,
-  `AKAMAI_FLIGHT_DATE=YYYY-MM-DD`
+  `AKAMAI_FLIGHT_DATE=YYYY-MM-DD`, `AKAMAI_DIRECT_FALLBACK=0|1`
 - use the coherent fingerprint set captured for the runtime; override WebGL only
   after recapturing canvas, colors and WebGL together
 
@@ -81,6 +81,19 @@ errors must not rotate nodes. Cap both node attempts and the process-wide live
 request budget; each TLS retry consumes one request and failed requests are never
 refunded. Leave the successful node selected.
 
+### Missing Clash/Mihomo fallback
+
+When the application is using its default local proxy (`127.0.0.1:7890`) and the
+Mihomo control pipe cannot be discovered, the delivery may set `proxy=None` and
+continue through the machine's direct public IP. Log this mode explicitly as
+`direct egress`; do not silently claim that a Clash node is active.
+
+If `AKAMAI_PROXY` was explicitly supplied, preserve that user-selected proxy when
+the controller is missing. Do not silently replace an explicit proxy with direct
+egress. `AKAMAI_DIRECT_FALLBACK=0` disables the default-proxy fallback.
+
+Direct fallback and node rotation share the same process-wide request budget.
+
 ## Acceptance
 
 Accept only after:
@@ -96,3 +109,31 @@ The current source delivery reached five ICN-KIX flights and a 73,400 KRW minimu
 fare, then repeated on another date with a different fare. This is current source
 acceptance for the contract; it does not promise that every future exit admits the
 business routes.
+
+## Bounded Batch Extension
+
+The single-query contract remains the default. An optional batch mode may add:
+
+- at most two `DEP-ARR` routes;
+- at most two dates;
+- at most two worker tasks concurrently;
+- one independent HTTP session, Cookie jar and iv8 worker per task;
+- one shared process-wide live request budget across all tasks and transport retries.
+
+The site does not expose a server-side page parameter for the availability HTML.
+Any `page_num/page_size` feature is therefore local pagination over the fully parsed
+flight list and must be labeled as such in the result summary. Concurrent tasks must
+not switch the shared Mihomo selector independently. If any task reports an exit
+admission failure, stop the batch and let the outer exit-rotation layer switch once,
+then rerun the coherent batch on the new node.
+
+Suggested delivery variables:
+
+```text
+AKAMAI_BATCH=1
+AKAMAI_BATCH_ROUTES=ICN-KIX,ICN-NRT
+AKAMAI_BATCH_DATES=YYYY-MM-DD,YYYY-MM-DD
+AKAMAI_BATCH_CONCURRENCY=2
+AKAMAI_RESULT_PAGE_SIZE=0
+AKAMAI_RESULT_PAGE_NUM=1
+```

@@ -12,7 +12,10 @@ This case's `entry.py` is an **offline probe** for the reusable iv8 sensor-bridg
 
 It is **not** the full live T'way delivery script. Live egress (`curl_cffi` TLS profile, flight date, route, proxy) lives in project delivery code guided by this PROCESS, not in the offline `entry.py`.
 
-Env names below (`CURL_PROFILE`, `AKAMAI_FLIGHT_DATE`, `AKAMAI_DEPARTURE`, `AKAMAI_ARRIVAL`, `AKAMAI_PROXY`) are **recommended delivery knobs**. They are not implemented by this offline `entry.py`.
+Env names below (`AKAMAI_CURL_PROFILE`, `AKAMAI_UA_MAJOR`, `AKAMAI_FLIGHT_DATE`, `AKAMAI_DEPARTURE`, `AKAMAI_ARRIVAL`, `AKAMAI_PROXY`, `AKAMAI_AUTO_SWITCH_EXIT`, `AKAMAI_EXIT_PREFIX`, `AKAMAI_MAX_EXIT_ATTEMPTS`, `AKAMAI_MAX_TOTAL_REQUESTS`) are **recommended delivery knobs**. They are not implemented by this offline `entry.py`.
+
+Read `LIVE_DELIVERY.md` after this offline entry and before writing project delivery
+code. It is the complete from-zero live assembly contract for the current case.
 
 ## Goal
 
@@ -29,8 +32,8 @@ Select this case when at least two independent signals match:
 - `vendor:akamai` — `akamai-cache-status` / `x-akamai-transformed` response headers, edgesuite error pages
 - `cookie:bm_s` rotated by sensor POSTs; companion `bm_so`/`bm_ss`/`bm_sv`/`bm_mi`/`bm_lso`
 - `cookie:ak_bmsc` set via `/akam/<n>/pixel_<id>` POST
-- Collector under a randomized path like `/espO2PwrZm/pjPoR2OF/qN/.../dUFms_Ek0M?v=<uuid>` with response header `stored-attribute-sha-checksum`
-- `queue:netfunnel` — `csnf.<site>/ts.wseq` opcode 5101 enter / 5004 complete, `NetFunnel_ID` cookie
+- Collector under a randomized path like `/Q8z3ErVBPJQsy6QbzGjaKJ3V/.../PEIV?v=<uuid>` with response header `stored-attribute-sha-checksum`
+- `queue:netfunnel` — `csnf.trinityairways.com/ts.wseq` opcode 5101 enter / 5004 complete, `NetFunnel_ID` cookie
 - `site:twayair` — host `www.twayair.com`
 
 Do not select for: pure header-sign sites (no sensor POST), verifier-image gates (use verifier family), Ruishu two-stage cookie (different vendor; same `challenge` family but different subtype).
@@ -57,14 +60,15 @@ Canonical mutation point: **collector-owned XHR POST** to the collector path (sa
 
 ```text
 GET /  (redirect to /app/main; bare client often 403 here)
-  └─ NetFunnel enter:  GET  csnf.<site>/ts.wseq?opcode=5101&aid=H_LandingPage&...
+  └─ NetFunnel enter:  GET  csnf.trinityairways.com/ts.wseq?opcode=5101&aid=H_LandingPage&...
        → result '5002:200:key=<hex>&nwait=0...' → set NetFunnel_ID cookie
   └─ GET  /<random>/<...>/dUFms_Ek0M?v=<uuid>          (collector, ~150-450KB)
   └─ POST /<random>/<...>/dUFms_Ek0M                    (sensor JSON ~4KB)
        → 200, empty body, Set-Cookie: bm_s (rotates every POST)
   └─ POST /akam/<n>/pixel_<id>                          → Set-Cookie: ak_bmsc
-  └─ NetFunnel complete: GET ts.wseq?opcode=5004&key=<hex>
+  └─ NetFunnel complete: GET csnf.trinityairways.com/ts.wseq?opcode=5004&key=<hex>
   └─ main page 200 → second collector pass (same pattern)
+  └─ GET  /ajax/booking/chkSaleRoute    (final frm.serialize() body in query)
   └─ POST /app/booking/chooseItinerary   (form, _csrf, trip fields)
   └─ POST /app/booking/layerAvailabilityList  (X-Requested-With, _csrf)
        → availability HTML (flight numbers, fares, sold-out flags)
@@ -74,7 +78,7 @@ Moving state (names only; values are pulled live and never stored):
 
 - Cookies: `bm_s`, `bm_so`, `bm_ss`, `bm_sv`, `bm_mi`, `bm_lso`, `ak_bmsc`, `NetFunnel_ID`, `SESSION`, `SETTINGS_REGION/LANGUAGE/CURRENCY`
 - Storage: `ak_bm_tab_id` (sessionStorage)
-- Sensor: ~116 signals per POST (count varies by stage; >=110 required)
+- Sensor: ~116–120 signals per POST (count varies by stage; >=110 is a completeness heuristic)
 - NetFunnel ticket: hex key 64..1024 chars in `5002:200:key=` envelope
 
 ## False Leads
@@ -86,7 +90,7 @@ Moving state (names only; values are pulled live and never stored):
 
 ## Provider Order
 
-1. `chromium-recon` (Cloak tier) — prove the 403/document gate, capture collector path, sensor POST shape, NetFunnel envelope, cookie family names.
+1. `chromium-recon` (ordinary Chromium, then optional Cloak tier) — prove the 403/document gate, capture collector path, sensor POST shape, NetFunnel envelope, cookie family names.
 2. `iv8` — isolated JSContext runs the real collector; a parent-owned XHR bridge forwards only the collector's requests; stats gate on `postCount>=1 && signalCount>=110 && active==0`.
 3. `python-collector` — parent process owns all live egress (curl_cffi TLS profile), cookies, NetFunnel, business forms, parse, and bounds.
 
@@ -94,24 +98,17 @@ Moving state (names only; values are pulled live and never stored):
 
 Applies to **live delivery code**, not this case's offline `entry.py` (which does not import `curl_cffi`).
 
-Pick `impersonate=` from the **installed** curl_cffi build, not from the live Chrome major:
-
-| curl_cffi (example) | highest Chrome TLS profile observed |
-|---|---|
-| 0.13.0 (`spider_base` / common conda) | `chrome136` |
-| newer builds | may expose `chrome146` / later — probe before hardcoding |
-
-Hardcoding `chrome146` on curl_cffi 0.13.0 raises at Session init:
-
-`ImpersonateError: Impersonating chrome146 is not supported`
-
-This is the failure seen under conda env `spider_base` when delivery code assumes a newer TLS profile than the installed curl_cffi supports.
+Pick `impersonate=` from the **installed** curl_cffi build, not from a stale
+browser capture. The current source verification used `chrome146` with
+matching UA and Client Hints. Probe the installed build before changing that tuple.
 
 Recommended pattern in live delivery:
 
-1. Prefer the highest **supported** profile on the current env (e.g. `chrome136` on 0.13.0 / `spider_base`).
-2. Keep HTTP `User-Agent` / `Sec-CH-UA` on the live browser major when required for document consistency (e.g. Chrome 150 Client Hints) — TLS profile and UA major may differ.
-3. Optional: resolve profile dynamically from `curl_cffi.requests.impersonate.BrowserType` / package version rather than a fixed string.
+1. Prefer the highest **supported current** profile on the current env.
+2. Keep HTTP `User-Agent` / `Sec-CH-UA` on the same verified browser generation;
+   do not downgrade both values as a blind workaround.
+3. Optional: resolve profile dynamically from `curl_cffi.requests.impersonate.BrowserType`
+   / package version, then record the chosen tuple in the work order.
 
 ### Search date / empty itinerary (live delivery only)
 
@@ -133,36 +130,38 @@ Recommended live delivery defaults (not implemented by offline `entry.py`):
 
 1. Synthetic collector through the iv8 parent/child XHR bridge (`__akamaiBridge.take/fulfill/stats`).
 2. Offline request answers for CPR params + sensor POST only (no live site egress).
-3. Gate: exactly 1 sensor POST, 116 signals, 1 SharedWorker message, 0 runtime errors.
+3. Offline gate: exactly 1 sensor POST, 116 signals, 1 SharedWorker message, 0 runtime errors.
 
 ### What live delivery must still implement outside this offline entry
 
 1. Python parent loads the real challenge (page HTML + collector JS) and constructs the iv8 environment (UA/screen/canvas/system-colors consistent with the approved profile).
 2. iv8 child installs the XHR bridge, evaluates the real collector, and never performs network itself.
 3. Parent executes each forwarded request against the live site with a **supported** `curl_cffi` TLS profile, fulfills staged XHR, and merges cookies.
-4. Gate: exactly 1 sensor POST, >=110 signals, 1 SharedWorker message, 0 runtime errors, no pending XHR at settle.
-5. Then NetFunnel enter/complete, main navigation with full document Sec-Fetch headers, chooseItinerary form POST, layerAvailabilityList XHR POST, parse.
+4. Offline gate: exactly 1 synthetic sensor POST, >=110 signals, 1 SharedWorker message, 0 runtime errors, no pending XHR at settle. Live stage counts are branch-dependent.
+5. Then NetFunnel enter/complete, main navigation with full document Sec-Fetch headers, `chkSaleRoute` GET, chooseItinerary form POST, layerAvailabilityList XHR POST, parse.
 
 ## Fixed-Vector / Live Proof
 
 Offline bridge (case-local `python entry.py` / unittest): post_count=1, signal_count=116, worker_message_count=1, runtime_error_count=0 — PASS (2026-07-21).
 Case-local unit tests: parser + vectors shape + offline probe — PASS.
 
-Live chain (source project, approved proxy; shape only, 2026-07-21): landing 200 → collector 200 → sensor 200 → NetFunnel OK → main 200 → choose 200 → availability 200 (~314KB); flights TW301/TW303/TW305/TW307.
+Current source live verification:
 
-Live re-verify (2026-07-23, source/live delivery under conda `spider_base`, curl_cffi 0.13.0 — not this offline `entry.py`):
-
-1. Fail closed: live delivery used `impersonate=chrome146` → `ImpersonateError` at Session init because spider_base curl_cffi maxes at `chrome136`.
-2. Fix in live delivery: use highest supported profile (`chrome136` on 0.13.0) while UA/CH remain Chrome 150-shaped.
-3. Full protocol chain reached availability HTML; fixed same-day date `2026-07-23` returned empty itinerary Korean copy (inventory, not sensor).
-4. Fix in live delivery: default flight date = host `date.today() + 7 days`; override via `AKAMAI_FLIGHT_DATE`.
+1. The verified source tuple used the installed `chrome146` profile with matching UA/CH.
+2. Forcing an older `chrome136 / UA136` tuple changed `chkSaleRoute` from 200 to 403 on
+   the same exit; preserve the verified current tuple unless deliberately measuring a
+   new supported build.
+3. Full protocol chain reached availability HTML; empty itinerary copy is inventory/date
+   state, not automatically a sensor failure.
+4. Default flight date = host `date.today() + 7 days`; override via `AKAMAI_FLIGHT_DATE`.
 
 ## Dependencies
 
 - python >= 3.11 (spawned iv8 worker via multiprocessing Pipe)
 - `iv8` runtime installed (required for offline probe and live delivery)
 - `beautifulsoup4` + `lxml` (parser tests / live parse)
-- Live delivery only: `curl_cffi` with a TLS profile supported by the **installed** build (0.13.0 / spider_base → max `chrome136`. UA/Client-Hints may still mirror a newer live browser major.)
+- Live delivery only: `curl_cffi` with a TLS profile supported by the **installed** build;
+  the verified source project used `chrome146`.
 - Live delivery optional egress proxy via environment variable (e.g. `AKAMAI_PROXY`)
 
 ## Invalidation Signals

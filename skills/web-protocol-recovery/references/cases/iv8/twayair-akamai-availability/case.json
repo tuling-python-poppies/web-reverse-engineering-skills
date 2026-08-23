@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-twayair-akamai-availability",
-  "revision": 4,
+  "revision": 5,
   "status": "verified",
   "family": "challenge",
   "runtime": "iv8",
@@ -14,7 +14,7 @@
       "vendor:akamai",
       "cookie:bm_s",
       "cookie:ak_bmsc",
-      "path:espO2PwrZm-collector",
+      "path:random-collector",
       "queue:netfunnel",
       "site:twayair"
     ],
@@ -36,7 +36,7 @@
       "scheme": "https",
       "host": "www.twayair.com",
       "port": 443,
-      "routePrefix": "/espO2PwrZm"
+      "routePrefix": "/"
     },
     {
       "scheme": "https",
@@ -52,7 +52,7 @@
     },
     {
       "scheme": "https",
-      "host": "csnf.twayair.com",
+      "host": "csnf.trinityairways.com",
       "port": 443,
       "routePrefix": "/ts.wseq"
     }
@@ -61,7 +61,7 @@
     "vendor:akamai",
     "cookie:bm_s",
     "cookie:ak_bmsc",
-    "path:espO2PwrZm-collector",
+    "path:random-collector",
     "queue:netfunnel",
     "runtime:iv8-sensor-bridge",
     "site:twayair"
@@ -77,7 +77,7 @@
     "iv8": "installed runtime (required for offline entry.py probe)",
     "beautifulsoup4": "installed (parser tests / live parse)",
     "lxml": "installed (parser tests / live parse)",
-    "curl_cffi": "live delivery only; TLS profile must exist on the installed build (0.13.0 / spider_base max chrome136)"
+    "curl_cffi": "live delivery only; use a TLS profile supported by the installed build; current source verification used chrome146"
   },
   "entryScope": {
     "kind": "offline-probe",
@@ -88,12 +88,12 @@
   },
   "recommendedDeliveryNotes": {
     "appliesTo": "live delivery / source project, not this offline entry.py",
-    "curlTlsProfile": "Use highest supported curl_cffi impersonate on the current env (chrome136 on 0.13.0 / spider_base). Do not hardcode chrome146 unless BrowserType lists it.",
-    "httpUaMajor": "May mirror live Chrome Client Hints (e.g. 150) independently of TLS profile major.",
+    "curlTlsProfile": "Use the highest supported current profile after probing the installed build; current source verification used chrome146. Do not force an older profile while debugging.",
+    "httpUaMajor": "Keep UA, Client Hints and TLS profile on the verified current-browser tuple unless running a separately measured experiment.",
     "flightDateDefault": "date.today() + 7 days on host clock; same-day often empty inventory",
     "flightDateOverrideEnv": "AKAMAI_FLIGHT_DATE=YYYY-MM-DD",
     "routeOverrideEnv": "AKAMAI_DEPARTURE / AKAMAI_ARRIVAL",
-    "spiderBaseLesson20260723": "conda spider_base curl_cffi 0.13.0 rejects chrome146; use chrome136 and treat empty same-day itinerary as inventory"
+    "transportLesson": "A lower Chrome TLS/UA override changed chkSaleRoute from 200 to 403 on the same exit; preserve the verified current tuple."
   },
   "preRead": [
     {
@@ -131,7 +131,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "50e532c449441387a0402f41b318de90dbea82f5cd07fdea487e90552f9fad18"
+      "sha256": "55f40dafc835767e5475927422edc9200f6b9bc747eb6f093785879b12f52402"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -149,6 +149,10 @@
       {
         "path": "fixtures/offline-proof.summary.json",
         "sha256": "389afb50192b78bc487bf75349e1fb1600242d388cbbb6b0b47ec7dab9b547a8"
+      },
+      {
+        "path": "LIVE_DELIVERY.md",
+        "sha256": "4999903c9826bd48e89a5e2ac3a376255f2763f049c16bb17dd05211f81e81af"
       }
     ],
     "entry": {
@@ -159,7 +163,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-30T20:11:59+08:00",
+    "executedAt": "2026-08-23T15:26:01+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -175,6 +179,12 @@
       "caseLocalTests": "python -m unittest discover -s tests -v",
       "currentEntrySha256": "08db55ced9f4a94f0ea8b43d3a75935c568dad2a9919c102d9d4ae125e4d8179",
       "currentTestArtifactSha256": "3983aee528af765f3ace8a718769b1c76e05fe7fb917634c08b1224a96aed728",
+      "currentLiveAcceptance": {
+        "classification": "current-source-live-acceptance",
+        "executedAt": "2026-08-23T15:26:01+08:00",
+        "currentAcceptance": true,
+        "summary": "chooseItinerary 200, layerAvailabilityList 200, five parsed flights, repeated date verification passed"
+      },
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-07-23",

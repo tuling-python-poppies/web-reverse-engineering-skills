@@ -980,7 +980,7 @@
                     "scheme": "https",
                     "host": "www.twayair.com",
                     "port": 443,
-                    "routePrefix": "/espO2PwrZm"
+                    "routePrefix": "/"
                 },
                 {
                     "scheme": "https",
@@ -996,7 +996,7 @@
                 },
                 {
                     "scheme": "https",
-                    "host": "csnf.twayair.com",
+                    "host": "csnf.trinityairways.com",
                     "port": 443,
                     "routePrefix": "/ts.wseq"
                 }
@@ -1006,7 +1006,7 @@
                     "vendor:akamai",
                     "cookie:bm_s",
                     "cookie:ak_bmsc",
-                    "path:espO2PwrZm-collector",
+                    "path:random-collector",
                     "queue:netfunnel",
                     "site:twayair"
                 ],
@@ -1042,7 +1042,7 @@
             ],
             "manifest": {
                 "path": "iv8/twayair-akamai-availability/case.json",
-                "sha256": "9c9c3a9c12d1b96e72e4fef23a5d8b79d787ace2d9fe7187645d7541c3405045"
+                "sha256": "f476e6d3ede0f1621d5dcffcbcb8c8d1bfe1ba1b53a99dc74ea0fcdab64dd650"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

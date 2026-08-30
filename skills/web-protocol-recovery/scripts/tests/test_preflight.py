@@ -21,6 +21,13 @@ assert VERIFY_SPEC is not None
 verify_case_hashes = importlib.util.module_from_spec(VERIFY_SPEC)
 assert VERIFY_SPEC.loader is not None
 VERIFY_SPEC.loader.exec_module(verify_case_hashes)
+ARCH_SPEC = importlib.util.spec_from_file_location(
+    "validate_architecture", GATES_DIR / "validate_architecture.py"
+)
+assert ARCH_SPEC is not None
+validate_architecture = importlib.util.module_from_spec(ARCH_SPEC)
+assert ARCH_SPEC.loader is not None
+ARCH_SPEC.loader.exec_module(validate_architecture)
 
 
 class EntryDisciplineScanTests(unittest.TestCase):
@@ -421,6 +428,23 @@ class CommitBodyPolicyTests(unittest.TestCase):
                 "skills/web-protocol-recovery",
             )
         )
+
+    def test_gitignored_generated_residue_is_ignored(self) -> None:
+        path = (
+            preflight.SKILL_ROOT
+            / "references"
+            / "cases"
+            / "iv8"
+            / "demo"
+            / "__pycache__"
+            / "entry.pyc"
+        )
+        self.assertTrue(validate_architecture.is_ignored_by_git(path))
+
+    def test_historical_commit_body_check_is_skipped_without_ref(self) -> None:
+        ok, message = preflight.check_commit_body_policy()
+        self.assertTrue(ok)
+        self.assertIn("historical", message)
 
     def test_registry_selection_diff_requires_body(self) -> None:
         self.assertTrue(preflight.diff_touches_case_selection('+    "minimumIndependentSignals": 3'))

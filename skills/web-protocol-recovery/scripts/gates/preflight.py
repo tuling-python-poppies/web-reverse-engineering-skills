@@ -269,7 +269,9 @@ def high_impact_commit_paths(paths: Sequence[str], skill_prefix: str) -> list[st
     return [path for path in paths if is_hash_bound_case_path(path, skill_prefix)]
 
 
-def check_commit_body_policy() -> tuple[bool, str]:
+def check_commit_body_policy(commit_ref: str | None = None) -> tuple[bool, str]:
+    if not commit_ref:
+        return True, "SKIP historical commit-body policy; pass --commit-body-ref to inspect a selected commit"
     skill_prefix = git_skill_prefix()
     if skill_prefix is None:
         return True, "SKIP not inside a Git worktree"
@@ -280,7 +282,7 @@ def check_commit_body_policy() -> tuple[bool, str]:
         "--no-commit-id",
         "--name-only",
         "-r",
-        "HEAD",
+        commit_ref,
     ])
     if code != 0:
         return True, "SKIP cannot inspect HEAD changed paths"
@@ -289,14 +291,14 @@ def check_commit_body_policy() -> tuple[bool, str]:
 
     registry_paths = [path for path in paths if is_registry_path(path, skill_prefix)]
     for registry_path in registry_paths:
-        code, diff_out = run_git(["show", "--format=", "--unified=0", "HEAD", "--", registry_path])
+        code, diff_out = run_git(["show", "--format=", "--unified=0", commit_ref, "--", registry_path])
         if code == 0 and diff_touches_case_selection(diff_out):
             requiring_body.append(registry_path)
 
     if not requiring_body:
         return True, "PASS no high-impact case commit body requirement"
 
-    code, message = run_git(["show", "-s", "--format=%B", "HEAD"])
+    code, message = run_git(["show", "-s", "--format=%B", commit_ref])
     if code != 0:
         return False, "FAIL cannot inspect HEAD commit message"
     if not has_commit_body(message):
@@ -784,6 +786,10 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="skip discovered case unit tests; preflight's own unit tests still run",
     )
+    parser.add_argument(
+        "--commit-body-ref",
+        help="check the commit body for this explicit ref; historical commits are skipped by default",
+    )
     args = parser.parse_args(argv)
 
     failures: list[str] = []
@@ -863,7 +869,7 @@ def main(argv: list[str] | None = None) -> int:
         failures.append("provider guard contracts failed")
 
     print("\n== commit body policy ==")
-    ok, out = check_commit_body_policy()
+    ok, out = check_commit_body_policy(args.commit_body_ref)
     print(out)
     if not ok:
         failures.append("commit body policy failed")

@@ -835,11 +835,39 @@ def line_ending_findings(extra_paths: tuple[Path, ...] = ()) -> list[str]:
 def residue_findings() -> list[str]:
     findings: list[str] = []
     for path in SKILL_ROOT.rglob("*"):
+        if is_ignored_by_git(path):
+            continue
         if path.name in RESIDUE_NAMES:
             findings.append(f"residue directory present: {rel(path)}")
         elif path.is_file() and path.suffix.lower() in RESIDUE_SUFFIXES:
             findings.append(f"residue file present: {rel(path)}")
     return findings
+
+
+def is_ignored_by_git(path: Path) -> bool:
+    """Ignore generated residue only when the repository already ignores it.
+
+    Tracked or unignored residue remains a hard failure; test-generated
+    ``__pycache__`` and ``.pyc`` files do not make a clean skill fail.
+    """
+    try:
+        repo = Path(
+            subprocess.check_output(
+                ["git", "rev-parse", "--show-toplevel"],
+                cwd=SKILL_ROOT,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            ).strip()
+        )
+        relative = path.resolve().relative_to(repo.resolve())
+        return subprocess.run(
+            ["git", "check-ignore", "--quiet", "--no-index", "--", str(relative)],
+            cwd=repo,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).returncode == 0
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        return False
 
 
 def _python_http_call_lines(path: Path) -> list[int]:

@@ -154,11 +154,14 @@ td_sign = HMAC-SHA256(
 当当前 bundle 需要浏览器式运行时，使用 `route: iv8`：
 
 1. API gate 记录实际 iv8 版本、`JSContext` 成员和离线成员探针。
-2. work-order 必须绑定当前 bundle SHA-256、adapter SHA-256、有效 approval、执行期限和能力隔离说明。
+2. work-order 必须绑定当前 bundle SHA-256、adapter SHA-256、ISO-8601 未过期 approval deadline、执行期限和能力隔离说明；`task` 等无期限哨兵不能替代 deadline。
 3. iv8 只读取同轮 bundle，生成 `w` 或其他明确窄工件。
-4. iv8 不提供 HTTP、WebSocket、文件系统或 cookie 持久化桥。
-5. Python 负责 `/load`、图片/GCT 资源、账本、`/verify` 和最终响应判断。
-6. bundle 模块 ID 只是当前证据；使用导出特征和 hash 绑定，不能把单个模块 ID 当作长期 API。
+4. adapter 必须同时确认 webpack registry 存在且目标导出为 callable；模块编号（例如 `32`）仍只在当前 bundle hash 范围内有效。
+5. iv8 不提供 HTTP、WebSocket、文件系统或 cookie 持久化桥。
+6. Python 负责 `/load`、图片/GCT 资源、账本、`/verify` 和最终响应判断；响应 body 读取必须受 work-order byte cap 约束。
+7. bundle 模块 ID 只是当前证据；使用导出特征和 hash 绑定，不能把单个模块 ID 当作长期 API。
+
+已批准且使用 `standing-verifier-submit` 的默认 work-order 可以由项目入口直接运行；自定义 work-order 必须显式传入 `--confirm-live-verify`。这只区分 work-order 选择，不绕过 hash、deadline、scope、ledger 或 verifier acceptance 校验。
 
 如果没有可验证的能力隔离 adapter，停止在静态证据或纯 Python 路径；不要用 `node:vm`、自报 sandbox 标签或任意命令替代隔离证明。
 

@@ -33,11 +33,12 @@ but it must not perform `/load`, image/GCT downloads, `/verify`, WebSocket
 traffic, cookie persistence, or filesystem access through JavaScript. Python
 fetches the same-round inputs and owns the final verifier request.
 
-The work order must bind the exact bundle SHA-256, adapter SHA-256, approval
-deadline, and a capability-denied adapter identity. The adapter must fail closed
-when the bundle hash or required export feature changes. A module number such as
-`require(32)` is current evidence only; use export-feature checks and refresh the
-binding after a bundle change.
+The work order must bind the exact bundle SHA-256, adapter SHA-256, an
+ISO-8601 approval deadline, and a capability-denied adapter identity. The
+adapter must fail closed when the bundle hash or required export feature
+changes. A module number such as `require(32)` is current evidence only: also
+check that the registry exists and that the approved module's export is
+callable, then refresh the binding after a bundle change.
 
 GT4 `td`, `td_sign`, coordinate mapping, OCR candidates, and `w` payload
 assembly remain owned by the verifier workflow. iv8 should receive an already

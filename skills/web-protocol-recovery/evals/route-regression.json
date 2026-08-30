@@ -49,6 +49,18 @@
       }
     },
     {
+      "id": "gt4-word-click-verifier",
+      "prompt": "实现 Geetest GT4 文字点选 browser-free collector。/load 使用 risk_type=word，响应包含 captcha_type=word、imgs 和 ques；需要识别目标文字、转换点击坐标、用 iv8 生成 w，并由 Python 提交 /verify。",
+      "expect": {
+        "shape": "collector",
+        "route": "verifier",
+        "gateFamily": "verifier",
+        "familyReference": "geetest-gt4-word-workflow.md",
+        "implementation": "iv8",
+        "deliveryProvider": "python-collector"
+      }
+    },
+    {
       "id": "reese84-protocol-owner",
       "prompt": "A capture has a reese84 cookie, matching x-d-token, initializeProtection challenge script, and a solution response with token, renewInSec, and cookieDomain; prove the challenge state before Python replay.",
       "expect": {

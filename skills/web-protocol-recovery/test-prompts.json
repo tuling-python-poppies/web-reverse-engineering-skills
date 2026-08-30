@@ -42,6 +42,16 @@
   {
     "id": "offline-fixed-vector-proof",
     "prompt": "我有固定请求样本、JS 文件和 expected sign，只要离线验证 signer 是否能复现，不允许联网，不允许浏览器。",
-    "expected": "触发 web-protocol-recovery；shape=local-proof；route=evidence-reuse 或最小实现 Provider；只跑固定向量和离线 proof，记录 acceptanceTest/result；不做 live replay、不启动浏览器、不升级 collector。"
+      "expected": "触发 web-protocol-recovery；shape=local-proof；route=evidence-reuse 或最小实现 Provider；只跑固定向量和离线 proof，记录 acceptanceTest/result；不做 live replay、不启动浏览器、不升级 collector。"
+  },
+  {
+    "id": "gt4-word-click-collector",
+    "prompt": "实现 Geetest GT4 文字点选 browser-free collector。请求是 risk_type=word，响应有 captcha_type=word、imgs 和 ques；使用 iv8 生成 w，最终由 Python 调用 /verify。",
+    "expected": "触发 shape=collector、route=verifier；读取 geetest-gt4-word-workflow.md；识别透明 ques、候选文字和 0..10000 坐标 wire shape；iv8 只生成 w，Python 负责最终 /verify。"
+  },
+  {
+    "id": "gt4-word-not-nine-grid",
+    "prompt": "Geetest GT4 /load 返回 risk_type=word、captcha_type=word、imgs 和 ques，不包含 nine_nums。请不要把它按九宫格 row/column 或滑块 gap_x 处理。",
+    "expected": "触发 verifier 的 GT4 word-click reference；明确拒绝九宫格和滑块映射，使用文字点选坐标和当前 bundle 证据。"
   }
 ]

@@ -1,6 +1,6 @@
 # Geetest GT4 Active Workflow
 
-用于 Geetest GT4 滑块协议恢复：`/load -> image pair -> proof fields -> w/td -> /verify`。
+用于 Geetest GT4 滑块协议恢复：`/load -> image pair -> proof fields -> w/td -> /verify`。文字点选请使用同目录的 `geetest-gt4-word-workflow.md`；本文件的 `bg/slice`、缺口坐标、`td` 和 `td_sign` 规则不得直接套用于 `risk_type=word`。
 本文件描述当前协议边界和可验证的适配器，不把单一站点布局参数提升为通用 GT4 规则。
 
 ## Select When
@@ -11,6 +11,8 @@
 - `captcha_type=slide` 或请求 `risk_type=slide`。
 - `/verify` 使用同轮 `lot_number`、`payload`、`process_token` 和动态 `w`。
 - 当前 bundle 能定位到滑块提交和加密导出。
+
+不要选择本流程处理 `risk_type=word` 或 `captcha_type=word` 的 `imgs/ques` 文字点选响应。
 
 只有通用图片识别、缺口检测或浏览器 UI 自动化时，不选择本流程。
 

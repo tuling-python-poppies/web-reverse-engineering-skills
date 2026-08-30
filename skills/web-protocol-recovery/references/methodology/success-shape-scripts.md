@@ -1,6 +1,6 @@
 # Default Scripts By Success Shape
 
-Use these as the first path. Escalate only after naming a concrete blocker. Under standing approval (SKILL Non-Negotiables item 7), routine protocol actions inside the selected shape run without pausing the user: browser recon, read-only live egress, redacted project writes, user-supplied session use, protocol-needed verifier submit, and scale inside the immutable budget. Record routine fields internally. Use `nextAsk` only for execution hard stops or scope/governance decisions.
+Use these as the first path. Escalate only after naming a concrete blocker. Under standing approval (SKILL Non-Negotiables item 7), routine protocol actions inside the selected shape run without pausing the user: browser recon, read-only live egress, redacted project writes, user-supplied session use, protocol-needed verifier submit, and scale inside the immutable budget. When no budget is supplied, record an immutable `requestBudget` of `total=100` and `remaining=100`; do not ask the user for this routine value. Record routine fields internally. Use `nextAsk` only for execution hard stops or scope/governance decisions.
 
 ## Shared First Response
 
@@ -19,7 +19,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## evidence
 
-1. Ask only for missing request/source/trigger context (URL, sample, field name). An explicit protocol-recovery request naming a URL authorizes bounded recon unless it also says offline/no-browser; a bare URL with no recovery intent does not. Before fresh Chrome recon, **auto-record** exact scope, browser flags, one positive immutable navigation budget, and prior cumulative `observedAutomatic`. Boolean gates use JSON `true`/`false` only (never `yes`/`no`).
+1. Ask only for missing request/source/trigger context (URL, sample, field name). An explicit protocol-recovery request naming a URL authorizes bounded recon unless it also says offline/no-browser; a bare URL with no recovery intent does not. Before fresh Chrome recon, **auto-record** exact scope, browser flags, a positive immutable navigation budget (default task budget `total=100` when none was supplied), and prior cumulative `observedAutomatic`. Boolean gates use JSON `true`/`false` only (never `yes`/`no`).
 2. Prefer supplied artifacts. Otherwise read the WeChat provider for miniapp signals, the Camoufox provider for an explicit Camoufox/SpiderMonkey request, or Chromium for ordinary Web — then launch recon.
 3. Read-only evidence fast path: when supplied text/files, registry metadata, or a static question is enough and no browser/live/write is needed yet, keep `route: evidence-reuse`, inspect only supplied/bounded references, and do not ask for `projectRoot`, write mode, live replay approval, request budget, artifact retention, or full authorization.
 4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
@@ -39,7 +39,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## compact-replay
 
-1. Record Phase 0 work-order fields under standing approval; resolve cwd to the absolute `projectRoot` before writes.
+1. Record Phase 0 work-order fields under standing approval; when the user gave no budget, use immutable `requestBudget.total=100` and `requestBudget.remaining=100`; resolve cwd to the absolute `projectRoot` before writes.
 2. Ordinary Web first response must include:
    ```text
    layout: web-protocol-recovery-simple
@@ -52,7 +52,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 
 ## collector
 
-1. Record work-order fields and resolve cwd to an absolute `projectRoot` before any write (no full intake form).
+1. Record work-order fields and resolve cwd to an absolute `projectRoot` before any write (no full intake form). If no budget was supplied, use immutable `requestBudget.total=100` and `requestBudget.remaining=100` without asking.
 2. Same ordinary-Web first-response literals as compact-replay.
 3. Prove real endpoint and moving state before scaffolding.
 4. Read `references/providers/delivery/python-collector/PROVIDER.md` only after protocol proof.

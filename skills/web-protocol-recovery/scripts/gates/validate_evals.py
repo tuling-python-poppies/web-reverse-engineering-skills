@@ -20,6 +20,7 @@ REQUIRED_CASE_IDS = {
     "jd-h5st-pure-python-case",
     "node-env-patch-strategy",
     "gt4-verifier-owner",
+    "gt4-word-click-verifier",
     "proved-protocol-python-delivery",
 }
 REQUIRED_CASE_EXPECTATIONS = {
@@ -34,6 +35,10 @@ REQUIRED_CASE_EXPECTATIONS = {
     "aliyun-v3-verifier-family": {
         "route": "verifier",
         "familyReference": "aliyun-captcha-v3-workflow.md",
+    },
+    "gt4-word-click-verifier": {
+        "route": "verifier",
+        "familyReference": "geetest-gt4-word-workflow.md",
     },
 }
 OBSOLETE_ROUTES = {"env-patch", "douyin-abogus-native"}

@@ -1,328 +1,197 @@
-# Geetest GT4 Workflow
+# Geetest GT4 Active Workflow
 
-用于极验 GT4 滑块 `/load -> 图片识别 -> pow -> w -> /verify` 的纯协议复现，以及客户端 bundle 更新后从连续 `forbidden` 中恢复。
+用于 Geetest GT4 滑块协议恢复：`/load -> image pair -> proof fields -> w/td -> /verify`。
+本文件描述当前协议边界和可验证的适配器，不把单一站点布局参数提升为通用 GT4 规则。
 
-## 识别信号
+## Select When
+
+选择本流程需要同时看到以下证据：
 
 - `/load` 返回 `lot_number`、`pow_detail`、`payload`、`process_token`、`payload_protocol`、`pt`、`bg`、`slice`。
-- `/verify` 使用同轮 `lot_number/payload/process_token` 和动态 `w`。
-- `wPayload` 常见字段包含 `setLeft`、`passtime`、`userresponse`、`pow_msg`、`pow_sign`、`gee_guard`、`em` 和由 bundle 注入的动态字段。
+- `captcha_type=slide` 或请求 `risk_type=slide`。
+- `/verify` 使用同轮 `lot_number`、`payload`、`process_token` 和动态 `w`。
+- 当前 bundle 能定位到滑块提交和加密导出。
 
-## 标准流程
+只有通用图片识别、缺口检测或浏览器 UI 自动化时，不选择本流程。
 
-1. 请求 `/load`，保存完整 JSONP 响应、Cookie 和图片地址。
-2. 下载 `slice/bg`，校验真实图片后用 `ddddocr.slide_match(..., simple_target=True)` 得到原图缺口 `gap_x`，不要直接把它当成 `setLeft`。
-3. 按 `pow_detail` 生成 `pow_msg/pow_sign`；当前格式是 `version|bits|hashfunc|datetime|captcha_id|lot_number||nonce`，其中 `lot_number` 和 `pow_detail` 必须来自本轮 `/load`。
-4. 把原图坐标映射为页面提交坐标，再计算 `userresponse`。当前 300px 背景图验证公式为 `scale = 0.8876 * min(bg_width, 340) / bg_width`、`setLeft = round((gap_x - 2) * scale)`、`userresponse = setLeft / scale + 2`。
-5. 从本轮 `gct_path` 原始源码计算 `biht`，并生成 `gee_guard`、`em`；不要把格式化后的 GCT 当作原始输入。
-6. 组装当前 bundle 要求的 `wPayload`。
-7. 对 `pt=1`，常见 `w` 是 `AES-CBC-PKCS7(compact_json, random16, iv='0000000000000000') + RSA-PKCS1-v1_5(random16)` 的 hex 拼接。这里的 `random16` 是 16 字节 ASCII hex 字符串，例如 `secrets.token_hex(8)`。
-8. 用同轮外层参数请求 `/verify`，仅当 `status == "success"` 且 `data.result == "success"` 时算通过。
+## Evidence Contract
 
-## 有 Bundle 时的快速路径
+冻结一轮完整状态：
 
-用户同时给出当前 `gcaptcha4.js`/`1.js` 和请求样本时，优先走下面的浏览器无关路径。已经有源码时不要先启动浏览器、做全量 AST 解混淆或手写 AES/RSA：
+1. `/load` JSONP、同轮图片、`gct_path`、`static_path`、bundle 版本和 cookie 状态。
+2. 图片原始宽高、OCR 两种模式的结果、候选置信度和坐标适配方式。
+3. `wPayload` 的字段名、值类型、插入顺序和最终删除/追加动作。
+4. `/verify` 的完整查询键集合和语义响应。
 
-1. 先尝试最小首轮 `/load`：只传动态 JSONP `callback`、`captcha_id`、`client_type=web`、`risk_type=slide`、`pt=1`、`lang=zho`。很多公开 GT4 配置不要求预先提供 `lot_number/payload/process_token`。
-2. 如果样本中的 `/load` 请求已经带 `lot_number/payload/process_token`，先区分请求输入和响应输出。后续 `/verify` 应使用 `/load` 响应返回的新值；两阶段 token 不同通常是正常刷新，不是断轮。
-3. 离线暴露 webpack require，只执行 PoW 和 `w` 模块；同时从源码运行时读取 `_lib`、`lib._abo`。不要执行入口 UI 模块。执行当前 bundle/GCT 前必须满足 `executionPolicy` 的 reviewed hash 和能力隔离 runner；`node:vm` 本身不是安全沙箱，缺少外部能力隔离时停在静态证据或改走纯 Python 路径。
-4. 下载同轮图片并识别坐标，从原图坐标映射到 `setLeft/userresponse`。
-5. 下载并原样执行本轮 GCT，读取其写入的 `biht`。当前 GCT 写入的是十进制字符串，不要强制转成整数。
-6. 组装 `wPayload`，调用 bundle 的 `w` 模块，真实等待 `passtime` 后提交同轮 `/verify`。
-7. 连续创建三轮新 challenge 验证，不能在同一个失败 lot 上扫描大量坐标。
+不同 `lot_number`、图片、GCT、bundle、轨迹、cookie 或 `process_token` 不得拼接。
 
-## 文字点选 / iv8 UI Bundle 路径
+## Request Chain
 
-用于 `risk_type=word`、`captcha_type=word`、`imgs/ques` 文字点选，或现有 iv8 落地代码报错/语义失败的场景。`verify_has_w=true` 但 `data.result=fail` 说明当前 answer、坐标映射或 bundle 提交入口不可信，不是成功。
-
-先做当前版本证据，不要直接沿用旧入口：
-
-1. 记录同轮 `/load`、`gct_path`、`static_path/js`、提示图和背景图；缓存路径仍在 `js_reverse_cache/**`。
-2. 用浏览器或缓存脚本确认当前 `gcaptcha4.js` 版本和 URL。Chrome profile 忙时，只有在用户批准指纹浏览器替代后才用 Camoufox/Cloak；记录 engine provenance，结束后关闭浏览器。
-3. 在 raw `gcaptcha4.js` 中搜索 `userresponse`、`uploadExtraData`、`getValidate`、`$_BED`、`$_BBFB`、`$_BBFs`、`$_BEP`，先定位当前提交链路，再改 iv8 代码。
-4. 不要写死 `window.__gtRequire(17)` 或假设 `default.$_BEP(...).$_BBFs(...)` 长期存在。2026-07 `v1.9.6-1db46d` 的文字点选证据显示公开 `captchaObj` 只是 wrapper，真实实例需通过 registry `$_BED(id)` 获取，提交方法为内部实例 `$_BBFB(answer, callback, true)`；旧 `$_BEP/$_BBFs` 路径会报 TypeError 或找不到 submitter。
-5. OCR/CV 只解决 prompt 和点击坐标。若 `w` 能生成但 `result=fail`，先复查文字顺序、候选框中心、坐标归一化、answer shape 和真实提交入口，不要在同一个 lot 上批量试点。
-6. 本地日志默认只打印摘要：prompt、match method、`verify_has_w`、`status`、`data.result`、`fail_count`、`score`、`requests_used`。`pass_token`、`captcha_output`、`payload`、完整 `w` 只能在用户明确需要调试时输出，最终回复必须脱敏。
-
-文字点选验收：`status == "success"`、`data.result == "success"`、`fail_count == 0`，并记录 prompt 文本、匹配方式、请求数、当前 bundle 版本和浏览器生命周期。非空 `w`、HTTP `200`、outer `status=success` 或单次过期 cookie 都不是成功。
-
-### Python 3.9 / PyCharm 静态检查
-
-极验落地代码若包含 PIL、NumPy、OpenCV、`ddddocr`，优先使用 Python 3.9 兼容的类型写法，避免为消除 IDE 警告引入新版语法或运行时依赖：
-
-```python
-from typing import Any, cast
-
-def image_to_array(image: Image.Image) -> np.ndarray:
-    return np.asarray(cast(Any, image), dtype=np.uint8)
-```
-
-常见修复模式：
-
-1. PIL 图像转 ndarray：用 `np.asarray(cast(Any, image), dtype=np.uint8)`，不要直接把 `Image.Image` 交给类型检查器推断。
-2. PyCharm 报 `ndarray.max/min` 未解析：可写成 `np.max(rgb, axis=2)` / `np.min(rgb, axis=2)`。
-3. PyCharm 报 `ndarray.astype` 未解析：可把 `np.where(...).astype(np.uint8)` 改成 `np.asarray(np.where(...), dtype=np.uint8)`。
-4. `Image.fromarray` 期望 `SupportsArrayInterface`：使用 `Image.fromarray(cast(Image.SupportsArrayInterface, array_value))`。
-5. 保持 Python 3.9 兼容：避免 `A | B`、`typing.Self`、依赖新版 `numpy.typing` 语法才能通过检查的写法；必要时用 `typing.Optional`、`typing.Union`、`typing.cast`。
-
-这些规则只用于落地代码静态检查。不要因为 IDE warning 而改变验证码协议字段、坐标语义、请求时序或 verifier 成功标准。
-
-可直接复用：
-
-- `references/providers/implementation/python-node/scripts/gt4_bundle_helper.js`：读取当前 bundle，动态提取元数据、PoW、GCT 和 `w`；只接收 Python 传入的 `gctSource` 或 `biht`，不直接下载目标资源。
-- `references/providers/delivery/python-collector/scripts/verifier/gt4_replay.py`：保留给经审计 adapter 集成的 target-JS 模板。当前 skill 未捆绑可验证的能力隔离 adapter，因此它在任何 `/load` 前 fail closed；不能用 work order 声明的命令、`node:vm` 或自报 sandbox 标签代替隔离。
-- `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`：不执行 JavaScript 的纯 Python `/load -> OCR -> PoW/GCT/AES/RSA -> sleep -> /verify` delivery 模板。
-
-纯 Python 模板运行时，work order 必须包含 `authorization.actionClass=verifier-submit`、`liveReplayAllowed=true`、`artifactPolicy.rawSecretHandling=confirmed`、至少 5 个剩余请求预算单位、`budgetLedgerId=sha256(workOrderId)` 与规范 `ledgerPath`，并授权 `gcaptcha4.geetest.com/load`、`gcaptcha4.geetest.com/verify` 与 `static.geetest.com/` scope。账本在每次 live request 前持久化预留预算，并在实际 prepared request 前取得跨进程 lease；它同时执行 `minDelayMs` 与 `concurrency`，失败请求不退款。三轮验证需要在同一账本中预留至少 15 个单位。Node 模板除 reviewed bundle/helper/GCT hash 外还需要真正可验证的能力隔离 adapter；当前没有，因此不运行。
-
-```bash
-python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py \
-  --captcha-id <captcha_id> \
-  --bundle <当前 gcaptcha4.js> \
-  --work-order <validated-provider-work-order-v2.json> \
-  --confirm-live-verify
-```
-
-## 纯 Python 极速路径
-
-用户明确要求“纯 Python / 纯算”且已提供当前 bundle 时，按下面顺序执行，避免先做一轮 Node/vm 再返工：
-
-1. 先在工作区搜索 `gt4_pure.py`、`gt4_protocol.py`、`RSA_N_HEX`、`PKCS1_v1_5`。已有实现只作为算法和公钥来源，必须用当前 bundle 与新 challenge 重新验证。
-2. 直接复制或改造 `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`，依赖仅为 `requests`、`ddddocr`、`Pillow`、`pycryptodome`。运行路径不得导入 `subprocess`，不得调用 Node、iv8、ExecJS、jsdom 或浏览器。
-3. 用完整 bundle 文本解出顶部 XOR 字符串表，再解析 `_lib/lib._abo` 初始化段。大字符串表可能占据源码前数十万字符，不要用 `source[:20000]` 查元数据；先定位明文 `n[...]` lot rule，再向前截取小窗口查 `_lib` 对象。
-4. Python 的 `decodeURI` 兼容实现必须保留 URI reserved 字符的 `%XX` 形式；不能无条件使用 `urllib.parse.unquote()`，否则 XOR 输入长度可能变化，导致后半段字符串表错位。
-5. PoW 明文固定核对为 `version|bits|hashfunc|datetime|captcha_id|lot_number||nonce`。当前 bundle 调 PoW 模块的最后一个参数是空字符串，不能误传 `/load` 返回的长 `payload`。
-6. 下载同轮原始 GCT，以 `=5381;` 定位哈希函数：向前找最近的 `function ` 并按花括号提取完整函数，再取紧随其后的 guard 函数。按 JavaScript int32、UTF-16 code unit 和 `Function.prototype.toString()` 原文语义计算 `biht`；不要要求 `var e=5381` 紧跟函数左花括号。
-7. 图片识别后必须应用当前坐标映射公式；不要把 `gap_x` 直接作为 `setLeft`。`ddddocr` 返回 `target_x=0` 时优先取有效的 `target[0]`。
-8. 生成轨迹并按轨迹时间真实等待，但不要擅自把逐点轨迹加入 `wPayload`。当前滑块组件提交的是 `setLeft/passtime/userresponse`，轨迹用于时序证据和本地归档。
-9. 用 Python 生成随机 16 字节 ASCII hex AES key，执行 AES-CBC-PKCS7；再用已验证 GT4 公钥做 RSA-PKCS1-v1_5，拼接两个 hex。RSA modulus 无法从当前字符串表稳定提取时，允许使用模板中的已验证公钥，但必须通过新 `/verify` 确认未轮换。
-10. 首轮成功后再并行跑两轮新 lot。三轮均检查 `status == "success"`、`data.result == "success"`、`fail_count == 0`；不要以固定 `w` 长度作为正确性证据。
-
-最短命令：
-
-```bash
-python <skill-root>/references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py \
-  --captcha-id <captcha_id> \
-  --bundle <当前 gcaptcha4.js> \
-  --work-order <validated-provider-work-order-v2.json> \
-  --confirm-live-verify
-```
-
-## Bundle 更新故障判定
-
-出现以下组合时，优先判断为客户端 bundle 元数据轮换，而不是依赖、OCR 或网络问题：
-
-- `/load` 成功，图片可识别。
-- PoW 和 `w` 均能生成，`/verify` HTTP/JSONP 正常。
-- 外层 `status` 是 `success`，但 `data.result` 连续为 `forbidden`，通常 `fail_count == 0`。
-- 更换距离后仍稳定 `forbidden`。
-
-如果用户已经提供最新 bundle，不必先启动浏览器。先离线对比旧、新 bundle 顶部预置字段和 webpack 模块结构。
-
-## 动态字段来源
-
-GT4 bundle 顶部会在进入主模块前写入两组元数据：
-
-- `window._lib`：直接并入 `wPayload` 的固定字段，但字段名和值会随 bundle 轮换。
-- `window.lib._abo`：根据 `lot_number` 生成附加字段的表达式映射。
-
-已验证轮换样本（只能作版本证据，禁止写死）：
+首轮 `/load` 只发送当前目标授权的最小查询参数。当前 GT4 Web Demo 的已验证形态为：
 
 ```text
-更早 fixedFields: {"ZAhG":"MwHu"}
-2026-07 中期 fixedFields: {"jCpk":"yZ7D"}
-2026-07-23 fixedFields: {"YYhg":"BjI0"}  # static v1.9.6-1db46d
-
-更早 lot rule:
-  (n[17:18]+n[9:10])+.+(n[16:19])+.+(n[23:30]) -> n[10:15]
-2026-07 中期 lot rule:
-  n[20:20]+n[8:8]+n[11:11]+n[30:30] -> n[16:21]
-2026-07-23 lot rule:
-  n[1:4] -> n[24:27]
+callback=<dynamic>
+captcha_id=<configured>
+client_type=web
+risk_type=slide
+pt=1
+lang=zh
 ```
 
-这些值只能作为版本样本，不应继续写死在 Node/vm 实现中。加载当前 bundle 后直接读取 `_lib` 和 `lib._abo`。纯 Python 从当前 `code.js` 文本解析同一组字段。
+如果当前 `/load` 响应或真实请求证明需要 `challenge` 或其他字段，按当前轮证据加入；不得从其他产品或版本推断。
 
-## 稳健暴露 Webpack Require
+`/verify` 使用同一轮的：
 
-旧提取脚本把入口表达式中的字符串表索引写死为 `(20)`；新版索引变为 `(51)` 后，替换不再命中。应匹配整个 `i(i[...]=16)` 结构：
+```text
+callback, captcha_id, client_type, lot_number, risk_type,
+payload, process_token, payload_protocol, pt, w, td
+```
 
-```js
-function loadBundle(bundlePath) {
-  let code = fs.readFileSync(bundlePath, 'utf8');
-  code = code.replace(
-    /i\(i\[[^\]]+\]\s*=\s*16\)/,
-    '(globalThis.__req = i, {})'
-  );
+最终成功必须同时满足：
 
-  const ctx = { console, setTimeout, clearTimeout };
-  ctx.globalThis = ctx;
-  ctx.global = ctx;
-  ctx.self = ctx;
-  ctx.window = ctx;
-  ctx.navigator = {};
-  ctx.document = {};
-  vm.createContext(ctx);
-  vm.runInContext(code, ctx, { timeout: 10000, filename: bundlePath });
+```text
+status == "success"
+data.result == "success"
+data.fail_count == 0
+```
 
-  return {
-    req: ctx.__req,
-    fixedFields: ctx._lib || {},
-    lotRules: (ctx.lib && ctx.lib._abo) || {},
-  };
+HTTP 200、非空 `w`、外层 `status=success` 或固定 `w` 长度都不是成功。
+
+## Image Adapter
+
+`ddddocr` 的输出必须先归一化为“背景原始坐标中的缺口中心”：
+
+1. 优先执行 `simple_target=False`，兼容 `target=[center_x, center_y]` 和 `target=[x1,y1,x2,y2]`。
+2. 若结果异常、无有效框或置信度偏低，再执行 `simple_target=True`。
+3. 两个结果接近时取均值；差异较大时使用有效的 simple 候选，并把候选来源记录到本轮 metadata。
+4. 低置信度是候选状态，不是自动拒绝条件；最终授权来自新 challenge 的语义成功。
+
+当前 80px 拼块 Web Demo 的坐标适配为：
+
+```python
+set_left = round(gap_x - 44)
+userresponse = set_left + 1 + random.random()
+```
+
+`44` 是当前布局中缺口中心到滑块左边缘的偏移。它是目标/布局 adapter，必须用当前图片尺寸和至少一轮正向语义结果确认；不得作为所有 GT4 目标的通用公式。
+
+当前 Demo 不应默认使用以下推导替代上述 adapter：
+
+```python
+set_left = round((gap_x - 2) * scale)
+userresponse = set_left / scale + 2
+```
+
+该公式只在当前 bundle 明确证明其实际 client/natural 尺寸和提交分支时才可使用。
+
+## Behavior Sidecar
+
+当前滑块提交将行为轨迹放在 `/verify` 查询参数 `td`，而不是最终 `wPayload` 的 `new_track` 字段：
+
+```text
+td == new_track
+td = gzip(track_json) -> URL-safe Base64 without padding
+```
+
+当前 Web Demo 的轨迹 JSON 形态为：
+
+```json
+{
+  "m": 1,
+  "w": 300.03125,
+  "h": 261.53125,
+  "s": 0,
+  "e": 0,
+  "p": [[time, x_normalized, y_normalized, type]]
 }
 ```
 
-本次新旧 bundle 的模块数均为 61，已确认的 helper 为：
+已验证的当前 adapter 使用约 54 个点、独立的 `track_duration`、起点/移动/抖动/结束类型、停顿和小幅回撤。压缩边界为 raw deflate level 9，gzip header 使用当前 Unix 秒时间、OS=3，尾部包含 CRC32 和 ISIZE，再做 Base64URL 无 padding 编码。
 
-- `req(25).default(...)`：PoW。
-- `req(27).default.load({type: 'gt4'})`：`gee_guard`。
-- `req(31).default(compactJson, {options: {pt: '1'}})`：`w` 加密。
-- `req(60).default([], em)`：填充 `em`。
+`passtime` 和 `track_duration` 是两个独立字段。轨迹时间必须在发送 `/verify` 前真实等待，且 `td` 与 `td_sign` 必须由同一轮重新生成。
 
-当前 PoW 模块的实测参数顺序不能按字段名猜测：
+## Proof Fields
 
-```js
-const pow = req(25).default(
-  data.lot_number,
-  captchaId,
-  data.pow_detail.hashfunc,
-  data.pow_detail.version,
-  Number(data.pow_detail.bits),
-  data.pow_detail.datetime,
-  ''
-);
+### PoW
+
+当前 sha256 PoW 明文为：
+
+```text
+version|bits|hashfunc|datetime|captcha_id|lot_number||nonce
 ```
 
-当前 `gee_guard` 输出为 `{"roe":{"aup":"3","sep":"3","egp":"3","auh":"3","rew":"3","snh":"3","res":"3","cdc":"3"}}`，`em` 输出为 `{"ph":0,"cp":0,"ek":"11","wd":1,"nt":0,"si":0,"sc":0}`。这些模块编号和结果只是当前版本证据；后续升级仍应检查导出类型和函数特征，不能无条件假设。
+`pow_detail`、`lot_number`、`captcha_id` 必须来自同一轮。最后一个模块参数按当前 bundle 证据确定为空字符串，不得传入长 `payload`。
 
-## GCT 与 `biht`
+### GCT
 
-`/load` 返回的 `gct_path` 必须按本轮地址下载。GCT 会导出 `_gct`，对 `{geetest:'captcha', lang:'zh', ep:'123'}` 增加 `biht`。当前实测 `typeof payload.biht === 'string'`，值形如 `"1426265548"`；保留 GCT 写入的原始类型。
+按本轮 `gct_path` 读取原始源码。不要 beautify、格式化或改写后再计算 `biht`。从 `=5381;` 定位哈希函数和紧随其后的 guard 函数，保持 JavaScript int32、UTF-16 code unit 和原始函数文本语义。`biht` 的字符串类型必须保留。
 
-当前 GCT 的 `biht` 不是普通静态配置，而是对两个函数的 `Function.prototype.toString()` 原文做 5381 风格哈希后得到。格式化、beautify 或改写 GCT 会改变函数原文，从而生成不同的 `biht`；本次原始 minified GCT 计算结果是 `1426265548`，格式化副本曾计算出不同值。
+### Bundle Metadata
 
-纯 Python 路径可以不执行 GCT：从原始源码中提取包含 `var e=5381` 的哈希函数及紧随其后的 guard 函数，按 JavaScript `int32`、左移和 UTF-16 code unit 语义复现哈希。不要把 `1426265548` 长期写死为跨版本常量。
+从当前 bundle 运行时或纯文本解析得到：
 
-## 通用 Lot Rule 解析
+- `window._lib` 的固定字段。
+- `window.lib._abo` 的 lot-number 派生规则。
+- 当前加密导出、`gee_guard`、`em` 和轨迹打包器。
 
-规则中的 `n[a:b]` 是零基、包含末端的切片。`+` 表示字符串拼接，解析结果中的 `.` 表示嵌套对象路径。
+`n[a:b]` 是零基包含末端切片；`+` 表示拼接；`.` 表示嵌套对象路径。固定字段、lot rule、`gee_guard` 和 `em` 必须按当前 bundle 或当前正样本刷新，不得跨版本硬编码。
 
-```js
-function resolveLotExpression(expression, lotNumber) {
-  return expression
-    .replace(/n\[(\d+):(\d+)\]/g, (_, start, end) =>
-      lotNumber.slice(Number(start), Number(end) + 1)
-    )
-    .replace(/\+/g, '');
-}
+### td_sign
 
-function lotExtra(lotNumber, rules) {
-  const result = {};
-  for (const [keyExpression, valueExpression] of Object.entries(rules)) {
-    const path = resolveLotExpression(keyExpression, lotNumber).split('.');
-    const value = resolveLotExpression(valueExpression, lotNumber);
-    let target = result;
-    path.forEach((key, index) => {
-      if (index === path.length - 1) target[key] = value;
-      else target = target[key] || (target[key] = {});
-    });
-  }
-  return result;
-}
-```
-
-组装时使用：
-
-```js
-const wPayload = {
-  setLeft,
-  passtime,
-  userresponse,
-  device_id: '',
-  lot_number: data.lot_number,
-  pow_msg: pow.pow_msg,
-  pow_sign: pow.pow_sign,
-  geetest: 'captcha',
-  lang: 'zh',
-  ep: '123',
-  biht,
-  gee_guard,
-  ...fixedFields,
-  ...lotExtra(data.lot_number, lotRules),
-  em,
-};
-```
-
-## 纯 Python 路径
-
-纯 Python 不需要 iv8、Node、ExecJS 或浏览器环境。`code.js` 可以只作为文本数据源，不执行其中的 JavaScript：
-
-1. 提取顶部 `decodeURI(...)` 字符串和循环 XOR key，解出字符串表。
-2. 从 `_lib/lib._abo` 初始化段读取字段名、字符串表索引和 lot rule。
-3. 从字符串表选择当前 RSA modulus；找不到时才使用已验证公钥兜底。
-4. 从本轮原始 GCT 源码计算 `biht`。
-5. Python 生成 PoW、`gee_guard`、`em`、AES key、AES ciphertext 和 RSA encrypted key。
-
-实现时优先直接使用 `references/providers/delivery/python-collector/scripts/verifier/gt4_pure_replay.py`，下面内容用于理解和排错，不要每个目标重新手写一次。
-
-当前规则必须从 bundle 解析，不要手写。2026-07-23 样本对应：
+当前 bundle 的滑块签名规则为：
 
 ```python
-# fixedFields: {"YYhg": "BjI0"}
-# lotRules: {"n[1:4]": "n[24:27]"}  -> key=lot[1:5], value=lot[24:28]
-w_payload['YYhg'] = 'BjI0'
-w_payload[lot_number[1:5]] = lot_number[24:28]
+td_sign = HMAC-SHA256(
+    key=lot_number.encode("utf-8"),
+    message=td.encode("utf-8"),
+).hexdigest()
 ```
 
-当前图片识别要兼容 `ddddocr` 同时返回占位 `target_x=0` 和有效 `target=[x1,y1,x2,y2]` 的情况：
+`td_sign` 进入加密前的 `wPayload`；`td` 进入最终 `/verify` 查询。最终 `wPayload` 不保留已经删除的 `new_track` 字段。
 
-```python
-result = detector.slide_match(slice_bytes, bg_bytes, simple_target=True)
-target = result.get('target')
-gap_x = int(target[0]) if target and int(target[0]) > 0 else int(result['target_x'])
+## iv8 Artifact Boundary
+
+当当前 bundle 需要浏览器式运行时，使用 `route: iv8`：
+
+1. API gate 记录实际 iv8 版本、`JSContext` 成员和离线成员探针。
+2. work-order 必须绑定当前 bundle SHA-256、adapter SHA-256、有效 approval、执行期限和能力隔离说明。
+3. iv8 只读取同轮 bundle，生成 `w` 或其他明确窄工件。
+4. iv8 不提供 HTTP、WebSocket、文件系统或 cookie 持久化桥。
+5. Python 负责 `/load`、图片/GCT 资源、账本、`/verify` 和最终响应判断。
+6. bundle 模块 ID 只是当前证据；使用导出特征和 hash 绑定，不能把单个模块 ID 当作长期 API。
+
+如果没有可验证的能力隔离 adapter，停止在静态证据或纯 Python 路径；不要用 `node:vm`、自报 sandbox 标签或任意命令替代隔离证明。
+
+## w Assembly
+
+当前滑块 `wPayload` 至少需要验证以下字段：
+
+```text
+setLeft, passtime, userresponse, device_id, lot_number,
+pow_msg, pow_sign, geetest, lang, ep, biht,
+gee_guard, _lib fields, lot-rule fields, em, td_sign
 ```
 
-当前纯 Python `w` 核心：
+`td` 不重复放入 `wPayload`，除非当前 bundle 明确证明该版本需要重复字段。最终加密必须发生在所有动态字段完成之后。
 
-```python
-aes_key = secrets.token_hex(8).encode()
-compact = json.dumps(w_payload, ensure_ascii=False, separators=(',', ':')).encode()
-aes_hex = AES.new(aes_key, AES.MODE_CBC, iv=b'0000000000000000').encrypt(
-    pad(compact, AES.block_size)
-).hex()
-rsa_hex = PKCS1_v1_5.new(public_key).encrypt(aes_key).hex()
-w = aes_hex + rsa_hex
-```
+## Acceptance
 
-本次验证中 RSA 公钥、AES-CBC 方式、PoW 算法和 `userresponse` 生成方式未发生变化。仍需以服务端结果为准，不要仅凭静态 diff 宣称兼容。
+按以下顺序验收：
 
-## 高频排查
+1. 离线验证 PoW、GCT、lot rule、`td` 解码、`td_sign` HMAC 和 w 工件形状。
+2. 在新 `lot_number` 上执行至少三轮同一 collector 路径。
+3. 每轮确认 `status=success`、`data.result=success`、`fail_count=0`。
+4. 确认最终请求由 Python 发出，iv8 只返回窄工件。
+5. 记录 OCR 候选、坐标 adapter、bundle hash、iv8 版本、请求预算和清理状态。
 
-1. 只替换了 bundle 文件，但 loader 仍读取旧文件名：运行的仍是旧算法。
-2. require 暴露正则写死字符串表索引：`ctx.__req` 不存在或仍执行入口模块。
-3. 只替换加密模块，不更新 `_lib/lib._abo`：`w` 长度正常但 `/verify` 返回 `forbidden`。
-4. 把动态字段长期硬编码：下一次小版本轮换会再次失效；Node/vm 应运行时提取。
-5. 官方 Demo 可能按风控分配 `svg_seed` 点选，不等于直接请求 `risk_type=slide` 的协议发生变化；不要用 Demo 出现点选来否定滑块 `/load` 样本。
-6. `ddddocr` 的 `target_x=0` 可能只是占位值；若 `target[0] > 0`，应优先使用 `target[0]`，否则会提交 `setLeft=0` 并得到 `result=fail, fail_count=1`。
-7. GCT 下载后先 beautify 再计算 `biht`：函数 `toString()` 原文已变化，结果不可信；保留 raw 和 formatted 两份时只能用 raw 参与计算。
-8. `status == "success"` 只表示请求被处理，不表示验证通过；必须检查 `data.result`。
-9. 最终至少连续验证 Node/vm/iv8 路径 3 次；纯 Python 路径若存在，也至少验证 1 次真实 `/verify` 成功。
-10. Python `requests` 在 `/load` 成功后下载 `static.geetest.com` 图片报 `ProxyError/RemoteDisconnected`：先检查环境代理；协议脚本可按环境使用 `session.trust_env = False`，不要误判为图片 URL 或 token 失效。
-11. Node 22 的 `globalThis.navigator` 可能是只读 getter；不要直接 `Object.assign(globalThis, {navigator:{}})`，应使用独立 `vm.createContext()`。
-12. `w` 长度会随紧凑 JSON 长度变化，不要把某次的 `1472` 或其他长度作为正确性判据；只检查十六进制格式、RSA 尾段长度和最终服务端结果。
-13. `passtime` 不只是 payload 字段。生成参数后必须真实 `sleep(passtime / 1000)` 再请求 `/verify`，避免声明时间超过真实请求时序。
-14. PoW 使用 `/load` 的长 `payload` 参与明文：当前版本会生成错误的 `pow_msg`；应确认 lot number 后是两个连续分隔符 `||`。
-15. 用固定字符窗口读取 bundle 开头：混淆字符串表本身可能超过窗口，导致 `_lib/lib._abo` 明明存在却解析失败；按 lot rule 的明文位置反向定位初始化段。
-16. GCT 正则只匹配 `function x(t){var e=5381`：当前 GCT 在 `5381` 前还有控制流变量，会误报找不到；先搜索 `=5381;` 再做函数边界提取。
-17. 文字点选 iv8 代码沿用旧 `$_BEP/$_BBFs` 或固定 module id：当前 bundle 可能已经改为 wrapper + registry `$_BED(id)` + 内部 `$_BBFB`，必须以当前脚本证据定位。
-18. 浏览器侦察时 Chrome 正在执行其他逆向任务：不要抢 Chrome profile；记录工具 blocker，按用户批准使用指纹浏览器并在结束时关闭。
+## Failure Triage
 
-## 本次验证证据
+| 现象 | 首要检查 |
+| --- | --- |
+| `/load` 失败 | scope、captcha_id、参数语言和当前轮响应类型 |
+| `result=fail, fail_count=1` | 缺口中心、44px adapter、`userresponse`、轨迹形态、`td_sign`、同轮 token |
+| `result=forbidden, fail_count=0` | bundle hash、`_lib`、lot rule、加密导出和版本元数据 |
+| w 长度变化 | 只作为线索，检查 JSON 内容和最终服务端结果，不把长度当判据 |
+| iv8 加载异常 | API 成员、bundle hash、DOM/环境最小适配和能力隔离；不把页面 UI 自动化当最终交付 |
 
-- 修复前：连续 5 次 `status=success, result=forbidden`。
-- 修复后：模块复用的 iv8 流程连续 3 次 `result=success, fail_count=0`。
-- 不执行任何 JavaScript 的纯 Python 流程真实返回 `result=success, fail_count=0`。
-- 2026-07 浏览器无关 Python + Node VM 路径连续三轮成功：原图 `gap_x=182/197/209`，映射 `setLeft=160/173/184`，三轮均为 `status=success, result=success, fail_count=0`。
-- 2026-07 纯 Python 路径连续三轮成功，全程未调用 Node/JS 引擎/浏览器：原图 `gap_x=219/100/215`，映射 `setLeft=193/87/189`，动态 `biht="1426265548"`，三轮均为 `status=success, result=success, fail_count=0`。
-- 2026-07-23 bundle 轮换（`v1.9.6-1db46d`，`fixedFields={"YYhg":"BjI0"}`，`lotRules={"n[1:4]":"n[24:27]"}`）后连续 `forbidden`；替换最新 `gcaptcha4.js` 后 Node helper 与纯 Python 均恢复：`result=success, fail_count=0`（helper 1 轮 + pure 3 轮）。
+同一失败 lot 不扫描大量坐标。先保存脱敏证据，再创建新 challenge；请求预算和同轮一致性不可重置。

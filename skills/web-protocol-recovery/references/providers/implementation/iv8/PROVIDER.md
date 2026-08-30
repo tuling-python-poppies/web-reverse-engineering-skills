@@ -25,6 +25,24 @@ Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, l
 
 Python retains live-egress ownership. iv8 returns one explicit artifact such as a cookie, sign/header dict, final URL, wrapped body, telemetry object, or decoded payload.
 
+## GT4 Narrow Artifact
+
+For a Geetest GT4 verifier, the preferred iv8 artifact is the current bundle's
+`w` output. The context may execute the bundle's isolated encryption export,
+but it must not perform `/load`, image/GCT downloads, `/verify`, WebSocket
+traffic, cookie persistence, or filesystem access through JavaScript. Python
+fetches the same-round inputs and owns the final verifier request.
+
+The work order must bind the exact bundle SHA-256, adapter SHA-256, approval
+deadline, and a capability-denied adapter identity. The adapter must fail closed
+when the bundle hash or required export feature changes. A module number such as
+`require(32)` is current evidence only; use export-feature checks and refresh the
+binding after a bundle change.
+
+GT4 `td`, `td_sign`, coordinate mapping, OCR candidates, and `w` payload
+assembly remain owned by the verifier workflow. iv8 should receive an already
+validated same-round payload and return only the narrow encrypted artifact.
+
 ## Evidence First
 
 web-protocol-recovery selects cases only through `../../../cases/registry.json`. Restored implementations and their process documents live under the registry-selected `../../../cases/iv8/<case-id>/` directory. Provider-local API examples and taxonomy are supporting runtime material, never alternate selectors.

@@ -686,43 +686,95 @@
             "family": "verifier",
             "status": "verified",
             "runtime": "iv8",
-            "caseKind": "evidence",
-            "implementation": null,
-            "exactScopes": [],
+            "caseKind": "implementation",
+            "implementation": {
+                "mode": "iv8",
+                "strategy": "word-click-coordinate-wire-artifact",
+                "profile": null
+            },
+            "exactScopes": [
+                {
+                    "scheme": "https",
+                    "host": "gcaptcha4.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/load"
+                },
+                {
+                    "scheme": "https",
+                    "host": "gcaptcha4.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/verify"
+                },
+                {
+                    "scheme": "https",
+                    "host": "static.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/v4"
+                }
+            ],
             "match": {
                 "signals": [
                     "vendor:geetest",
                     "version:v4",
                     "captcha-type:word-click",
-                    "protocol:word"
+                    "request:risk_type-word",
+                    "response:captcha_type-word",
+                    "response:imgs-ques",
+                    "wire:userresponse-0-10000"
                 ],
                 "minimumIndependentSignals": 3,
-                "negativeSignals": []
+                "requiredSignalGroups": [
+                    {
+                        "name": "gt4-request-subtype",
+                        "anyOf": [
+                            "request:risk_type-word"
+                        ]
+                    },
+                    {
+                        "name": "gt4-response-subtype",
+                        "anyOf": [
+                            "response:captcha_type-word"
+                        ]
+                    },
+                    {
+                        "name": "word-click-shape",
+                        "anyOf": [
+                            "response:imgs-ques",
+                            "wire:userresponse-0-10000"
+                        ]
+                    }
+                ],
+                "negativeSignals": [
+                    "captcha-type:slide",
+                    "captcha-type:nine-grid",
+                    "captcha-type:icon-click",
+                    "captcha-type:ordered-text"
+                ]
             },
             "providerPlan": [
                 {
                     "provider": "verifier",
                     "role": "protocol-recovery",
-                    "purpose": "protocol owner"
+                    "purpose": "current word subtype and semantic acceptance"
                 },
                 {
                     "provider": "iv8",
                     "role": "implementation",
-                    "purpose": "artifact implementation",
+                    "purpose": "narrow w artifact",
                     "ownerProvider": "verifier"
                 },
                 {
                     "provider": "python-collector",
                     "role": "delivery",
-                    "purpose": "delivery"
+                    "purpose": "Python-owned live egress"
                 }
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "93f701dedf45c48ae9a32692c34619f10d46289d1ab9977bbc6b11572406ba8b"
+                "sha256": "eadfe92f18fa748ce8220d6c1515d012cdeb35ead775cd3b44ff502b1ba5fff8"
             },
-            "verificationClass": "historical-user-attested",
-            "selectableAs": "template"
+            "verificationClass": "freshly-verified",
+            "selectableAs": "proof"
         },
         {
             "caseId": "iv8-jd-h5st",

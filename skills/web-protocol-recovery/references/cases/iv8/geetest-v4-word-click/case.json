@@ -1,125 +1,115 @@
 {
-  "schemaVersion": "web-protocol-recovery-case",
-  "caseId": "iv8-geetest-v4-word-click",
-  "revision": 4,
-  "status": "verified",
-  "family": "verifier",
-  "runtime": "iv8",
-  "caseKind": "evidence",
-  "verificationClass": "historical-user-attested",
-  "requiresFreshVerification": true,
-  "secretPolicy": "redacted-pull-live",
-  "match": {
-    "signals": [
-      "vendor:geetest",
-      "version:v4",
-      "captcha-type:word-click",
-      "protocol:word"
-    ],
-    "minimumIndependentSignals": 3,
-    "negativeSignals": []
-  },
-  "protocolPatterns": [
-    "vendor:geetest",
-    "version:v4",
-    "captcha-type:word-click",
-    "protocol:word"
-  ],
-  "product": {
-    "vendor": "Geetest",
-    "product": "CAPTCHA",
-    "version": "v4",
-    "subtype": "word-click"
-  },
-  "preRead": [
-    {
-      "path": "references/providers/implementation/iv8/references/api-inventory.md",
-      "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"
-    }
-  ],
-  "liveState": {
-    "mode": "browser-export-json",
-    "retention": "memory-only",
-    "requiredCookies": [],
-    "optionalCookies": [],
-    "cookieNamePatterns": [],
-    "storageKeys": []
-  },
-  "artifacts": {
-    "process": {
-      "path": "PROCESS.md",
-      "sha256": "4eb01994cd74dffc21662f28f0a8b1becf5fe44fdcaec0e105ae284b4d60b8b8"
-    },
-    "pullLiveState": {
-      "path": "pull_live_state.py",
-      "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"
-    },
-    "assets": []
-  },
-  "verification": {
-    "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
+    "schemaVersion": "web-protocol-recovery-case",
+    "caseId": "iv8-geetest-v4-word-click",
+    "revision": 5,
+    "status": "verified",
+    "family": "verifier",
+    "runtime": "iv8",
+    "caseKind": "implementation",
+    "verificationClass": "freshly-verified",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
-    "activeCaseScope": "template-evidence-only",
-    "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only.",
-    "lineEndingCorrection": "rev4: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
-  },
-  "implementation": null,
-  "sourceStage": {
-    "provider": "iv8",
-    "role": "implementation",
-    "purpose": "source evidence"
-  },
-  "historicalProviderChain": [
-    {
-      "provider": "verifier",
-      "role": "protocol-recovery"
+    "secretPolicy": "redacted-pull-live",
+    "match": {
+        "signals": [
+            "vendor:geetest",
+            "version:v4",
+            "captcha-type:word-click",
+            "request:risk_type-word",
+            "response:captcha_type-word",
+            "response:imgs-ques",
+            "wire:userresponse-0-10000"
+        ],
+        "minimumIndependentSignals": 3,
+        "requiredSignalGroups": [
+            {"name": "gt4-request-subtype", "anyOf": ["request:risk_type-word"]},
+            {"name": "gt4-response-subtype", "anyOf": ["response:captcha_type-word"]},
+            {"name": "word-click-shape", "anyOf": ["response:imgs-ques", "wire:userresponse-0-10000"]}
+        ],
+        "negativeSignals": [
+            "captcha-type:slide",
+            "captcha-type:nine-grid",
+            "captcha-type:icon-click",
+            "captcha-type:ordered-text"
+        ]
     },
-    {
-      "provider": "iv8",
-      "role": "implementation"
+    "exactScopes": [
+        {"scheme": "https", "host": "gcaptcha4.geetest.com", "port": 443, "routePrefix": "/load"},
+        {"scheme": "https", "host": "gcaptcha4.geetest.com", "port": 443, "routePrefix": "/verify"},
+        {"scheme": "https", "host": "static.geetest.com", "port": 443, "routePrefix": "/v4"}
+    ],
+    "protocolPatterns": [
+        "vendor:geetest",
+        "version:v4",
+        "risk_type:word",
+        "captcha_type:word",
+        "imgs:candidate-image",
+        "ques:transparent-target-images",
+        "userresponse:0-10000-image-normalized",
+        "w:iv8-narrow-artifact"
+    ],
+    "product": {"vendor": "Geetest", "product": "CAPTCHA", "version": "v4", "subtype": "word-click"},
+    "dependencies": {
+        "python": ">=3.9",
+        "iv8": "installed runtime for the delivery project's narrow w artifact",
+        "curl_cffi": "live delivery only",
+        "ddddocr": "candidate detection and OCR",
+        "opencv": "candidate feature fallback",
+        "numpy": "image feature fallback",
+        "pillow": "transparent prompt preprocessing"
     },
-    {
-      "provider": "python-collector",
-      "role": "delivery"
-    }
-  ],
-  "requiredCurrentProviderChain": [
-    {
-      "provider": "verifier",
-      "role": "protocol-recovery",
-      "purpose": "protocol owner"
+    "preRead": [
+        {"path": "references/providers/implementation/iv8/references/api-inventory.md", "sha256": "f642f9afc27313e14722c9ec608208284385be913d2dcb573e424306dc195430"}
+    ],
+    "liveState": {
+        "mode": "browser-export-json",
+        "retention": "memory-only",
+        "requiredCookies": [],
+        "optionalCookies": [],
+        "cookieNamePatterns": [],
+        "storageKeys": []
     },
-    {
-      "provider": "iv8",
-      "role": "implementation",
-      "purpose": "artifact implementation",
-      "ownerProvider": "verifier"
+    "artifacts": {
+        "process": {"path": "PROCESS.md", "sha256": "02e0d3d19e89b39244df7fd2f4fa512396eff91f5963f90d01217a41b3ccca34"},
+        "entry": {"path": "entry.py", "sha256": "38e833ce4054aa7599640f44ba146b401787df3d7a360b574415bbcee2ad617f"},
+        "pullLiveState": {"path": "pull_live_state.py", "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"},
+        "assets": [
+            {"path": "fixtures/vectors.json", "sha256": "ac25ba8958900a9427fa838d40a793800d23ab2aa83a2f8fe324add523810ce4"},
+            {"path": "fixtures/offline-proof.summary.json", "sha256": "46f6eea2213413459817e2ceca57603126a012c8fb8ba5867ab0145ecc48e605"}
+        ]
     },
-    {
-      "provider": "python-collector",
-      "role": "delivery",
-      "purpose": "delivery"
-    }
-  ],
-  "historicalReferences": [
-    {
-      "manifestPath": "references/case-live-reference-archive/MANIFEST.json",
-      "archivePath": "references/case-live-reference-archive/iv8/geetest-v4-word-click/entry.py",
-      "sha256": "761eb9041e17b9e93385823263eb20f8f3a8458da3b8734e70341fd69ac5c1af",
-      "bytes": 15913,
-      "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
-      "readPolicy": "study-only"
-    }
-  ],
-  "historicalDependencies": {
-    "python": ">=3.9",
-    "iv8": "installed runtime",
-    "curl_cffi": "installed",
-    "ddddocr": "installed",
-    "opencv": "installed",
-    "numpy": "installed",
-    "pillow": "installed"
-  }
+    "verification": {
+        "executed": true,
+        "passed": true,
+        "executedAt": "2026-08-30T22:45:00+08:00",
+        "testCommand": "python -m unittest discover -s tests -v",
+        "testArtifact": {"path": "tests/test_vectors.py", "sha256": "c9b5121399b6932e778ec330c0334c56631c3646662f1ef7cc7e303edb6d6868"},
+        "evidenceArtifact": {"path": "fixtures/vectors.json", "sha256": "ac25ba8958900a9427fa838d40a793800d23ab2aa83a2f8fe324add523810ce4"},
+        "proof": {
+            "activeScope": "offline-only",
+            "offlineAcceptance": "Seven local tests cover subtype/load shape, transparent-target-safe text normalization, pixel boundary validation, 0..10000 coordinate conversion, answer assembly, semantic success predicate, and import-safe execution.",
+            "caseLocalTests": "python -m unittest discover -s tests -v",
+            "currentEntrySha256": "38e833ce4054aa7599640f44ba146b401787df3d7a360b574415bbcee2ad617f",
+            "currentTestArtifactSha256": "c9b5121399b6932e778ec330c0334c56631c3646662f1ef7cc7e303edb6d6868",
+            "currentLiveAcceptance": {
+                "classification": "current-source-live-acceptance",
+                "executedAt": "2026-08-30T22:00:00+08:00",
+                "currentAcceptance": true,
+                "rounds": 2,
+                "summary": "Two fresh public-demo word-click rounds passed with Python-owned egress and iv8 narrow w generation; dynamic state was not retained."
+            }
+        }
+    },
+    "implementation": {"mode": "iv8", "strategy": "word-click-coordinate-wire-artifact", "profile": null},
+    "sourceStage": {"provider": "iv8", "role": "implementation", "purpose": "current word-click narrow artifact"},
+    "historicalProviderChain": [
+        {"provider": "chromium-recon", "role": "reconnaissance"},
+        {"provider": "verifier", "role": "protocol-recovery"},
+        {"provider": "iv8", "role": "implementation"},
+        {"provider": "python-collector", "role": "delivery"}
+    ],
+    "requiredCurrentProviderChain": [
+        {"provider": "verifier", "role": "protocol-recovery", "purpose": "current word subtype and semantic acceptance"},
+        {"provider": "iv8", "role": "implementation", "purpose": "narrow w artifact", "ownerProvider": "verifier"},
+        {"provider": "python-collector", "role": "delivery", "purpose": "Python-owned live egress"}
+    ]
 }

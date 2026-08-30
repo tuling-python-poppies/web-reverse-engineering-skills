@@ -1,0 +1,20 @@
+{
+  "caseId": "iv8-geetest-v4-word-click",
+  "activeScope": "offline-only",
+  "currentAcceptance": true,
+  "offline": {
+    "coordinateVector": true,
+    "loadShapeValidation": true,
+    "semanticSuccessPredicate": true,
+    "networkOnImport": false,
+    "targetCodeExecution": false
+  },
+  "currentLiveAcceptance": {
+    "classification": "current-source-live-acceptance",
+    "currentAcceptance": true,
+    "rounds": 2,
+    "successPredicate": "status=success and data.result=success and data.fail_count=0",
+    "summary": "Two independent fresh public-demo rounds passed through Python-owned egress with iv8 narrow w generation; dynamic state was not retained."
+  },
+  "excluded": ["cookies", "tokens", "lot_numbers", "images", "w", "full_urls", "private_responses", "absolute_paths"]
+}

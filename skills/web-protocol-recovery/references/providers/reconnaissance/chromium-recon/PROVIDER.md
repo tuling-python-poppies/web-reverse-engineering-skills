@@ -13,7 +13,7 @@
 - Explicit Camoufox or SpiderMonkey engine-level tracing (Camoufox provider).
 - User only wants a reversible hook snippet with a known boundary (browser-hooks).
 
-Use this provider for ordinary Web reconnaissance and the first fingerprint-browser escalation. It owns the lifecycle of `chrome-devtools-mcp` and `js-reverse-mcp` while its work order is active.
+Use this provider for ordinary Web reconnaissance and the first fingerprint-browser escalation. It owns the lifecycle of `chrome-devtools-mcp` and `js-reverse-mcp` while its work order is active. These configured MCP adapters own default browser resolution; do not ask the user for a browser root during ordinary Chromium recon unless their capability check fails or a custom runtime was requested.
 
 Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, layout, acceptance, and final delivery. This provider only captures bounded evidence, writes assigned cache artifacts under `web-protocol-recovery-simple`, and returns the next narrow blocker or Provider recommendation.
 

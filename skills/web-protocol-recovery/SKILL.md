@@ -21,7 +21,7 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 4. 用户说小程序、Camoufox、Cloak、WebSocket、protobuf 等，只决定 `route` 或 gate，不自动升级到完整采集器。
 5. **已选 shape 内的常规动作默认执行、不打断确认**：隔离浏览器 recon、只读 live 请求、写 `projectRoot`（未指定则用 cwd）、使用用户已给的 cookie/session、协议所需 verifier submit、首次记录预算内的合理规模采集。内部记账即可，不要把这些写进 `nextAsk`。
 6. **`executionPolicy` 有两个 hard stop**：装依赖（`pip`/`npm` 等）、在本地 runtime 主动执行目标站 JS/WASM/HTML。普通隔离 recon 浏览器按页面正常加载目标代码属于 browser recon，不重复触发本地 target-code gate。
-7. **Browser Runtime Gate 只按需触发**：只有下一步确实要启动本地浏览器 runtime（Chromium/Cloak/Camoufox/miniapp debugger/正样本/用户明确浏览器自动化）时，才询问用户是否已有浏览器；有则要浏览器根目录，无则走对应 Provider/package 默认解析。纯协议、`evidence-reuse`、`local-proof`、`pure-python`、离线样本任务不问；依赖安装仍是 `executionPolicy`。
+7. **Browser Runtime Gate 只按需触发**：只有下一步确实要启动本地浏览器 runtime（Chromium/Cloak/Camoufox/miniapp debugger/正样本/用户明确浏览器自动化）时，才执行 runtime 检查。先使用已配置的 MCP/Provider adapter 解析默认 runtime；adapter 能启动或报告可用时直接 `nextAsk: none`，不询问根目录。仅当 adapter 没有可用默认 runtime、用户要求自定义 runtime，或 Provider 明确需要外部安装时，才询问浏览器根目录。纯协议、`evidence-reuse`、`local-proof`、`pure-python`、离线样本任务不问；依赖安装仍是 `executionPolicy`。
 8. **scope/governance 仍需确认**：业务 `mutation-submit`（表单、下单、支付、账号变更等）、扩大 success shape、提高已记录预算、raw secret 持久化/导出、case-library 写回。
 9. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
 10. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
@@ -113,7 +113,7 @@ Browser Runtime Dependency Gate:
 
 Trigger this gate **only** when the next selected action requires launching a local browser runtime, such as `chromium-recon`, a Cloak tier, `camoufox`, WeChat miniapp debugger attachment, a browser positive-sample capture, or a user-explicit browser automation delivery. Do not trigger it for pure protocol work, `evidence-reuse`, offline `local-proof`, supplied artifacts that can be inspected statically, `pure-python`, or fixed-vector proof.
 
-When the gate triggers, ask the smallest browser-runtime question under `nextAsk: missing sample/context`:
+When the gate triggers, first probe the selected managed adapter's environment and default binary resolution. For configured MCP browser adapters, the adapter owns the browser root and the first response must keep `nextAsk: none`; use the Provider's default launch/check path and do not ask the user for a root directory. If that probe reports no usable default runtime, or the user explicitly requests a custom browser/runtime, ask the smallest browser-runtime question under `nextAsk: missing sample/context`:
 
 ```text
 This step needs a local browser runtime. Do you already have one installed?
@@ -122,6 +122,8 @@ This step needs a local browser runtime. Do you already have one installed?
 ```
 
 If the user supplies a browser root, record it as runtime configuration for the active Provider and let that Provider resolve the binary inside the root. Do not put a root path in `route`, do not treat it as a gate family, and do not copy it into case-library artifacts. If the package default path requires installing `pip`/`npm` dependencies, stop with `nextAsk: executionPolicy`; package defaults are not dependency-install approval.
+
+For ordinary `chromium-recon` through configured `chrome-devtools` or `js-reverse` MCP adapters, use the adapter-managed default browser and set `nextAsk: none`. Ask for a root only after the adapter check fails, or when the user names a custom Chromium/Cloak/Camoufox installation. A routine managed-adapter lookup is not missing sample/context.
 
 ### Runtime Capability Adapter
 

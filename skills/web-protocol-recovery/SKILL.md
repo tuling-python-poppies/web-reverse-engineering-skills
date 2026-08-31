@@ -1,7 +1,7 @@
 ---
 name: web-protocol-recovery
 description: >-
-  仅在用户明确要求恢复、定位、验证、实现、交付或复现 Web/小程序协议行为时触发；协议线索包括 sign/token/header/cookie/challenge、JSVMP/WASM、验证码、Akamai、Kasada、River Security/瑞数、Reese84、响应解码、字体映射、会话协议或 browser-free Python collector。先排除非协议任务：Camoufox/浏览器截图、点击、QA、回归测试、页面自动化、普通 REST/GraphQL client、skill/opencode/MCP 配置、前端/CSS/格式化/重命名/安全头/市场介绍都不触发；仅出现 Camoufox、GraphQL、WebSocket、protobuf、Imperva、AST 或浏览器字样也不触发。PZDS goodsPublic/page + Aliyun V2 InitCaptchaV2/UploadLog/Log2/Log3/VerifyCaptchaV2/T001/F001 + 业务重放直接按 collector 处理。明确要求实现时按 collector 交付。授权分类后按需读取 Chromium/Camoufox/WeChat、hook、AST、verifier、akamai、kasada、river-security、reese84、iv8、python-node、nv8、pure-python 或 Python delivery Provider。单点 hook、入口定位、已知 AST、Node/jsdom 补环境、NV8 工件、iv8、纯 Python signer、Akamai/River/Reese84 状态机或现有抖音 BDMS 纯 Python 维护可走快速路径，不自动升级 collector。
+  仅在用户明确要求恢复、定位、验证、实现、交付或复现 Web/小程序协议行为时触发；线索包括 sign/token/header/cookie/challenge、JSVMP/WASM、验证码、Akamai、Kasada、River Security/瑞数、Reese84、响应解码、字体映射、会话协议或 browser-free Python collector。排除：Camoufox/浏览器截图点击/QA/回归测试/页面自动化、普通 REST/GraphQL client、skill/opencode/MCP 配置、前端/CSS、格式化/重命名、安全头和市场介绍；单独出现 Camoufox、GraphQL、WebSocket、protobuf、Imperva、AST 或浏览器也不触发。PZDS goodsPublic/page 与 Aliyun V2 InitCaptchaV2/UploadLog/Log2/Log3/VerifyCaptchaV2/T001/F001 + 业务重放按 collector；明确实现按 collector 交付。授权后按需读取 Chromium/Camoufox/WeChat、hook、AST、verifier、akamai、kasada、river-security、reese84、iv8、python-node、nv8、pure-python 或 Python delivery Provider。单点 hook、入口定位、已知 AST、Node/jsdom、NV8、iv8、纯 Python signer、Akamai/River/Reese84 状态机或抖音 BDMS 维护可走快速路径，不自动升级 collector。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---
 
@@ -55,6 +55,17 @@ nextRead: <paths per read-budget>
 
 Header meanings: `shape` is deliverable depth; `route` is the selected Provider or `evidence-reuse`; `nextAsk` is almost always `none` and names only the immediate missing technical input, execution hard stop, or scope/governance decision; `nextRead` lists exact paths allowed by the read budget. Per-shape scripts and gated overlays live in `references/methodology/success-shape-scripts.md`.
 
+### Route Response Completeness
+
+The four-line header is the minimum, not a substitute for the decisive route facts. Include these facts in the same first response when the route matches:
+
+- `kasada`: name two concrete independent evidence surfaces, state that `429` alone is insufficient, identify `nv8` as the narrow artifact generator when selected, and state `Python` as final live egress.
+- `river-security`: name the two independent markers, state that challenge state and S/T Cookie conversion are recovered first, identify `python-node` with `strategy: env-patch` or `iv8` as the narrow artifact path, and state `Python` egress.
+- `reese84` with incomplete evidence: keep `evidence-first`, use `route: evidence-reuse` or an explicit blocker, state that one cookie/header pair is insufficient, list the missing corroborating surface, and reject direct collector delivery.
+- PZDS/Aliyun V2: name the Aliyun V2 workflow, require current live `session/profile/track`, and separate `verifier` proof from `python-collector` business delivery.
+- GT4 word-click: name the current word workflow/bundle, transparent `ques`, the candidate text set, the `0..10000` coordinate shape, and the Python `/verify` handoff when collector delivery is requested.
+- fixed-vector local proof with target-supplied JS/WASM/HTML: state `固定向量离线`, set `nextAsk: executionPolicy`, and report `result: pending` until approved execution is available.
+
 Policy overlays (case read, scope/budget accounting, Chrome auto-traffic **recording**, runtime cleanup) remain owned by `references/methodology/success-shape-scripts.md`. Routine fields are accounting/lifecycle rules. `executionPolicy`, business mutation, shape/budget expansion, raw-secret handling, and case writeback retain their explicit confirmation rules.
 
 1. Final delivery is browser-free. Python owns live egress (HTTP requests, WebSocket handshakes, and sent frames); local JS/WASM/iv8 only as narrow artifact generators.
@@ -82,7 +93,7 @@ First-turn routing rules choose `shape` and `route`. Under Non-Negotiables item 
 | Platform/runtime wording | Miniapp -> `route: wechat-miniapp`; explicit Camoufox -> `route: camoufox`; neither upgrades to `collector`. |
 | Known implementation boundary or explicit implementation Provider request | Use the named Provider route only when the boundary/artifact is named, such as `route: browser-hooks`, `route: ast`, `route: python-node` with `strategy: env-patch`, `route: nv8`, `route: iv8`, or `route: pure-python`; otherwise stay evidence first. |
 | Captcha family signals | Named captcha vendors (Geetest, TCaptcha/TDC, Yidun, Shumei, Yunpian, Tianyu, Dingxiang, Ctrip, Aliyun Captcha, ByteDance VerifyCenter) are verifier-priority evidence. Choose `route: verifier` only when paired with a sampled captcha round, protocol endpoint/field, semantic verifier failure, or a named active verifier delivery artifact. A lone `w` / `data` / `token` param, or generic `403` plus the word captcha, is evidence first. Field-level detail: verifier `PROVIDER.md` `Select When`. |
-| Vendor-family signals (`akamai`, `river-security`, `reese84`) | Route to a protocol owner only when a vendor-native marker has independent corroboration from a second surface (network, script, cookie transition, transport, or business consumer); River Security needs two independent observed markers. Generic `403` / `412` / H2 reset, one cookie name, an Imperva label or error 15, an alias tag such as `alias:ruishu`, and a user guess ("怀疑瑞数") are never sufficient. Otherwise stay evidence first. Fresh URL recon starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. Marker lists and negative signals: each Provider's `Select When` / `Do Not Select When`. |
+| Vendor-family signals (`akamai`, `river-security`, `reese84`) | Route to a protocol owner only when a vendor-native marker has independent corroboration from a second surface (network, script, cookie transition, transport, or business consumer); River Security needs two independent observed markers. Generic `403` / `412` / H2 reset, one cookie name, an Imperva label or error 15, an alias tag such as `alias:ruishu`, and a user guess ("怀疑瑞数") are never sufficient. Otherwise stay evidence first. Fresh URL recon starts with Chromium unless explicit Camoufox/SpiderMonkey/engine-level criteria are present. Marker lists and negative signals: each Provider's `Select When` / `Do Not Select When`. A Kasada response must name both concrete evidence surfaces; when `nv8` is requested, name it as the narrow artifact generator and state that Python owns final live egress. |
 | Existing Douyin Web BDMS pure-Python maintenance | Use `route: pure-python` with `profile: douyin-abogus-native` only when the named target, existing complete implementation, and fixed BDMS trace all hold; from-zero recovery or unknown version/entry/layout stays on normal routes. Conditions: `references/providers/implementation/pure-python/profiles/douyin-abogus-native.md` `Select When`. |
 
 Fallback rules:
@@ -112,6 +123,20 @@ This step needs a local browser runtime. Do you already have one installed?
 
 If the user supplies a browser root, record it as runtime configuration for the active Provider and let that Provider resolve the binary inside the root. Do not put a root path in `route`, do not treat it as a gate family, and do not copy it into case-library artifacts. If the package default path requires installing `pip`/`npm` dependencies, stop with `nextAsk: executionPolicy`; package defaults are not dependency-install approval.
 
+### Runtime Capability Adapter
+
+The workflow is runtime-neutral at the capability level. Names such as `chrome-devtools-mcp`, `js-reverse-mcp`, and `camoufox-reverse-mcp` are concrete adapters, not required APIs. Map each requested capability to one available equivalent before starting the work order:
+
+| Capability | Preferred adapter | Equivalent fallback | If unavailable |
+|---|---|---|---|
+| Page, network, and initiator evidence | browser inspector + `js-reverse` | Playwright/CDP, another browser network inspector, or supplied HAR | Stay at `evidence` and name the missing evidence surface |
+| Source search and narrow hooks | `js-reverse` source/debug tools | browser debugger, Playwright/CDP init script, or offline source parser | Do not install broad hooks; report the exact observation blocker |
+| Camoufox/SpiderMonkey engine proof | Camoufox engine-trace adapter | supplied engine trace or static artifact | Keep the selected route blocked; never claim engine proof from another engine |
+| Local JS/WASM artifact generation | selected `iv8`, `python-node`, `nv8`, or `pure-python` Provider | another approved implementation Provider with the same acceptance test | Stop at the current shape and name the implementation blocker |
+| Final live HTTP/WebSocket egress | task-project Python client | equivalent Python HTTP/WebSocket library | Do not use page fetch, CDP, or browser automation as delivery |
+
+If a fallback changes the evidence quality or runtime provenance, record that as a blocker or residual risk in the Provider result. A missing adapter is not permission to skip the acceptance test or to select a heavier route.
+
 When the next step needs routine browser/live/write work inside the selected shape, leave the fast path and **just do it** under standing approval (record work-order fields internally; do not pause for user confirmation). Stop only when the next exact action matches one of the declared `nextAsk` confirmation kinds.
 
 Before navigation, live egress, session use, writes, target-code execution, or dependency install, **record** the applicable fields from `references/methodology/provider-work-order.md` (internal bookkeeping). For routine protocol work, auto-fill: `actionClass=read-only` (or `verifier-submit` only for a protocol-needed verifier round), browser flags, `liveReplayAllowed=true`, `requestBudget.total=100` and `requestBudget.remaining=100` when no budget was supplied, one positive immutable request budget, redacted artifact policy under `js_reverse_cache/**`, supplied-session use, and the resolved absolute cwd when `projectRoot` is unset. Keep `mutation-submit` and all confirmation kinds blocked until the matching user decision. Pre-egress accounting and Chrome automatic-traffic **recording** stay canonical; route switches never reset or replenish the budget.
@@ -126,6 +151,8 @@ Smallest success shape:
 | `collector` | stable browser-free Python path with bounds |
 
 Local-proof can run pure data transforms on supplied samples offline. Executing target-supplied JS/WASM/HTML remains target-code execution and still requires the `executionPolicy` confirmation even when no live egress is allowed.
+
+For a fixed-vector request that supplies target JS/WASM/HTML, the first response must keep `shape: local-proof`, set `nextAsk: executionPolicy`, and report `result: pending` until the approved hash and sandbox are recorded. Do not silently execute target code because live egress is disabled.
 
 Default scripts: `references/methodology/success-shape-scripts.md`.
 
@@ -159,31 +186,16 @@ nextRead: references/providers/protocol-recovery/verifier/PROVIDER.md
 
 ### PZDS Aliyun V2 商品采集专用触发器
 
-当任务同时出现以下信号时，直接收敛到 `shape: collector` + `route: verifier`：
+当业务目标是 `goodsPublic/page`（或同类列表接口）、最终交付是 JSON records，且证据同时包含 `InitCaptchaV2`、`UploadLog`、`Log2`、`Log3`、`VerifyCaptchaV2`、`T001/F001` 中至少三个信号时，直接选择 `shape: collector` + `route: verifier`，再读取 `references/providers/protocol-recovery/verifier/PROVIDER.md` 和唯一匹配的 `references/providers/protocol-recovery/verifier/references/aliyun-captcha-v2-workflow.md`。首响应必须点名 Aliyun Captcha V2 workflow，并写明当前目标的 live session/profile/track 是交付前置条件；不要把页面渲染结果当交付。
 
-- 业务目标是 `goodsPublic/page` 或同类商品列表接口，最终要拿 JSON records，不接受页面渲染结果作为交付。
-- 验证链包含 `InitCaptchaV2`、`UploadLog`、`Log2`、`Log3`、`VerifyCaptchaV2`、`T001/F001` 中至少三个信号。
-- 验证成功后还要带 `u_atoken/u_asig` 或等价网关参数重放业务请求。
+Hub 只保留以下不可省略的路由与验收约束：
 
-独立执行目标：
+1. 同轮生成并绑定 `sceneId`、`traceid/CertifyId`、`sessionId`、`version`、`ip`、`timestamp`、`encryptionKey`、业务 token/cookie、Log2 profile、Log3 combat、Verify track 和 `deviceToken counter`；禁止跨轮拼接。
+2. `UploadLog` 是必发 sidecar。`T001 && VerifyResult=true` 后才能重放业务请求；`F001` 先按 Aliyun V2 reference 的 field21、profile/version、timestamp、counter、combat、track 和业务网关顺序 diff，不猜测轨迹。
+3. `missing_or_stale_profile` 或版本不一致时停止 Verify 并刷新 profile；Log2/Log3 `200/true` 只代表 sidecar 接收，不代表业务成功。
+4. 只有 `records` 非空且业务 `success=true/code=SUCCESS` 才算完成。`verifier` 负责验证证明，`python-collector` 负责最终业务 delivery；浏览器只提供取证、正样本或窄工件。缺少当前 profile/session/track 时不得声明 live complete。
 
-1. 先触发业务 WAF HTML，解析 `sceneId/traceid/token/userId/userUserId`。
-2. 发送 `InitCaptchaV2 -> UploadLog -> Log2 -> Log3 -> VerifyCaptchaV2`，其中 `UploadLog` 视为必发 sidecar，不是可省略装饰项。
-3. 若 `VerifyCode=T001 && VerifyResult=true`，立即重放业务请求并输出商品 JSON；若 `VerifyCode=F001`，先按 `field21 -> profile版本 -> 72/74/87 -> Log2 timestamp -> token counter/gatherCost -> Log3 combat -> Verify data/arg/track -> 业务网关参数` 顺序 diff，再决定是否重采新轮。
-4. 若当前 `DeviceConfig.version` 与本地 profile 不一致，停止提交 Verify，先刷新 profile。
-5. 若浏览器只给到正样本或旁证，Python 仍是最终 live egress 端，不允许把浏览器返回当作最终交付。
-
-同轮一致性约束：同一轮的 `sceneId`、`traceid/CertifyId`、`sessionId`、`version`、`ip`、`timestamp`、`encryptionKey`、业务 token/cookie、Log2 profile、Log3 combat、Verify track、deviceToken counter 必须成套生成；禁止把不同轮次的 token、画像、轨迹、sidecar 或业务参数拼接后提交。
-
-失败分流顺序：
-
-1. `UploadLog` 传输失败：先重启一轮或换 transport/session，不改协议 payload。
-2. `missing_or_stale_profile` 或 FeiLin version mismatch：停止 Verify，刷新 profile。
-3. `F001`：先把同轮数据 diff 完，再决定是否继续当前 cohort；不要把旧轨迹平移或轻微扰动当作稳定解。
-4. `Log2/Log3 200/true` 只代表 sidecar 被结构性接收，不代表最终成功。
-5. `records` 非空且业务 `success=true/code=SUCCESS` 才算完成。
-
-路由输出必须注明：最终 live HTTP 由 Python collector 负责；浏览器只用于取证、正样本或窄工件；缺少当前 profile/session/track 时不得声明 live complete。
+River Security 首个动作：先恢复 challenge 状态并捕获 S/T Cookie 转换，再生成窄工件；不要先调轨迹或直接重放。
 
 Fresh recon picks exactly one route:
 
@@ -233,6 +245,13 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Stable browser-free Python delivery | `python-collector` | delivery | `references/providers/delivery/python-collector/PROVIDER.md` |
 
 Chains are sequential and role-aware (typical: recon -> AST -> python-node/nv8/iv8/pure-python -> python-collector; verifier -> iv8/python-node/pure-python -> python-collector for captcha proof builders; akamai -> nv8/python-node/iv8 -> python-collector for host-bound collectors; river-security -> python-node with `strategy: env-patch` or iv8 -> python-collector for challenge state; reese84 -> iv8/python-node -> python-collector for challenge-cookie state and business admission; kasada -> nv8/python-node -> python-collector for browser-free collector artifacts; or evidence-reuse -> pure-python with `profile: douyin-abogus-native` -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. Implementation Providers produce narrow artifacts only; protocol owners keep acceptance while implementation runs; `python-collector` is delivery and owns final live egress.
+
+Provider handoff minimum:
+
+1. Recon returns the real request, initiator/source boundary, moving state, runtime provenance, allowed artifact paths, and one named blocker or acceptance test.
+2. A protocol owner returns the family evidence and acceptance conditions. For Kasada, name two concrete independent surfaces, state `nv8` when it is the selected narrow artifact generator, and state that Python owns final live egress; a marker count alone is insufficient.
+3. A verifier returns same-round proof inputs and semantic verifier status only. For PZDS, name the Aliyun Captcha V2 workflow and state that current live session/profile/track is required before business replay. For GT4 word-click, read `references/providers/protocol-recovery/verifier/references/geetest-gt4-word-workflow.md`, name current bundle evidence, transparent `ques`, `risk_type=word`, `captcha_type=word`, `imgs/ques`, the candidate text set, and the `0..10000` coordinate wire shape. It does not own business delivery.
+4. An implementation Provider returns one narrow artifact plus fixed-vector status. `python-collector` alone may return final live HTTP/WebSocket delivery and parsed business acceptance.
 
 ## Phase 5: Verification
 

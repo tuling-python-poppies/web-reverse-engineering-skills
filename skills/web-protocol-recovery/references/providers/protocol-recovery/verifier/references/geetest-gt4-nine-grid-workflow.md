@@ -19,13 +19,13 @@
 
 ## 同轮数据链
 
-1. 请求 `/load`，最小参数为动态 `callback`、`captcha_id`、`client_type=web`、`risk_type=nine`、`lang=zh`。
+1. 请求 `/load`，最小参数为动态 `callback`、`captcha_id`、客户端 `challenge` UUID、`client_type=web`、`risk_type=nine`、`lang=zh`。
 2. 校验 `status=success`、`captcha_type=nine`、`nine_nums` 为正整数，并冻结同轮 `lot_number/payload/process_token/payload_protocol/pt/pow_detail/static_path/js/gct_path`。
 3. 下载 `imgs` 合图、每个 `ques[]` 提示图、当前 raw GCT 和当前 raw `gcaptcha4.js`。
 4. 合图按 `round(col * width / count)` / `round(row * height / count)` 边界切为 `count * count` 个瓦片。当前 `count=3`。
 5. 识别目标与三格答案，构造 `userresponse`。
 6. 复用 GT4 公共 shell：动态 bundle 字段、PoW、raw GCT `biht`、`gee_guard`、`em`、AES-CBC-PKCS7 和 RSA-PKCS1-v1_5。
-7. 用同轮外层字段请求 `/verify`。仅当 `status == "success"`、`data.result == "success"`、`data.fail_count == 0` 才通过。
+7. 用同轮外层字段请求 `/verify`。仅当 `status == "success"`、`data.result == "success"`、`data.fail_count == 0` 才通过；若响应提供 `data.seccode`，将其作为同轮动态 credential handoff，不写入固定案例。
 
 ## userresponse Wire Shape
 
@@ -91,5 +91,5 @@ def indices_to_userresponse(indices, count=3):
 1. `/load` 明确确认 nine subtype，且图片、提示图、bundle、GCT、tokens 全部同轮。
 2. 离线测试通过：模型/labels SHA-256、86 类、安装包选择、执行 gate、Ultralytics settings 固定、class-map 校验逻辑、四种识别分支、格号映射、bounded PoW、GCT hash 和 AES 固定向量。该测试不加载 checkpoint，也不声明真实图片推理通过。
 3. 经明确 checkpoint 执行批准后，模型推理输出恰好三个合法格号；低置信或歧义必须 fail closed 或只做受预算约束的 fresh-lot 重试。
-4. live proof 至少一轮 fresh challenge 返回 `status=success`、`data.result=success`、`fail_count=0`；正式 collector 扩大重试前仍需 request-budget 确认。
+4. live proof 至少一轮 fresh challenge 返回 `status=success`、`data.result=success`、`fail_count=0`；若目标响应声明 `seccode`，还要确认 credential handoff。正式 collector 扩大重试前仍需 request-budget 确认。
 5. Python 拥有 `/load`、静态资源和 `/verify` 的最终 live egress；模型与本地 helper 无浏览器依赖。

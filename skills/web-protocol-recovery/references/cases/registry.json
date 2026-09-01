@@ -651,9 +651,34 @@
                     "vendor:geetest",
                     "version:v4",
                     "captcha-type:slider",
-                    "protocol:slide"
+                    "protocol:slide",
+                    "request:risk_type-slide",
+                    "response:captcha_type-slide",
+                    "response:bg-slice",
+                    "wire:setLeft-td"
                 ],
                 "minimumIndependentSignals": 3,
+                "requiredSignalGroups": [
+                    {
+                        "name": "gt4-request-subtype",
+                        "anyOf": [
+                            "request:risk_type-slide"
+                        ]
+                    },
+                    {
+                        "name": "gt4-response-subtype",
+                        "anyOf": [
+                            "response:captcha_type-slide"
+                        ]
+                    },
+                    {
+                        "name": "slider-shape",
+                        "anyOf": [
+                            "response:bg-slice",
+                            "wire:setLeft-td"
+                        ]
+                    }
+                ],
                 "negativeSignals": []
             },
             "providerPlan": [
@@ -676,7 +701,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-slider/case.json",
-                "sha256": "037854b9cccb9ed69b4d0f04bc5da55feb574b1ca8b27cb8508d8a3ef1204f62"
+                "sha256": "859cb8ca0187ab5edc21e3ca73fe1bffceedbc8c124d452b769c4cd700218dec"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -692,26 +717,7 @@
                 "strategy": "word-click-coordinate-wire-artifact",
                 "profile": null
             },
-            "exactScopes": [
-                {
-                    "scheme": "https",
-                    "host": "gcaptcha4.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/load"
-                },
-                {
-                    "scheme": "https",
-                    "host": "gcaptcha4.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/verify"
-                },
-                {
-                    "scheme": "https",
-                    "host": "static.geetest.com",
-                    "port": 443,
-                    "routePrefix": "/v4"
-                }
-            ],
+            "exactScopes": [],
             "match": {
                 "signals": [
                     "vendor:geetest",
@@ -771,7 +777,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "eadfe92f18fa748ce8220d6c1515d012cdeb35ead775cd3b44ff502b1ba5fff8"
+                "sha256": "6e01f11dbd30289d6f277b0e22fdbc37f99465e372aeb1db68871cb8b2f9ca7d"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -1326,7 +1332,7 @@
             ],
             "manifest": {
                 "path": "pure-python/geetest-v4-nine-grid/case.json",
-                "sha256": "2d091bbd58a78616c868169931ebd34fc16c53ccf7cabcbd1b9120d09c58bdc1"
+                "sha256": "15be3dee1ae06224dd42943937f582a73c270cac7161f43291939abfe82fc99b"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

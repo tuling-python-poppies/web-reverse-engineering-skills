@@ -35,14 +35,14 @@ Browser IDs and live request IDs are not retained in this case. Final delivery u
 
 ## Request And State Chain
 
-1. `GET /load` with dynamic JSONP callback, `captcha_id`, `client_type=web`, `risk_type=nine`, and language.
+1. `GET /load` with dynamic JSONP callback, `captcha_id`, client-generated `challenge` UUID, `client_type=web`, `risk_type=nine`, and language.
 2. Freeze one round's `lot_number`, `payload`, `process_token`, `payload_protocol`, `pt`, `pow_detail`, `static_path/js`, and `gct_path`.
 3. Download the one `imgs` composite, each `ques[]` prompt, the current raw bundle, and the current raw GCT.
 4. Split `imgs` using rounded grid boundaries. Current `nine_nums=3` yields nine tiles.
 5. Run the bundled classifier, choose exactly three zero-based tile indices, and map them to one-based `[row, col]` pairs.
 6. Extract `_lib` fixed fields and `lib._abo` lot rules from the current bundle.
 7. Build PoW, raw-GCT `biht`, `gee_guard`, `em`, and compact JSON.
-8. Encrypt `w` and submit `/verify` with the same round's outer fields.
+8. Encrypt `w` and submit `/verify` with the same round's outer fields. If the response provides `data.seccode`, pass its shape to the business consumer without persisting dynamic values.
 
 ## Canonical Mutation Point
 

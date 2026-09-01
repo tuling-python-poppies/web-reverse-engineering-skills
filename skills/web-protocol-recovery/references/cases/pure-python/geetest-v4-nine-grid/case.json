@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "pure-python-geetest-v4-nine-grid",
-  "revision": 3,
+  "revision": 4,
   "status": "verified",
   "family": "verifier",
   "runtime": "pure-python",
@@ -88,7 +88,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "05d4c6d51f78a0be7cb9c7790e5e95c0df1b9715a891b215b52006850f4217c7"
+      "sha256": "d31e0e640281b6662c68f4c8581a4d73634f6983636999a9da194bc1dc843dcb"
     },
     "entry": {
       "path": "entry.py",
@@ -132,7 +132,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-07-31T21:14:59+08:00",
+    "executedAt": "2026-09-01T14:48:18+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -156,7 +156,15 @@
           "path": "fixtures/model-execution-proof.summary.json",
           "sha256": "4d716096b8be16c200626ab692e4c847887145ec356896acfe1c7c914668b524"
         },
-        "reason": "An explicitly approved local run loaded the hash-bound checkpoint, matched all 86 embedded class names, pinned runtime settings, and completed three synthetic CPU inferences. Real-challenge inference and live verifier acceptance remain false."
+        "reason": "An explicitly approved local run loaded the hash-bound checkpoint, matched all 86 embedded class names, and completed three synthetic CPU inferences. This local model proof is separate from the current live acceptance recorded below."
+      },
+      "currentLiveAcceptance": {
+        "classification": "current-source-live-acceptance",
+        "executedAt": "2026-09-01T14:48:18+08:00",
+        "currentAcceptance": true,
+        "rounds": 2,
+        "successPredicate": "status=success and data.result=success and data.fail_count=0",
+        "summary": "Two fresh public-demo nine-grid rounds passed with Python-owned egress and the hash-verified local model; dynamic state was not retained."
       },
       "historicalLiveProof": {
         "classification": "historical-archive-provenance",

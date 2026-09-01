@@ -19,6 +19,8 @@ def normalize_text(value: Any) -> str:
 
 
 def validate_word_load(data: Dict[str, Any]) -> Dict[str, Any]:
+    if data.get("risk_type") != "word":
+        raise ValueError("GT4 word-click requires risk_type=word")
     if data.get("captcha_type") != "word":
         raise ValueError("GT4 word-click requires captcha_type=word")
     if not isinstance(data.get("imgs"), str) or not data["imgs"]:

@@ -215,6 +215,15 @@ class Gt4FilesystemAndScopeTests(unittest.TestCase):
 
 
 class Gt4ExecutionBoundaryTests(unittest.TestCase):
+    def test_gt4_templates_bind_slider_sidecar_and_semantic_success(self) -> None:
+        node_template = (VERIFIER_DIR / "gt4_replay.py").read_text(encoding="utf-8")
+        pure_template = (VERIFIER_DIR / "gt4_pure_replay.py").read_text(encoding="utf-8")
+        for text in (node_template, pure_template):
+            self.assertIn('"td": td', text)
+            self.assertIn('"td_sign": td_sign', text)
+            self.assertIn('verify_json.get("data", {}).get("fail_count") == 0', text)
+            self.assertIn('"credentialHandoff"', text)
+
     def test_unverified_sandbox_declaration_is_rejected(self) -> None:
         with self.assertRaises(gt4_runtime.SandboxError):
             gt4_runtime.require_sandbox_adapter(

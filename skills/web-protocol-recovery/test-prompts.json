@@ -52,6 +52,16 @@
   {
     "id": "gt4-word-not-nine-grid",
     "prompt": "Geetest GT4 /load 返回 risk_type=word、captcha_type=word、imgs 和 ques，不包含 nine_nums。请不要把它按九宫格 row/column 或滑块 gap_x 处理。",
-    "expected": "触发 verifier 的 GT4 word-click reference；明确拒绝九宫格和滑块映射，使用文字点选坐标和当前 bundle 证据。"
+      "expected": "触发 verifier 的 GT4 word-click reference；明确拒绝九宫格和滑块映射，使用文字点选坐标和当前 bundle 证据。"
+  },
+  {
+    "id": "gt4-nine-grid-collector",
+    "prompt": "实现 Geetest GT4 九宫格 browser-free collector。请求是 risk_type=nine，响应有 captcha_type=nine、imgs、ques、nine_nums=3；使用已 hash 校验的模型识别三格，转换成 1-based [row,col]，由 Python 调用 /verify，并返回成功后的 seccode。",
+    "expected": "触发 shape=collector、route=verifier；读取 geetest-gt4-nine-grid-workflow.md；要求模型 checkpoint 执行批准、hash/class-map 校验、三格映射、Python 出网和 data.seccode handoff。"
+  },
+  {
+    "id": "gt4-subtype-routing-negative",
+    "prompt": "同一个 Geetest GT4 host 同时出现 slide、word 和 nine 的历史请求。请分别按当前 risk_type/captcha_type 和响应字段路由，不要按 host、w 或 /verify 统一选择一个流程。",
+    "expected": "先按 subtype 独立分类；slide 使用 bg/slice/td，word 使用 imgs/ques/10000 坐标，nine 使用 imgs/ques/nine_nums/模型；共享字段不能覆盖专用路由。"
   }
 ]

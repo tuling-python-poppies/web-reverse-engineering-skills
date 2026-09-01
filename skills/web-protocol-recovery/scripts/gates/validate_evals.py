@@ -21,6 +21,7 @@ REQUIRED_CASE_IDS = {
     "node-env-patch-strategy",
     "gt4-verifier-owner",
     "gt4-word-click-verifier",
+    "gt4-nine-grid-verifier",
     "proved-protocol-python-delivery",
 }
 REQUIRED_CASE_EXPECTATIONS = {
@@ -39,6 +40,10 @@ REQUIRED_CASE_EXPECTATIONS = {
     "gt4-word-click-verifier": {
         "route": "verifier",
         "familyReference": "geetest-gt4-word-workflow.md",
+    },
+    "gt4-nine-grid-verifier": {
+        "route": "verifier",
+        "familyReference": "geetest-gt4-nine-grid-workflow.md",
     },
 }
 OBSOLETE_ROUTES = {"env-patch", "douyin-abogus-native"}

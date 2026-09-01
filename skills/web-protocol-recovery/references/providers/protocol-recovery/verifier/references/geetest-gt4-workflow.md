@@ -1,6 +1,6 @@
 # Geetest GT4 Active Workflow
 
-用于 Geetest GT4 滑块协议恢复：`/load -> image pair -> proof fields -> w/td -> /verify`。文字点选请使用同目录的 `geetest-gt4-word-workflow.md`；本文件的 `bg/slice`、缺口坐标、`td` 和 `td_sign` 规则不得直接套用于 `risk_type=word`。
+用于 Geetest GT4 滑块协议恢复：`/load -> image pair -> proof fields -> w/td -> /verify`。本文件只适用于 `risk_type=slide` / `captcha_type=slide` 和 `bg/slice`；文字点选使用 `geetest-gt4-word-workflow.md`，九宫格使用 `geetest-gt4-nine-grid-workflow.md`。三类流程共享外层 GT4 字段，但不共享答案、坐标或行为 sidecar。
 本文件描述当前协议边界和可验证的适配器，不把单一站点布局参数提升为通用 GT4 规则。
 
 ## Select When
@@ -29,11 +29,12 @@
 
 ## Request Chain
 
-首轮 `/load` 只发送当前目标授权的最小查询参数。当前 GT4 Web Demo 的已验证形态为：
+首轮 `/load` 只发送当前目标授权的最小查询参数。当前 GT4 Web Demo 滑块的已验证形态为：
 
 ```text
 callback=<dynamic>
 captcha_id=<configured>
+challenge=<client-generated UUID when present in the captured request>
 client_type=web
 risk_type=slide
 pt=1
@@ -56,6 +57,8 @@ status == "success"
 data.result == "success"
 data.fail_count == 0
 ```
+
+若成功响应包含 `data.seccode`，同时记录其字段形状：`captcha_id`、同轮 `lot_number`、`pass_token`、`gen_time` 和 `captcha_output`。动态值只交给业务 collector，不写入固定案例。
 
 HTTP 200、非空 `w`、外层 `status=success` 或固定 `w` 长度都不是成功。
 

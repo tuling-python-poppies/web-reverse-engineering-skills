@@ -33,6 +33,7 @@
     "status": {"enum": ["complete", "blocked", "failed"]},
     "artifactBoundary": {"type": ["string", "null"]},
     "artifacts": {"type": "array", "items": {"type": "object"}},
+    "credentialHandoff": {"$ref": "#/$defs/credentialHandoff"},
     "verification": {
       "type": "object",
       "additionalProperties": false,
@@ -185,6 +186,32 @@
           "then": {"required": ["retention"]}
         }
       ]
+    },
+    "credentialHandoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["present", "fields", "values", "sameRound", "retention"],
+      "properties": {
+        "present": {"type": "boolean"},
+        "fields": {
+          "type": "array",
+          "items": {"enum": ["captcha_output", "pass_token", "gen_time", "captcha_id", "lot_number"]},
+          "uniqueItems": true
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "captcha_output": {"type": "string"},
+            "pass_token": {"type": "string"},
+            "gen_time": {"type": "string"},
+            "captcha_id": {"type": "string"},
+            "lot_number": {"type": "string"}
+          }
+        },
+        "sameRound": {"const": true},
+        "retention": {"enum": ["memory-only", "approved-secret-handling"]}
+      }
     }
   }
 }

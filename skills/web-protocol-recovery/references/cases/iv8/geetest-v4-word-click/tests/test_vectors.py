@@ -27,9 +27,14 @@ class GeetestWordClickTests(unittest.TestCase):
     def test_load_shape(self) -> None:
         data = {key: value for key, value in ((field, "fixture") for field in self.vectors["loadShape"]["requiredFields"])}
         data["captcha_type"] = "word"
+        data["risk_type"] = "word"
         data["imgs"] = "fixture.jpg"
         data["ques"] = ["q0.png", "q1.png"]
         self.assertEqual(entry.validate_word_load(data), data)
+        data["risk_type"] = "slide"
+        with self.assertRaisesRegex(ValueError, "risk_type=word"):
+            entry.validate_word_load(data)
+        data["risk_type"] = "word"
         data["captcha_type"] = "nine"
         with self.assertRaisesRegex(ValueError, "captcha_type=word"):
             entry.validate_word_load(data)

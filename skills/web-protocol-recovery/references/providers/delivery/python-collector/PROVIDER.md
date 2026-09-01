@@ -46,8 +46,8 @@ Layout details: `references/methodology/project-layout.md`. Delivery gate checkl
 
 | Template | Use |
 |---|---|
-| `scripts/verifier/gt4_replay.py` | GT4 same-round target-JS template retained for reviewed-adapter integration. No reviewed capability-denied adapter is bundled, so it fails closed before `/load` and must not be used for live replay. `node:vm`, a work-order supplied argv, and a claimed adapter label are not accepted as a sandbox. |
-| `scripts/verifier/gt4_pure_replay.py` | GT4 pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. Requires `--confirm-live-verify`, `actionClass=verifier-submit`, `artifactPolicy.rawSecretHandling=confirmed` for cookies/raw responses, and the same durable budget ledger. It never executes target JavaScript. |
+| `scripts/verifier/gt4_replay.py` | GT4 **slider-only** same-round target-JS template retained for reviewed-adapter integration. No reviewed capability-denied adapter is bundled, so it fails closed before `/load` and must not be used for live replay. `node:vm`, a work-order supplied argv, and a claimed adapter label are not accepted as a sandbox. |
+| `scripts/verifier/gt4_pure_replay.py` | GT4 **slider-only** pure Python `/load -> OCR -> PoW/GCT/AES/RSA -> /verify` delivery template. It rejects non-slider responses, sends the documented `td/td_sign`, and checks the three-part semantic success predicate. Requires `--confirm-live-verify`, `actionClass=verifier-submit`, `artifactPolicy.rawSecretHandling=confirmed` for cookies/raw responses, and the same durable budget ledger. It never executes target JavaScript. It is not a word-click or nine-grid collector. |
 
 ## Layout Ownership
 

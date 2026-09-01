@@ -1,7 +1,7 @@
 {
     "schemaVersion": "web-protocol-recovery-case",
     "caseId": "iv8-geetest-v4-word-click",
-    "revision": 5,
+    "revision": 6,
     "status": "verified",
     "family": "verifier",
     "runtime": "iv8",
@@ -32,11 +32,7 @@
             "captcha-type:ordered-text"
         ]
     },
-    "exactScopes": [
-        {"scheme": "https", "host": "gcaptcha4.geetest.com", "port": 443, "routePrefix": "/load"},
-        {"scheme": "https", "host": "gcaptcha4.geetest.com", "port": 443, "routePrefix": "/verify"},
-        {"scheme": "https", "host": "static.geetest.com", "port": 443, "routePrefix": "/v4"}
-    ],
+    "exactScopes": [],
     "protocolPatterns": [
         "vendor:geetest",
         "version:v4",
@@ -69,27 +65,27 @@
         "storageKeys": []
     },
     "artifacts": {
-        "process": {"path": "PROCESS.md", "sha256": "02e0d3d19e89b39244df7fd2f4fa512396eff91f5963f90d01217a41b3ccca34"},
-        "entry": {"path": "entry.py", "sha256": "38e833ce4054aa7599640f44ba146b401787df3d7a360b574415bbcee2ad617f"},
+        "process": {"path": "PROCESS.md", "sha256": "6d4b735d7c83ff336f01d8d73cf48864ce8a12e89227c5e5a42d499352a9f74d"},
+        "entry": {"path": "entry.py", "sha256": "94e73e7d0876d6bde970a55c12626de13e801935bd287da2b296d71a561be668"},
         "pullLiveState": {"path": "pull_live_state.py", "sha256": "7f7156cd1bc79c0b92daf5573826e7cecc387f40d49f160ee2d57fca615a0fa1"},
         "assets": [
-            {"path": "fixtures/vectors.json", "sha256": "ac25ba8958900a9427fa838d40a793800d23ab2aa83a2f8fe324add523810ce4"},
+            {"path": "fixtures/vectors.json", "sha256": "9c752290d55caecbaff27d6fc6b1ae84c0a5b20f10cee5a6721a6eced23a03fe"},
             {"path": "fixtures/offline-proof.summary.json", "sha256": "46f6eea2213413459817e2ceca57603126a012c8fb8ba5867ab0145ecc48e605"}
         ]
     },
     "verification": {
         "executed": true,
         "passed": true,
-        "executedAt": "2026-08-30T22:45:00+08:00",
+        "executedAt": "2026-09-01T15:30:00+08:00",
         "testCommand": "python -m unittest discover -s tests -v",
-        "testArtifact": {"path": "tests/test_vectors.py", "sha256": "c9b5121399b6932e778ec330c0334c56631c3646662f1ef7cc7e303edb6d6868"},
-        "evidenceArtifact": {"path": "fixtures/vectors.json", "sha256": "ac25ba8958900a9427fa838d40a793800d23ab2aa83a2f8fe324add523810ce4"},
+        "testArtifact": {"path": "tests/test_vectors.py", "sha256": "ae03f11bbb36b84b686f74ac8d641a0768be32dc0f5e51073919f6094c47ebda"},
+        "evidenceArtifact": {"path": "fixtures/vectors.json", "sha256": "9c752290d55caecbaff27d6fc6b1ae84c0a5b20f10cee5a6721a6eced23a03fe"},
         "proof": {
             "activeScope": "offline-only",
             "offlineAcceptance": "Seven local tests cover subtype/load shape, transparent-target-safe text normalization, pixel boundary validation, 0..10000 coordinate conversion, answer assembly, semantic success predicate, and import-safe execution.",
             "caseLocalTests": "python -m unittest discover -s tests -v",
-            "currentEntrySha256": "38e833ce4054aa7599640f44ba146b401787df3d7a360b574415bbcee2ad617f",
-            "currentTestArtifactSha256": "c9b5121399b6932e778ec330c0334c56631c3646662f1ef7cc7e303edb6d6868",
+            "currentEntrySha256": "94e73e7d0876d6bde970a55c12626de13e801935bd287da2b296d71a561be668",
+            "currentTestArtifactSha256": "ae03f11bbb36b84b686f74ac8d641a0768be32dc0f5e51073919f6094c47ebda",
             "currentLiveAcceptance": {
                 "classification": "current-source-live-acceptance",
                 "executedAt": "2026-08-30T22:00:00+08:00",

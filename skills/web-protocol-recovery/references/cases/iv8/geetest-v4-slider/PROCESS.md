@@ -25,7 +25,9 @@ invisible, one-pass, or any response whose `captcha_type` is not `slide`.
 
 The final path is browser-free at runtime: Python owns live egress and iv8 executes the
 official Geetest JavaScript needed to construct the verifier URL and encrypted
-`w` parameter.
+`w` parameter. This file remains historical evidence; the current source project
+may use a newer hash-bound callable export and must not copy these old anchors
+without fresh bundle verification.
 
 The verified proof used one `curl_cffi.requests.Session(impersonate="chrome")`,
 concurrency 1, and at least 1.5 seconds between `/load` and `/verify`. The final
@@ -51,7 +53,9 @@ Use this case directly when all of these are true:
 - Response has `lot_number`, `payload`, `process_token`, and `payload_protocol`.
 - Response has `bg`, `slice`, `static_path`, `js`, and `gct_path`.
 - The main runtime is `.../v4/static/.../js/gcaptcha4.js`.
-- The bundle still contains a verifier method matching `$_BBFs:function`.
+- The bundle still contains the current verifier/export feature; `$_BBFs:function`
+  is only a historical anchor and is not required when the current callable
+  export has been independently identified.
 
 If the network shape matches but webpack module IDs changed, keep the HTTP,
 image, iv8 bootstrap, and replay path. Re-run only the bounded module search in
@@ -154,7 +158,7 @@ v4 slider bundle.
 ## Plain Verifier Findings
 
 A temporary analysis-only tap was inserted immediately before the function that
-encrypts `w`. The assembled input contained:
+encrypts `w`. The historical assembled input contained:
 
 - `setLeft`
 - `passtime`
@@ -165,10 +169,11 @@ encrypts `w`. The assembled input contained:
 - GCT-derived fields
 - `em`, the environment summary
 
-No separate drag trajectory array was present in the verifier plaintext for this
-flow. An early trusted mouse-event probe was therefore removed from the compact
-implementation. Do not import the Tencent TDC trajectory design unless a future
-Geetest response or bundle proves that a telemetry array is required.
+No separate drag trajectory array was present in that historical verifier
+plaintext. The current target must decide independently whether `td` and
+`td_sign` are required; the current verified project flow includes them, while
+word-click and nine-grid do not inherit them. Do not import the Tencent TDC
+trajectory design unless a current Geetest response or bundle proves it.
 
 ## Minimal iv8 Reconstruction
 
@@ -284,8 +289,10 @@ Fixed-input success proves runtime reconstruction, not CAPTCHA success.
 9. GET the generated verify URL with the same Python session.
 10. Parse JSONP and require both transport and semantic success.
 
-Stop after the first successful proof. Do not add retries, concurrency, or scale
-without a separately approved request budget.
+Stop after the first successful proof. If perception or semantic verification
+fails, create a fresh lot for a bounded retry inside the immutable request
+budget; never enumerate coordinates on one lot. Do not add concurrency or
+scale without the recorded budget.
 
 ## Failure Matrix
 
@@ -294,7 +301,7 @@ without a separately approved request budget.
 | `initGeetest4` never completes | Dynamic load callback/resource order is wrong | Inspect intercepted script URLs and ensure load/gcaptcha/GCT/language callbacks run |
 | Runtime waits forever | Verify JSONP callback or CSS load remains pending | Complete CSS locally and invoke the fake verify callback after URL capture |
 | `window.__gtRequire` missing | Webpack exposure marker changed | Find the current module loader return statement; patch only that marker |
-| `$_BBFs` missing on module 17 | Module IDs changed | Search module sources for `$_BBFs:function`, then find the current `$_BEP` registry |
+| Historical `$_BBFs` missing on module 17 | Module IDs or export design changed | Discover the current callable export and bind it to the current bundle hash; use the old `$_BBFs`/`$_BEP` path only as historical evidence |
 | Verify URL has no `w` | Initialization, GCT, answer, or resource chain is incomplete | Check resource error, init flag, current load data, and matching script generation |
 | Python 3.9 raises `lower < upper` or OpenCV reports `!_src.empty()` in `slide_match` | Old `ddddocr` RGBA crop path produced invalid or empty bounds | Record dependency versions; catch `ValueError`, `SystemError`, and `cv2.error`, then use `simple_target=True` plus target-shape normalization |
 | Python 3.9 returns HTTP 200 / result fail after no exception | Old `target` is a bbox but code used `target[0]` as the center | Convert `[x1,y1,x2,y2]` to `(x1+x2)/2` before subtracting half the piece width |

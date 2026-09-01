@@ -120,6 +120,8 @@ data.result == "success"
 data.fail_count == 0
 ```
 
+如果响应包含 `data.seccode`，它是本轮后续业务请求使用的动态凭证形状：`captcha_output`、`pass_token`、`gen_time`、`captcha_id` 和同轮 `lot_number`。只在已授权的 secret policy 下输出动态值，不写入固定向量或案例库。不存在 `seccode` 时仍可按 verifier 语义成功结束，但必须记录凭证缺失对下游业务 handoff 的影响。
+
 ## 失败分流
 
 | 现象 | 首要检查 | 处理 |

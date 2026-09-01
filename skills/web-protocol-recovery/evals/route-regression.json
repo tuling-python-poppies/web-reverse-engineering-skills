@@ -41,7 +41,7 @@
     },
     {
       "id": "gt4-verifier-owner",
-      "prompt": "Geetest GT4 slider returns non-empty w but data.result is fail; need one coherent verifier round and proof criteria.",
+      "prompt": "Geetest GT4 slider returns non-empty w but data.result is fail; /load has risk_type=slide and bg/slice. Need one coherent slider verifier round and proof criteria.",
       "expect": {
         "shape": "local-proof",
         "route": "verifier",
@@ -57,6 +57,18 @@
         "gateFamily": "verifier",
         "familyReference": "geetest-gt4-word-workflow.md",
         "implementation": "iv8",
+        "deliveryProvider": "python-collector"
+      }
+    },
+    {
+      "id": "gt4-nine-grid-verifier",
+      "prompt": "Implement a Geetest GT4 nine-grid browser-free collector. The request uses risk_type=nine; /load returns captcha_type=nine, imgs, ques, and nine_nums=3. Use the hash-verified model only after checkpoint approval, map three tile indices to one-based row/column userresponse, and let Python submit /verify.",
+      "expect": {
+        "shape": "collector",
+        "route": "verifier",
+        "gateFamily": "verifier",
+        "familyReference": "geetest-gt4-nine-grid-workflow.md",
+        "implementation": "pure-python",
         "deliveryProvider": "python-collector"
       }
     },

@@ -1,8 +1,16 @@
 import argparse
+import base64
+import binascii
+import hashlib
+import hmac
 import json
+import math
 import random
 import re
+import struct
 import time
+import uuid
+import zlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin
@@ -44,15 +52,15 @@ HELPER_PATH = (
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
-LOAD_QUERY_KEYS = {"callback", "captcha_id", "client_type", "risk_type", "pt", "lang"}
+LOAD_QUERY_KEYS = {"callback", "captcha_id", "challenge", "client_type", "risk_type", "pt", "lang"}
 VERIFY_QUERY_KEYS = {
     "callback", "captcha_id", "client_type", "lot_number", "risk_type",
-    "payload", "process_token", "payload_protocol", "pt", "w",
+    "payload", "process_token", "payload_protocol", "pt", "w", "td", "td_sign",
 }
 RAW_ARTIFACT_FIELDS = {
     "gt4.load.jsonp", "gt4.load.json", "gt4.cookies.json",
     "gt4.slice.png", "gt4.bg.png", "gt4.gct.js", "gt4.image_meta.json",
-    "gt4.helper_output.json", "gt4.verify.jsonp", "gt4.verify.json",
+    "gt4.helper_output.json", "gt4.track.json", "gt4.verify.jsonp", "gt4.verify.json",
 }
 
 APPROVED_WORK_ORDER_ID: Optional[str] = None
@@ -77,6 +85,44 @@ def approve_live_verify(work_order: Dict[str, Any]) -> None:
     if BUDGET_LEDGER.snapshot()["remaining"] < 5:
         close_live_verify()
         raise RuntimeError("reopened GT4 budget ledger has fewer than five requests remaining")
+
+
+def pack_track(track: Dict[str, Any]) -> str:
+    """Pack the current slide adapter track as the documented td sidecar."""
+    raw = json.dumps(track, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    compressor = zlib.compressobj(9, zlib.DEFLATED, -15)
+    body = compressor.compress(raw) + compressor.flush()
+    header = b"\x1f\x8b\x08\x00" + struct.pack("<I", int(time.time())) + b"\x02\x03"
+    trailer = struct.pack("<II", binascii.crc32(raw) & 0xffffffff, len(raw) & 0xffffffff)
+    return base64.urlsafe_b64encode(header + body + trailer).decode("ascii").rstrip("=")
+
+
+def credential_handoff(verify_json: Dict[str, Any]) -> Dict[str, Any]:
+    seccode = verify_json.get("data", {}).get("seccode")
+    fields = ("captcha_output", "pass_token", "gen_time", "captcha_id", "lot_number")
+    return {
+        "present": isinstance(seccode, dict),
+        "fields": [field for field in fields if isinstance(seccode, dict) and field in seccode],
+        "values": {
+            field: str(seccode[field])
+            for field in fields
+            if isinstance(seccode, dict) and field in seccode
+        },
+        "sameRound": True,
+        "retention": "memory-only",
+    }
+
+
+def generate_track(distance: int, duration_ms: int, width: int, height: int) -> Dict[str, Any]:
+    points = [[0, 0, 0, 0]]
+    for index in range(1, 54):
+        progress = index / 53
+        x = round(distance * (1 - (1 - progress) ** 3))
+        y = round(math.sin(progress * math.pi * 2) * 1.4 + random.uniform(-0.7, 0.7))
+        event_type = 2 if index == 53 else 1
+        points.append([round(duration_ms * progress), max(0, x), y, event_type])
+    points[-1] = [duration_ms, distance, 0, 2]
+    return {"m": 1, "w": width, "h": height, "s": 0, "e": 0, "p": points}
 
 
 def close_live_verify() -> None:
@@ -332,6 +378,7 @@ def main() -> int:
         load_params = {
             "callback": callback(),
             "captcha_id": args.captcha_id,
+            "challenge": str(uuid.uuid4()),
             "client_type": "web",
             "risk_type": "slide",
             "pt": "1",
@@ -343,6 +390,8 @@ def main() -> int:
         if load_json.get("status") != "success":
             raise RuntimeError(f"Load failed: {load_json}")
         data = load_json["data"]
+        if data.get("captcha_type") != "slide" or not data.get("bg") or not data.get("slice"):
+            raise RuntimeError("GT4 slider template requires captcha_type=slide with bg and slice")
 
         ensure_plain_directory(cache_root, create=True)
         cache = create_exclusive_directory(safe_lot_cache(cache_root, data["lot_number"]))
@@ -361,15 +410,15 @@ def main() -> int:
         gap_x = args.gap_x if args.gap_x is not None else detected_x
         with Image.open(cache / "bg.png") as image:
             bg_width = image.width
-        scale = 0.8876 * min(bg_width, 340) / bg_width
-        set_left = round((gap_x - 2) * scale)
-        userresponse = set_left / scale + 2
+            bg_height = image.height
+        set_left = max(0, round(gap_x - 44))
+        userresponse = set_left + 1 + random.random()
         passtime = random.randint(900, 1600)
         write_new_json(cache / "image_meta.json", {
             "ocr": detected,
             "gap_x": gap_x,
             "bg_width": bg_width,
-            "scale": scale,
+            "scale": 1,
             "setLeft": set_left,
             "userresponse": userresponse,
             "passtime": passtime,
@@ -385,6 +434,12 @@ def main() -> int:
             userresponse,
         )
         write_new_json(cache / "helper_output.json", helper_output)
+        track = generate_track(set_left, passtime, bg_width, bg_height)
+        td = pack_track(track)
+        td_sign = hmac.new(
+            data["lot_number"].encode("utf-8"), td.encode("utf-8"), hashlib.sha256
+        ).hexdigest()
+        write_new_json(cache / "track.json", {"track": track, "td": td, "td_sign": td_sign})
         time.sleep(passtime / 1000)
         verify_params = {
             "callback": callback(),
@@ -397,6 +452,8 @@ def main() -> int:
             "payload_protocol": data["payload_protocol"],
             "pt": data["pt"],
             "w": helper_output["w"],
+            "td": td,
+            "td_sign": td_sign,
         }
         verify_response = live_get(session, VERIFY_URL, params=verify_params, timeout=30)
         verify_response.raise_for_status()
@@ -418,8 +475,13 @@ def main() -> int:
             "status": verify_json.get("status"),
             "result": result,
             "fail_count": verify_json.get("data", {}).get("fail_count"),
+            "credentialHandoff": credential_handoff(verify_json),
         }, ensure_ascii=False, indent=2))
-        return 0 if verify_json.get("status") == "success" and result == "success" else 1
+        return 0 if (
+            verify_json.get("status") == "success"
+            and result == "success"
+            and verify_json.get("data", {}).get("fail_count") == 0
+        ) else 1
     finally:
         close_live_verify()
 

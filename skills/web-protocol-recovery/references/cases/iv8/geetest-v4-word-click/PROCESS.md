@@ -12,7 +12,7 @@
 
 ## 已验证协议形状
 
-同一轮 `/load` 使用动态 callback、captcha id、客户端 `challenge` UUID、`client_type=web`、`risk_type=word` 和语言。响应需要冻结 `lot_number`、`payload`、`process_token`、`payload_protocol`、`pt`、`pow_detail`、`imgs`、`ques[]`、raw GCT 和当前 bundle。
+同一轮 `/load` 使用动态 callback、captcha id、客户端 `challenge` UUID、`client_type=web`、`risk_type=word` 和语言。响应需要冻结 `lot_number`、`payload`、`process_token`、`payload_protocol`、`pt`、`pow_detail`、`imgs`、`ques[]`、raw GCT 和当前 bundle；只看到响应 `captcha_type=word` 而没有请求侧 `risk_type=word` 时不得选择本案例。
 
 文字点选 `/verify` 的公共外层字段为：
 

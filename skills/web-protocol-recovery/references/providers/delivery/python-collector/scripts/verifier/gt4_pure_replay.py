@@ -1,11 +1,17 @@
 import argparse
+import base64
+import binascii
 import hashlib
+import hmac
 import json
 import math
 import random
 import re
 import secrets
+import struct
 import time
+import uuid
+import zlib
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -36,15 +42,15 @@ from gt4_runtime import (
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
-LOAD_QUERY_KEYS = {"callback", "captcha_id", "client_type", "risk_type", "lang"}
+LOAD_QUERY_KEYS = {"callback", "captcha_id", "challenge", "client_type", "risk_type", "lang"}
 VERIFY_QUERY_KEYS = {
     "callback", "captcha_id", "client_type", "lot_number", "risk_type",
-    "payload", "process_token", "payload_protocol", "pt", "w",
+    "payload", "process_token", "payload_protocol", "pt", "w", "td", "td_sign",
 }
 RAW_ARTIFACT_FIELDS = {
     "gt4.load.jsonp", "gt4.load.json", "gt4.cookies.json",
     "gt4.slice.png", "gt4.bg.png", "gt4.gct.raw.js", "gt4.trace.json",
-    "gt4.image_meta.json", "gt4.pure_output.json", "gt4.verify.jsonp", "gt4.verify.json",
+    "gt4.image_meta.json", "gt4.track.json", "gt4.pure_output.json", "gt4.verify.jsonp", "gt4.verify.json",
 }
 APPROVED_WORK_ORDER_ID = None
 APPROVED_SCOPES = []
@@ -385,11 +391,12 @@ def solve_pow(captcha_id, lot_number, detail):
         detail["datetime"], captcha_id, lot_number, "",
     ]) + "|"
     target = 1 << (256 - int(detail["bits"]))
-    while True:
+    for _ in range(1_000_000):
         message = prefix + secrets.token_hex(8)
         digest = hashlib.sha256(message.encode()).hexdigest()
         if int(digest, 16) < target:
             return {"pow_msg": message, "pow_sign": digest}
+    raise RuntimeError("PoW exceeded the 1000000-attempt safety bound")
 
 
 def generate_trace(distance, duration_ms):
@@ -413,6 +420,34 @@ def replay_trace_timing(trace):
         remaining = timestamp / 1000 - (time.perf_counter() - started)
         if remaining > 0:
             time.sleep(remaining)
+
+
+def pack_track(trace, width, height):
+    points = [[timestamp, x, y, 2 if index == len(trace) - 1 else 1]
+              for index, (x, y, timestamp) in enumerate(trace)]
+    track = {"m": 1, "w": width, "h": height, "s": 0, "e": 0, "p": points}
+    raw = json.dumps(track, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    compressor = zlib.compressobj(9, zlib.DEFLATED, -15)
+    body = compressor.compress(raw) + compressor.flush()
+    header = b"\x1f\x8b\x08\x00" + struct.pack("<I", int(time.time())) + b"\x02\x03"
+    trailer = struct.pack("<II", binascii.crc32(raw) & 0xffffffff, len(raw) & 0xffffffff)
+    return track, base64.urlsafe_b64encode(header + body + trailer).decode("ascii").rstrip("=")
+
+
+def credential_handoff(verify_json):
+    seccode = verify_json.get("data", {}).get("seccode")
+    fields = ("captcha_output", "pass_token", "gen_time", "captcha_id", "lot_number")
+    return {
+        "present": isinstance(seccode, dict),
+        "fields": [field for field in fields if isinstance(seccode, dict) and field in seccode],
+        "values": {
+            field: str(seccode[field])
+            for field in fields
+            if isinstance(seccode, dict) and field in seccode
+        },
+        "sameRound": True,
+        "retention": "memory-only",
+    }
 
 
 def encrypt_w(payload, pt):
@@ -480,6 +515,7 @@ def main():
         })
         load_response = live_get(session, LOAD_URL, params={
             "callback": callback(), "captcha_id": args.captcha_id,
+            "challenge": str(uuid.uuid4()),
             "client_type": "web", "risk_type": "slide", "lang": "zh",
         }, timeout=30)
         load_response.raise_for_status()
@@ -487,6 +523,8 @@ def main():
         if load_json.get("status") != "success":
             raise RuntimeError(f"Load failed: {load_json}")
         data = load_json["data"]
+        if data.get("captcha_type") != "slide" or not data.get("bg") or not data.get("slice"):
+            raise RuntimeError("GT4 pure replay template requires captcha_type=slide with bg and slice")
         ensure_plain_directory(cache_root, create=True)
         cache = create_exclusive_directory(safe_lot_cache(cache_root, data["lot_number"]))
         write_new_text(cache / "load.jsonp", load_response.text)
@@ -509,11 +547,15 @@ def main():
         gap_x = args.gap_x if args.gap_x is not None else detected_x
         with Image.open(cache / "bg.png") as image:
             bg_width = image.width
-        scale = 0.8876 * min(bg_width, 340) / bg_width
-        set_left = round((gap_x - 2) * scale)
-        userresponse = set_left / scale + 2
+            bg_height = image.height
+        set_left = max(0, round(gap_x - 44))
+        userresponse = set_left + 1 + random.random()
         passtime = random.randint(950, 1650)
         trace = generate_trace(set_left, passtime)
+        track, td = pack_track(trace, bg_width, bg_height)
+        td_sign = hmac.new(
+            data["lot_number"].encode("utf-8"), td.encode("utf-8"), hashlib.sha256
+        ).hexdigest()
 
         gct_response = download(session, data["gct_path"])
         gct_source = gct_response.text
@@ -531,9 +573,10 @@ def main():
         save_json(cache / "trace.json", trace)
         save_json(cache / "image_meta.json", {
             "ocr": detected, "gap_x": gap_x, "bg_width": bg_width,
-            "scale": scale, "setLeft": set_left, "userresponse": userresponse,
+            "scale": 1, "setLeft": set_left, "userresponse": userresponse,
             "passtime": passtime, "trace_points": len(trace),
         })
+        save_json(cache / "track.json", {"track": track, "td": td, "td_sign": td_sign})
         save_json(cache / "pure_output.json", {
             "w": w, "wPayload": w_payload, "compact": compact,
             "fixedFields": fixed_fields, "lotRules": lot_rules,
@@ -546,6 +589,7 @@ def main():
             "risk_type": data["captcha_type"], "payload": data["payload"],
             "process_token": data["process_token"],
             "payload_protocol": data["payload_protocol"], "pt": data["pt"], "w": w,
+            "td": td, "td_sign": td_sign,
         }, timeout=30)
         verify_response.raise_for_status()
         verify_json = parse_jsonp(verify_response.text)
@@ -562,8 +606,13 @@ def main():
             "fixed_fields": fixed_fields, "lot_rules": lot_rules,
             "w_length": len(w), "status": verify_json.get("status"),
             "result": result, "fail_count": verify_json.get("data", {}).get("fail_count"),
+            "credentialHandoff": credential_handoff(verify_json),
         }, ensure_ascii=False, indent=2))
-        return 0 if verify_json.get("status") == "success" and result == "success" else 1
+        return 0 if (
+            verify_json.get("status") == "success"
+            and result == "success"
+            and verify_json.get("data", {}).get("fail_count") == 0
+        ) else 1
     finally:
         close_live_verify()
 

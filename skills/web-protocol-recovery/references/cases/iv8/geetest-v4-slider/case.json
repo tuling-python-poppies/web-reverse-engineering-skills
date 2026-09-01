@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-geetest-v4-slider",
-  "revision": 4,
+  "revision": 5,
   "status": "verified",
   "family": "verifier",
   "runtime": "iv8",
@@ -14,9 +14,18 @@
       "vendor:geetest",
       "version:v4",
       "captcha-type:slider",
-      "protocol:slide"
+      "protocol:slide",
+      "request:risk_type-slide",
+      "response:captcha_type-slide",
+      "response:bg-slice",
+      "wire:setLeft-td"
     ],
     "minimumIndependentSignals": 3,
+    "requiredSignalGroups": [
+      {"name": "gt4-request-subtype", "anyOf": ["request:risk_type-slide"]},
+      {"name": "gt4-response-subtype", "anyOf": ["response:captcha_type-slide"]},
+      {"name": "slider-shape", "anyOf": ["response:bg-slice", "wire:setLeft-td"]}
+    ],
     "negativeSignals": []
   },
   "protocolPatterns": [
@@ -48,7 +57,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "329f79c966c462f57a58d06e63a109788e91111c7c6d391dc57f06115563d97b"
+      "sha256": "1a3d647f01409389d26b8be73df6b594f3c5f05065641470b4b85bda0e4209e2"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -59,10 +68,10 @@
   "verification": {
     "sourceCommit": "1e719718a25a52776b28518948715e6238576fe0",
     "requiresFreshVerification": true,
-    "metadataMigratedAt": "2026-07-30T20:11:59+08:00",
+    "metadataMigratedAt": "2026-09-01T15:30:00+08:00",
     "activeCaseScope": "template-evidence-only",
     "dependencyPolicy": "historical-only; do not install from case reuse",
-    "migration": "Removed the active placeholder entry and corrected PROCESS.md to historical evidence-only guidance; archived implementation remains hash-bound and study-only.",
+    "migration": "Clarified that $_BBFs/$_BEP/module 17 and the historical no-td observation are study-only fallbacks; current slide delivery requires fresh bundle evidence and may include td/td_sign.",
     "lineEndingCorrection": "rev4: recomputed declared hashes against committed LF bytes; prior values hashed a CRLF Windows worktree and were unreproducible from a clean clone. No evidence, verification claim, or route changed."
   },
   "implementation": null,

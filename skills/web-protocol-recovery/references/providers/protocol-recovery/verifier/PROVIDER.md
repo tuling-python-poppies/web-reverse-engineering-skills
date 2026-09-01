@@ -28,9 +28,10 @@ Read only the selected family reference after the work order names a generation-
 | Aliyun Captcha V2 / `InitCaptchaV2` / `VerifyCaptchaV2` / `StaticPath` with `sg.xxx` | `references/aliyun-captcha-v2-workflow.md` |
 | Aliyun Captcha V3 / `InitCaptchaV3` / `VerifyCaptchaV3` / Aliyun `PUZZLE` plus `StaticPath` with `pe.xxx` | `references/aliyun-captcha-v3-workflow.md` |
 | Geetest GT3 / `register-slide` / `gettype.php` / `fullpage.9.x` / `slide.7.x` / `ajax.php` | `references/geetest-gt3-workflow.md` |
-| Geetest GT4 / `/load` / `lot_number` / `pow_detail` / `payload` / `w` / `/verify` | `references/geetest-gt4-workflow.md` |
 | Geetest GT4 word-click / `risk_type=word` / `captcha_type=word` / `imgs` / `ques` | `references/geetest-gt4-word-workflow.md` |
 | Geetest GT4 nine-grid / `risk_type=nine` / `captcha_type=nine` / `imgs` / `ques` / `nine_nums` | `references/geetest-gt4-nine-grid-workflow.md` |
+| Geetest GT4 slider / `risk_type=slide` / `captcha_type=slide` / `bg` / `slice` | `references/geetest-gt4-workflow.md` |
+| Geetest GT4 shared `/load` fields with unknown subtype | `references/replay-playbook.md` first, then return a subtype blocker |
 | Generic slider family selection: Yidun, Shumei, Yunpian, 360 Tianyu, Dingxiang, GT3/GT4 | `references/slide-captcha-overview.md` |
 | Netease Yidun / `NECaptcha` / `api/v3/get` / `api/v3/check` / `cb` / `data` | `references/yidun-workflow.md` |
 | Shumei / `captcha1.fengkongcloud.cn` / `register` / `fverify` / `rid` / DES params | `references/shumei-workflow.md` |
@@ -43,14 +44,14 @@ Read only the selected family reference after the work order names a generation-
 1. Freeze one coherent verifier round: setup response, images/assets, cookies, callback/random keys, verifier token, proof-builder state, final verify/check request, and final response.
 2. Never mix tokens, images, callbacks, proof fields, telemetry, sidecar logs, or dynamic scripts across neighboring rounds.
 3. The final proof is the verifier server response, not OCR confidence, slider distance, non-empty `w`, HTTP `200`, or a decoded payload.
-4. Point-click tasks separate prompt recognition, candidate localization, coordinate mapping, and encrypted proof packaging. GT4 word-click uses `risk_type=word` + `captcha_type=word` + `imgs/ques`; its coordinates are a current-image `0..10000` normalized wire shape, not nine-grid row/column pairs.
+4. Point-click tasks separate prompt recognition, candidate localization, coordinate mapping, and encrypted proof packaging. GT4 word-click uses `risk_type=word` + `captcha_type=word` + `imgs/ques`; its coordinates are a current-image `0..10000` normalized wire shape, not nine-grid row/column pairs. GT4 nine-grid uses 3x3 model-backed tile selection and one-based row/column pairs; GT4 slide uses its own gap/track adapter.
 5. Slider tasks separate original/restored image distance, displayed coordinate, submitted coordinate, behavior track, declared duration, and real wall-clock wait.
 6. Sidecar/device models such as Aliyun FeiLin/TDC require full same-session profile, sparse token/counter, timestamps, and telemetry. A valid checksum on one packet does not prove cross-packet state consistency.
 7. Browser automation is evidence only unless the user explicitly asked for UI automation. Final delivery is protocol replay plus local helpers; Python owns live HTTP egress.
 8. When platform workflow requires iv8 or JS runtime, route the execution backend through web-protocol-recovery's internal `iv8` Provider or `python-node` with `strategy: env-patch`.
 9. If the user only wants the verification layer, stop at captcha success and do not add business replay to the entry point or success condition.
-10. `verify_has_w=true`, non-empty proof fields, or outer `status=success` with semantic verifier failure is current-round failure evidence, not success. Re-check perception, coordinate mapping, proof packaging, and current bundle entry before any retry. For word-click, do not add slide `td/td_sign` or reuse nine-grid mapping unless current wire evidence requires it.
-11. GT4 point-click/ordered-text code must treat public `captchaObj` as a wrapper until proven otherwise. Discover the current bundle's submitter/registry path from live/cache evidence; do not ship hardcoded old module IDs or stale `$_BEP -> $_BBFs` assumptions.
+10. `verify_has_w=true`, non-empty proof fields, or outer `status=success` with semantic verifier failure is current-round failure evidence, not success. Re-check perception, coordinate mapping, proof packaging, and current bundle entry before any retry. For word-click, do not add slide `td/td_sign` or reuse nine-grid mapping unless current wire evidence requires it. On semantic success, capture the response credential shape when `data.seccode` is present; it remains same-round dynamic state, not a reusable fixture.
+11. GT4 point-click/ordered-text code must treat public `captchaObj` as a wrapper until proven otherwise. Discover the current bundle's submitter/registry path from live/cache evidence; do not ship hardcoded old module IDs or stale `$_BEP -> $_BBFs` assumptions. The `$_BEP`/`$_BBFs` path is historical fallback evidence only; current word-click must bind the actual callable export, while nine-grid may use the pure-Python model path.
 12. Dynamic evidence, images, decoded payloads, forms, and responses must stay under assigned `js_reverse_cache/**`; do not write into this Provider directory.
 13. Behavior-sensitive failures require sample hygiene grading. Treat hooked automation, remote debugging, fresh empty profiles, and repeated rejects on one exit as environment evidence before changing trajectory, answer, or proof algorithms.
 

@@ -61,7 +61,7 @@ Python 3.9 特例：`curl_cffi 0.13.x` 不支持原生 `chrome146`，而
 
 **原则（极速）：**
 固定协议层 → 以本参考中的历史候选为起点；只有经当前目标同轮 capture、离线向量和语义验收后，才复用到授权目标实现。**不得运行时修改已安装 skill，也不得把历史 T001 当作当前验收**。
-随浏览器/会话变化的层（133 画像、IP、UA、FeiLin 资源 URL、combat 时间）→ **当前目标 capture 生成动态状态**。
+随浏览器/会话变化的层（完整字段画像、IP、UA、FeiLin 资源 URL、combat 时间）→ **当前目标 capture 生成动态状态**。
 外部参考项目不是前提。优先使用当前选中 case manifest 声明的资产；用户另给的历史项目只可按 read budget 读取，不能把旧实现直接复制进当前交付。
 
 用户提示词含下列**任一**时，**必须进入极速分支**，不得先开完整分析：
@@ -112,7 +112,7 @@ DEVICE_AES_IV     = 0123456789ABCDEF   # 16 字节 ASCII
 DEVICE_TOKEN_SALT = daye,raolewoba!
 TOKEN_PLATFORM    = WEB
 # deviceToken outer: Base64("WEB#session_id#payload_b64#counter#md5hex")
-# payload AES-CBC(session_key from DeviceConfig, IV above), 133 个 # 字段
+# payload AES-CBC(session_key from DeviceConfig, IV above), schema-length 个 # 字段
 # checksum = MD5("WEB#session_id#payload_b64#counter#daye,raolewoba!")
 
 # data / arg stream（多 sg 路径共享）
@@ -218,7 +218,7 @@ Mode=embed, Language=cn
 
 ```text
 DeviceConfig.session_id / session AES key / ip / timestamp / feilinVersion 路径
-fullDeviceFields 133（GPU/UA/屏幕/FeiLin URL 等）
+fullDeviceFields（字段数量由当前 schema 决定，历史样本见 133/142；GPU/UA/屏幕/FeiLin URL 等）
 sparse token 时间项、certifyId、counter≈Log2 GatherCost
 combat504 轨迹时间、Log3 时间
 StaticPath / 当轮 sg 文件名（codec 不变时只当 URL）
@@ -385,6 +385,19 @@ Log3 的 `combat504` 和 Verify 的 `data` 都需要真实轨迹数据。此步�
    不要在单样本上用暴力搜索得到多个等价候选后随意选一个
 ```
 
+#### FeiLin 画像稳定性与 schema 判定
+
+画像稳定性不能只按 `feilinXXX` 的数字编号判断。服务端 cohort 编号可能复用、回落或与字段实现代际不一致；应先解密同轮 Log2/token，再用完整字段数量识别 schema。当前 142 字段样本证明，`52/86/136/137` 是浏览器资源、能力或运行时统计类动态字段，不应因为它们在不同采集轮次变化就拒绝候选画像。对未知编号但同样是 142 字段的 cohort，沿用该 schema 的动态字段规则；只有当前证据显示字段角色变化时才新增版本专属覆盖。
+
+`field20` 在部分 142 字段采集轮次可能稀疏为空。只有当所有非空样本的值唯一时，才能把空值归一化为该值；非空值本身出现多个取值时必须判定为不稳定，不能用多数值掩盖真实漂移。生成候选画像时，稳定性签名可以使用上述归一化，但代表轮次必须优先选择包含完整非空字段的样本。任一未被证据标记为动态或稀疏可缺失的字段发生变化，都应拒绝更新并继续取证。
+
+最小检查清单：
+
+1. 同一 `DeviceConfig.version` 的样本字段数量一致，或明确按主 schema 分组。
+2. 142 字段 schema 的动态字段至少检查 `52/86/136/137`；不得把 cohort 数字直接当作 schema 代号。
+3. `field20` 等稀疏字段只在非空值唯一时归一化，代表轮次使用字段完整样本。
+4. `field21` 仍须用独立 suffix 样本和 holdout 验证；画像稳定性放宽不等于跳过 field21 或在线 `T001/true` 验收。
+
 #### field21 样本采集的正确 MCP 操作序列
 
 field21 的值由 FeiLin 在浏览器中计算，包含在 Log2 请求的 Data 字段中。采集步骤：
@@ -414,7 +427,7 @@ field21 的值由 FeiLin 在浏览器中计算，包含在 Log2 请求的 Data �
 步骤 5：Python 解密 Data 字段
   - AES-CBC 解密，key=DEVICE_UPLOAD_KEY (a549a55c60a39aa0)，IV=0123456789ABCDEF
   - 解密后是 '#' 分隔的外层，其中 event_data 包含 Base64 编码的内层
-  - 内层再次 session AES 解密后得到 '#' 分隔的 133 字段
+   - 内层再次 session AES 解密后得到 '#' 分隔的完整字段 schema
   - fields[21] 就是 field21 值
 
 步骤 6：重复 12+ 轮（每次得到不同的 session_id suffix 和对应 field21）
@@ -435,7 +448,7 @@ field21 的值由 FeiLin 在浏览器中计算，包含在 Log2 请求的 Data �
    - 外部目标项目可能包含 RPC/helper/stream codec/profile/runner；这些文件不由本 skill 提供，必须先确认路径、授权和当前目标范围。
 3. **当前目标同轮 capture（只采动态层）：**
    - 至少一轮人工或已有 T001：Init + Log2 + Log3 + Verify；或 Init + Log2 + token + Log3
-   - 解析 `DeviceConfig.version`、133 字段、combat511/504、sceneId、region/verify host、UA
+   - 解析 `DeviceConfig.version`、完整字段 schema、combat511/504、sceneId、region/verify host、UA
 4. **生成当前目标的动态状态快照：**
    - `feilinVersion` / `userAgent` / `fullDeviceFields` / `combat511` / `combat504`
    - `field21`: version 含 `feilin113` → `{"algorithm":"feilin113"}`；否则 classic 的 sourceKey+xorMaskHex（来自本参考候选表，**不要**重拟合除非回归失败）
@@ -455,7 +468,7 @@ field21 的值由 FeiLin 在浏览器中计算，包含在 Log2 请求的 Data �
 - DeviceConfig AES 定值解密失败 → 完整分支
 - field21：feilin113 + 全 classic 表均无法多样本命中 → 完整分支算法换代
 - stream 固定输入输出或运行时 key ≠ `3e627e1b4c63f913` 且旧 vm 输出变 → 完整分支更新 VM
-- token 非 133 字段或 envelope 变 → 完整分支
+- token 字段数量/schema 或 envelope 变 → 完整分支
 - 仅 `F025` 且 version 与 profile 不一致 → **日更分支**（换画像，不重解定值层）
 - 缺少已确认的 stream codec 工件 → 停止并索取当前目标材料，或在批准的执行策略下重新提取；不得从旧项目复制后假装跑通
 
@@ -588,7 +601,7 @@ DeviceConfig.version
 1. 版本相同时不启动浏览器，也不改 profile。
 2. 只启动项目明确指定的取证浏览器。
 3. 默认收集 24 个目标 cohort 的 Init/Log2/token 轮次；其他 cohort 原样归档并跳过，不混入推导，也不因一次跨版本立即中止。
-4. 每个接受轮次都校验同 session、token checksum、133 字段和已知稀疏索引。
+4. 每个接受轮次都校验同 session、token checksum、完整字段 schema 和已知稀疏索引。
 5. field21 使用训练样本推导、保留样本验证，不能用单向量猜常量。
 6. 候选 profile 只在内存中注入现有纯协议入口；在线验收若命中其他 cohort，只重试 stale 轮次。
 7. 只有 Log2/Log3 `200 / true` 且 Verify `T001 / true` 才加锁并用 `os.replace` 原子提升。
@@ -603,7 +616,7 @@ DeviceConfig.version
 - Init 请求/响应，包含 `StaticPath` 和 `DeviceConfig`。
 - FeiLin 与动态 `sg` 的最终脚本 URL。
 - 浏览器自动发送的 Log2 请求。
-- `window.um.getToken()` 的 token；必要时仅在取证页临时观察 133 项数组的 `join("#")` 输入。
+- `window.um.getToken()` 的 token；必要时仅在取证页临时观察完整字段数组的 `join("#")` 输入。
 - 一次人工或可信输入产生的 Log3 与 Verify。
 
 自动采集必须只接受目标 cohort。若同一浏览器连续得到 FeiLin109、FeiLin110 等不同版本，按版本分别归档；非目标版本不计入 24 轮，不参与 field21 或稳定画像选择。
@@ -625,7 +638,7 @@ python scripts/providers/protocol-recovery/verifier/aliyun_v2_profile_diff.py `
 脚本输出：
 
 - 当前 FeiLin version、session、IP、Log2 GatherCost。
-- 当前完整 133 字段画像。
+- 当前完整字段画像及字段数量。
 - 当前稀疏 token 画像和 checksum 状态。
 - 与旧 profile 的逐索引差分及已知字段角色。
 
@@ -734,7 +747,7 @@ e7f61587 -> SXpKeXR4e3o=
 
 1. 保存当前浏览器完整 Log2 画像。
 2. 保存同一浏览器的稀疏 token，或从完整画像按当前非空索引生成稀疏模板。
-3. 当前目标状态写入精确 `feilinVersion`、UA、field21 参数和 133 字段；这些是概念字段，映射到目标自己的 schema。
+3. 当前目标状态写入精确 `feilinVersion`、UA、field21 参数和完整字段画像；字段数量与索引必须映射到目标自己的 schema。
 4. 当前实现收到未知 version 时 fail fast，提示刷新 FeiLin 状态，不发送猜测 Verify。
 5. 先跑离线 profile/field21/token 测试，再做在线 Verify。
 
@@ -759,7 +772,7 @@ VerifyResult == true
 以下任一变化都超出普通日更，必须停止、保留旧 profile，并转入当前版本重新分析：
 
 - DeviceConfig AES key、padding 或字段布局不再匹配。
-- 完整画像或稀疏 token 不再是 133 字段，或稀疏非空索引出现未知变化。
+- 完整画像或稀疏 token 的字段数量/schema 发生变化，或稀疏非空索引出现未知变化。
 - token envelope、checksum、Log2/Log3 签名或加密结构变化。
 - field21 已知 classic 公式无法得到唯一参数，或 holdout 不通过（含骨架换代）。
 - 动态 sg VM 固定输入输出或运行时 key 真正变化。
@@ -908,7 +921,7 @@ Base64("WEB#session_id#payload_ciphertext#counter#checksum")
 
 - payload 使用 DeviceConfig 的 session AES key。
 - IV 为 `0123456789ABCDEF`。
-- 明文是 133 个 `#` 分隔字段。
+- 明文是当前 schema 数量的 `#` 分隔字段。
 - checksum 常见为：
 
 ```text
@@ -919,7 +932,7 @@ MD5("WEB#session_id#payload_ciphertext#counter#daye,raolewoba!")
 
 ### 完整画像与稀疏增量
 
-FeiLin 会先在 Log2 上传完整 133 字段画像，Verify token 再上传稀疏增量。必须保持：
+FeiLin 会先在 Log2 上传完整字段画像，Verify token 再上传稀疏增量。必须保持：
 
 - 相同 session_id 和 session AES key
 - 相同 field 21
@@ -1180,7 +1193,7 @@ Python 发送业务请求（带 token + 签名）
 3. **禁止 `StaticPath` / `sg.xxx` 文件名轮换就重提 VM。** 多个脚本路径可能共享同一 stream codec 与 key。先对当前已确认 helper 做固定输入输出比较；只有输出或运行时 key 真变才更新实现。
 4. **禁止用长时间滑块 UI 自动化替代协议日更。** 浏览器只用于取证、人工 T001 正样本、更新器采集。合成 PointerEvent、CDP 拖滑块、反复“帮用户拖到底”不是交付主路径；用户已提供人工 T001 或已有更新器时，应立刻回到 profile/field21/data codec 对齐。
 5. **禁止忽略 skill 核心规则第 8 条。** 动手重写前必须先搜用户授权的同平台实现、当前 case bundle 和候选事实；复用后仍须用当前 Init/Log2/Verify 结果复核，不能盲信历史 profile、key 或 field21 家族。
-6. **禁止只改 field21 或只抄单个新字段进旧画像。** 必须整套更新完整 Log2 133 字段、稀疏 token 拓扑、UA/能力位/FeiLin URL 与 `feilinVersion`；候选须先内存验收 Log2/Log3 `200/true` 且 Verify `T001/true`，再原子替换。
+6. **禁止只改 field21 或只抄单个新字段进旧画像。** 必须整套更新当前 schema 的完整 Log2 字段、稀疏 token 拓扑、UA/能力位/FeiLin URL 与 `feilinVersion`；候选须先内存验收 Log2/Log3 `200/true` 且 Verify `T001/true`，再原子替换。
 7. **禁止把 `F017`/`F001`/`F025` 一上来归因轨迹。** 分层：`F025` 先查 session/画像/token 一致性；sidecar 缺失先查 Log2/Log3；`data`/arg 固定向量失败再动 codec；结构都通仍风险拒绝才调轨迹。错误分支里在 sidecar 与 data codec 未对齐前烧时间拖滑块，属于诊断顺序反了。
 8. **禁止用户只要验证层时把业务接口回放写进成功条件。** 成功证据停在 `T001 + VerifyResult=true`。
 

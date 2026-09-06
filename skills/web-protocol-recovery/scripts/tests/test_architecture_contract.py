@@ -124,6 +124,21 @@ class ArchitectureContractTests(unittest.TestCase):
         right = row("right", ["runtime:pure-python"], ["runtime:iv8"])
         self.assertEqual(build_case_registry.ambiguity_findings([left, right]), [])
 
+    def test_case_ambiguity_accepts_disjoint_operation_discriminators(self) -> None:
+        left = row("left", ["path:/graphql"], [])
+        right = row("right", ["path:/graphql"], [])
+        left["match"]["discriminators"] = [{"kind": "operationName", "value": "Search"}]
+        right["match"]["discriminators"] = [{"kind": "operationName", "value": "Checkout"}]
+        self.assertEqual(build_case_registry.ambiguity_findings([left, right]), [])
+
+    def test_case_ambiguity_rejects_overlapping_discriminators(self) -> None:
+        left = row("left", ["path:/graphql"], [])
+        right = row("right", ["path:/graphql"], [])
+        left["match"]["discriminators"] = [{"kind": "channel", "value": "orders"}]
+        right["match"]["discriminators"] = [{"kind": "channel", "value": "orders"}]
+        findings = build_case_registry.ambiguity_findings([left, right])
+        self.assertEqual(len(findings), 1)
+
     def test_live_egress_scan_covers_provider_api_examples(self) -> None:
         offender = (
             validate_architecture.SKILL_ROOT

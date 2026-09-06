@@ -71,6 +71,19 @@
             },
             "additionalProperties": false
           }
+        },
+        "discriminators": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["kind", "value"],
+            "properties": {
+              "kind": {"enum": ["operationName", "persistedQueryHash", "wsSubprotocol", "channel", "opcode"]},
+              "value": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false

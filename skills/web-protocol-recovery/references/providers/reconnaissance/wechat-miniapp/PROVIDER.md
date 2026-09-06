@@ -32,6 +32,16 @@ No field, API, request sample, or business action → do not blind-capture netwo
 
 Before locating, starting, attaching to, or stopping WMPFDebugger, require `runtimeCustody.providerOwnsLease=true`. A false or omitted value blocks lifecycle work; never infer lease custody from the selected Provider.
 
+### Observe-external mode
+
+When the user already runs their own WMPFDebugger, use `runtimeCustody.leaseMode=observe-external` with `providerOwnsLease=false`. This mode allows only:
+
+- attach and target selection;
+- target/network/source reads and bounded capture;
+- cleanup of MCP-owned debug state created by this work order.
+
+It forbids: starting or stopping the external process, editing user configuration, taking over unknown PIDs, persisting any operational state outside the MCP-owned debug records, and mixing the external root into project `allowedPaths`. Exit code or listener conflicts in observe-external mode are reported as blockers, never resolved by process management.
+
 Lifecycle scripts are owned by the active `miniapp-reverse-mcp` installation, not bundled in this skill. Locate the MCP root from the running Python process whose command line names `run_mcp_server.py`, canonicalize and deduplicate roots, then require exactly one root with all of these fingerprints:
 
 - `pyproject.toml` declares `name = "miniapp-reverse-mcp"`

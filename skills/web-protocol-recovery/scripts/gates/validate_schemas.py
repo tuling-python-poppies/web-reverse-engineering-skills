@@ -48,6 +48,15 @@ VALID_WORK_ORDER = {
                 "queryPolicy": {"mode": "deny", "allowedKeys": [], "allowedValues": {}},
             }
         ],
+        "discoveryScopes": [
+            {
+                "scheme": "https",
+                "host": "api.example.com",
+                "port": 443,
+                "routePrefix": "/",
+                "queryPolicy": {"mode": "deny"},
+            }
+        ],
         "actionClass": "read-only",
         "actionApproval": "standing-read-only",
         "accountOrSessionUse": "none",
@@ -107,6 +116,7 @@ VALID_WORK_ORDER = {
         "providerOwnsBrowser": False,
         "providerOwnsWorker": False,
         "providerOwnsLease": False,
+        "leaseMode": "observe-external",
     },
     "runtimeIds": [],
 }
@@ -231,6 +241,13 @@ def work_order_semantic_findings(value: dict, label: str) -> list[str]:
     findings: list[str] = []
     read_plan = value.get("readPlan") or {}
     findings.extend(f"{label}: {item}" for item in validate_read_plan(read_plan))
+    custody = value.get("runtimeCustody") or {}
+    if custody.get("leaseMode") == "observe-external" and custody.get("providerOwnsLease") is True:
+        findings.append(f"{label}: observe-external lease mode requires providerOwnsLease=false")
+    authorization = value.get("authorization") or {}
+    discovery_scopes = authorization.get("discoveryScopes") or []
+    if discovery_scopes and authorization.get("actionClass") in {"verifier-submit", "mutation-submit"}:
+        findings.append(f"{label}: discoveryScopes authorize observation only, not verifier or mutation submits")
     project = value.get("project") or {}
     project_root = project.get("projectRoot")
     write_mode = project.get("writeMode")
@@ -504,6 +521,19 @@ def main() -> int:
     bad_read_plan = copy.deepcopy(VALID_WORK_ORDER)
     bad_read_plan["readPlan"] = {"maxDistinctPaths": 24, "windows": []}
     failures.extend(expect_invalid(work_order, bad_read_plan, "legacy readPlan shape"))
+
+    discovery_with_submit = copy.deepcopy(VALID_WORK_ORDER)
+    discovery_with_submit["authorization"]["actionClass"] = "verifier-submit"
+    discovery_with_submit["authorization"]["actionApproval"] = "standing-verifier-submit"
+    discovery_findings = work_order_semantic_findings(discovery_with_submit, "discovery submit guard")
+    if not any("discoveryScopes authorize observation only" in item for item in discovery_findings):
+        failures.append("discovery submit guard: expected verifier-submit with discoveryScopes to fail")
+
+    observe_lease_conflict = copy.deepcopy(VALID_WORK_ORDER)
+    observe_lease_conflict["runtimeCustody"]["providerOwnsLease"] = True
+    lease_findings = work_order_semantic_findings(observe_lease_conflict, "observe lease guard")
+    if not any("observe-external lease mode requires providerOwnsLease=false" in item for item in lease_findings):
+        failures.append("observe lease guard: expected providerOwnsLease=true with observe-external to fail")
 
     remaining_gt_total = copy.deepcopy(VALID_WORK_ORDER)
     remaining_gt_total["authorization"]["requestBudget"]["total"] = 1

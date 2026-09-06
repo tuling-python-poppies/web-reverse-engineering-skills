@@ -41,6 +41,7 @@
         "browserReconAllowed": {"type": "boolean"},
         "browserNavigationSideEffectsApproved": {"type": "boolean"},
         "allowedHostsAndRoutes": {"type": "array", "items": {"$ref": "#/$defs/routeScope"}},
+        "discoveryScopes": {"type": "array", "items": {"$ref": "#/$defs/routeScope"}},
         "requestBudget": {"$ref": "#/$defs/requestBudget"},
         "artifactPolicy": {"$ref": "#/$defs/artifactPolicy"},
         "executionPolicy": {"$ref": "#/$defs/executionPolicy"}
@@ -146,7 +147,8 @@
       "properties": {
         "providerOwnsBrowser": {"type": "boolean"},
         "providerOwnsWorker": {"type": "boolean"},
-        "providerOwnsLease": {"type": "boolean"}
+        "providerOwnsLease": {"type": "boolean"},
+        "leaseMode": {"enum": ["managed-lease", "observe-external"]}
       }
     },
     "runtimeIds": {"type": "array", "items": {"$ref": "#/$defs/runtimeId"}}

@@ -76,7 +76,23 @@ def rows_disambiguated(left: dict, right: dict) -> bool:
     right_signals = signal_set(right, "signals")
     left_negative = signal_set(left, "negativeSignals")
     right_negative = signal_set(right, "negativeSignals")
-    return bool(left_negative & right_signals) or bool(right_negative & left_signals)
+    if bool(left_negative & right_signals) or bool(right_negative & left_signals):
+        return True
+    left_discriminators = {
+        (item.get("kind"), item.get("value"))
+        for item in (left.get("match") or {}).get("discriminators") or []
+        if isinstance(item, dict) and item.get("kind") and item.get("value")
+    }
+    right_discriminators = {
+        (item.get("kind"), item.get("value"))
+        for item in (right.get("match") or {}).get("discriminators") or []
+        if isinstance(item, dict) and item.get("kind") and item.get("value")
+    }
+    if left_discriminators and right_discriminators and not (
+        left_discriminators & right_discriminators
+    ):
+        return True
+    return False
 
 
 def minimum_signals(row: dict) -> int:

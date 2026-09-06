@@ -63,7 +63,7 @@ entry point after any edit. Each one is fail-closed; none of them are advisory.
 
 | Gate | Asserts |
 |---|---|
-| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 24 cases |
+| `verify_case_hashes.py` | Declared hashes match the bytes on disk for all 25 case manifests |
 | `build_case_registry.py --check` | `registry.json` is exactly the generated projection |
 | `validate_architecture.py` | Provider registry, route literals, hub and case-process contracts, read plans, case manifests, live-egress boundary, build residue, and LF-only line endings |
 | `validate_schemas.py` | Work-order and result schemas |
@@ -92,3 +92,10 @@ python scripts\providers\delivery\python-collector\scaffold_project.py <project-
 ```
 
 `scripts/providers/cases/live_state.py` backs each case's `pull_live_state.py` for in-memory credential pulls. web-protocol-recovery-specific deposition and dedup rules live in `references/methodology/knowledge-maintenance.md`.
+
+The gate runtime requires `jsonschema`. Case tests may have additional optional
+dependencies declared by their manifest, including `pycryptodome`, `Pillow`,
+`ddddocr`, `curl_cffi`, and `websocket-client`; preflight reports missing
+optional modules and does not install them automatically. Node-based case
+artifacts are executed only through an approved `python-node` runner with
+current work-order hash, deadline, and sandbox evidence.

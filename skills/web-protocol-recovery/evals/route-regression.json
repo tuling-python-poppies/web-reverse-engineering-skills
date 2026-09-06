@@ -211,7 +211,7 @@
         "route": "verifier",
         "gateFamily": "verifier",
         "familyReference": "aliyun-captcha-v2-workflow.md",
-        "caseId": "pzds-aliyun-v2-goods-public",
+        "caseId": "python-node-pzds-aliyun-v2-goods-public",
         "deliveryProvider": "python-collector"
       }
     },

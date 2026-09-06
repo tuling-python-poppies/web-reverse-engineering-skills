@@ -11,6 +11,7 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[2]
 EVAL_PATH = SKILL_ROOT / "evals" / "route-regression.json"
 REGISTRY_PATH = SKILL_ROOT / "references" / "providers" / "registry.json"
+CASE_REGISTRY_PATH = SKILL_ROOT / "references" / "cases" / "registry.json"
 SCHEMA_VERSION = "web-protocol-recovery-route-regression"
 REQUIRED_CASE_IDS = {
     "aliyun-feilin-generation-ambiguous",
@@ -59,8 +60,16 @@ def validate_route_regression() -> list[str]:
         return [f"missing eval file: {EVAL_PATH.relative_to(SKILL_ROOT).as_posix()}"]
     if not REGISTRY_PATH.is_file():
         return [f"missing provider registry: {REGISTRY_PATH.relative_to(SKILL_ROOT).as_posix()}"]
+    if not CASE_REGISTRY_PATH.is_file():
+        return [f"missing case registry: {CASE_REGISTRY_PATH.relative_to(SKILL_ROOT).as_posix()}"]
 
     registry = load_json(REGISTRY_PATH)
+    case_registry = load_json(CASE_REGISTRY_PATH)
+    verified_cases = {
+        row.get("caseId"): row
+        for row in case_registry.get("cases", [])
+        if row.get("status") == "verified"
+    }
     valid_routes = {provider["id"] for provider in registry.get("providers", [])}
     valid_routes.update(registry.get("routeSentinels", []))
     data = load_json(EVAL_PATH)
@@ -91,6 +100,13 @@ def validate_route_regression() -> list[str]:
                 findings.append(f"{case_id}: expect.{field} must be {required_value!r}")
         if route in OBSOLETE_ROUTES:
             findings.append(f"{case_id}: obsolete route {route!r}")
+        expected_case_id = expect.get("caseId")
+        if expected_case_id is not None:
+            case_row = verified_cases.get(expected_case_id)
+            if case_row is None:
+                findings.append(f"{case_id}: expect.caseId does not resolve to a verified case manifest")
+            elif case_row.get("selectableAs") not in {"proof", "template"}:
+                findings.append(f"{case_id}: expect.caseId has invalid selectableAs")
         if expect.get("strategy") == "env-patch" and route != "python-node":
             findings.append(f"{case_id}: env-patch strategy requires route python-node")
         if expect.get("profile") == "douyin-abogus-native" and route != "pure-python":

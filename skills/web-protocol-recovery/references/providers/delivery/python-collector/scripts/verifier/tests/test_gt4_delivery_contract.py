@@ -31,9 +31,29 @@ def work_order(root: Path) -> dict:
                     "scheme": "https",
                     "host": "gcaptcha4.geetest.com",
                     "port": 443,
+                    "routePrefix": "/load",
+                    "queryPolicy": {
+                        "mode": "allow-listed",
+                        "allowedKeys": ["callback", "captcha_id", "challenge", "client_type", "risk_type", "pt", "lang"],
+                    },
+                },
+                {
+                    "scheme": "https",
+                    "host": "gcaptcha4.geetest.com",
+                    "port": 443,
+                    "routePrefix": "/verify",
+                    "queryPolicy": {
+                        "mode": "allow-listed",
+                        "allowedKeys": ["callback", "captcha_id", "client_type", "lot_number", "risk_type", "payload", "process_token", "payload_protocol", "pt", "w", "td", "td_sign"],
+                    },
+                },
+                {
+                    "scheme": "https",
+                    "host": "static.geetest.com",
+                    "port": 443,
                     "routePrefix": "/",
-                    "queryPolicy": {"mode": "allow-all"},
-                }
+                    "queryPolicy": {"mode": "deny"},
+                },
             ],
             "requestBudget": {
                 "total": 5,
@@ -191,6 +211,35 @@ class Gt4FilesystemAndScopeTests(unittest.TestCase):
             gt4_runtime.scope_allows(scopes, "https://gcaptcha4.geetest.com/api/../private")
         )
         self.assertTrue(gt4_runtime.scope_allows(scopes, "https://gcaptcha4.geetest.com/api/load"))
+
+    def test_invalid_url_fails_closed_without_raising(self) -> None:
+        scopes = work_order(Path.cwd())["authorization"]["allowedHostsAndRoutes"]
+        for target in ("https://[bad/api", "", None, "https://gcaptcha4.geetest.com/%2Fprivate"):
+            with self.subTest(target=target):
+                self.assertFalse(gt4_runtime.scope_allows(scopes, target))
+
+    def test_websocket_scope_supports_handshake_only(self) -> None:
+        scope = {
+            "scheme": "wss",
+            "host": "stream.example.test",
+            "port": 443,
+            "routePrefix": "/socket",
+            "queryPolicy": {"mode": "deny"},
+        }
+        self.assertTrue(gt4_runtime.scope_allows([scope], "wss://stream.example.test/socket"))
+        self.assertFalse(gt4_runtime.scope_allows([scope], "wss://stream.example.test/private"))
+        self.assertFalse(gt4_runtime.scope_allows([scope], "https://stream.example.test/socket"))
+
+    def test_generic_root_scope_matching_is_not_gt4_validation(self) -> None:
+        scope = {
+            "scheme": "https",
+            "host": "gcaptcha4.geetest.com",
+            "port": 443,
+            "routePrefix": "/",
+            "queryPolicy": {"mode": "allow-all"},
+        }
+        self.assertTrue(gt4_runtime.scope_allows([scope], "https://gcaptcha4.geetest.com/load"))
+        self.assertTrue(gt4_runtime.scope_allows([scope], "https://gcaptcha4.geetest.com/admin/export?token=x"))
 
     def test_response_body_cap_stops_buffering_before_overflow(self) -> None:
         class FakeResponse:

@@ -1511,7 +1511,7 @@
             ],
             "manifest": {
                 "path": "python-node/pzds-aliyun-v2-goods-public/case.json",
-                "sha256": "a654feb655267265b0c9f0228174ae83920a3d380dba2c5a4fd924cef8ede158"
+                "sha256": "47fdc801c0200c625693870a78057f1e6a8b5a794f3b45a0e4f4974174537558"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

@@ -79,11 +79,11 @@ class EntryDisciplineScanTests(unittest.TestCase):
             "module-level assign with side-effect call",
         )
 
-    def test_path_read_text_is_import_time_side_effect(self) -> None:
-        self.assert_warns(
-            'from pathlib import Path\nsource = Path("asset.js").read_text(encoding="utf-8")\n',
-            "module-level assign with side-effect call",
+    def test_static_fixture_read_is_not_import_time_side_effect(self) -> None:
+        warnings = self.scan_ast(
+            'from pathlib import Path\nsource = Path("asset.js").read_text(encoding="utf-8")\n'
         )
+        self.assertEqual([], warnings)
 
 
 class PreflightSelfTestGateTests(unittest.TestCase):

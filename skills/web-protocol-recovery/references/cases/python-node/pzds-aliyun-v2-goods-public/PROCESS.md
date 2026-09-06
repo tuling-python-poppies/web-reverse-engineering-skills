@@ -318,6 +318,12 @@ WASM only returns narrow artifacts (`Sign`, `PZTimestamp`, `Random`, captcha
 - Aliyun RPC HMAC-SHA1 helper
 - device token helpers
 - v18 WASM signer wrapper
+
+The signer and stream codec wrappers do not start Node or execute target JS/WASM
+by themselves. They require an explicit runner supplied by the python-node
+Provider after the current work-order has approved the exact asset hashes,
+deadline, and capability-denied sandbox. The default case tests therefore use
+offline fixtures and verify that a missing runner is rejected.
 - business URL builder and response classifier
 
 Project live runners must keep:

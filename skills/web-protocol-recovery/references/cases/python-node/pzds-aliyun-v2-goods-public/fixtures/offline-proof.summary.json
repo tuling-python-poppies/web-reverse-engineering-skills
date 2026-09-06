@@ -4,10 +4,12 @@
  "executedAt": "2026-08-20",
  "passed": true,
  "activeScope": "offline-only",
- "entrySha256": "92361858c84600e2efd7b369c0867c15a4200145e772412a7ff277b631067fb1",
- "testArtifactSha256": "2cf2377c4059da48eaa1a836c67d91e24a44a7f194c11034347d3eb7b8ce1136",
- "assertions": [
-  "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and parser vectors pass",
+  "entrySha256": "569dd91961618bc1bf95248bf8c30ada0ad713b60469b9e65e8b8af8f7c85c49",
+  "testArtifactSha256": "251340206869481c5d3356f11f57f88b536d94d7bf736cc77001c12337a1e6e3",
+  "targetCodeExecution": "blocked-by-default",
+  "assertions": [
+   "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, and challenge-parser vectors pass without target-code execution",
+   "provider-runner contract accepts bounded data/arg and v18 WASM artifact outputs only when an approved runner is explicitly supplied",
   "entry import and case-local tests perform no live network egress",
   "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation",
   "profile refresh process uses CDP with ordinary Chrome first and optional CloakBrowser fallback; legacy browser automation stacks are not part of this case",

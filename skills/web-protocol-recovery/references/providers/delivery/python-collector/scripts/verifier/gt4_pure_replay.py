@@ -42,11 +42,34 @@ from gt4_runtime import (
 LOAD_URL = "https://gcaptcha4.geetest.com/load"
 VERIFY_URL = "https://gcaptcha4.geetest.com/verify"
 STATIC_BASE = "https://static.geetest.com/"
+GT4_EXACT_SCOPES = {
+    ("https", "gcaptcha4.geetest.com", 443, "/load"),
+    ("https", "gcaptcha4.geetest.com", 443, "/verify"),
+    ("https", "static.geetest.com", 443, "/"),
+}
 LOAD_QUERY_KEYS = {"callback", "captcha_id", "challenge", "client_type", "risk_type", "lang"}
 VERIFY_QUERY_KEYS = {
     "callback", "captcha_id", "client_type", "lot_number", "risk_type",
     "payload", "process_token", "payload_protocol", "pt", "w", "td", "td_sign",
 }
+GT4_QUERY_KEYS = {
+    "/load": LOAD_QUERY_KEYS,
+    "/verify": VERIFY_QUERY_KEYS,
+}
+
+
+def _scope_key(scope):
+    if not isinstance(scope, dict):
+        return None
+    try:
+        return (
+            str(scope.get("scheme", "")).lower(),
+            str(scope.get("host", "")).lower(),
+            int(scope.get("port", -1)),
+            str(scope.get("routePrefix", "")),
+        )
+    except (TypeError, ValueError):
+        return None
 RAW_ARTIFACT_FIELDS = {
     "gt4.load.jsonp", "gt4.load.json", "gt4.cookies.json",
     "gt4.slice.png", "gt4.bg.png", "gt4.gct.raw.js", "gt4.trace.json",
@@ -244,6 +267,20 @@ def validate_work_order(path, cache_root):
         validate_ledger_path(work_order)
     except ValueError as error:
         errors.append(str(error))
+    scope_keys = {key for scope in scopes if (key := _scope_key(scope)) is not None}
+    if scope_keys != GT4_EXACT_SCOPES:
+        errors.append("allowedHostsAndRoutes must contain exactly the GT4 /load and /verify scopes")
+    for scope in scopes:
+        if not isinstance(scope, dict):
+            errors.append("allowedHostsAndRoutes entries must be objects")
+            continue
+        if str(scope.get("host", "")).lower() == "gcaptcha4.geetest.com":
+            prefix = scope.get("routePrefix")
+            policy = scope.get("queryPolicy") or {}
+            if prefix not in GT4_QUERY_KEYS:
+                errors.append("gcaptcha4.geetest.com scope must target /load or /verify exactly")
+            elif policy.get("mode") != "allow-listed" or set(policy.get("allowedKeys") or []) != GT4_QUERY_KEYS[prefix]:
+                errors.append(f"GT4 {prefix} query policy must be the exact allow-listed key set")
     if not work_order.get("acceptanceTest"):
         errors.append("acceptanceTest is required")
     if errors:

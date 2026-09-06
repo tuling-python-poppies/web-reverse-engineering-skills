@@ -227,22 +227,110 @@ def safe_lot_cache(cache_root: Path, lot_number: Any) -> Path:
     return cache
 
 
+UNRESERVED_BYTES = frozenset(
+    b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+)
+PERCENT_ESCAPE_RE = re.compile(r"%[0-9A-Fa-f]{2}")
+
+
+def _has_valid_percent_encoding(value: str) -> bool:
+    index = 0
+    while index < len(value):
+        if value[index] == "%":
+            if index + 2 >= len(value) or not PERCENT_ESCAPE_RE.fullmatch(value[index:index + 3]):
+                return False
+            index += 3
+            continue
+        index += 1
+    return True
+
+
 def _canonical_path(value: str) -> Optional[str]:
-    if not value.startswith("/") or "\\" in value or "%" in value or "\x00" in value:
+    if (
+        not isinstance(value, str)
+        or not value.startswith("/")
+        or "\\" in value
+        or "\x00" in value
+        or any(ord(char) < 0x20 or ord(char) == 0x7F for char in value)
+        or not _has_valid_percent_encoding(value)
+    ):
         return None
     if value.startswith("//"):
         return None
-    parts = value.split("/")
-    if any(part in {".", ".."} for part in parts):
+
+    canonical_parts = []
+    for part in value.split("/"):
+        if part in {".", ".."}:
+            return None
+        output = []
+        index = 0
+        while index < len(part):
+            if part[index] != "%":
+                output.append(part[index])
+                index += 1
+                continue
+            byte = int(part[index + 1:index + 3], 16)
+            if byte in {0x2F, 0x5C}:
+                return None
+            if byte in UNRESERVED_BYTES:
+                output.append(chr(byte))
+            else:
+                output.append(f"%{byte:02X}")
+            index += 3
+        decoded = "".join(output)
+        if decoded in {".", ".."}:
+            return None
+        canonical_parts.append(decoded)
+    return "/".join(canonical_parts)
+
+
+def _canonical_host(value: Any) -> Optional[str]:
+    if not isinstance(value, str) or not value or any(ord(char) < 0x20 for char in value):
         return None
-    return value
+    try:
+        return value.encode("idna").decode("ascii").lower()
+    except UnicodeError:
+        return None
+
+
+def _safe_parse_url(target_url: Any) -> Optional[Any]:
+    if not isinstance(target_url, str) or not target_url:
+        return None
+    if any(ord(char) < 0x20 or ord(char) == 0x7F for char in target_url) or "\\" in target_url:
+        return None
+    if not _has_valid_percent_encoding(target_url):
+        return None
+    try:
+        parsed = urlparse(target_url)
+        if parsed.username or parsed.password or parsed.fragment or parsed.hostname is None:
+            return None
+        scheme = parsed.scheme.lower()
+        if scheme not in {"http", "https", "ws", "wss"}:
+            return None
+        port = parsed.port or (443 if scheme in {"https", "wss"} else 80)
+        path = _canonical_path(parsed.path or "/")
+        host = _canonical_host(parsed.hostname)
+    except (TypeError, UnicodeError, ValueError):
+        return None
+    if path is None or host is None:
+        return None
+    return parsed, scheme, host, port, path
 
 
 def query_policy_allows(scope: Dict[str, Any], parsed_query: str) -> bool:
     policy = scope.get("queryPolicy")
     if not isinstance(policy, dict):
         return False
-    pairs = parse_qsl(parsed_query, keep_blank_values=True)
+    if not _has_valid_percent_encoding(parsed_query):
+        return False
+    if any(ord(char) < 0x20 or ord(char) == 0x7F or char == "\\" for char in parsed_query):
+        return False
+    try:
+        pairs = parse_qsl(parsed_query, keep_blank_values=True, strict_parsing=True)
+    except ValueError:
+        return False
+    if len({key for key, _ in pairs}) != len(pairs):
+        return False
     mode = policy.get("mode")
     if mode == "deny":
         return not pairs
@@ -261,15 +349,15 @@ def query_policy_allows(scope: Dict[str, Any], parsed_query: str) -> bool:
 
 
 def scope_matches_route(scope: Dict[str, Any], target_url: str) -> bool:
+    parsed_result = _safe_parse_url(target_url)
+    if parsed_result is None or not isinstance(scope, dict):
+        return False
+    parsed, scheme, host, port, path = parsed_result
+    scope_host = _canonical_host(scope.get("host"))
     try:
-        parsed = urlparse(target_url)
-        port = parsed.port or (443 if parsed.scheme == "https" else 80)
         scope_port = int(scope.get("port", -1))
     except (TypeError, ValueError):
         return False
-    if parsed.username or parsed.password or parsed.fragment or parsed.hostname is None:
-        return False
-    path = _canonical_path(parsed.path or "/")
     prefix = scope.get("routePrefix")
     if not isinstance(prefix, str):
         return False
@@ -277,15 +365,18 @@ def scope_matches_route(scope: Dict[str, Any], target_url: str) -> bool:
     if path is None or prefix is None:
         return False
     return (
-        scope.get("scheme") == parsed.scheme
-        and str(scope.get("host", "")).lower() == parsed.hostname.lower()
+        str(scope.get("scheme", "")).lower() == scheme
+        and scope_host == host
         and scope_port == port
         and (path == prefix or path.startswith(prefix.rstrip("/") + "/"))
     )
 
 
 def scope_allows(scopes: Iterable[Dict[str, Any]], target_url: str) -> bool:
-    parsed = urlparse(target_url)
+    parsed_result = _safe_parse_url(target_url)
+    if parsed_result is None:
+        return False
+    parsed = parsed_result[0]
     return any(
         scope_matches_route(scope, target_url) and query_policy_allows(scope, parsed.query)
         for scope in scopes

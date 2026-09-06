@@ -63,6 +63,7 @@ JS_CLOSED + auto-launch headful -> RESIDUAL_HEADFUL (must relaunch; do not navig
 - Keep profiles isolated unless the user explicitly accepts shared-state contamination.
 - Save approved evidence before a switch; old page/request/script IDs become stale.
 - Fresh Chromium targets: **both** DevTools baseline and js-reverse mutation evidence before the final collector, unless a real external blocker or documented exception (evidence-reuse / offline local-proof / non-Chromium route) applies.
+- Transport-only exception: when `gateFamily=transport` and the supplied or captured evidence already contains the complete wire contract, source/initiator boundary, ordering, and business consumer acceptance, the hub may record `jsReverseHalf=not-required`; this does not authorize skipping the clean baseline or any missing source proof for signer/challenge work.
 - Ordinary Chromium reconnaissance starts with a **Chrome DevTools visible clean baseline** after recon gates (`browserReconAllowed`, side-effect approval, budget, exact scope). That visible window is the approved baseline step, not an uncontrolled auto-launch.
 - User “no ordinary window / background-only” may skip only the **visible DevTools window**; do not treat that as permission to skip js-reverse.
 - The js-reverse mutation/source pass prefers explicit `js-reverse-mcp_launch_browser({headless:true, cloakBinaryPath:""})` plus Headless Acceptance; MCP auto-launch and CLI defaults are not substitutes for that call.

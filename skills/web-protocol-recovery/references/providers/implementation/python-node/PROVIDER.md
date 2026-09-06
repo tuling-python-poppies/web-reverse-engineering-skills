@@ -29,7 +29,7 @@
 1. Helpers receive bounded JSON, text, or bytes and return bounded JSON, text, or bytes.
 2. Helpers do not call `fetch`, `XMLHttpRequest`, WebSocket, `http`, `https`, or target network APIs directly.
 3. Python owns process launch, deadlines, request scope, request budget, cookies, retries, and live response persistence.
-4. Target-supplied JS/WASM execution requires reviewed bytes, SHA-256 approval, and a sandbox with network/file/process capabilities denied unless separately authorized.
+4. Target-supplied JS/WASM execution requires reviewed bytes, SHA-256 approval, an unexpired work-order, and a sandbox with network/file/process capabilities denied unless separately authorized. Case entries must fail closed when no approved runner is supplied.
 5. Runtime load success is not protocol proof. Compare fixed vectors or named browser intermediates before delivery.
 6. Keep generated probes and transient outputs under assigned `js_reverse_cache/env/`, `js_reverse_cache/source/`, or `js_reverse_cache/samples/` paths.
 

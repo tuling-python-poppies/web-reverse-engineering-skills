@@ -15,7 +15,7 @@ A **dispatch window** begins at a new user request or an accepted Provider resul
 | iv8 runtime case | 8 total | accepted API-inventory gate -> manifest/process -> entry -> only declared puller/assets; every historical case requires fresh current-target verification |
 | python-node runtime case | 8 total | manifest/process -> optional verified Node entry -> declared puller/assets; an evidence-only case cannot be presented as executable implementation |
 | Write gate | 1 | `references/methodology/project-layout.md` immediately before first save |
-| Whole task | 24 distinct paths | Includes all methodology, Provider, case, fixture, implementation, asset, and playbook content reads; mechanically copying or executing an assigned opaque asset does not count until its content is opened or inspected. At cap, stop reading and return a precise blocker. The same task cannot extend or reset this cap. |
+| Whole task | 24 distinct paths | Includes all methodology, Provider, case, fixture, implementation, asset, and playbook content reads; mechanically copying or executing an assigned opaque asset does not count until its content is opened or inspected. At cap, stop reading and return a precise blocker. The same task cannot extend or reset this cap. A single `readBudgetExtension` may add at most 8 new, explicitly named paths after the blocker, reason, and acceptance impact are recorded; consumed paths are never reset and a second extension is not allowed. |
 
 `SKILL.md` itself is always in context and does not count against the budget.
 
@@ -23,7 +23,7 @@ Sequential Providers start a new handoff window only after web-protocol-recovery
 
 A historical reference is never a preload or executable asset. Open at most one file declared by the selected case, verify it through `references/case-live-reference-archive/MANIFEST.json`, count both the manifest and source against the same eight-path case window, and use it only to study an implementation fact. Do not import or execute it, install its historical dependencies, copy it into delivery, or use its former live result as current acceptance.
 
-Provider work orders carry a `readPlan` object with `window`, `required`, and `optional` paths. Required paths must fit the active window cap before the handoff is issued. Optional paths are blockers, not preloads: the Provider may open at most one optional path only after naming the missing fact and only if the whole-task cap still has room.
+Provider work orders carry a `readPlan` object with `window`, `required`, and `optional` paths. Required paths must fit the active window cap before the handoff is issued. Optional paths are blockers, not preloads: the Provider may open at most one optional path only after naming the missing fact and only if the whole-task cap still has room. One `readBudgetExtension` may add at most eight new, explicitly named paths after a blocker is recorded; it must include `reason` and `acceptanceImpact`, cannot reset consumed paths, and cannot be repeated.
 
 `scripts/gates/validate_architecture.py` keeps this contract executable by simulating the official routing chains as explicit path lists, including evidence reuse, Chromium/hooks, Chromium→AST→env-patch→collector, AST/env-patch, verifier implementation variants, Akamai, Akamai→nv8, River Security→iv8, River Security→env-patch, `Reese84 -> iv8/python-node -> python-collector`, selected cases, and iv8 API inventory gates. Each simulated chain must reference existing files, keep every window within its cap, and stay within the 24-path whole-task cap after de-duplication.
 
@@ -60,6 +60,12 @@ When expanding the budget, state:
 
 ```text
 readBudget: window=<initial|handoff|case|write> used=<n>/<cap> taskUsed=<n>/24 next=<path> blocker=<text>
+```
+
+For the one conditional extension, also record:
+
+```text
+readBudgetExtension: +<n>/8 reason=<concrete missing fact> paths=<exact list> acceptanceImpact=<text>
 ```
 
 If you cannot name the blocker, or the current window is at cap, do not read another file; ask one clarifying question or run one evidence action instead.

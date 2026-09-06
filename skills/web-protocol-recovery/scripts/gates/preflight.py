@@ -183,9 +183,6 @@ SIDE_EFFECT_CALL_PREFIXES = (
 SIDE_EFFECT_CALL_SUFFIXES = {
     "JSContext",
     "mkdir",
-    "open",
-    "read_bytes",
-    "read_text",
     "urlopen",
     "write_bytes",
     "write_text",

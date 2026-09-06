@@ -312,6 +312,13 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertTrue(any("verifier/ project root" in item for item in findings))
         self.assertTrue(any("raw request/response" in item for item in findings))
 
+    def test_case_process_allows_explicit_forbidden_path_warning(self) -> None:
+        findings = validate_architecture.case_process_policy_findings(
+            "fixture",
+            "Do not persist `js_reverse_cache/pzds_session.json` or create `verifier/t001_profile.json`.\n",
+        )
+        self.assertEqual(findings, [])
+
 
 class ScriptPlacementContractTests(unittest.TestCase):
     def _make_tree(self, base: Path) -> tuple[Path, Path]:

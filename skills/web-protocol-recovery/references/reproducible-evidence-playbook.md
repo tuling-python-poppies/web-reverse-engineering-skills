@@ -39,6 +39,13 @@ Start at the first reported difference. Inspect that writer and its first consum
 
 The diff tool prints fingerprints and structural descriptors, not raw changed values.
 
+When browser and local runs differ in stage count, settle both chains before
+changing a signer or runtime shim. Compare, in order: stage count, stage order,
+timing and framing, cookie/header transitions, then timer/promise/event-loop
+drain. Record `firstDivergence` as the earliest missing or changed stage and
+name its writer and first consumer. A later HTTP status is a consequence, not
+the first repair target.
+
 ## Deterministic Practice
 
 Use the local fixture to verify that a proposed implementation rejects plausible shortcuts:
@@ -75,6 +82,10 @@ negativeControl:
 invariant:
 failureBoundary:
 artifactPathAndSha256:
+stageCount:
+stageOrder:
+timingAndFraming:
+stateTransition:
 ```
 
 ## Completion Gate

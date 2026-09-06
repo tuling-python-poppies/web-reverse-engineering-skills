@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -61,14 +60,50 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
 
     def test_data_builder_asset(self) -> None:
         sample = self.vectors["dataBuilder"]
-        process = subprocess.run(
-            ["node", str(CASE_ROOT / "assets" / "data_builder.js")],
-            input=json.dumps({"input": sample["input"], "key": sample["key"]}),
-            text=True,
-            capture_output=True,
-            check=True,
+        output = entry._run_data_builder(
+            sample,
+            lambda _name, _payload: {"output": sample["expected"]},
         )
-        self.assertEqual(json.loads(process.stdout)["output"], sample["expected"])
+        self.assertEqual(output, sample["expected"])
+
+    def test_data_builder_requires_approved_runner(self) -> None:
+        with self.assertRaises(entry.TargetCodeExecutionError):
+            entry._run_data_builder(self.vectors["dataBuilder"])
+
+    def test_approved_runner_requires_current_execution_policy(self) -> None:
+        class Adapter:
+            def execute(self, operation, payload, sandbox):
+                return {"output": "approved"}
+
+        work_order = {
+            "authorization": {
+                "executionPolicy": {
+                    "targetCodeExecution": "approved-reviewed-hash",
+                    "approvedCodeSha256": ["a" * 64],
+                    "approvalDeadline": "2099-01-01T00:00:00Z",
+                    "sandbox": {
+                        "backend": "capability-denied-external",
+                        "adapterId": "test-adapter",
+                        "adapterSha256": "b" * 64,
+                        "capabilityEvidence": "no-network-no-filesystem",
+                        "timeoutMs": 1000,
+                        "outputByteCap": 1024,
+                    },
+                }
+            }
+        }
+        runner = entry.approved_target_runner(
+            work_order,
+            {"data_builder.js": "a" * 64},
+            Adapter(),
+        )
+        self.assertEqual(runner("data_builder", {"input": "x", "key": "y"}), {"output": "approved"})
+        with self.assertRaises(entry.TargetCodeExecutionError):
+            entry.approved_target_runner(
+                {"authorization": {"executionPolicy": {"targetCodeExecution": "blocked"}}},
+                {"data_builder.js": "a" * 64},
+                Adapter(),
+            )
 
     def _device_config_fixture(self) -> entry.DeviceConfig:
         return entry.DeviceConfig(**self.vectors["deviceConfig"]["parsed"])
@@ -145,14 +180,22 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
             "VerifyTime": 2000,
             "arg": "arg11",
         }
-        built = entry.build_data(track_state, nonce=sample["nonce"])
+        built = entry.build_data(
+            track_state,
+            nonce=sample["nonce"],
+            runner=lambda _name, _payload: {"output": sample["data"]},
+        )
         self.assertEqual(built["data"], sample["data"])
         self.assertEqual(built["compressed"], sample["compressed"])
         self.assertEqual(built["trackJson"], sample["trackJson"])
 
     def test_build_arg_vector(self) -> None:
         sample = self.vectors["buildArg"]
-        built = entry.build_arg("0a0611221785065901234567e6043", key=sample["key"])
+        built = entry.build_arg(
+            "0a0611221785065901234567e6043",
+            key=sample["key"],
+            runner=lambda _name, _payload: {"output": sample["arg"]},
+        )
         self.assertEqual(built["arg"], sample["arg"])
 
     def test_track_template_shape(self) -> None:
@@ -181,11 +224,18 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
 
     def test_wasm_sign_asset(self) -> None:
         sample = self.vectors["pzdsWasmSign"]
+        with self.assertRaises(entry.TargetCodeExecutionError):
+            entry.pzds_wasm_sign(entry.build_goods_page_body())
         signed = entry.pzds_wasm_sign(
             entry.build_goods_page_body(),
             method=sample["method"],
             timestamp=sample["timestamp"],
             random_value=sample["random"],
+            runner=lambda _name, _payload: {
+                "sign": sample["expectedSign"],
+                "timestamp": sample["timestamp"],
+                "random": sample["random"],
+            },
         )
         self.assertEqual(signed["Sign"], sample["expectedSign"])
         self.assertEqual(signed["PZTimestamp"], sample["timestamp"])

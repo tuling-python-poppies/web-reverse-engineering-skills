@@ -12,11 +12,10 @@ import hashlib
 import hmac
 import json
 import secrets
-import subprocess
+from datetime import datetime, timezone
 import uuid
 import zlib
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Mapping
 from urllib.parse import quote
 
@@ -34,8 +33,60 @@ DEVICE_APP_NAME = "saf-captcha-waf"
 DEVICE_APP_VERSION = "W20220202"
 DEVICE_API_VERSION = "2020-10-15"
 STREAM_KEY_DEFAULT = "3e627e1b4c63f913"
-ASSETS = Path(__file__).resolve().parent / "assets"
 SUPPORTED_DEVICE_FIELD_COUNTS = frozenset({111, 133, 142})
+
+
+class TargetCodeExecutionError(RuntimeError):
+    """Target JS/WASM needs an explicit controlled python-node runner."""
+
+
+def _require_target_runner(runner: Any) -> Any:
+    if not callable(runner):
+        raise TargetCodeExecutionError(
+            "target JS/WASM execution is blocked; use an approved python-node provider runner"
+        )
+    return runner
+
+
+def approved_target_runner(
+    work_order: Mapping[str, Any],
+    asset_hashes: Mapping[str, str],
+    adapter: Any,
+) -> Any:
+    """Bind a narrow artifact adapter to a current execution approval.
+
+    The adapter owns the actual capability-denied process. This case helper only
+    validates the approval envelope and forwards two named artifact operations.
+    """
+    authorization = work_order.get("authorization") or {}
+    policy = authorization.get("executionPolicy") or {}
+    if policy.get("targetCodeExecution") != "approved-reviewed-hash":
+        raise TargetCodeExecutionError("target-code execution is not approved")
+    deadline = policy.get("approvalDeadline")
+    try:
+        expires = datetime.fromisoformat(str(deadline).replace("Z", "+00:00"))
+    except (TypeError, ValueError) as error:
+        raise TargetCodeExecutionError("target-code approval deadline is invalid") from error
+    if expires.tzinfo is None or expires <= datetime.now(timezone.utc):
+        raise TargetCodeExecutionError("target-code approval deadline is expired")
+    approved_hashes = set(map(str, policy.get("approvedCodeSha256") or []))
+    if not asset_hashes or not set(asset_hashes.values()) <= approved_hashes:
+        raise TargetCodeExecutionError("target-code asset hash is not approved")
+    sandbox = policy.get("sandbox") or {}
+    required_sandbox = {
+        "backend", "adapterId", "adapterSha256", "capabilityEvidence", "timeoutMs", "outputByteCap"
+    }
+    if not required_sandbox <= set(sandbox) or sandbox.get("backend") != "capability-denied-external":
+        raise TargetCodeExecutionError("a reviewed capability-denied sandbox is required")
+    if not hasattr(adapter, "execute") or not callable(adapter.execute):
+        raise TargetCodeExecutionError("approved target runner adapter is missing execute()")
+
+    def run(operation: str, payload: Mapping[str, Any]) -> Any:
+        if operation not in {"data_builder", "pzds_wasm_sign"}:
+            raise TargetCodeExecutionError(f"unsupported PZDS target operation: {operation}")
+        return adapter.execute(operation, dict(payload), sandbox)
+
+    return run
 
 
 def build_goods_page_body(page: int = 1, page_size: int = 10) -> bytes:
@@ -215,22 +266,16 @@ def pzds_wasm_sign(
     method: str = "post",
     timestamp: str | None = None,
     random_value: str | None = None,
+    runner: Any = None,
 ) -> dict[str, str]:
     request = {"dataJson": body.decode("utf-8"), "method": method.lower()}
     if timestamp is not None:
         request["timestamp"] = str(timestamp)
     if random_value is not None:
         request["random"] = str(random_value)
-    process = subprocess.run(
-        ["node", str(ASSETS / "pzds_wasm_sign.mjs")],
-        input=json.dumps(request, separators=(",", ":")),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if process.returncode:
-        raise RuntimeError(process.stderr.strip() or "pzds_wasm_sign.mjs failed")
-    output = json.loads(process.stdout)
+    output = _require_target_runner(runner)("pzds_wasm_sign", request)
+    if not isinstance(output, dict):
+        raise ValueError("approved target runner must return an object")
     return {
         "Sign": str(output["sign"]),
         "PZTimestamp": str(output["timestamp"]),
@@ -246,6 +291,7 @@ def pzds_signed_headers(
     *,
     token: str | None = None,
     pz_id: str | None = None,
+    target_runner: Any = None,
 ) -> dict[str, str]:
     headers = {
         "accept": "application/json, text/plain, */*",
@@ -268,7 +314,7 @@ def pzds_signed_headers(
         headers["token"] = token
     if pz_id:
         headers["PZid"] = str(pz_id)
-    headers.update(pzds_wasm_sign(body))
+    headers.update(pzds_wasm_sign(body, runner=target_runner))
     return headers
 
 
@@ -550,20 +596,14 @@ def make_verify_params(
     return params
 
 
-def _run_data_builder(payload: dict[str, str]) -> str:
-    process = subprocess.run(
-        ["node", str(ASSETS / "data_builder.js")],
-        input=json.dumps(payload, separators=(",", ":")),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if process.returncode:
-        raise RuntimeError(process.stderr.strip() or "data_builder.js failed")
-    return json.loads(process.stdout)["output"]
+def _run_data_builder(payload: dict[str, str], runner: Any = None) -> str:
+    output = _require_target_runner(runner)("data_builder", payload)
+    if not isinstance(output, dict) or not isinstance(output.get("output"), str):
+        raise ValueError("approved target runner must return an output string")
+    return output["output"]
 
 
-def build_arg(certify_id: str, *, key: str | None = None) -> dict[str, str]:
+def build_arg(certify_id: str, *, key: str | None = None, runner: Any = None) -> dict[str, str]:
     """Build the dynamic-script ``arg`` with the shared FeiLin stream VM."""
     if not certify_id or any(char not in "0123456789abcdef" for char in certify_id):
         raise ValueError("certify_id must be lowercase hexadecimal")
@@ -574,7 +614,7 @@ def build_arg(certify_id: str, *, key: str | None = None) -> dict[str, str]:
         char not in "abcdefghijklmnopqrstuvwxyz0123456789" for char in key
     ):
         raise ValueError("key must be 16 lowercase alphanumeric chars")
-    return {"arg": _run_data_builder({"input": certify_id, "key": key}), "key": key}
+    return {"arg": _run_data_builder({"input": certify_id, "key": key}, runner), "key": key}
 
 
 def build_data(
@@ -582,6 +622,7 @@ def build_data(
     *,
     nonce: str | None = None,
     stream_key: str = STREAM_KEY_DEFAULT,
+    runner: Any = None,
 ) -> dict[str, str]:
     required = {"TrackList", "TrackStartTime", "VerifyTime", "arg"}
     missing = required.difference(track_state)
@@ -595,7 +636,7 @@ def build_data(
         zlib.compress((nonce + track_json).encode("utf-8"), level=6)
     ).decode()
     return {
-        "data": _run_data_builder({"input": compressed, "key": stream_key}),
+        "data": _run_data_builder({"input": compressed, "key": stream_key}, runner),
         "nonce": nonce,
         "streamKey": stream_key,
         "trackJson": track_json,
@@ -604,26 +645,9 @@ def build_data(
 
 
 def main() -> int:
-    vectors = json.loads(
-        (Path(__file__).resolve().parent / "fixtures" / "vectors.json").read_text(encoding="utf-8")
+    raise TargetCodeExecutionError(
+        "case entry does not execute target JS/WASM; use the approved python-node provider runner"
     )
-    body = build_goods_page_body()
-    signed = pzds_wasm_sign(
-        body,
-        timestamp=vectors["pzdsWasmSign"]["timestamp"],
-        random_value=vectors["pzdsWasmSign"]["random"],
-    )
-    result = {
-        "bodySha256": hashlib.sha256(body).hexdigest(),
-        "expectedBodySha256": vectors["request"]["bodySha256"],
-        "wasmSign": signed,
-        "expectedSign": vectors["pzdsWasmSign"]["expectedSign"],
-        "signVersion": PZDS_SIGN_VERSION,
-    }
-    print(json.dumps(result, ensure_ascii=False, indent=2))
-    body_ok = result["bodySha256"] == result["expectedBodySha256"]
-    sign_ok = signed["Sign"] == vectors["pzdsWasmSign"]["expectedSign"]
-    return 0 if body_ok and sign_ok else 1
 
 
 if __name__ == "__main__":

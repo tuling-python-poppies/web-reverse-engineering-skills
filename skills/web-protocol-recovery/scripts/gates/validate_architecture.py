@@ -223,9 +223,15 @@ def case_process_policy_findings(case_id: str, text: str) -> list[str]:
     """Keep selected case instructions inside the hub's secret/layout contract."""
     findings: list[str] = []
     normalized = text.replace("\\", "/")
-    if "`verifier/" in normalized:
+    def is_prohibition(index: int) -> bool:
+        context = normalized[max(0, index - 160):index].lower()
+        return bool(re.search(r"(?:do not|don't|never|must not|禁止|不要|不得)", context))
+
+    verifier_match = re.search(r"`verifier/", normalized)
+    if verifier_match and not is_prohibition(verifier_match.start()):
         findings.append(f"{case_id}: PROCESS.md must not require a verifier/ project root")
-    if re.search(r"`js_reverse_cache/(?!private/)[^`]*(?:session|token|cookie)", normalized):
+    state_match = re.search(r"`js_reverse_cache/(?!private/)[^`]*(?:session|token|cookie)", normalized)
+    if state_match and not is_prohibition(state_match.start()):
         findings.append(
             f"{case_id}: PROCESS.md must keep persisted session/token/cookie state under js_reverse_cache/private/**"
         )

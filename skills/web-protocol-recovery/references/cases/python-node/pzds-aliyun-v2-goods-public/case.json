@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 16,
+  "revision": 17,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -102,11 +102,11 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "3836fc73a24360dc77a2c72ad1c55e43a39f4f36b0ca05a1db6e2eeee8b80bee"
+      "sha256": "0b3ad52502126713889007410282aea44eff3e807f68dfc248830676be62d873"
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "92361858c84600e2efd7b369c0867c15a4200145e772412a7ff277b631067fb1"
+      "sha256": "569dd91961618bc1bf95248bf8c30ada0ad713b60469b9e65e8b8af8f7c85c49"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -135,7 +135,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "82540faedfcb7f7e5986f961ae8bddef1c2e90bc67a0f180ade7aa398087ef53"
+        "sha256": "d2c2a5f1a7241814063a3865b41fc043b9c1129999a9ad8c6b1e36bc557c6145"
       },
       {
         "path": "assets/data_builder.js",
@@ -162,22 +162,22 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-20T22:43:17+0800",
+    "executedAt": "2026-09-06T22:43:17+0800",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "2cf2377c4059da48eaa1a836c67d91e24a44a7f194c11034347d3eb7b8ce1136"
+        "sha256": "251340206869481c5d3356f11f57f88b536d94d7bf736cc77001c12337a1e6e3"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "82540faedfcb7f7e5986f961ae8bddef1c2e90bc67a0f180ade7aa398087ef53"
+        "sha256": "d2c2a5f1a7241814063a3865b41fc043b9c1129999a9ad8c6b1e36bc557c6145"
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "request, classic and generation-specific field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, data/arg, JavaScript, v18 WASM, and challenge-parser vectors pass without live network egress",
+      "offlineAcceptance": "request, classic and generation-specific field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, and challenge-parser vectors pass without live network egress; target JS/WASM artifacts remain blocked unless a current approved runner is supplied",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "92361858c84600e2efd7b369c0867c15a4200145e772412a7ff277b631067fb1",
-      "currentTestArtifactSha256": "2cf2377c4059da48eaa1a836c67d91e24a44a7f194c11034347d3eb7b8ce1136",
+      "currentEntrySha256": "569dd91961618bc1bf95248bf8c30ada0ad713b60469b9e65e8b8af8f7c85c49",
+      "currentTestArtifactSha256": "251340206869481c5d3356f11f57f88b536d94d7bf736cc77001c12337a1e6e3",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-08-03",

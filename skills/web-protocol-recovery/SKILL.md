@@ -223,7 +223,7 @@ Chromium recon (standing approval already covers launch; no user gate pause):
 | 2 | `js-reverse` mutation | Explicitly call `launch_browser`; headless is preferred unless the user asks for visible ordinary Chrome. |
 | 3 | Optional Cloak tier | Use only for 指纹/Cloak/stealth wording or observed fingerprint evidence; this stays inside `chromium-recon`. |
 
-Fresh ordinary Web targets need steps 1 and 2 before the final collector. Skip a half only with a real tool blocker or documented exception (`evidence-reuse`, offline `local-proof`, or non-Chromium route). "No ordinary window" may skip only the visible DevTools window; `js-reverse` remains required. Close `js-reverse` before any later `camoufox` route. `js-reverse` has no auto-launch default; after `close_browser`, relaunch headless before further actions. A brief relaunch flash is OK; persistent headful after acceptance is a blocker.
+Fresh ordinary application Web targets need steps 1 and 2 before the final collector. A transport-only target may skip step 2 when the work order already contains the complete wire sample, initiator/source boundary, frame order, and semantic consumer acceptance; record `jsReverseHalf=not-required`. Skip a half otherwise only with a real tool blocker or documented exception (`evidence-reuse`, offline `local-proof`, or non-Chromium route). "No ordinary window" may skip only the visible DevTools window; `js-reverse` remains required unless the transport-only exception is recorded. Close `js-reverse` before any later `camoufox` route. `js-reverse` has no auto-launch default; after `close_browser`, relaunch headless before further actions. A brief relaunch flash is OK; persistent headful after acceptance is a blocker.
 
 ## Phase 3: Gate Family
 
@@ -291,6 +291,10 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
   - [ ] 轨迹 fixture 捕获
 - 当前阻塞：[xxx]
 - 下一步：[xxx]
+- firstDivergence：[stage/path/writer/firstConsumer 或 unknown]
+- stageSettle：[stageCount/order/timing/framing/stateTransition]
+- workOrderId：[stable-id]
+- budget：[priorRemaining/consumed/remaining]
 - 关键文件状态：
   - js_reverse_cache/aliyun_v2_evidence/init_round.json: [存在/缺失]
   - js_reverse_cache/private/pzds/t001_profile.json: [存在/缺失]
@@ -299,6 +303,8 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 这个检查点服务于两个目的：
 1. **上下文压缩后恢复**：当上下文窗口被截断时，先读 `js_reverse_cache/checkpoint.md` 确认当前状态，而不是从记忆中重建
 2. **避免重复工作**：如果检查点显示 AK/SECRET 已提取，不要再次提取
+
+恢复时先读取 checkpoint，再读取当前 work-order；不得从对话记忆重建预算、runtime ID、scope 或已接受证据。浏览器与本地运行结果不一致时，先按 stage count -> stage order -> timing/framing -> cookie/header transition -> timer/promise/event-loop settle 的顺序定位 `firstDivergence`，不要从最终 HTTP 状态倒推 signer 修复。
 
 **浏览器残留进程恢复提示**：若任务因浏览器启动失败（进程残留）而暂停，checkpoint 需额外记录：
 ```markdown
@@ -354,12 +360,12 @@ MCP 环境中有多套浏览器引擎可用：
 2. `camoufox-reverse-mcp`（Camoufox / Firefox SpiderMonkey）
 3. `chrome-devtools-mcp`（普通 Chrome DevTools）
 
-**规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——记录为工具失败条件，并切换到下一个可用引擎。这个 fallback 是工具恢复，不是协议 route 升级；exit code 21 / profile 残留按「浏览器启动失败诊断流程」先问用户，不进入自动 fallback：
+**规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——记录为工具失败条件，并评估下一个 capability adapter。这个 fallback 是工具恢复，不是协议 route 升级；只有 adapter 的选择条件已满足时才切换，不因固定产品链自动升级。exit code 21 / profile 残留按「浏览器启动失败诊断流程」先问用户，不进入自动 fallback：
 
 ```
-Chrome 失败 x2      → 切 CloakBrowser
-CloakBrowser 失败 x2 → 切 Camoufox
-全部失败             → 记录 hard blocker
+Chrome 失败 x2      → 记录 failureClass，选择满足条件的 fallback adapter
+CloakBrowser 失败 x2 → 记录 failureClass，只有 Camoufox criterion 成立才切换
+全部适配器失败       → 记录 hard blocker
 ```
 
 注意事项：

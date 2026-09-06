@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "python-node-pzds-aliyun-v2-goods-public",
-  "revision": 17,
+  "revision": 19,
   "status": "verified",
   "family": "verifier",
   "runtime": "python-node",
@@ -106,11 +106,11 @@
     },
     "entry": {
       "path": "entry.py",
-      "sha256": "569dd91961618bc1bf95248bf8c30ada0ad713b60469b9e65e8b8af8f7c85c49"
+        "sha256": "6d6dc159708d8d3f9cb3dd040224bc43f2a39ced3ebf5c99b8fcaefd086bc1cb"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
-      "sha256": "e6d45f19d845f76833e1b2d50e3b1a988fbad35c327ab05886d73704a7030f29"
+      "sha256": "b6972f341aec2386c71c1cc967eb3ddd8eb9fd852dc7071f0ae730c47d3ca89f"
     },
     "assets": [
       {
@@ -135,7 +135,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "d2c2a5f1a7241814063a3865b41fc043b9c1129999a9ad8c6b1e36bc557c6145"
+        "sha256": "2b57fd6ba6cc6363fdb1d3396b58835daca202c7b9880a33468a679b2a9a9a15"
       },
       {
         "path": "assets/data_builder.js",
@@ -162,22 +162,22 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-09-06T22:43:17+0800",
+    "executedAt": "2026-09-07T00:20:00+0800",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-        "sha256": "251340206869481c5d3356f11f57f88b536d94d7bf736cc77001c12337a1e6e3"
+        "sha256": "a27878df1863f26d92b4fd34b08dbc3195951e9e16d6318c5183d965371f7283"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-        "sha256": "d2c2a5f1a7241814063a3865b41fc043b9c1129999a9ad8c6b1e36bc557c6145"
+        "sha256": "2b57fd6ba6cc6363fdb1d3396b58835daca202c7b9880a33468a679b2a9a9a15"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "request, classic and generation-specific field21, RPC, token, DeviceConfig, 111/133/142 Log2 profile shape, Log2/Log3 envelope, verify params, and challenge-parser vectors pass without live network egress; target JS/WASM artifacts remain blocked unless a current approved runner is supplied",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "569dd91961618bc1bf95248bf8c30ada0ad713b60469b9e65e8b8af8f7c85c49",
-      "currentTestArtifactSha256": "251340206869481c5d3356f11f57f88b536d94d7bf736cc77001c12337a1e6e3",
+      "currentEntrySha256": "6d6dc159708d8d3f9cb3dd040224bc43f2a39ced3ebf5c99b8fcaefd086bc1cb",
+      "currentTestArtifactSha256": "a27878df1863f26d92b4fd34b08dbc3195951e9e16d6318c5183d965371f7283",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "executedAt": "2026-08-03",

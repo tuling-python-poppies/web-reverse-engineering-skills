@@ -78,8 +78,16 @@ def approved_target_runner(
     }
     if not required_sandbox <= set(sandbox) or sandbox.get("backend") != "capability-denied-external":
         raise TargetCodeExecutionError("a reviewed capability-denied sandbox is required")
+    if not getattr(adapter, "capability_denied", False):
+        raise TargetCodeExecutionError("adapter must attest capability denial")
+    if getattr(adapter, "adapter_id", None) != sandbox.get("adapterId"):
+        raise TargetCodeExecutionError("adapter identity does not match work order")
+    if getattr(adapter, "adapter_sha256", None) != sandbox.get("adapterSha256"):
+        raise TargetCodeExecutionError("adapter hash does not match work order")
     if not hasattr(adapter, "execute") or not callable(adapter.execute):
         raise TargetCodeExecutionError("approved target runner adapter is missing execute()")
+    if not hasattr(adapter, "close") or not callable(adapter.close):
+        raise TargetCodeExecutionError("approved target runner adapter is missing close()")
 
     def run(operation: str, payload: Mapping[str, Any]) -> Any:
         if operation not in {"data_builder", "pzds_wasm_sign"}:

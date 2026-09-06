@@ -10,6 +10,7 @@
 - Authorization, scope, budget, execution, runtime, and cleanup contract: `references/methodology/provider-work-order.md`
 - Project root and output layout: `references/methodology/project-layout.md`
 - Reference and case read caps: `references/methodology/read-budget.md`
+- Machine checkpoint contract: `references/schemas/checkpoint.schema.json`
 - Case writeback and sanitization: `references/methodology/case-writeback.md`
 - Symptom routing: `references/reference-router.md`
 - Tool-family selection/escalation: `references/tool-playbook.md`

@@ -66,7 +66,9 @@ web-protocol-recovery owns the reverse task from intake through final acceptance
   "readPlan": {
     "window": "handoff",
     "required": ["references/providers/reconnaissance/chromium-recon/PROVIDER.md"],
-    "optional": []
+    "optional": [],
+    "consumedPaths": [],
+    "readBudgetExtension": null
   },
   "inputs": [],
   "requiredOutputs": ["one precise blocker or evidence"],

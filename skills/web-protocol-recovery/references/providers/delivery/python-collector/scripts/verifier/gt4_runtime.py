@@ -28,6 +28,22 @@ BUDGET_KINDS = (
     "websocketHandshake",
     "websocketFrame",
 )
+GT4_SCOPE_SPEC = frozenset(
+    {
+        ("https", "gcaptcha4.geetest.com", 443, "/load"),
+        ("https", "gcaptcha4.geetest.com", 443, "/verify"),
+        ("https", "static.geetest.com", 443, "/"),
+    }
+)
+GT4_QUERY_KEYS = {
+    "/load": frozenset({"callback", "captcha_id", "challenge", "client_type", "risk_type", "pt", "lang"}),
+    "/verify": frozenset(
+        {
+            "callback", "captcha_id", "client_type", "lot_number", "risk_type",
+            "payload", "process_token", "payload_protocol", "pt", "w", "td", "td_sign",
+        }
+    ),
+}
 LOT_NAME_RE = re.compile(r"[A-Za-z0-9._-]{1,128}\Z")
 LEDGER_ID_RE = re.compile(r"[a-f0-9]{64}\Z")
 WINDOWS_RESERVED_NAMES = {
@@ -381,6 +397,53 @@ def scope_allows(scopes: Iterable[Dict[str, Any]], target_url: str) -> bool:
         scope_matches_route(scope, target_url) and query_policy_allows(scope, parsed.query)
         for scope in scopes
     )
+
+
+def canonical_scope_key(scope: Any) -> Optional[tuple[str, str, int, str]]:
+    if not isinstance(scope, dict):
+        return None
+    host = _canonical_host(scope.get("host"))
+    try:
+        port = int(scope.get("port", -1))
+    except (TypeError, ValueError):
+        return None
+    raw_prefix = scope.get("routePrefix")
+    prefix = _canonical_path(raw_prefix) if isinstance(raw_prefix, str) else None
+    if host is None or prefix is None:
+        return None
+    return str(scope.get("scheme", "")).lower(), host, port, prefix
+
+
+def validate_gt4_scope_contract(scopes: Iterable[Dict[str, Any]]) -> list[str]:
+    """Validate the fixed GT4 egress surface without collapsing duplicates."""
+    entries = list(scopes)
+    errors: list[str] = []
+    keys = [canonical_scope_key(scope) for scope in entries]
+    if any(key is None for key in keys):
+        errors.append("GT4 scopes must contain canonical scheme, host, port, and routePrefix")
+    valid_keys = [key for key in keys if key is not None]
+    if len(valid_keys) != len(set(valid_keys)):
+        errors.append("GT4 scopes must not contain duplicate entries")
+    if set(valid_keys) != GT4_SCOPE_SPEC or len(entries) != len(GT4_SCOPE_SPEC):
+        errors.append("GT4 scopes must contain exactly /load, /verify, and static.geetest.com/")
+    for scope, key in zip(entries, keys):
+        if key is None:
+            continue
+        _, host, _, prefix = key
+        policy = scope.get("queryPolicy")
+        if host == "static.geetest.com":
+            if not isinstance(policy, dict) or policy.get("mode") != "deny":
+                errors.append("GT4 static scope must use queryPolicy=deny")
+            continue
+        if prefix not in GT4_QUERY_KEYS:
+            continue
+        if not isinstance(policy, dict) or policy.get("mode") != "allow-listed":
+            errors.append(f"GT4 {prefix} query policy must use allow-listed mode")
+            continue
+        allowed = policy.get("allowedKeys") or []
+        if len(allowed) != len(set(allowed)) or set(allowed) != set(GT4_QUERY_KEYS[prefix]):
+            errors.append(f"GT4 {prefix} query policy must be the exact allow-listed key set")
+    return errors
 
 
 def query_policy_covers(scope: Dict[str, Any], required_keys: set[str]) -> bool:

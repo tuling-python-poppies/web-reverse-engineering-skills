@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "web-protocol-recovery-checkpoint.schema.json",
+  "title": "web-protocol-recovery checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "checkpointId", "createdAt", "phase", "shape", "route",
+    "gateFamily", "workOrderId", "scopeDigest", "budget", "readBudget",
+    "acceptedEvidence", "blocker", "nextStep", "firstDivergence", "stageSettle",
+    "runtimeIds", "browserState"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "web-protocol-recovery-checkpoint"},
+    "checkpointId": {"type": "string", "minLength": 1},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "phase": {"type": "integer", "minimum": 0, "maximum": 5},
+    "shape": {"enum": ["evidence", "local-proof", "compact-replay", "collector"]},
+    "route": {"type": "string", "minLength": 1},
+    "gateFamily": {"enum": ["signer", "challenge", "verifier", "decode", "session", "transport"]},
+    "workOrderId": {"type": "string", "minLength": 1},
+    "scopeDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "priorRemaining", "consumed", "remaining"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "priorRemaining": {"type": "integer", "minimum": 0},
+        "consumed": {"type": "integer", "minimum": 0},
+        "remaining": {"type": "integer", "minimum": 0}
+      }
+    },
+    "readBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskUsed", "baseCap", "extensionUsed", "extensionCap", "consumedPaths", "extension"],
+      "properties": {
+        "taskUsed": {"type": "integer", "minimum": 0},
+        "baseCap": {"const": 24},
+        "extensionUsed": {"type": "boolean"},
+        "extensionCap": {"const": 8},
+        "consumedPaths": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "extension": {
+          "type": ["object", "null"],
+          "required": ["blockerId", "reason", "acceptanceImpact", "additionalPaths"],
+          "properties": {
+            "blockerId": {"type": "string", "minLength": 1},
+            "reason": {"type": "string", "minLength": 1},
+            "acceptanceImpact": {"type": "string", "minLength": 1},
+            "additionalPaths": {"type": "array", "maxItems": 8, "uniqueItems": true, "items": {"type": "string"}}
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "acceptedEvidence": {"type": "array", "items": {"type": "object"}},
+    "blocker": {"type": ["object", "null"]},
+    "nextStep": {"type": "string", "minLength": 1},
+    "firstDivergence": {"type": ["object", "null"]},
+    "stageSettle": {"type": ["object", "null"]},
+    "runtimeIds": {"type": "array", "items": {"type": "object"}},
+    "browserState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["residualProcess", "ownership", "cleanupState"],
+      "properties": {
+        "residualProcess": {"enum": ["none", "owned", "external-unknown"]},
+        "ownership": {"enum": ["none", "task-owned", "user-owned", "unknown"]},
+        "cleanupState": {"enum": ["complete", "blocked", "not-applicable"]}
+      }
+    }
+  }
+}

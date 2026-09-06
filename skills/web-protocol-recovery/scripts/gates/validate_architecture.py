@@ -283,7 +283,7 @@ def read_plan_contract_findings() -> list[str]:
     ):
         if token not in work_order_text:
             findings.append(f"provider-work-order.md missing token: {token}")
-    for token in ("| Whole task | 24 distinct paths |", "`readPlan`", "required", "optional"):
+    for token in ("| Whole task | 24 distinct paths |", "`readPlan`", "required", "optional", "readBudgetExtension"):
         if token not in read_budget_text:
             findings.append(f"read-budget.md missing token: {token}")
 

@@ -27,6 +27,7 @@ OPTIONAL_SESSION_KEYS = {"pzId", "deviceId", "globalId"}
 PRIVATE_STATE_ROOT = Path("js_reverse_cache") / "private" / "pzds"
 PROFILE_RELATIVE_PATH = PRIVATE_STATE_ROOT / "t001_profile.json"
 SESSION_RELATIVE_PATH = PRIVATE_STATE_ROOT / "session.json"
+TRACK_SEED_RELATIVE_PATH = PRIVATE_STATE_ROOT / "track_seed.json"
 SUPPORTED_DEVICE_FIELD_COUNTS = frozenset({111, 133, 142})
 FILE_ATTRIBUTE_REPARSE_POINT = 0x400
 
@@ -182,6 +183,21 @@ def load_session(
     }
 
 
+def load_track_seed(
+    project_root: str | Path, *, raw_secret_handling_confirmed: bool = False
+) -> dict[str, Any]:
+    _require_raw_secret_handling(raw_secret_handling_confirmed)
+    root = _plain_project_root(project_root)
+    path = _plain_project_file(root, TRACK_SEED_RELATIVE_PATH)
+    payload = _load_json(path)
+    if not payload:
+        raise ValueError("track seed must be a nonempty object")
+    return {
+        "trackSeedPath": str(path.relative_to(root)).replace("\\", "/"),
+        "keys": sorted(str(key) for key in payload),
+    }
+
+
 def inspect_project(
     project_root: str | Path, *, raw_secret_handling_confirmed: bool = False
 ) -> dict[str, Any]:
@@ -191,9 +207,9 @@ def inspect_project(
         "projectRoot": str(root),
         "profile": None,
         "session": None,
+        "trackSeed": None,
         "missing": [],
         "nextAsk": [],
-        "readyForPureProtocol": False,
     }
 
     if not raw_secret_handling_confirmed:
@@ -223,8 +239,17 @@ def inspect_project(
             f"raw-secret-handling decision permits persistence ({exc})"
         )
 
-    result["readyForPureProtocol"] = not result["missing"]
-    if result["readyForPureProtocol"]:
+    try:
+        result["trackSeed"] = load_track_seed(root, raw_secret_handling_confirmed=True)
+    except Exception as exc:
+        result["missing"].append("trackSeed")
+        result["nextAsk"].append(
+            "project is missing js_reverse_cache/private/pzds/track_seed.json for a coherent verifier round "
+            f"({exc})"
+        )
+
+    result["readyForVerifier"] = not result["missing"]
+    if result["readyForVerifier"]:
         result["nextAsk"] = []
     return result
 

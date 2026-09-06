@@ -277,6 +277,8 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 每完成一个 Phase（或在 verifier 链路中每完成一个关键工件），必须输出一个检查点摘要；当 `writeMode` 已启用时写入 `js_reverse_cache/checkpoint.md`，纯只读 fast path / `writeMode=no-write` 阶段先在回复中报告，不为写 checkpoint 打破 no-write：
 
+机器状态优先保存为同目录的 `checkpoint.json`，Markdown 只作为人读摘要。恢复顺序固定为：`checkpoint.json` -> 当前 work-order -> 允许的 `nextRead`。checkpoint 不得保存 cookie、token、profile、raw response 或账户凭据，只保存 digest、路径状态、枚举和布尔状态。
+
 ```markdown
 ## Checkpoint [timestamp]
 - shape: collector
@@ -299,6 +301,8 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
   - js_reverse_cache/aliyun_v2_evidence/init_round.json: [存在/缺失]
   - js_reverse_cache/private/pzds/t001_profile.json: [存在/缺失]
 ```
+
+`checkpoint.json` 至少包含 `checkpointId`、`workOrderId`、`scopeDigest`、结构化 `budget`、结构化 `readBudget`、`firstDivergence`、`stageSettle`、`runtimeIds`、`browserState`、`blocker` 和 `nextStep`。恢复时不得重置 budget、read budget 或 runtime lifecycle。
 
 这个检查点服务于两个目的：
 1. **上下文压缩后恢复**：当上下文窗口被截断时，先读 `js_reverse_cache/checkpoint.md` 确认当前状态，而不是从记忆中重建

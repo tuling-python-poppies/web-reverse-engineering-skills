@@ -32,6 +32,7 @@
 4. Target-supplied JS/WASM execution requires reviewed bytes, SHA-256 approval, an unexpired work-order, and a sandbox with network/file/process capabilities denied unless separately authorized. Case entries must fail closed when no approved runner is supplied.
 5. Runtime load success is not protocol proof. Compare fixed vectors or named browser intermediates before delivery.
 6. Keep generated probes and transient outputs under assigned `js_reverse_cache/env/`, `js_reverse_cache/source/`, or `js_reverse_cache/samples/` paths.
+7. The Provider-owned approved runner must hash every target asset itself, verify the current deadline and sandbox adapter identity, enforce bounded JSON input/output, reject unsupported operations, and close the adapter on every terminal path. A callable adapter without capability-denied attestation is blocked.
 
 ## Optional Scripts
 

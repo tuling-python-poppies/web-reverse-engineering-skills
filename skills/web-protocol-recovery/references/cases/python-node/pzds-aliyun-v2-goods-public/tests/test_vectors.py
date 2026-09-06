@@ -72,8 +72,15 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
 
     def test_approved_runner_requires_current_execution_policy(self) -> None:
         class Adapter:
+            capability_denied = True
+            adapter_id = "test-adapter"
+            adapter_sha256 = "b" * 64
+
             def execute(self, operation, payload, sandbox):
                 return {"output": "approved"}
+
+            def close(self):
+                return None
 
         work_order = {
             "authorization": {
@@ -104,6 +111,15 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
                 {"data_builder.js": "a" * 64},
                 Adapter(),
             )
+        class MissingAttestation:
+            def execute(self, operation, payload, sandbox):
+                return {"output": "unsafe"}
+
+            def close(self):
+                return None
+
+        with self.assertRaises(entry.TargetCodeExecutionError):
+            entry.approved_target_runner(work_order, {"data_builder.js": "a" * 64}, MissingAttestation())
 
     def _device_config_fixture(self) -> entry.DeviceConfig:
         return entry.DeviceConfig(**self.vectors["deviceConfig"]["parsed"])
@@ -295,6 +311,30 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
             self.assertEqual(session["sessionPath"], "js_reverse_cache/private/pzds/session.json")
             inspection = pull_live_state.inspect_project(root)
             self.assertEqual(inspection["missing"], ["rawSecretHandling"])
+
+    def test_inspect_project_requires_track_seed_for_verifier(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state_root = root / "js_reverse_cache" / "private" / "pzds"
+            state_root.mkdir(parents=True)
+            (state_root / "session.json").write_text(json.dumps({"token": "token"}), encoding="utf-8")
+            (state_root / "t001_profile.json").write_text(
+                json.dumps(
+                    {
+                        "feilinVersion": "feilin-test",
+                        "userAgent": "test-agent",
+                        "fullDeviceFields": [""] * 111,
+                        "tokenFields": [""] * 111,
+                        "field21": {"sourceKey": "test", "xorMaskHex": "00"},
+                        "combat511": {},
+                        "combat504": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = pull_live_state.inspect_project(root, raw_secret_handling_confirmed=True)
+            self.assertIn("trackSeed", result["missing"])
+            self.assertFalse(result["readyForVerifier"])
 
     def test_live_profile_uses_canonical_private_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

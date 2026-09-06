@@ -117,9 +117,10 @@
         "window": {"type": "string", "minLength": 1},
         "required": {"type": "array", "items": {"type": "string"}},
         "optional": {"type": "array", "items": {"type": "string"}},
+        "consumedPaths": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
         "readBudgetExtension": {
           "type": ["object", "null"],
-          "required": ["additionalPaths", "reason", "acceptanceImpact"],
+          "required": ["additionalPaths", "blockerId", "reason", "acceptanceImpact"],
           "properties": {
             "additionalPaths": {
               "type": "array",
@@ -128,6 +129,7 @@
               "items": {"type": "string"},
               "uniqueItems": true
             },
+            "blockerId": {"type": "string", "minLength": 1},
             "reason": {"type": "string", "minLength": 1},
             "acceptanceImpact": {"type": "string", "minLength": 1}
           },

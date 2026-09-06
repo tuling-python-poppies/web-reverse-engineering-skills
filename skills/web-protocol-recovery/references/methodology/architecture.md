@@ -25,6 +25,11 @@ Use this loop for every protocol task:
 6. **Accept or reject**: accept only against web-protocol-recovery's acceptance test; Provider `complete` is not enough.
 7. **Next move**: continue the same shape when only the Provider changes; expand shape only after explicit user scope confirmation.
 
+Checkpoint recovery is machine-readable: `checkpoint.json` must validate against
+`references/schemas/checkpoint.schema.json`, bind to the current `workOrderId`
+and scope digest, and preserve budget/read-budget/runtime lifecycle state. The
+human-readable `checkpoint.md` is a summary, not the recovery authority.
+
 ## Provider Skill Boundary
 
 Every Provider must obey these boundaries:
@@ -53,6 +58,12 @@ The canonical Provider inventory is `references/providers/registry.json`.
 There are exactly three implementation modes: `iv8`, `python-node`, and `pure-python`. `nv8` is an implementation Provider backed by `python-node` delivery projects, not a fourth implementation mode. `env-patch` is a `python-node` strategy. `douyin-abogus-native` is a `pure-python` profile. `python-collector` is delivery, not an implementation mode.
 
 Protocol owners stay active while implementation Providers run. Example: `akamai -> nv8 -> python-collector` means Akamai remains the protocol owner and acceptance owner while NV8 generates the sensor artifact, then python-collector performs final egress. The same ownership rule applies to `reese84 -> iv8/python-node -> python-collector`: Reese84 owns challenge-cookie and business-admission acceptance while the implementation Provider produces only a narrow artifact.
+
+Target-code execution is owned by the selected implementation Provider. Case
+entries expose artifact contracts but do not launch Node/WASM themselves. A
+Provider-owned runner must verify the actual asset hashes, approval deadline,
+capability-denied adapter identity, bounded I/O, and cleanup before returning an
+artifact; absent a reviewed adapter, the result is blocked.
 
 ## Unified Project Layout
 

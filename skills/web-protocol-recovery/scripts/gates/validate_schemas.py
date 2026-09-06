@@ -15,6 +15,8 @@ from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS = ROOT / "references" / "schemas"
 WORK_ORDER_DOC = ROOT / "references" / "methodology" / "provider-work-order.md"
+sys.path.insert(0, str(ROOT / "scripts" / "gates"))
+from read_budget import validate_read_plan
 
 
 def load_schema(name: str) -> dict:
@@ -165,6 +167,49 @@ VALID_RESULT = {
     "residualRisks": [],
 }
 
+VALID_CHECKPOINT = {
+    "schemaVersion": "web-protocol-recovery-checkpoint",
+    "checkpointId": "cp-test",
+    "createdAt": "2026-09-06T12:00:00Z",
+    "phase": 2,
+    "shape": "local-proof",
+    "route": "python-node",
+    "gateFamily": "signer",
+    "workOrderId": "wo-test",
+    "scopeDigest": "0" * 64,
+    "budget": {"total": 100, "priorRemaining": 100, "consumed": 2, "remaining": 98},
+    "readBudget": {
+        "taskUsed": 4,
+        "baseCap": 24,
+        "extensionUsed": False,
+        "extensionCap": 8,
+        "consumedPaths": ["references/a.md", "references/b.md", "references/c.md", "references/d.md"],
+        "extension": None,
+    },
+    "acceptedEvidence": [{"path": "js_reverse_cache/samples/proof.json", "sha256": "1" * 64}],
+    "blocker": None,
+    "nextStep": "return narrow artifact",
+    "firstDivergence": None,
+    "stageSettle": {"stageCount": 1, "stageOrder": ["sign"], "stateTransition": "none"},
+    "runtimeIds": [],
+    "browserState": {"residualProcess": "none", "ownership": "none", "cleanupState": "not-applicable"},
+}
+
+
+def checkpoint_semantic_findings(value: dict, label: str) -> list[str]:
+    findings: list[str] = []
+    budget = value.get("budget") or {}
+    if budget.get("remaining") != budget.get("priorRemaining", 0) - budget.get("consumed", 0):
+        findings.append(f"{label}: checkpoint budget remaining must equal priorRemaining-consumed")
+    read_budget = value.get("readBudget") or {}
+    paths = read_budget.get("consumedPaths") or []
+    if read_budget.get("taskUsed") != len(paths):
+        findings.append(f"{label}: readBudget.taskUsed must equal consumedPaths length")
+    cap = read_budget.get("baseCap", 24) + (read_budget.get("extensionCap", 8) if read_budget.get("extensionUsed") else 0)
+    if read_budget.get("taskUsed", 0) > cap:
+        findings.append(f"{label}: read budget exceeds active cap")
+    return findings
+
 
 def expect_valid(validator: Draft202012Validator, value: dict, label: str) -> list[str]:
     try:
@@ -184,6 +229,8 @@ def expect_invalid(validator: Draft202012Validator, value: dict, label: str) -> 
 
 def work_order_semantic_findings(value: dict, label: str) -> list[str]:
     findings: list[str] = []
+    read_plan = value.get("readPlan") or {}
+    findings.extend(f"{label}: {item}" for item in validate_read_plan(read_plan))
     project = value.get("project") or {}
     project_root = project.get("projectRoot")
     write_mode = project.get("writeMode")
@@ -402,9 +449,21 @@ def main() -> int:
     )
     Draft202012Validator.check_schema(load_schema("case.schema.json"))
     Draft202012Validator.check_schema(load_schema("case-registry.schema.json"))
+    checkpoint_validator = Draft202012Validator(
+        load_schema("checkpoint.schema.json"), format_checker=FormatChecker()
+    )
 
     failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid offline work order"))
     failures.extend(work_order_semantic_findings(VALID_WORK_ORDER, "valid offline work order"))
+    failures.extend(expect_valid(checkpoint_validator, VALID_CHECKPOINT, "valid checkpoint"))
+    failures.extend(checkpoint_semantic_findings(VALID_CHECKPOINT, "valid checkpoint"))
+    bad_checkpoint = copy.deepcopy(VALID_CHECKPOINT)
+    bad_checkpoint["budget"]["remaining"] = 100
+    checkpoint_findings = checkpoint_semantic_findings(
+        bad_checkpoint, "checkpoint budget conservation"
+    )
+    if not any("checkpoint budget remaining" in item for item in checkpoint_findings):
+        failures.append("checkpoint budget conservation: expected semantic failure")
     failures.extend(doc_example_findings(work_order, result))
 
     missing_query_policy = copy.deepcopy(VALID_WORK_ORDER)

@@ -157,6 +157,30 @@ class Gt4BudgetLedgerTests(unittest.TestCase):
 
 
 class Gt4FilesystemAndScopeTests(unittest.TestCase):
+    def test_shared_gt4_scope_contract_rejects_duplicates_and_extra_routes(self) -> None:
+        scopes = work_order(Path.cwd())["authorization"]["allowedHostsAndRoutes"]
+        self.assertEqual(gt4_runtime.validate_gt4_scope_contract(scopes), [])
+        duplicate = copy.deepcopy(scopes)
+        duplicate.append(copy.deepcopy(scopes[0]))
+        self.assertTrue(gt4_runtime.validate_gt4_scope_contract(duplicate))
+        extra = copy.deepcopy(scopes)
+        extra.append(
+            {
+                "scheme": "https",
+                "host": "gcaptcha4.geetest.com",
+                "port": 443,
+                "routePrefix": "/",
+                "queryPolicy": {"mode": "allow-all"},
+            }
+        )
+        self.assertTrue(gt4_runtime.validate_gt4_scope_contract(extra))
+
+    def test_shared_gt4_scope_contract_rejects_static_query_access(self) -> None:
+        scopes = work_order(Path.cwd())["authorization"]["allowedHostsAndRoutes"]
+        scopes[-1]["queryPolicy"] = {"mode": "allow-all"}
+        findings = gt4_runtime.validate_gt4_scope_contract(scopes)
+        self.assertTrue(any("static scope" in finding for finding in findings))
+
     def test_cache_lot_and_artifacts_are_create_only_and_contained(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "project"

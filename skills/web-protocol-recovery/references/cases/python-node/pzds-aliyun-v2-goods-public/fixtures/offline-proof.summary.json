@@ -4,8 +4,8 @@
  "executedAt": "2026-08-20",
  "passed": true,
  "activeScope": "offline-only",
-  "entrySha256": "569dd91961618bc1bf95248bf8c30ada0ad713b60469b9e65e8b8af8f7c85c49",
-  "testArtifactSha256": "251340206869481c5d3356f11f57f88b536d94d7bf736cc77001c12337a1e6e3",
+  "entrySha256": "6d6dc159708d8d3f9cb3dd040224bc43f2a39ced3ebf5c99b8fcaefd086bc1cb",
+  "testArtifactSha256": "a27878df1863f26d92b4fd34b08dbc3195951e9e16d6318c5183d965371f7283",
   "targetCodeExecution": "blocked-by-default",
   "assertions": [
    "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, and challenge-parser vectors pass without target-code execution",

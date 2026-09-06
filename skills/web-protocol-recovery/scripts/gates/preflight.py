@@ -63,6 +63,7 @@ DIAGNOSTIC_SELF_TESTS = (
     "scripts/tools/protobuf_inspect.py",
     "scripts/tools/wasm_module_inspect.py",
     "scripts/tools/practice_lab.py",
+    "scripts/gates/read_budget.py",
 )
 
 ProviderGuardContract = tuple[str, tuple[str, ...], str]
@@ -149,6 +150,16 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
             "write_new_bytes",
         ),
         "GT4 shared budget/sandbox/path guard",
+    ),
+    (
+        "references/providers/implementation/python-node/scripts/approved_runner.py",
+        (
+            "approved-reviewed-hash",
+            "capability-denied-external",
+            "assetSha256",
+            "cleanup",
+        ),
+        "python-node approved runner guard",
     ),
 )
 
@@ -399,6 +410,14 @@ def check_acceptance_unit_tests() -> tuple[bool, str]:
         / "verifier"
         / "tests"
         / "test_gt4_delivery_contract.py",
+        SKILL_ROOT
+        / "references"
+        / "providers"
+        / "implementation"
+        / "python-node"
+        / "tests"
+        / "test_approved_runner.py",
+        SKILL_ROOT / "scripts" / "tests" / "test_read_budget.py",
     ]
     missing = [str(path.relative_to(SKILL_ROOT)) for path in tests if not path.is_file()]
     if missing:

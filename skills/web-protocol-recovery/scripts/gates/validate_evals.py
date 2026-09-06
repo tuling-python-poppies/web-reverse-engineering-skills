@@ -24,6 +24,10 @@ REQUIRED_CASE_IDS = {
     "gt4-word-click-verifier",
     "gt4-nine-grid-verifier",
     "proved-protocol-python-delivery",
+    "gt4-work-order-scope-contract",
+    "pzds-target-code-execution-gate",
+    "transport-only-source-complete",
+    "read-budget-extension-one-shot",
 }
 REQUIRED_CASE_EXPECTATIONS = {
     "aliyun-feilin-generation-ambiguous": {
@@ -45,6 +49,23 @@ REQUIRED_CASE_EXPECTATIONS = {
     "gt4-nine-grid-verifier": {
         "route": "verifier",
         "familyReference": "geetest-gt4-nine-grid-workflow.md",
+    },
+    "gt4-work-order-scope-contract": {
+        "route": "verifier",
+        "scopePolicy": "exact-gt4-endpoints-only",
+    },
+    "pzds-target-code-execution-gate": {
+        "route": "verifier",
+        "executionPolicy": "blocked-without-approved-runner",
+    },
+    "transport-only-source-complete": {
+        "route": "chromium-recon",
+        "gateFamily": "transport",
+        "jsReverseHalf": "not-required",
+    },
+    "read-budget-extension-one-shot": {
+        "route": "evidence-reuse",
+        "readBudget": "one-extension-only",
     },
 }
 OBSOLETE_ROUTES = {"env-patch", "douyin-abogus-native"}
@@ -111,6 +132,8 @@ def validate_route_regression() -> list[str]:
             findings.append(f"{case_id}: env-patch strategy requires route python-node")
         if expect.get("profile") == "douyin-abogus-native" and route != "pure-python":
             findings.append(f"{case_id}: douyin profile requires route pure-python")
+        if expect.get("jsReverseHalf") == "not-required" and expect.get("gateFamily") != "transport":
+            findings.append(f"{case_id}: jsReverseHalf=not-required requires gateFamily=transport")
         for bad_route in expect.get("notRoute", []):
             if bad_route not in OBSOLETE_ROUTES:
                 findings.append(f"{case_id}: notRoute should only name obsolete route values")

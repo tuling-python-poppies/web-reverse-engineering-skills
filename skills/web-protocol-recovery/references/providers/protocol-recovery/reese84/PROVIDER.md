@@ -49,7 +49,7 @@ Do not collapse `Set-Cookie`, JavaScript cookie writes, the stored jar, outbound
 4. Use `iv8` when the challenge needs browser-visible host semantics, iframe realms, event scheduling, or an allowlisted Python HTTP bridge. Reese84 remains the protocol and acceptance owner.
 5. Use `python-collector` only after the challenge artifact boundary is accepted. Python owns challenge HTTP, cookie continuity, OAuth/application calls, and final live egress.
 
-Target JavaScript or WASM execution requires the normal reviewed-hash and capability-denied sandbox gates. Browser page `fetch`, browser-cookie export as an operating requirement, and Node-owned business HTTP are not final delivery.
+Target JavaScript or WASM execution requires the normal reviewed-hash executionPolicy gates plus the Provider-owned bounded process launcher. Browser page `fetch`, browser-cookie export as an operating requirement, and Node-owned business HTTP are not final delivery.
 
 ## Transport And Session Coherence
 

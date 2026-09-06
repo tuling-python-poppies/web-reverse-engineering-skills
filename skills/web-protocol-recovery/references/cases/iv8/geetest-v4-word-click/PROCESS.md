@@ -39,7 +39,7 @@ userresponse = [[wire_x, wire_y], ...]
 
 ## iv8 与 Python 边界
 
-当前实现由 Python 获取 `/load`、图片、GCT 并提交 `/verify`；iv8 只在本地 `JSContext` 中加载 hash-bound bundle 生成窄 `w`。iv8 不得访问网络、文件系统、浏览器 Cookie 或页面 UI。work-order 必须绑定 bundle/adapter SHA-256、approval deadline 和 capability-denied adapter，并检查 registry/export 特征。
+当前实现由 Python 获取 `/load`、图片、GCT 并提交 `/verify`；iv8 只在本地 `JSContext` 中加载 hash-bound bundle 生成窄 `w`。iv8 不得访问网络、文件系统、浏览器 Cookie 或页面 UI。work-order 必须绑定 bundle SHA-256、approval deadline 和受控执行边界，并检查 registry/export 特征。
 
 模块编号属于当前 bundle 证据，不是长期 API。bundle 更新后必须重新定位 callable export、更新 hash binding，并重新执行离线测试和 fresh live proof。
 

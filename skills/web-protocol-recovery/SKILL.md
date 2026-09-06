@@ -158,7 +158,7 @@ Smallest success shape:
 
 Local-proof can run pure data transforms on supplied samples offline. Executing target-supplied JS/WASM/HTML remains target-code execution and still requires the `executionPolicy` confirmation even when no live egress is allowed.
 
-For a fixed-vector request that supplies target JS/WASM/HTML, the first response must keep `shape: local-proof`, set `nextAsk: executionPolicy`, and report `result: pending` until the approved hash and sandbox are recorded. Do not silently execute target code because live egress is disabled.
+For a fixed-vector request that supplies target JS/WASM/HTML, the first response must keep `shape: local-proof`, set `nextAsk: executionPolicy`, and report `result: pending` until the approved hash and a bounded process launcher are recorded. Do not silently execute target code because live egress is disabled.
 
 Default scripts: `references/methodology/success-shape-scripts.md`.
 

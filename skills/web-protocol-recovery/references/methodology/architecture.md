@@ -61,9 +61,10 @@ Protocol owners stay active while implementation Providers run. Example: `akamai
 
 Target-code execution is owned by the selected implementation Provider. Case
 entries expose artifact contracts but do not launch Node/WASM themselves. A
-Provider-owned runner must verify the actual asset hashes, approval deadline,
-capability-denied adapter identity, bounded I/O, and cleanup before returning an
-artifact; absent a reviewed adapter, the result is blocked.
+Provider-owned bounded process launcher must verify the actual asset hashes,
+the execution-mode approval (and deadline for reviewed-hash mode), fixed argv,
+project-cache cwd, bounded I/O, and a hard timeout before returning an
+artifact; absent an approved launcher, the result is blocked.
 
 ## Unified Project Layout
 
@@ -75,6 +76,21 @@ The canonical tree is `references/methodology/project-layout.md`. This architect
 4. final Python HTTP, pagination, decode, storage, and output are owned by root `main.py` and assigned `utils/**` helpers.
 
 Forbidden generated roots/directories are defined in `project-layout.md`; Providers must not restate or fork the tree.
+
+## Token Ownership
+
+Each global rule has exactly one normative location. Other files may cite it
+but must not restate a diverging copy:
+
+| Rule | Normative location |
+|---|---|
+| route / shape / gate selection | `SKILL.md` |
+| scope / budget / execution policy | `references/methodology/provider-work-order.md` |
+| read budget | `references/methodology/read-budget.md` |
+| final live egress ownership | this file |
+| case selector | `references/cases/README.md` + `references/cases/registry.json` |
+| forward behavioral proof | `references/methodology/forward-testing.md` |
+| target-code execution boundary | this file + `references/providers/implementation/python-node/scripts/approved_runner.py` |
 
 ## Acceptance Chain
 

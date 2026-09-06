@@ -98,5 +98,5 @@ The gate runtime requires `jsonschema`. Case tests may have additional optional
 dependencies declared by their manifest, including `pycryptodome`, `Pillow`,
 `ddddocr`, `curl_cffi`, and `websocket-client`; preflight reports missing
 optional modules and does not install them automatically. Node-based case
-artifacts are executed only through an approved `python-node` runner with
-current work-order hash, deadline, and sandbox evidence.
+artifacts are executed only through an approved bounded process launcher with
+current work-order hash, execution mode, and deadline evidence.

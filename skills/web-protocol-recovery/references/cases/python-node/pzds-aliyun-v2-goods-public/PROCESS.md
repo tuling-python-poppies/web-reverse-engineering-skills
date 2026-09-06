@@ -320,10 +320,11 @@ WASM only returns narrow artifacts (`Sign`, `PZTimestamp`, `Random`, captcha
 - v18 WASM signer wrapper
 
 The signer and stream codec wrappers do not start Node or execute target JS/WASM
-by themselves. They require an explicit runner supplied by the python-node
-Provider after the current work-order has approved the exact asset hashes,
-deadline, and capability-denied sandbox. The default case tests therefore use
-offline fixtures and verify that a missing runner is rejected.
+by themselves. They require an explicit bounded process launcher supplied by the
+python-node Provider after the current work-order has approved the execution
+mode and the exact asset hashes (with an unexpired deadline for reviewed-hash
+mode). The default case tests therefore use offline fixtures and verify that a
+missing launcher is rejected.
 - business URL builder and response classifier
 
 Project live runners must keep:

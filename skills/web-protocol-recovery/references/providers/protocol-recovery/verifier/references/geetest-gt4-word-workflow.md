@@ -95,7 +95,7 @@ gee_guard, bundle fixed fields, lot-derived fields, em
 当 bundle 需要浏览器式 JavaScript host 时，使用 `iv8` 作为窄工件生成器：
 
 1. 先做 iv8 API gate 和离线成员探针。
-2. work-order 绑定精确 bundle SHA-256、adapter SHA-256、未过期 approval deadline 和 capability-denied adapter。
+2. work-order 绑定精确 bundle SHA-256、未过期 approval deadline 和受控执行边界；执行通过窄工件 runner 完成，非浏览器运行时。
 3. 通过 registry 存在性和目标 export callable 检查确认导出特征。
 4. 模块编号只是当前 bundle 证据，不能把任意 `require(31)` 或 `require(32)` 当作长期 API。
 5. iv8 只返回 `w`，不提供 HTTP、WebSocket、文件系统或 Cookie 持久化桥。

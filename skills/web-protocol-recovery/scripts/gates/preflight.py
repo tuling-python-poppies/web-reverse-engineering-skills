@@ -155,11 +155,12 @@ PROVIDER_GUARD_CONTRACTS: tuple[ProviderGuardContract, ...] = (
         "references/providers/implementation/python-node/scripts/approved_runner.py",
         (
             "approved-reviewed-hash",
-            "capability-denied-external",
-            "assetSha256",
-            "cleanup",
+            "local-only",
+            "ApprovedProcessLauncher",
+            "run_blocked_without_launcher",
+            "sha256_file",
         ),
-        "python-node approved runner guard",
+        "python-node bounded process launcher guard",
     ),
 )
 

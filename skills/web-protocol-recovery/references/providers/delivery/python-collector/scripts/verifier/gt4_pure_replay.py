@@ -32,8 +32,9 @@ from gt4_runtime import (
     safe_lot_cache,
     scope_allows,
     validate_cache_root,
-    validate_ledger_path,
     validate_gt4_scope_contract,
+    validate_ledger_path,
+    validate_static_source_path,
     write_new_bytes,
     write_new_json,
     write_new_text,
@@ -466,6 +467,8 @@ def encrypt_w(payload, pt):
 
 
 def download(session, url):
+    if validate_static_source_path(url) is None:
+        raise ValueError(f"static asset path is not an approved relative path: {url!r}")
     response = live_get(session, urljoin(STATIC_BASE, url), timeout=30)
     response.raise_for_status()
     return response

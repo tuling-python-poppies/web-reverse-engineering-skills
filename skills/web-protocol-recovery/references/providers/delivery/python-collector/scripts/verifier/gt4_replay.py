@@ -33,8 +33,9 @@ from gt4_runtime import (
     sha256_file,
     scope_allows,
     validate_cache_root,
-    validate_ledger_path,
     validate_gt4_scope_contract,
+    validate_ledger_path,
+    validate_static_source_path,
     write_new_bytes,
     write_new_json,
     write_new_text,
@@ -300,6 +301,8 @@ def validate_work_order(path: Path, cache_root: Path, bundle: Path) -> Dict[str,
 
 
 def download_text(session: requests.Session, source_url: str, path: Path) -> str:
+    if validate_static_source_path(source_url) is None:
+        raise ValueError(f"static asset path is not an approved relative path: {source_url!r}")
     response = live_get(session, urljoin(STATIC_BASE, source_url), timeout=30)
     response.raise_for_status()
     write_new_text(path, response.text)
@@ -307,6 +310,8 @@ def download_text(session: requests.Session, source_url: str, path: Path) -> str
 
 
 def download_image(session: requests.Session, image_url: str, path: Path) -> bytes:
+    if validate_static_source_path(image_url) is None:
+        raise ValueError(f"static asset path is not an approved relative path: {image_url!r}")
     response = live_get(session, urljoin(STATIC_BASE, image_url), timeout=30)
     response.raise_for_status()
     if not response.headers.get("content-type", "").startswith("image/"):
@@ -325,7 +330,7 @@ def generate_w(
     userresponse: float,
 ) -> Dict[str, Any]:
     raise SandboxError(
-        "GT4 target-JS replay is disabled until a reviewed capability-denied sandbox adapter is bundled"
+        "GT4 target-JS replay is disabled until a bounded process launcher integration is added"
     )
 
 

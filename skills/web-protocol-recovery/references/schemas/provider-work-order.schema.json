@@ -288,12 +288,11 @@
         "approvalDeadline": {"type": ["string", "null"], "format": "date-time"},
         "sandbox": {
           "type": "object",
-          "required": ["backend", "adapterId", "adapterSha256", "capabilityEvidence", "timeoutMs", "outputByteCap"],
           "properties": {
-            "backend": {"enum": ["capability-denied-external"]},
-            "adapterId": {"type": "string", "minLength": 1},
-            "adapterSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-            "capabilityEvidence": {"type": "string", "minLength": 1},
+            "backend": {"enum": ["capability-denied-external", "os-process-constrained"]},
+            "adapterId": {"type": ["string", "null"]},
+            "adapterSha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+            "capabilityEvidence": {"type": "string"},
             "timeoutMs": {"type": "integer", "minimum": 1, "maximum": 60000},
             "outputByteCap": {"type": "integer", "minimum": 1024, "maximum": 10485760}
           }
@@ -306,7 +305,6 @@
             "required": ["targetCodeExecution"]
           },
           "then": {
-            "required": ["sandbox"],
             "properties": {
               "approvedCodeSha256": {"minItems": 1},
               "approvalEvidence": {"type": "string", "minLength": 1},

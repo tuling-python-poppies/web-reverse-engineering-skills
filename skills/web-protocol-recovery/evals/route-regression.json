@@ -235,7 +235,7 @@
     },
     {
       "id": "pzds-target-code-execution-gate",
-      "prompt": "A PZDS case has hash-bound JavaScript and WASM assets but no current capability-denied adapter. It asks to run Node for a fixed vector.",
+      "prompt": "A PZDS case has hash-bound JavaScript and WASM assets but no bounded process launcher is configured. It asks to run Node for a fixed vector.",
       "expect": {
         "shape": "collector",
         "route": "verifier",

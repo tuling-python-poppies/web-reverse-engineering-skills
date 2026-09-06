@@ -777,7 +777,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "6e01f11dbd30289d6f277b0e22fdbc37f99465e372aeb1db68871cb8b2f9ca7d"
+                "sha256": "dbb52165c7c25abf3ec0b34ba2b6843281c1ef2865625539cdcb49124065021b"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"
@@ -1511,7 +1511,7 @@
             ],
             "manifest": {
                 "path": "python-node/pzds-aliyun-v2-goods-public/case.json",
-                "sha256": "a6003a0c167128f9a911801a5c46456ce8defc6cdef5babf7d2560294d42e72b"
+                "sha256": "b6734cae67a5708d3897b24e88e357f63d4e76eda41e0e9adc7ff68854632f4c"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

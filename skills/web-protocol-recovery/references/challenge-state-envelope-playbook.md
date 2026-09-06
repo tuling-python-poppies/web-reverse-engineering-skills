@@ -110,7 +110,7 @@ Method: identify which asset changes next-request state → execute/emulate loca
    - runtime harvest: a getter, hooked XHR/fetch, serializer, or packer already emits the decisive artifact
 
 3. Review target code before execution.
-   Hash the exact code and require `executionPolicy.targetCodeExecution=approved-reviewed-hash` for that hash. Use a capability-denied local sandbox: no network, filesystem, process, or dependency installation unless separately approved.
+   Hash the exact code and require `executionPolicy.targetCodeExecution=approved-reviewed-hash` (or `local-only` after user confirmation) for that hash. Run it through the Provider-owned bounded process launcher: fixed argv, project cache cwd, bounded stdin/stdout/stderr, and a hard timeout. No network, filesystem escape, extra process, or dependency installation unless separately approved.
 
 4. Preserve scheduler and script-order semantics only as needed.
    Use script insertion or an event-capable runtime when timers, microtasks, lifecycle, or self-issued requests matter. Do not force blocking evaluation when it deadlocks the real path. Add environment fields only after a concrete missing read.

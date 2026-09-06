@@ -71,55 +71,40 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
             entry._run_data_builder(self.vectors["dataBuilder"])
 
     def test_approved_runner_requires_current_execution_policy(self) -> None:
-        class Adapter:
-            capability_denied = True
-            adapter_id = "test-adapter"
-            adapter_sha256 = "b" * 64
-
-            def execute(self, operation, payload, sandbox):
+        class Launcher:
+            def execute(self, script_path, payload, policy):
                 return {"output": "approved"}
 
-            def close(self):
-                return None
-
-        work_order = {
-            "authorization": {
-                "executionPolicy": {
-                    "targetCodeExecution": "approved-reviewed-hash",
-                    "approvedCodeSha256": ["a" * 64],
-                    "approvalDeadline": "2099-01-01T00:00:00Z",
-                    "sandbox": {
-                        "backend": "capability-denied-external",
-                        "adapterId": "test-adapter",
-                        "adapterSha256": "b" * 64,
-                        "capabilityEvidence": "no-network-no-filesystem",
-                        "timeoutMs": 1000,
-                        "outputByteCap": 1024,
-                    },
+        with tempfile.TemporaryDirectory() as tmp:
+            asset = Path(tmp) / "data_builder.js"
+            asset.write_text("asset", encoding="utf-8")
+            digest = hashlib.sha256(asset.read_bytes()).hexdigest()
+            work_order = {
+                "authorization": {
+                    "executionPolicy": {
+                        "targetCodeExecution": "approved-reviewed-hash",
+                        "approvedCodeSha256": [digest],
+                        "approvalDeadline": "2099-01-01T00:00:00Z",
+                    }
                 }
             }
-        }
-        runner = entry.approved_target_runner(
-            work_order,
-            {"data_builder.js": "a" * 64},
-            Adapter(),
-        )
-        self.assertEqual(runner("data_builder", {"input": "x", "key": "y"}), {"output": "approved"})
-        with self.assertRaises(entry.TargetCodeExecutionError):
-            entry.approved_target_runner(
-                {"authorization": {"executionPolicy": {"targetCodeExecution": "blocked"}}},
-                {"data_builder.js": "a" * 64},
-                Adapter(),
+            runner = entry.approved_target_runner(
+                work_order,
+                {"data_builder.js": asset},
+                Launcher(),
             )
-        class MissingAttestation:
-            def execute(self, operation, payload, sandbox):
-                return {"output": "unsafe"}
-
-            def close(self):
-                return None
-
-        with self.assertRaises(entry.TargetCodeExecutionError):
-            entry.approved_target_runner(work_order, {"data_builder.js": "a" * 64}, MissingAttestation())
+            self.assertEqual(runner("data_builder", {"input": "x", "key": "y"}), {"output": "approved"})
+            with self.assertRaises(entry.TargetCodeExecutionError):
+                entry.approved_target_runner(
+                    {"authorization": {"executionPolicy": {"targetCodeExecution": "blocked"}}},
+                    {"data_builder.js": asset},
+                    Launcher(),
+                )
+            with self.assertRaises(entry.TargetCodeExecutionError):
+                entry.approved_target_runner(
+                    work_order,
+                    {"data_builder.js": asset},
+                )
 
     def _device_config_fixture(self) -> entry.DeviceConfig:
         return entry.DeviceConfig(**self.vectors["deviceConfig"]["parsed"])

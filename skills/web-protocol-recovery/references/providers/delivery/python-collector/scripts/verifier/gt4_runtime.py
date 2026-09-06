@@ -16,7 +16,7 @@ import sqlite3
 import time
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, Mapping, Optional
 from urllib.parse import parse_qsl, urlparse
 
 
@@ -307,6 +307,53 @@ def _canonical_host(value: Any) -> Optional[str]:
         return value.encode("idna").decode("ascii").lower()
     except UnicodeError:
         return None
+
+
+def validate_static_source_path(source_url: Any) -> Optional[str]:
+    """Validate a challenge-supplied static asset path before urljoin."""
+    if not isinstance(source_url, str) or not source_url:
+        return None
+    if any(ord(char) < 0x20 or ord(char) == 0x7F for char in source_url) or "\\" in source_url:
+        return None
+    if not _has_valid_percent_encoding(source_url):
+        return None
+    try:
+        parsed = urlparse(source_url)
+    except (TypeError, ValueError):
+        return None
+    if parsed.scheme or parsed.netloc or parsed.username or parsed.password or parsed.fragment:
+        return None
+    if source_url.startswith("/"):
+        return None
+    return _canonical_path("/" + source_url.lstrip("/"))
+
+
+def build_observed_static_scopes(load_response: Any) -> list[Dict[str, Any]]:
+    """Build exact static.geetest.com scopes from observed challenge asset paths."""
+    if not isinstance(load_response, Mapping):
+        return []
+    data = load_response.get("data")
+    payload = data if isinstance(data, Mapping) else load_response
+    scopes: list[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for key in ("gct", "bg", "slice", "gct_url", "bg_url", "slice_url"):
+        value = payload.get(key)
+        if not isinstance(value, str):
+            continue
+        path = validate_static_source_path(value)
+        if path is None or path in seen:
+            continue
+        seen.add(path)
+        scopes.append(
+            {
+                "scheme": "https",
+                "host": "static.geetest.com",
+                "port": 443,
+                "routePrefix": path,
+                "queryPolicy": {"mode": "deny"},
+            }
+        )
+    return scopes
 
 
 def _safe_parse_url(target_url: Any) -> Optional[Any]:

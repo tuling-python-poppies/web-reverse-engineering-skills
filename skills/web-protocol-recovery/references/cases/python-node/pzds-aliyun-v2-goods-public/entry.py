@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 import uuid
 import zlib
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Mapping
 from urllib.parse import quote
 
@@ -48,51 +49,70 @@ def _require_target_runner(runner: Any) -> Any:
     return runner
 
 
+OPERATION_SCRIPTS = {
+    "data_builder": "data_builder.js",
+    "pzds_wasm_sign": "pzds_wasm_sign.mjs",
+}
+
+
+def _sha256_file(path: Path) -> str:
+    if path.is_symlink() or not path.is_file():
+        raise TargetCodeExecutionError(f"target asset must be a plain file: {path}")
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def approved_target_runner(
     work_order: Mapping[str, Any],
-    asset_hashes: Mapping[str, str],
-    adapter: Any,
+    asset_paths: Mapping[str, str | Path],
+    launcher: Any = None,
 ) -> Any:
-    """Bind a narrow artifact adapter to a current execution approval.
+    """Bind a narrow artifact launcher to a current execution approval.
 
-    The adapter owns the actual capability-denied process. This case helper only
-    validates the approval envelope and forwards two named artifact operations.
+    The launcher owns the bounded process execution. This case helper validates
+    the approval envelope, computes asset hashes itself, and forwards only the
+    two named artifact operations. Without a launcher, execution stays blocked.
     """
     authorization = work_order.get("authorization") or {}
     policy = authorization.get("executionPolicy") or {}
-    if policy.get("targetCodeExecution") != "approved-reviewed-hash":
-        raise TargetCodeExecutionError("target-code execution is not approved")
-    deadline = policy.get("approvalDeadline")
-    try:
-        expires = datetime.fromisoformat(str(deadline).replace("Z", "+00:00"))
-    except (TypeError, ValueError) as error:
-        raise TargetCodeExecutionError("target-code approval deadline is invalid") from error
-    if expires.tzinfo is None or expires <= datetime.now(timezone.utc):
-        raise TargetCodeExecutionError("target-code approval deadline is expired")
+    mode = policy.get("targetCodeExecution")
+    if mode not in {"local-only", "approved-reviewed-hash"}:
+        raise TargetCodeExecutionError(
+            "target-code execution requires local-only or approved-reviewed-hash"
+        )
+    if mode == "approved-reviewed-hash":
+        deadline = policy.get("approvalDeadline")
+        try:
+            expires = datetime.fromisoformat(str(deadline).replace("Z", "+00:00"))
+        except (TypeError, ValueError) as error:
+            raise TargetCodeExecutionError("target-code approval deadline is invalid") from error
+        if expires.tzinfo is None or expires <= datetime.now(timezone.utc):
+            raise TargetCodeExecutionError("target-code approval deadline is expired")
     approved_hashes = set(map(str, policy.get("approvedCodeSha256") or []))
-    if not asset_hashes or not set(asset_hashes.values()) <= approved_hashes:
+    if not asset_paths or not approved_hashes:
+        raise TargetCodeExecutionError("approved target asset hashes are required")
+    resolved_paths = {str(name): Path(path) for name, path in asset_paths.items()}
+    if not set(
+        _sha256_file(path) for path in resolved_paths.values()
+    ) <= approved_hashes:
         raise TargetCodeExecutionError("target-code asset hash is not approved")
-    sandbox = policy.get("sandbox") or {}
-    required_sandbox = {
-        "backend", "adapterId", "adapterSha256", "capabilityEvidence", "timeoutMs", "outputByteCap"
-    }
-    if not required_sandbox <= set(sandbox) or sandbox.get("backend") != "capability-denied-external":
-        raise TargetCodeExecutionError("a reviewed capability-denied sandbox is required")
-    if not getattr(adapter, "capability_denied", False):
-        raise TargetCodeExecutionError("adapter must attest capability denial")
-    if getattr(adapter, "adapter_id", None) != sandbox.get("adapterId"):
-        raise TargetCodeExecutionError("adapter identity does not match work order")
-    if getattr(adapter, "adapter_sha256", None) != sandbox.get("adapterSha256"):
-        raise TargetCodeExecutionError("adapter hash does not match work order")
-    if not hasattr(adapter, "execute") or not callable(adapter.execute):
-        raise TargetCodeExecutionError("approved target runner adapter is missing execute()")
-    if not hasattr(adapter, "close") or not callable(adapter.close):
-        raise TargetCodeExecutionError("approved target runner adapter is missing close()")
+    if launcher is None:
+        raise TargetCodeExecutionError(
+            "no bounded process launcher is configured; target-code execution is blocked"
+        )
+    if not callable(getattr(launcher, "execute", None)):
+        raise TargetCodeExecutionError("approved target runner launcher is missing execute()")
 
     def run(operation: str, payload: Mapping[str, Any]) -> Any:
-        if operation not in {"data_builder", "pzds_wasm_sign"}:
+        script_name = OPERATION_SCRIPTS.get(operation)
+        if script_name is None:
             raise TargetCodeExecutionError(f"unsupported PZDS target operation: {operation}")
-        return adapter.execute(operation, dict(payload), sandbox)
+        if script_name not in resolved_paths:
+            raise TargetCodeExecutionError(f"target asset is not provided: {script_name}")
+        return launcher.execute(resolved_paths[script_name], dict(payload), policy)
 
     return run
 

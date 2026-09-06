@@ -265,6 +265,32 @@ class Gt4FilesystemAndScopeTests(unittest.TestCase):
         self.assertTrue(gt4_runtime.scope_allows([scope], "https://gcaptcha4.geetest.com/load"))
         self.assertTrue(gt4_runtime.scope_allows([scope], "https://gcaptcha4.geetest.com/admin/export?token=x"))
 
+    def test_static_source_path_rejects_escape(self) -> None:
+        for source in (
+            "../private.js",
+            "/absolute.js",
+            "//evil.example/x.js",
+            "https://evil.example/x.js",
+            "a\\b.js",
+            "captcha/%2F..%2Fx.js",
+            "",
+            None,
+        ):
+            with self.subTest(source=source):
+                self.assertIsNone(gt4_runtime.validate_static_source_path(source))
+        for source in ("captcha/v4.js", "gct/v1/gct.js", "bg/1/bg.png"):
+            with self.subTest(source=source):
+                self.assertIsNotNone(gt4_runtime.validate_static_source_path(source))
+
+    def test_build_observed_static_scopes_filters_escape(self) -> None:
+        scopes = gt4_runtime.build_observed_static_scopes(
+            {"data": {"gct": "captcha/gct.js", "bg": "https://evil.example/bg.png"}}
+        )
+        self.assertEqual(len(scopes), 1)
+        self.assertEqual(scopes[0]["routePrefix"], "/captcha/gct.js")
+        self.assertEqual(scopes[0]["queryPolicy"]["mode"], "deny")
+        self.assertEqual(gt4_runtime.build_observed_static_scopes("not-a-load-response"), [])
+
     def test_response_body_cap_stops_buffering_before_overflow(self) -> None:
         class FakeResponse:
             def __init__(self, chunks, content_length=None):

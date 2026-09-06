@@ -33,10 +33,10 @@ but it must not perform `/load`, image/GCT downloads, `/verify`, WebSocket
 traffic, cookie persistence, or filesystem access through JavaScript. Python
 fetches the same-round inputs and owns the final verifier request.
 
-The work order must bind the exact bundle SHA-256, adapter SHA-256, an
-ISO-8601 approval deadline, and a capability-denied adapter identity. The
-adapter must fail closed when the bundle hash or required export feature
-changes. A module number such as `require(32)` is current evidence only: also
+The work order must bind the exact bundle SHA-256, an ISO-8601 approval
+deadline for reviewed-hash mode, and a bounded execution context. Execution
+must fail closed when the bundle hash or required export feature changes.
+A module number such as `require(32)` is current evidence only: also
 check that the registry exists and that the approved module's export is
 callable, then refresh the binding after a bundle change.
 

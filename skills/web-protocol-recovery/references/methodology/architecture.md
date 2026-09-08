@@ -50,7 +50,7 @@ The canonical Provider inventory is `references/providers/registry.json`.
 
 | Role | Providers | Responsibility |
 |---|---|---|
-| `reconnaissance` | `chromium-recon`, `camoufox`, `wechat-miniapp` | Locate requests, initiators, moving state, scripts, runtime blockers, and precise next capability. |
+| `reconnaissance` | `chromium-recon`, `camoufox`, `wechat-miniapp`, `wmpf-address-adapter` | Locate requests, initiators, moving state, scripts, runtime blockers, or update authorized local WMPF native hook addresses. |
 | `protocol-recovery` | `browser-hooks`, `ast`, `verifier`, `akamai`, `river-security`, `reese84`, `kasada` | Recover rules or own protocol-family state and acceptance criteria. |
 | `implementation` | `iv8`, `python-node`, `nv8`, `pure-python` | Produce one local protocol artifact. |
 | `delivery` | `python-collector` | Perform final Python-owned HTTP/WebSocket live egress and bounded collection. |

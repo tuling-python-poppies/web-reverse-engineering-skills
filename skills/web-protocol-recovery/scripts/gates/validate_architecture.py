@@ -28,6 +28,7 @@ EXPECTED_PROVIDER_IDS = {
     "chromium-recon",
     "camoufox",
     "wechat-miniapp",
+    "wmpf-address-adapter",
     "browser-hooks",
     "ast",
     "verifier",

@@ -28,6 +28,8 @@ references/providers/
     camoufox/references/ops-ladder.md
     wechat-miniapp/PROVIDER.md
     wechat-miniapp/references/ops-playbook.md
+    wmpf-address-adapter/PROVIDER.md
+    wmpf-address-adapter/references/ops-playbook.md
   protocol-recovery/
     browser-hooks/PROVIDER.md
     ast/PROVIDER.md

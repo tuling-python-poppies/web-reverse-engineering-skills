@@ -5,6 +5,8 @@
 - WMPF, WeChatAppEx, AppService, miniapp WebView, WMPFDebugger, or `127.0.0.1:62000` signals.
 - User is debugging a local miniapp runtime they own.
 
+Address-maintenance requests are routed to the sibling `wmpf-address-adapter` Provider before runtime/network work. This Provider remains responsible for AppService/WebView evidence and debugger lease custody.
+
 ## Do Not Select When
 
 - Ordinary Web pages (Chromium).
@@ -22,6 +24,7 @@ Before start, attach, network capture, source save, or breakpoints, classify the
 | User input | Action |
 |---|---|
 | Only miniapp name / open instruction | Confirm WMPFDebugger service + DevTools URL; wait for business action |
+| Explicit WMPF address/offset/config update | Route to `wmpf-address-adapter`; do not start the miniapp debugger unless dynamic validation is explicitly requested |
 | API keyword, field name, request sample, or explicit click action | After target context, run network/source/breakpoint chain |
 | Full request + stack + params already proved; goal is browser-free replay | Cleanup, then return blocker recommending implementation Provider |
 | Ordinary Web URL | Return blocker for Chromium route; do not attach WMPF |

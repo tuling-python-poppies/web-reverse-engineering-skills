@@ -32,6 +32,15 @@
       "profiles": []
     },
     {
+      "id": "wmpf-address-adapter",
+      "role": "reconnaissance",
+      "entry": "references/providers/reconnaissance/wmpf-address-adapter/PROVIDER.md",
+      "ownsProtocolAcceptance": false,
+      "mayOwnFinalLiveEgress": false,
+      "strategies": [],
+      "profiles": []
+    },
+    {
       "id": "browser-hooks",
       "role": "protocol-recovery",
       "entry": "references/providers/protocol-recovery/browser-hooks/PROVIDER.md",

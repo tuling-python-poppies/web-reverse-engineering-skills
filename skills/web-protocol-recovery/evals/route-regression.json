@@ -132,6 +132,23 @@
       }
     },
     {
+      "id": "wmpf-address-maintenance",
+      "prompt": "我的 WMPFDebugger 随微信更新后缺少 addresses.25558.json。请只分析本机授权的 flue.dll，定位 LoadStartHookOffset、CDPFilterHookOffset 和 SceneOffsets，并原子写入 frida/config/addresses.<version>.json，不要从网站下载地址库，也不要做网络采集。",
+      "expect": {
+        "shape": "local-proof",
+        "route": "wmpf-address-adapter"
+      }
+    },
+    {
+      "id": "wmpf-address-negative-miniapp-network",
+      "prompt": "我只想抓取微信小程序的 API 请求、脚本入口和 AppService 网络参数，不需要更新 native hook 地址或 address 配置。",
+      "expect": {
+        "shape": "evidence",
+        "route": "wechat-miniapp",
+        "notRoute": []
+      }
+    },
+    {
       "id": "known-iv8-artifact-boundary",
       "prompt": "The JavaScript challenge entry is known and iv8 must produce one narrow local artifact for Python; no live business HTTP belongs inside iv8.",
       "expect": {

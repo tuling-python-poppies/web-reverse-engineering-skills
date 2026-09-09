@@ -21,6 +21,14 @@
 
 它不是通用的浏览器自动化 Skill，也不是普通 REST/GraphQL 客户端生成器。浏览器、JavaScript、WASM 和 iv8 只用于取证或生成窄工件；最终 live HTTP、WebSocket handshake 和 sent frame 必须由 Python 协议客户端或 collector 发出。
 
+
+
+## 配套mcps仓库地址
+
+https://gitee.com/tuling-python/web-reverse-mcps-tool
+
+
+
 ## 什么时候触发
 
 ### 应触发

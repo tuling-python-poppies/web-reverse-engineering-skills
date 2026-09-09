@@ -1,5 +1,6 @@
 ---
 name: web-protocol-recovery
+description: >-
   仅在用户明确要求恢复、定位、验证、实现、交付或复现 Web/小程序协议行为，或明确要求更新其授权 WMPFDebugger 的本地 native hook 地址/offset/config 时触发；WMPF 地址维护线索包括 LoadStartHookOffset、CDPFilterHookOffset、SceneOffsets、addresses.<version>.json、flue.dll、WeChatAppEx.exe。线索还包括 sign/token/header/cookie/challenge、JSVMP/WASM、验证码、Akamai、Kasada、River Security/瑞数、Reese84、响应解码、字体映射、会话协议或 browser-free Python collector。排除：Camoufox/浏览器截图点击/QA/回归测试/页面自动化、普通 REST/GraphQL client、skill/opencode/MCP 配置、前端/CSS、格式化/重命名、安全头和市场介绍；单独出现 Camoufox、GraphQL、WebSocket、protobuf、Imperva、AST 或浏览器也不触发。PZDS goodsPublic/page 与 Aliyun V2 InitCaptchaV2/UploadLog/Log2/Log3/VerifyCaptchaV2/T001/F001 + 业务重放按 collector；明确实现按 collector 交付。授权后按需读取 Chromium/Camoufox/WeChat、hook、AST、verifier、akamai、kasada、river-security、reese84、iv8、python-node、nv8、pure-python 或 Python delivery Provider。单点 hook、入口定位、已知 AST、Node/jsdom、NV8、iv8、纯 Python signer、Akamai/River/Reese84 状态机、抖音 BDMS 维护或 WMPF 本地地址适配可走快速路径，不自动升级 collector。
 argument-hint: "<target URL | request/source sample | artifact directory> [evidence|local-proof|compact-replay|collector]"
 ---

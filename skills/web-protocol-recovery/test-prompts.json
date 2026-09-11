@@ -1,86 +1,103 @@
 [
   {
     "id": "evidence-sign-entry",
+    "type": "should-trigger",
     "prompt": "帮我看这个 Web 请求里的 sign/token 是谁写进去的，只要入口和状态来源，不要写采集器。样本里有一个 XHR URL、请求头和一段混淆 JS。",
     "expected": "触发 web-protocol-recovery；输出四行协议头；shape=evidence；route 选择 evidence-reuse 或最小可读 Provider；只定位请求入口、writer、状态来源或 blocker，不升级 collector。"
   },
   {
     "id": "adidas-akamai-collector",
+    "type": "should-trigger",
     "prompt": "实现 adidas.com.hk summer_cs_promotion_2 的 browser-free collector。页面有 Akamai sensor，传感器脚本路径包含 pomCpnC，业务接口是 Search-UpdateGrid，最终要 Python 拿商品 JSON。",
     "expected": "触发 web-protocol-recovery；shape=collector；先以 akamai 作为协议 owner，再由 nv8 生成窄传感器工件，最终 live egress 属于 python-collector；复用 adidas-hk-akamai-nv8 case 前必须说明当前目标仍需 fresh verification。"
   },
   {
     "id": "non-protocol-boundary",
+    "type": "near-miss",
     "prompt": "给我生成一个普通 GraphQL REST client，顺便用浏览器截图检查页面按钮有没有对齐。没有 sign、cookie challenge、验证码或反爬协议问题。",
     "expected": "不触发 web-protocol-recovery；不输出四行协议头；说明这是普通 API/client 或浏览器 QA 工作流，不能强行选择 Camoufox、GraphQL、AST 或 protocol Provider。"
   },
   {
     "id": "kasada-nv8-collector",
+    "type": "should-trigger",
     "prompt": "一个目标返回 429，响应里有 KP_UIDz、x-kpsdk-ct、window.KPSDK bootstrap、双 UUID /ips.js 路径和 /tl POST。我要 browser-free Python collector，先证明 x-kpsdk-ct 再打业务接口。",
     "expected": "触发 web-protocol-recovery；shape=collector 或 local-proof 到 collector；route=kasada 作为协议 owner；只有两类 Kasada 独立信号成立后才读 Provider；实现工件可走 nv8，最终 live egress 属于 python-collector；不能把 429 单独当 Kasada 证明。"
   },
   {
     "id": "river-security-minimum-evidence",
+    "type": "should-trigger",
     "prompt": "站点 412，页面里有 $_ts.nsd 和 $_ts.cd，响应设置了 XxxS/XxxT Cookie，还看到 r=\"m\" 的脚本。请复现挑战 Cookie，再做 Python 请求。",
     "expected": "触发 web-protocol-recovery；shape=evidence 或 compact-replay；route=river-security；说明 River Security 需要两个独立标记，先恢复 challenge 状态和 Cookie 转换，再由 python-node env-patch 或 iv8 产出窄工件，最终 Python 发包。"
   },
   {
     "id": "reese84-corroboration-boundary",
+    "type": "anti-pattern",
     "prompt": "我只抓到一个 reese84 cookie 和 x-d-token，页面像 Imperva。帮我直接写 Python 绕过。",
     "expected": "触发 web-protocol-recovery 但保持 evidence-first；route=evidence-reuse 或拒绝直接 reese84；指出只有 cookie/header 不足以选择 Reese84，需要 challenge path、solution response、cookie transition 或 business consumer 等独立佐证；不能直接写绕过 collector。"
   },
   {
     "id": "pzds-aliyun-v2-collector",
+    "type": "should-trigger",
     "prompt": "实现 PZDS goodsPublic/page browser-free collector。业务响应里出现 InitCaptchaV2、UploadLog、Log2、Log3、VerifyCaptchaV2，最终重放需要 u_atoken 和 u_asig。",
     "expected": "触发 web-protocol-recovery；shape=collector；route=verifier 并选择 Aliyun Captcha V2 workflow；可复用 PZDS case 但必须拉取当前目标 live state；最终由 python-collector 做业务发包，不能把 verifier 当最终 delivery。"
   },
   {
     "id": "camoufox-not-for-qa",
+    "type": "near-miss",
     "prompt": "用 Camoufox 帮我打开页面点一下按钮，截图看看 CSS 有没有错位。这不是逆向，只是 QA。",
     "expected": "不触发 web-protocol-recovery；不输出四行协议头；明确这是浏览器 QA/页面自动化，不因为出现 Camoufox 就进入协议恢复。"
   },
   {
     "id": "offline-fixed-vector-proof",
+    "type": "should-trigger",
     "prompt": "我有固定请求样本、JS 文件和 expected sign，只要离线验证 signer 是否能复现，不允许联网，不允许浏览器。",
-      "expected": "触发 web-protocol-recovery；shape=local-proof；route=evidence-reuse 或最小实现 Provider；只跑固定向量和离线 proof，记录 acceptanceTest/result；不做 live replay、不启动浏览器、不升级 collector。"
+    "expected": "触发 web-protocol-recovery；shape=local-proof；route=evidence-reuse 或最小实现 Provider；只跑固定向量和离线 proof，记录 acceptanceTest/result；不做 live replay、不启动浏览器、不升级 collector。"
   },
   {
     "id": "gt4-word-click-collector",
+    "type": "should-trigger",
     "prompt": "实现 Geetest GT4 文字点选 browser-free collector。请求是 risk_type=word，响应有 captcha_type=word、imgs 和 ques；使用 iv8 生成 w，最终由 Python 调用 /verify。",
     "expected": "触发 shape=collector、route=verifier；读取 geetest-gt4-word-workflow.md；识别透明 ques、候选文字和 0..10000 坐标 wire shape；iv8 只生成 w，Python 负责最终 /verify。"
   },
   {
     "id": "gt4-word-not-nine-grid",
+    "type": "should-trigger",
     "prompt": "Geetest GT4 /load 返回 risk_type=word、captcha_type=word、imgs 和 ques，不包含 nine_nums。请不要把它按九宫格 row/column 或滑块 gap_x 处理。",
-      "expected": "触发 verifier 的 GT4 word-click reference；明确拒绝九宫格和滑块映射，使用文字点选坐标和当前 bundle 证据。"
+    "expected": "触发 verifier 的 GT4 word-click reference；明确拒绝九宫格和滑块映射，使用文字点选坐标和当前 bundle 证据。"
   },
   {
     "id": "gt4-nine-grid-collector",
+    "type": "should-trigger",
     "prompt": "实现 Geetest GT4 九宫格 browser-free collector。请求是 risk_type=nine，响应有 captcha_type=nine、imgs、ques、nine_nums=3；使用已 hash 校验的模型识别三格，转换成 1-based [row,col]，由 Python 调用 /verify，并返回成功后的 seccode。",
     "expected": "触发 shape=collector、route=verifier；读取 geetest-gt4-nine-grid-workflow.md；要求模型 checkpoint 执行批准、hash/class-map 校验、三格映射、Python 出网和 data.seccode handoff。"
   },
   {
     "id": "gt4-subtype-routing-negative",
+    "type": "should-trigger",
     "prompt": "同一个 Geetest GT4 host 同时出现 slide、word 和 nine 的历史请求。请分别按当前 risk_type/captcha_type 和响应字段路由，不要按 host、w 或 /verify 统一选择一个流程。",
     "expected": "先按 subtype 独立分类；slide 使用 bg/slice/td，word 使用 imgs/ques/10000 坐标，nine 使用 imgs/ques/nine_nums/模型；共享字段不能覆盖专用路由。"
   },
   {
     "id": "gt4-duplicate-scope-negative",
+    "type": "anti-pattern",
     "prompt": "GT4 work-order 同时声明两个相同的 /load scope 和一个 static.geetest.com allow-all scope。请判断是否允许 live replay。",
     "expected": "拒绝 work-order；scope 必须精确包含 /load、/verify、static 三项，重复 scope 和静态 allow-all 都必须 fail closed。"
   },
   {
     "id": "pzds-target-code-blocked",
+    "type": "anti-pattern",
     "prompt": "PZDS case 的 WASM 和 data_builder.js hash 都已经记录，但当前没有受控进程启动器，能否直接启动 Node 跑向量？",
     "expected": "保持 executionPolicy blocked；hash 不等于执行边界，必须返回 blocked 或要求 bounded process launcher，不得直接启动 Node。"
   },
   {
     "id": "transport-only-jsreverse-exception",
+    "type": "should-trigger",
     "prompt": "目标只有已完整捕获的 WSS handshake、auth/subscribe/heartbeat 帧、initiator/source boundary 和业务消费结果，没有 signer 或 challenge。是否必须再跑 js-reverse？",
     "expected": "可记录 gateFamily=transport、jsReverseHalf=not-required；仍需保留 wire/frame/semantic acceptance，不能把该例外扩展到 signer/challenge。"
   },
   {
     "id": "read-budget-extension-one-shot",
+    "type": "anti-pattern",
     "prompt": "当前任务已读取 24 个路径，发现一个明确 blocker 还需要 3 个新文件。请说明能否扩展，以及第二次再申请 1 个文件是否允许。",
     "expected": "允许一次最多 8 个明确新路径的 readBudgetExtension，记录 blockerId/reason/acceptanceImpact；第二次 extension 或重复已读路径必须拒绝，不能重置已用 24。"
   }

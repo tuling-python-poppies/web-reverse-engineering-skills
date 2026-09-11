@@ -29,14 +29,15 @@ orchestrates the rest.
 - `validate_architecture.py` — provider/route/read-plan/residue/EOL contracts
 - `validate_schemas.py` — JSON Schema contract fixtures
 - `validate_markdown.py` — local Markdown links and anchors
-- `validate_evals.py` — route-regression metadata
+- `validate_evals.py` — route-regression and test-prompt fixture metadata
 - `verify_case_hashes.py` — hash-bound case + registry integrity
 - `build_case_registry.py` — generate/verify the case registry projection
 - `forward_test_report.py` — validate external fresh-agent forward-test reports
 
 ### tests/ — unit tests for the gates
 - `test_preflight.py`, `test_architecture_contract.py`,
-  `test_scaffold_project.py`, `test_line_endings.py`
+  `test_scaffold_project.py`, `test_line_endings.py`,
+  `test_read_budget.py`, `test_validate_evals.py`
 
 ### providers/ — provider-scoped helpers
 Helpers owned by one Provider live under its own subtree, e.g.

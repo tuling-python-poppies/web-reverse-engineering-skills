@@ -6,7 +6,7 @@ Runs offline checks that should pass before committing skill edits:
 1. case hash/registry integrity (verify_case_hashes.py)
 2. generated case registry projection (build_case_registry.py --check)
 3. architecture/document/read-plan contracts (validate_architecture.py)
-4. offline route regression metadata (validate_evals.py)
+4. offline route-regression metadata and test-prompt fixtures (validate_evals.py)
 5. all case unit tests discovered under references/cases/*/*/tests
 6. preflight unit tests (scripts/tests/test_preflight.py) for alias/from-import/main-guard scan rules
 7. bundled diagnostic self-tests for evidence, chain, transform, transport, and local controls
@@ -419,6 +419,7 @@ def check_acceptance_unit_tests() -> tuple[bool, str]:
         / "tests"
         / "test_approved_runner.py",
         SKILL_ROOT / "scripts" / "tests" / "test_read_budget.py",
+        SKILL_ROOT / "scripts" / "tests" / "test_validate_evals.py",
     ]
     missing = [str(path.relative_to(SKILL_ROOT)) for path in tests if not path.is_file()]
     if missing:

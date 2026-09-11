@@ -71,7 +71,7 @@ entry point after any edit. Each one is fail-closed; none of them are advisory.
 | `validate_architecture.py` | Provider registry, route literals, hub and case-process contracts, read plans, case manifests, live-egress boundary, build residue, and LF-only line endings |
 | `validate_schemas.py` | Work-order and result schemas |
 | `validate_markdown.py` | Markdown contract |
-| `validate_evals.py` | Offline route-regression metadata and provider route coverage |
+| `validate_evals.py` | Offline route-regression metadata, provider route coverage, and the `test-prompts.json` fixture contract |
 | case unit tests | Per-case offline behaviour |
 | `test_preflight.py`, `test_architecture_contract.py`, `test_scaffold_project.py`, `test_line_endings.py` | The gates themselves fail in the failing direction |
 | entry discipline scan | No import-time network, mkdir, or engine start in case entries |

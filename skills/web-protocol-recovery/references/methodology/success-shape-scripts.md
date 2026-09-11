@@ -135,3 +135,60 @@ If the requested shape is `collector`, answer the same block with `shape: collec
 ## Gate: Runtime Cleanup Overlay
 
 Reject `status=complete` while any task-owned resource remains `live` or `cleanup.complete=false`. Approved retention records full runtime identity (resourceId, engine, contextId, targetId, navigationEpoch, lifecycle=retained), owner, reason, approval evidence, and release deadline; `cleanup.remainingResources` then contains exactly those retained IDs. Any other remaining resource requires cleanup and a blocked or failed result.
+
+## Context Checkpoint Overlay
+
+`checkpoint.md` template:
+
+```markdown
+## Checkpoint [timestamp]
+- shape: collector
+- route: verifier
+- gate: verifier (Aliyun V2)
+- 已有证据：
+  - [ ] AK/SECRET 提取完成
+  - [ ] Init+Log2+Log3+Verify 完整轮次捕获
+  - [ ] DeviceConfig AES 验证
+  - [ ] field21 算法确认
+  - [ ] stream codec 验证
+  - [ ] 轨迹 fixture 捕获
+- 当前阻塞：[xxx]
+- 下一步：[xxx]
+- firstDivergence：[stage/path/writer/firstConsumer 或 unknown]
+- stageSettle：[stageCount/order/timing/framing/stateTransition]
+- workOrderId：[stable-id]
+- budget：[priorRemaining/consumed/remaining]
+- 关键文件状态：
+  - js_reverse_cache/aliyun_v2_evidence/init_round.json: [存在/缺失]
+  - js_reverse_cache/private/pzds/t001_profile.json: [存在/缺失]
+```
+
+`checkpoint.json` 至少包含 `checkpointId`、`workOrderId`、`scopeDigest`、结构化 `budget`、结构化 `readBudget`、`firstDivergence`、`stageSettle`、`runtimeIds`、`browserState`、`blocker` 和 `nextStep`。恢复时不得重置 budget、read budget 或 runtime lifecycle。
+
+这个检查点服务于两个目的：
+1. **上下文压缩后恢复**：当上下文窗口被截断时，先读 `js_reverse_cache/checkpoint.md` 确认当前状态，而不是从记忆中重建
+2. **避免重复工作**：如果检查点显示 AK/SECRET 已提取，不要再次提取
+
+恢复时先读取 checkpoint，再读取当前 work-order；不得从对话记忆重建预算、runtime ID、scope 或已接受证据。浏览器与本地运行结果不一致时，先按 stage count -> stage order -> timing/framing -> cookie/header transition -> timer/promise/event-loop settle 的顺序定位 `firstDivergence`，不要从最终 HTTP 状态倒推 signer 修复。
+
+浏览器残留进程恢复格式：若任务因浏览器启动失败（进程残留）而暂停，checkpoint 需额外记录：
+
+```markdown
+- 浏览器状态：
+  - 残留进程：[有/无]（上次启动失败错误特征：exit code / 错误信息）
+  - 恢复步骤：暂停并记录 blocker；不得自动终止用户浏览器或清理未确认归属的 profile。只有用户明确确认任务自有 profile 后，才使用对应浏览器生命周期工具清理并重新启动采集
+```
+
+## Case Delivery Overlay
+
+Implementation cases can provide protocol primitives without the user's current
+live state. Keep the split explicit:
+
+- `entry.py` is a narrow starting point, not the final collector.
+- `t001_profile_refresh.py` is an updater, not a bootstrapper; it still needs a
+  current profile package with `combat511`/`combat504` and an accepted movement
+  seed.
+- FeiLin127 `field21` needs at least twelve capture rounds; three rounds and
+  some six-round sets remain ambiguous.
+
+Run offline vectors first, then the current verifier and business replay.

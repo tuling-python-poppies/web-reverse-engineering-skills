@@ -276,48 +276,11 @@ Runtime load, non-empty sign, HTTP `200`, or one lucky replay is not success:
 
 ### 多轮上下文检查点
 
-每完成一个 Phase（或在 verifier 链路中每完成一个关键工件），必须输出一个检查点摘要；当 `writeMode` 已启用时写入 `js_reverse_cache/checkpoint.md`，纯只读 fast path / `writeMode=no-write` 阶段先在回复中报告，不为写 checkpoint 打破 no-write：
+每完成一个 Phase（或在 verifier 链路中每完成一个关键工件），必须输出检查点摘要；`writeMode` 已启用时写入 `js_reverse_cache/checkpoint.md`，纯只读 fast path / `writeMode=no-write` 阶段在回复中报告，不为写 checkpoint 打破 no-write。
 
-机器状态优先保存为同目录的 `checkpoint.json`，Markdown 只作为人读摘要。恢复顺序固定为：`checkpoint.json` -> 当前 work-order -> 允许的 `nextRead`。checkpoint 不得保存 cookie、token、profile、raw response 或账户凭据，只保存 digest、路径状态、枚举和布尔状态。
+机器状态优先保存为同目录的 `checkpoint.json`（字段契约见 `references/schemas/checkpoint.schema.json`），Markdown 只作为人读摘要。恢复顺序固定为 `checkpoint.json` -> 当前 work-order -> 允许的 `nextRead`；checkpoint 只保存 digest、路径状态、枚举和布尔状态，不得保存 cookie、token、profile、raw response 或账户凭据；恢复时不得从对话记忆重建预算、runtime ID、scope 或已接受证据，也不得重置 budget、read budget 或 runtime lifecycle。
 
-```markdown
-## Checkpoint [timestamp]
-- shape: collector
-- route: verifier
-- gate: verifier (Aliyun V2)
-- 已有证据：
-  - [ ] AK/SECRET 提取完成
-  - [ ] Init+Log2+Log3+Verify 完整轮次捕获
-  - [ ] DeviceConfig AES 验证
-  - [ ] field21 算法确认
-  - [ ] stream codec 验证
-  - [ ] 轨迹 fixture 捕获
-- 当前阻塞：[xxx]
-- 下一步：[xxx]
-- firstDivergence：[stage/path/writer/firstConsumer 或 unknown]
-- stageSettle：[stageCount/order/timing/framing/stateTransition]
-- workOrderId：[stable-id]
-- budget：[priorRemaining/consumed/remaining]
-- 关键文件状态：
-  - js_reverse_cache/aliyun_v2_evidence/init_round.json: [存在/缺失]
-  - js_reverse_cache/private/pzds/t001_profile.json: [存在/缺失]
-```
-
-`checkpoint.json` 至少包含 `checkpointId`、`workOrderId`、`scopeDigest`、结构化 `budget`、结构化 `readBudget`、`firstDivergence`、`stageSettle`、`runtimeIds`、`browserState`、`blocker` 和 `nextStep`。恢复时不得重置 budget、read budget 或 runtime lifecycle。
-
-这个检查点服务于两个目的：
-1. **上下文压缩后恢复**：当上下文窗口被截断时，先读 `js_reverse_cache/checkpoint.md` 确认当前状态，而不是从记忆中重建
-2. **避免重复工作**：如果检查点显示 AK/SECRET 已提取，不要再次提取
-
-恢复时先读取 checkpoint，再读取当前 work-order；不得从对话记忆重建预算、runtime ID、scope 或已接受证据。浏览器与本地运行结果不一致时，先按 stage count -> stage order -> timing/framing -> cookie/header transition -> timer/promise/event-loop settle 的顺序定位 `firstDivergence`，不要从最终 HTTP 状态倒推 signer 修复。
-
-**浏览器残留进程恢复提示**：若任务因浏览器启动失败（进程残留）而暂停，checkpoint 需额外记录：
-```markdown
-- 浏览器状态：
-  - 残留进程：[有/无]（上次启动失败错误特征：exit code / 错误信息）
-  - 恢复步骤：暂停并记录 blocker；不得自动终止用户浏览器或清理未确认归属的 profile。只有用户明确确认任务自有 profile 后，才使用对应浏览器生命周期工具清理并重新启动采集
-```
-
+`checkpoint.md` / `checkpoint.json` 模板、`firstDivergence` 定位顺序与浏览器残留记录格式见 `references/methodology/success-shape-scripts.md` 的 Context Checkpoint Overlay。
 
 Selector: only `references/cases/registry.json`; only `status=verified` entries are library-selectable. Read `verificationClass` and `selectableAs` on the registry row before load: `selectableAs=proof` (`freshly-verified`) means current checked-in offline vectors/tests prove the local artifact only; it is not live-current target acceptance. `selectableAs=template` (`historical-user-attested`) is shape/process evidence only and always requires fresh current-target verification before live reuse. Match a structured exact scheme/host/port/route scope **or** the declared minimum of independent high-confidence signals (normally ≥2; verifier cases need vendor/version/subtype). When `match.requiredSignalGroups` exists, non-scope selection must also match at least one observed signal from every disjoint group; labels and repeated observations cannot satisfy two groups. A user hypothesis such as "怀疑瑞数" is not an independent high-confidence signal. If more than one verified case matches the same exact scope or the same minimum signal set, do not select by registry order; stop case reuse until a discriminator such as runtime, algorithm, product subtype, or negative signal selects exactly one case. Never match on one generic param, status, `_0x`, or SDK string. All entries resolve to one hash-bound `web-protocol-recovery-case` manifest with typed historical and current Provider stages. `freshly-verified` cases must carry executed test/evidence artifacts.
 
@@ -327,17 +290,7 @@ Load one selected case as `case.json` -> `PROCESS.md` -> declared puller/fixture
 
 ## Fresh-Machine Case Delivery
 
-Implementation cases can provide protocol primitives without the user's current
-live state. Keep the split explicit:
-
-- `entry.py` is a narrow starting point, not the final collector.
-- `t001_profile_refresh.py` is an updater, not a bootstrapper; it still needs a
-  current profile package with `combat511`/`combat504` and an accepted movement
-  seed.
-- FeiLin127 `field21` needs at least twelve capture rounds; three rounds and
-  some six-round sets remain ambiguous.
-
-Run offline vectors first, then the current verifier and business replay.
+Implementation cases provide protocol primitives without current live state: `entry.py` 只是窄起点，不是最终 collector；`t001_profile_refresh.py` 是 updater 不是 bootstrapper；先跑离线向量，再跑当前 verifier 与业务重放。完整切分约束（`combat511`/`combat504` profile、FeiLin127 至少十二轮）见 `references/methodology/success-shape-scripts.md` 的 Case Delivery Overlay。
 
 Writeback after eligible verified work: read `references/methodology/case-writeback.md`. Flow: candidate summary -> user yes -> sanitize/dedupe + exact allowlist -> second confirm -> change-control. No case stores raw account/browser/HAR/private bodies, cookie/token values, or absolute local paths; current authorized state is pulled at reproduction time and kept out of the library.
 
@@ -349,78 +302,23 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 
 | 信号 | 分类 | 处理 |
 |---|---|---|
-| MCP 工具调用返回同一错误 ≥2 次（如 `Could not save file`、`Execution context destroyed`、`timed out`） | 工具环境问题 | **不要重试同一调用**。记录 blocker，切换替代方法（如：`save_script_source` 失败 → 改用 curl + write 保存；`evaluate_js` 超时 → 改用 `search_in_sources` + 浏览器外分析）|
-| 浏览器页面重置为 `about:blank` / 丢失上下文 | 工具环境问题 | 重新 `navigate` 后继续，不要归因为协议失败 |
-| 中文路径导致文件操作失败 | 工具环境问题 | 优先在 `<projectRoot>/js_reverse_cache/ascii/**` 创建纯 ASCII 子路径；只有工具强制外部路径时才用临时 ASCII 路径，并立即复制回 `js_reverse_cache/**` 后清理外部副本 |
-| HTTP 响应 status/body 与预期不符 | 协议失败 | 按协议诊断顺序处理 |
+| MCP 工具同一错误 ≥2 次 / 页面重置 `about:blank` / 中文路径文件失败 / 修复后结果不变 | 工具环境问题 | 不重试同一调用；切换替代方法；先确认文件实际写入状态 |
+| HTTP status/body 与预期不符 | 协议失败 | 按协议诊断顺序处理 |
 | HMAC/AES/签名与捕获包不一致 | 协议失败 | 检查参数/密钥/编码 |
-| 同一代码修复后运行结果不变 | 可能是工具失败（文件未真正写入） | 先确认文件状态（`cat`/`sha256sum`）再继续 |
 
-**核心原则**：工具失败消耗的轮次不应超过协议分析本身。如果连续 3 轮在处理工具问题而不是协议问题，停下来重新评估工具环境是否可用。
+**核心原则**：工具失败消耗的轮次不应超过协议分析本身。连续 3 轮在处理工具问题而不是协议问题时，停下来重新评估工具环境是否可用。
 
 ### 浏览器 fallback 链
 
-MCP 环境中有多套浏览器引擎可用：
-1. `js-reverse-mcp`（CloakBrowser / Chromium）
-2. `camoufox-reverse-mcp`（Camoufox / Firefox SpiderMonkey）
-3. `chrome-devtools-mcp`（普通 Chrome DevTools）
+一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失）后记录 failureClass，并按满足条件的 capability adapter 切换，而不是宣布「浏览器不可用」：Chrome 失败 x2 -> fallback adapter；CloakBrowser 失败 x2 -> 只有 Camoufox criterion 成立才切换；全部适配器失败才记录 hard blocker。`exit code 21` / profile 残留不进入自动 fallback，按「浏览器启动失败诊断流程」先问用户（清理任务自有 profile 后重启，或暂停任务）；不得按进程名批量终止，也不得操作未确认归属的 profile。
 
-**规则**：当一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失），**不要宣布「浏览器不可用」**——记录为工具失败条件，并评估下一个 capability adapter。这个 fallback 是工具恢复，不是协议 route 升级；只有 adapter 的选择条件已满足时才切换，不因固定产品链自动升级。exit code 21 / profile 残留按「浏览器启动失败诊断流程」先问用户，不进入自动 fallback：
-
-```
-Chrome 失败 x2      → 记录 failureClass，选择满足条件的 fallback adapter
-CloakBrowser 失败 x2 → 记录 failureClass，只有 Camoufox criterion 成立才切换
-全部适配器失败       → 记录 hard blocker
-```
-
-注意事项：
-- Chrome（chrome-devtools-mcp 或 js-reverse-mcp 普通模式）：最简单稳定，优先使用
-- CloakBrowser（js-reverse-mcp Cloak 模式）：指纹伪装，Chrome 无法通过时使用
-- Camoufox（camoufox-reverse-mcp）：Firefox 引擎，最后手段，对 WAF JS 有不同处理逻辑
-- 三者 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
-- **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**；但启动残留类错误必须先走用户决策，不自动杀进程也不自动换引擎隐藏该问题
-
-### 浏览器启动失败诊断流程
-
-启动浏览器（launch_browser / reset_browser_state）报错时，先分类错误特征：
-
-| 错误特征 | 诊断 | 动作 |
-|---|---|---|
-| exit code 21 / 进程启动后立即 graceful close / `Target page, context or browser has been closed` | Chrome/CloakBrowser 单实例机制：已有进程占用 user-data-dir，新实例立即退出 | **不要自动杀进程**（用户可能正用浏览器），也不要盲目重试——直接询问用户 |
-| 网络/连接错误、MCP server 未连接 | 环境问题 | 按 fallback 链切换引擎 |
-
-**Chrome exit code 21 机制**：Chrome 启动时若检测到相同 user-data-dir 已有实例在运行，会把请求转发给已有实例然后以 exit 21 退出。残留进程锁住了 profile 目录，导致后续启动全部失败。
-
-**用户决策选项**（发现进程残留时提问）：
-1. **用户确认任务自有 profile**：仅清理当前任务明确归属的浏览器资源，然后重新启动采集；不得按进程名批量终止，也不得操作外部或未确认的 profile 路径
-2. **暂停任务**：保留当前状态，用户自行处理后恢复
-
-**规则**：
-- 启动失败 ≤2 次且错误特征匹配进程残留 → 直接进入用户决策流程（不重试第 3 次）
-- 用户选择释放 → 执行清理 → 重新启动 → 继续采集
-- 用户选择暂停 → 记录 checkpoint，等待用户恢复
-
-### MCP 浏览器操作纪律
-
-| 规则 | 说明 |
-|---|---|
-| 一次一个引擎 | 不要同时操作 CloakBrowser 和 Camoufox，状态会互相干扰 |
-| 调用批次上限 | 单次 tool call 批次不超过 3 个相关联的 MCP 调用；多了结果混乱无法追踪 |
-| network_capture 时机 | `network_capture(action='start', capture_body=true)` **必须在 navigate 之前**调用 |
-| pre_inject_hooks | 需要在页面加载前拦截网络请求时，使用 `navigate(pre_inject_hooks=[...])` 而不是 navigate 后 evaluate_js（后者在 reload 后会丢失） |
-| 操作前确认状态 | navigate 后先 `get_page_info` 确认当前 URL/title 再做后续操作 |
-| 清 cookie 导航策略 | 见下节 |
+MCP 纪律：`network_capture(action='start', capture_body=true)` 必须在 `navigate` 之前；单批 MCP 调用 ≤3；navigate 后先 `get_page_info` 确认 URL/title。
 
 ### WAF 页面导航策略
 
-清 cookie 后导航到 WAF 保护的页面时，WAF JS Challenge 会阻塞 `domcontentloaded`（先执行 JS 验证、生成 cookie、再 302 重定向到真实页面）。
+优先不清 cookie；必须清时用 Camoufox + `wait_until: networkidle`，networkidle 也超时时设 15s 超时后检查 `get_page_info` 判断是否已在目标域。**绝不要**：清 cookie → CloakBrowser → `domcontentloaded` → 超时 → 宣布失败。
 
-**正确做法（按优先级）**：
-1. **不清 cookie**：保留 WAF session，通过业务请求头缺失/错误来触发 Captcha V2 层（而非 WAF JS 层）
-2. **如果必须清 cookie**：把 WAF JS navigation 恢复记录为工具/页面恢复条件，使用 Camoufox（对 WAF JS 有更好的通过率）而不是 CloakBrowser；这不改变协议 route，最终 live egress 仍归 Python
-3. **WAF 页面导航参数**：对 WAF 页面用 `wait_until: 'networkidle'` 而非 `domcontentloaded`；如果 networkidle 也超时，设定 15s 超时后检查 `get_page_info` 判断页面是否已在目标域
-
-**绝不要**：清 cookie → CloakBrowser → `wait_until: domcontentloaded` → 超时 → 宣布失败。这是已验证的最大轮次浪费模式。
+完整引擎注意事项、启动诊断表与用户决策流程、MCP 操作纪律与 WAF 细则见 `references/troubleshooting-playbook.md` 的「环境与工具失败恢复」。
 
 | Trigger | First fix | Still fails → stop |
 |---|---|---|
@@ -443,14 +341,7 @@ why: <smallest honest move>
 
 ## Minimal Trigger Evals
 
-Use these dry-run prompts after edits to check routing behavior without live egress:
-
-| Prompt | Expected behavior |
-|---|---|
-| `实现 PZDS goodsPublic/page browser-free collector，链路是 InitCaptchaV2 -> UploadLog -> Log2 -> Log3 -> VerifyCaptchaV2，最后业务 records` | Emit `shape: collector`, `route: verifier`; use the PZDS Aliyun V2 专用触发器 and name T001 + business replay acceptance. |
-| `Aliyun V2 VerifyCaptchaV2 返回 F001，但 Log2/Log3 都是 200 true，帮我继续定位` | Do not guess slider distance; run the F001 diff order: field21, profile, 72/74/87, Log2 timestamp, token counter, Log3 combat, Verify data/track, business gateway. |
-| `DeviceConfig 是 feilin129，本地 profile 是 feilin128，能不能直接提交 Verify` | Stop before Verify; classify as stale profile/version mismatch and require profile refresh with online T001 before writing. |
-| `普通 REST client 生成 goodsPublic/page 请求，不处理验证码协议` | Boundary response only; do not trigger web-protocol-recovery. |
+After edits, run `python scripts/gates/preflight.py`; dry-run routing prompts and machine-checked expectations live in `test-prompts.json` and `evals/route-regression.json`. These are offline checks; do not open live egress for them.
 
 ## Safety Checkpoints
 

@@ -1,47 +1,68 @@
 /**
  * Generic Sensor Generator Template - NV8 reference implementation
- * 
+ *
  * This script is called by Python, which automatically locates Node 24 via:
  * - NVM_HOME environment variable + v24.* directory
  * - FNM-activated node (checks version)
  * - System node in PATH (checks version)
- * 
+ *
  * Users do NOT need to manually run `nvm use 24` before execution.
- * 
- * INSTALLATION:
- * NV8 is installed as a local npm dependency:
- *   1. Add to package.json: "nv8": "file:<path-to-nv8>"
- *   2. Run: npm install
- *   3. Import: import { EdgeSandbox } from 'nv8';
- * 
+ *
+ * IMPORTING NV8:
+ *   The completed NV8 package does not re-export EdgeSandbox from the bare package
+ *   name (`exports` only exposes the root, fingerprints, protocol and collector).
+ *   This template therefore resolves `EdgeSandbox` from the install root:
+ *     1. `NV8_ROOT` environment variable (Python sets it), or
+ *     2. a project-local `node_modules/nv8/` created by `npm install`.
+ *
  * Architecture:
  * 1. Load approved challenge page + sensor script inputs
  * 2. NV8: evaluate sensor -> capture POST/GET body
  * 3. Output JSON for Python to forward via curl_cffi
- * 
+ *
  * USAGE:
  * Adjust the CONFIG section below for your target site.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Verify nv8 is installed via npm
+// Resolve EdgeSandbox from the NV8 install root (see header)
 // ═══════════════════════════════════════════════════════════════════════════
-const nv8Pkg = resolve(__dirname, 'node_modules', 'nv8', 'package.json');
-const parentNv8Pkg = resolve(__dirname, '..', 'node_modules', 'nv8', 'package.json');
-if (!existsSync(nv8Pkg) && !existsSync(parentNv8Pkg)) {
-  console.error('[sensor] nv8 not found in node_modules.');
-  console.error('[sensor] Run: npm install');
-  console.error('[sensor] Ensure package.json has: "nv8": "file:<path-to-nv8>"');
+const NV8_ROOT = process.env.NV8_ROOT ?? '';
+
+/** @type {string[]} */
+const candidates = [];
+if (NV8_ROOT) {
+  candidates.push(pathToFileURL(resolve(NV8_ROOT, 'src/public/edge-sandbox.js')).href);
+}
+candidates.push(new URL('./node_modules/nv8/src/public/edge-sandbox.js', import.meta.url).href);
+candidates.push(new URL('../node_modules/nv8/src/public/edge-sandbox.js', import.meta.url).href);
+
+let EdgeSandbox = null;
+let resolvedFrom = null;
+for (const specifier of candidates) {
+  try {
+    ({ EdgeSandbox } = await import(specifier));
+    resolvedFrom = specifier;
+    break;
+  } catch {
+    // try the next candidate
+  }
+}
+
+if (typeof EdgeSandbox !== 'function') {
+  console.error('[sensor] EdgeSandbox could not be resolved from the NV8 install root.');
+  console.error('[sensor] Set NV8_ROOT (e.g. D:/develop_software/Nv8) or run: npm install');
+  console.error('[sensor] Ensure package.json has: "nv8": "file:<nv8-root>"');
   process.exit(1);
 }
 
-const { EdgeSandbox } = await import('nv8');
+console.log(`[sensor] NV8 loaded from: ${resolvedFrom}`);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIG — Adjust for your target site
@@ -50,10 +71,10 @@ const { EdgeSandbox } = await import('nv8');
 const CONFIG = {
   // Target URL (protected page)
   targetUrl: 'https://www.example.com/protected-page',
-  
+
   // Target host
   host: 'www.example.com',
-  
+
   // Regex pattern to find sensor script URL in challenge HTML
   sensorScriptPattern: /src="([^"]*sensor-path[^"]*)"/,
 
@@ -61,16 +82,16 @@ const CONFIG = {
   challengeHtmlFile: 'challenge.html',
   sensorScriptFile: 'sensor.js',
   cookiesFile: 'cookies.json',
-  
-  // Fingerprint (default NV8 profile or custom)
+
+  // Fingerprint (merged over the default Edge 150 profile)
   fingerprint: {
     locale: 'en-US',
     timezone: 'America/New_York',
   },
-  
+
   // Sandbox timeout (ms) — increase for large sensors
   timeoutMs: 30_000,
-  
+
   // Event loop pump duration (ms) — time to wait for async POST
   pumpMs: 10_000,
 };
@@ -88,7 +109,7 @@ function loadChallengePage() {
   const sensorScriptUrl = scriptMatch ? `https://${CONFIG.host}${scriptMatch[1]}` : null;
 
   console.log(`[sensor] cookies=${Object.keys(cookies).join(',')} sensorScript=${sensorScriptUrl ? 'found' : 'NOT FOUND'}`);
-  
+
   if (!sensorScriptUrl) {
     throw new Error('Sensor script URL not found in challenge page');
   }
@@ -140,11 +161,18 @@ async function runSensorInNv8(sensorScriptUrl, sensorScript, cookies) {
   });
 
   try {
-    // Inject cookies
-    const cookieStr = Object.entries(cookies).map(([k, v]) => `${k}=${v}`).join('; ');
-    try {
-      await sandbox.evaluate(`document.cookie = ${JSON.stringify(cookieStr)}`);
-    } catch (e) {}
+    // Seed cookies. `document.cookie` accepts one cookie per assignment
+    // ("a=1; Path=/" — everything after the first `;` is treated as attributes),
+    // so never join multiple cookies into one string.
+    for (const [name, value] of Object.entries(cookies)) {
+      try {
+        await sandbox.evaluate(
+          `document.cookie = ${JSON.stringify(`${name}=${value}; path=/`)}`,
+        );
+      } catch {
+        // Cookie seeding is best-effort; shape checks below catch real misses.
+      }
+    }
 
     // Execute sensor script (wrapped in try-catch for error capture)
     console.log('[sensor] evaluating sensor script...');

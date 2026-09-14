@@ -15,7 +15,8 @@ Run Bot Manager sensor scripts in a browser-free Edge 150 compatibility sandbox.
 Python entry (main.py)
   ↓ subprocess.run([node24_path, 'sensor_generator.mjs'])
 Node.js NV8 script
-  ├── Native fetch (Firefox UA) → GET 403 challenge + sensor script
+  ├── Native fetch (Firefox UA) → GET challenge page (200 shell, or a 301
+  │   chain followed with accumulated cookies) + sensor script
   ├── EdgeSandbox.create() → NV8 Edge 150 sandbox (1232 Window props)
   ├── sandbox.evaluate(sensorScript) → sensor synchronous execution
   ├── setTimeout pump (10s) → async POST fires
@@ -29,11 +30,13 @@ Python
 
 ## Key Implementation Notes
 
-1. **Sensor POST target**: The sensor internally POSTs to `location.href` (the page URL). In Python, override to the correct endpoint: sensor script URL path without query params.
+1. **Sensor POST target**: The sensor internally POSTs to `location.href` (the page URL). In Python, override to the correct endpoint: sensor script URL path without query params. Re-verified on the live adidas HK target: the captured POST URL is the page URL, and the derived script-path endpoint is the one that returns admission cookies.
 2. **Async POST**: The sensor schedules POST via `setTimeout`. After `evaluate(sensorScript)`, pump the event loop: `sandbox.evaluate('new Promise(r => setTimeout(r, 10000))')`.
 3. **UA split**: Use Firefox UA for HTTP fetches (CDN serves sensor to Firefox); NV8 internally presents Chrome 150 UA (what sensor sees via `navigator.userAgent`).
 4. **Cookie injection**: Inject challenge page cookies via `document.cookie = "..."` BEFORE evaluating sensor.
 5. **Fingerprint**: The default NV8 Edge 150 profile usually passes. For stricter targets, inject real browser export.
+6. **Challenge fetch can be a redirect chain**: some edges answer the document GET with a 301 (redirect admission) instead of the challenge shell. Follow 3xx manually while accumulating `Set-Cookie`; the next hop may return the real page (already admitted, no sensor needed) instead of the challenge shell.
+7. **Sensor script identity rotates**: do not match a fixed mount name (`pomCpnC`-style literals stop working). The sensor script is the same-origin script whose query carries `v=<uuid>`; observed variants add `&t=<challengeId>` or `&ch=true`. In the raw HTML the query appears HTML-escaped (`&amp;`), so decode entities before fetching.
 
 ## Verified Node.js Sensor Generator
 
@@ -79,35 +82,60 @@ function loadFingerprint() {
 }
 
 // ─── Step 1: Fetch challenge page ──────────────────────────────────────────────
+// The document GET may answer 301 (redirect admission); follow 3xx manually
+// while accumulating Set-Cookie. The final hop is either the challenge shell
+// (sensor script present) or the real page (already admitted, no sensor needed).
 async function getChallengePage() {
   console.log('[sensor] GET challenge page...');
-  const resp = await fetch(TARGET, {
-    method: 'GET',
-    headers: {
+
+  let url = TARGET;
+  const cookies = {};
+
+  for (let hop = 0; hop <= 5; hop += 1) {
+    const headers = {
       'User-Agent': FETCH_UA,
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'zh-HK,zh;q=0.5',
-    },
-    redirect: 'manual',
-  });
+    };
+    if (Object.keys(cookies).length > 0) {
+      headers.Cookie = Object.entries(cookies).map(([k, v]) => `${k}=${v}`).join('; ');
+    }
 
-  const status = resp.status;
-  const body = await resp.text();
+    const resp = await fetch(url, { method: 'GET', headers, redirect: 'manual' });
+    for (const sc of resp.headers.getSetCookie?.() || []) {
+      const [kv] = sc.split(';');
+      const [k, ...vParts] = kv.split('=');
+      cookies[k.trim()] = vParts.join('=').trim();
+    }
 
-  const setCookies = resp.headers.getSetCookie?.() || [];
-  const cookies = {};
-  for (const sc of setCookies) {
-    const [kv] = sc.split(';');
-    const [k, ...vParts] = kv.split('=');
-    cookies[k.trim()] = vParts.join('=').trim();
+    const body = await resp.text();
+    const sensorScriptUrl = extractSensorScriptUrl(body);
+
+    console.log(`[sensor] hop ${hop}: status=${resp.status} script=${sensorScriptUrl ? 'found' : 'none'}`);
+    if (sensorScriptUrl) {
+      return { status: resp.status, body, cookies, sensorScriptUrl };
+    }
+
+    const location = resp.headers.get('location');
+    if (resp.status >= 300 && resp.status < 400 && location) {
+      url = new URL(location, url).href;
+      continue;
+    }
+    return { status: resp.status, body, cookies, sensorScriptUrl: null, finalUrl: url };
   }
 
-  // Pattern: src="/pomCpnC--<random>/.../hash"
-  const scriptMatch = body.match(/src="([^"]*pomCpnC[^"]*)"/);
-  const sensorScriptUrl = scriptMatch ? `https://${HOST}${scriptMatch[1]}` : null;
+  throw new Error('sensor script not found after redirects');
+}
 
-  console.log(`[sensor] status=${status} cookies=${Object.keys(cookies).join(',')} script=${sensorScriptUrl ? 'found' : 'NOT FOUND'}`);
-  return { status, body, cookies, sensorScriptUrl };
+// Script identity rotates: `?v=<uuid>` marks the sensor script; the raw HTML
+// attribute carries `&amp;`, which must be decoded before the URL is used.
+function extractSensorScriptUrl(html) {
+  const refs = [...html.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)]
+    .map((m) => m[1].replace(/&amp;/g, '&'))
+    .filter((src) => src.startsWith('/') || src.startsWith('https://'));
+  const ref = refs.find((src) => /[?&]v=[0-9a-f-]{32,}(?:&|$)/i.test(src));
+  if (ref === undefined) return null;
+  return ref.startsWith('/') ? `https://${HOST}${ref}` : ref;
 }
 
 // ─── Step 2: Fetch sensor script ───────────────────────────────────────────────
@@ -181,19 +209,28 @@ async function runSensorInNv8(sensorScriptUrl, sensorScript, cookies) {
 async function main() {
   console.log('[sensor] Bot Manager sensor generator (NV8)');
 
-  const { cookies, sensorScriptUrl } = await getChallengePage();
-  if (!sensorScriptUrl) { console.log('[sensor] FATAL: script URL not found'); process.exit(1); }
+  const challenge = await getChallengePage();
 
-  const sensorScript = await getSensorScript(sensorScriptUrl, cookies);
-  const result = await runSensorInNv8(sensorScriptUrl, sensorScript, cookies);
+  if (!challenge.sensorScriptUrl) {
+    // Already-admitted branch: no sensor POST needed; cookies travel to Python.
+    console.log('[sensor] no challenge script; session admitted directly');
+    console.log('\n[sensor] ===== AKAMAI SENSOR RESULT =====');
+    console.log(JSON.stringify({ challenge: false, sensorEndpoint: null, body: null, cookies: challenge.cookies }, null, 2));
+    console.log('[sensor] ===== END =====\n');
+    return;
+  }
+
+  const sensorScript = await getSensorScript(challenge.sensorScriptUrl, challenge.cookies);
+  const result = await runSensorInNv8(challenge.sensorScriptUrl, sensorScript, challenge.cookies);
   if (!result) { console.log('[sensor] generation failed'); process.exit(1); }
 
-  // Derive correct POST endpoint (script path without query)
-  const postEndpoint = `https://${HOST}${new URL(sensorScriptUrl).pathname}`;
+  // Derive correct POST endpoint (script path without query): under NV8 the
+  // sensor's own POST lands on location.href, which the server does not validate.
+  const postEndpoint = `https://${HOST}${new URL(challenge.sensorScriptUrl).pathname}`;
 
   // Output for Python
-  console.log('\n[sensor] ===== SENSOR POST READY =====');
-  console.log(JSON.stringify({ sensorEndpoint: postEndpoint, body: result.body, cookies }, null, 2));
+  console.log('\n[sensor] ===== AKAMAI SENSOR RESULT =====');
+  console.log(JSON.stringify({ challenge: true, sensorEndpoint: postEndpoint, body: result.body, cookies: challenge.cookies }, null, 2));
   console.log('[sensor] ===== END =====\n');
 }
 
@@ -295,7 +332,7 @@ def generate_sensor_post(sensor_script_path: Path, proxy: str = None) -> dict:
             print(f"    {line}")
 
     # Extract JSON
-    START = '[sensor] ===== SENSOR POST READY ====='
+    START = '[sensor] ===== AKAMAI SENSOR RESULT ====='
     END = '[sensor] ===== END ====='
     start_idx = result.stdout.find(START)
     end_idx = result.stdout.find(END)
@@ -453,8 +490,10 @@ def collect_products(cookies: dict, pages: int = 1, proxy: str = None) -> list[d
 | Step | Action | Result |
 |------|--------|--------|
 | 1 | Node 24 + NV8 evaluates 534KB sensor | 4123 bytes POST body generated |
-| 2 | curl_cffi forward POST to pomCpnC endpoint | 200 OK, `ak_bmsc` cookie received |
+| 2 | curl_cffi forward POST to the derived sensor endpoint | 200 OK, `ak_bmsc` cookie received |
 | 3 | Business API with validated cookies | 200 OK, 584KB HTML, 82 products |
+
+Re-verified on 2026-09-14 (adidas HK): the document GET answered a `200` challenge shell (a `301` redirect-admission hop is also observed), the sensor mount path rotated to a random multi-segment path marked by `?v=<uuid>` (no fixed `pomCpnC` name), NV8 captured a ~4.5KB sensor POST, the forwarded POST returned `200`, and `Search-UpdateGrid` returned 48 parsed products.
 
 ## NV8 Advantages
 

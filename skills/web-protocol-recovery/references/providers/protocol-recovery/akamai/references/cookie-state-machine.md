@@ -7,6 +7,7 @@
 | `_abck` | Classic main Bot Manager state | Seeded by server, advanced by collector responses, sometimes updated by route responses |
 | `bm_sz` | Classic sensor/challenge seed and key material | Server-issued; preserve exact value and trailing fields |
 | `ak_bmsc` | Akamai Pixel/session state | Often HttpOnly and updated by Pixel or early document responses |
+| `akacd_*` | Redirect admission on some edges | Server-issued with a `3xx` document response; must be echoed on the immediate follow-up request; the next hop's classification decides challenge vs trusted page |
 | `bm_s` | Modern main sensor/session state on some sites | Server-issued and rotated by collector POSTs; treat like the primary trust cookie when `_abck` is absent |
 | `bm_sc` | Second-verification result on some deployments | Server-issued; capture the writer and transition, do not infer acceptance from shape |
 | `bm_sv` | Short-lived validation/session value | Server-issued on auxiliary or business responses |
@@ -43,6 +44,7 @@ Do not store only final values. The transition order is the protocol.
 The response branch is part of the cookie state machine. A repeated document URL can return a degraded challenge page or a trusted/full page depending on the current session, landing sensor result, and route context.
 
 - Classify the response before running the next sensor or requiring a cookie: use semantic page markers and the expected business structure, not only the presence of a collector script or HTTP 200.
+- A `3xx` document answer can be a redirect-admission branch, not a failure: follow it with the accumulated jar and classify the next hop. Only the shell branch needs the sensor; a trusted/full page skips challenge-only assertions and continues with its business contract.
 - Require `bm_sc`, `sbsd_c`, or another second-verification cookie only when the observed challenge/degraded branch emits it and the next request consumes it.
 - If the same request already returns the trusted/full business page, skip challenge-only assertions and validate the page plus its next business request. A full page may still contain a collector script and rotate `bm_s` without producing `bm_sc`.
 - Record the branch in the transition table so a missing stage-specific cookie is distinguishable from a failed cookie refresh.

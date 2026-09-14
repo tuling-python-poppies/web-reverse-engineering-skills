@@ -5,7 +5,7 @@ Two layers, both offline:
 
 1. Fixed vectors (always): sensor endpoint derivation, redacted sensor request
    shape, SFCC product parsing, live-egress refusal.
-2. NV8 executor chain (when a completed NV8 install + a supported Node runtime
+2. NV8 executor chain (when an NV8 install + a supported Node runtime
    are available): run the synthetic Akamai-shape sensor inside an NV8
    ``EdgeSandbox``, capture the sensor POST at the offline network boundary,
    and validate the narrow artifact.
@@ -43,7 +43,7 @@ ARTIFACT_BEGIN = "===== NV8 SENSOR ARTIFACT ====="
 ARTIFACT_END = "===== END ====="
 MIN_BODY_BYTES = 4000
 MIN_NODE_VERSION = (18, 18)
-FINGERPRINT_NODE_VERSION = (22, 0)
+FINGERPRINT_ORDER_ADVISORY_VERSION = (22, 0)
 
 
 def _reject_live_egress(action: str = "live HTTP") -> None:
@@ -253,14 +253,15 @@ def nv8_availability(explicit_root: str | None = None) -> tuple[bool, str]:
         return False, "NV8 install not found (set NV8_ROOT or run npm install)"
     node = locate_node()
     if node is None:
-        return False, "supported Node runtime not found (Node 24 recommended)"
+        return False, "supported Node runtime not found (NV8 supports Node >= 18.18)"
     node_path, version = node
-    if version < FINGERPRINT_NODE_VERSION:
-        return False, (
-            f"Node {version[0]}.{version[1]} is below the fingerprint-sensitive floor "
-            f"(22+); NV8 runs but results would not be Edge-equivalent"
+    detail = f"node={node_path} nv8={nv8_root}"
+    if version < FINGERPRINT_ORDER_ADVISORY_VERSION:
+        detail += (
+            " (advisory: Node 22+ is recommended for Edge-equivalent Window global order;"
+            " the executor itself runs on 18.18+)"
         )
-    return True, f"node={node_path} nv8={nv8_root}"
+    return True, detail
 
 
 def _parse_runner_artifact(stdout: str) -> dict[str, Any]:
@@ -341,6 +342,11 @@ def run_nv8_chain(
         "sensorEndpoint": artifact.get("sensorEndpoint"),
         "bodyByteLength": artifact.get("bodyByteLength"),
         "outcome": artifact.get("outcome"),
+        "nodeAdvisory": (
+            None
+            if version >= FINGERPRINT_ORDER_ADVISORY_VERSION
+            else "Node 22+ recommended for Edge-equivalent Window global order"
+        ),
     }
 
 
@@ -386,7 +392,7 @@ def run(*, live: bool = False, with_nv8: bool = True, nv8_root: str | None = Non
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="refused by design")
-    parser.add_argument("--nv8-root", default=None, help="completed NV8 install root")
+    parser.add_argument("--nv8-root", default=None, help="NV8 install root")
     parser.add_argument("--skip-nv8", action="store_true", help="vector checks only")
     parser.add_argument("--json", action="store_true", help="print the full result")
     args = parser.parse_args()

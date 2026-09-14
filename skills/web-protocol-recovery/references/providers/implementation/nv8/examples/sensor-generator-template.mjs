@@ -9,7 +9,7 @@
  * Users do NOT need to manually run `nvm use 24` before execution.
  *
  * IMPORTING NV8:
- *   The completed NV8 package does not re-export EdgeSandbox from the bare package
+ *   This NV8 package does not re-export EdgeSandbox from the bare package
  *   name (`exports` only exposes the root, fingerprints, protocol and collector).
  *   This template therefore resolves `EdgeSandbox` from the install root:
  *     1. `NV8_ROOT` environment variable (Python sets it), or

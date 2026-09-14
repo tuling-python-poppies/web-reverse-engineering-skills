@@ -31,7 +31,7 @@ NV8 provides:
 
 NV8 is installed as a **project-local npm dependency** or referenced by absolute path from the canonical install root. Each project maintains its own `node_modules/nv8/` when the dependency form is used.
 
-Canonical install root on this machine: `D:\develop_software\Nv8` (the completed NV8 repository; `NV8_ROOT=D:/develop_software/Nv8`).
+Canonical install root on this machine: `D:\develop_software\Nv8` (the NV8 repository root; `NV8_ROOT=D:/develop_software/Nv8`).
 
 ### Installation
 
@@ -57,7 +57,7 @@ This creates a symlink at `node_modules/nv8/` pointing to the NV8 installation.
 
 ### Importing the API
 
-The completed package does **not** re-export the sandbox classes from the bare package
+This NV8 package does **not** re-export the sandbox classes from the bare package
 name. Import what the `exports` map actually provides, and load `EdgeSandbox` /
 `createSandbox` from the package files:
 
@@ -83,16 +83,19 @@ subpath — both are rejected by the package `exports` map.
 
 ### Node Version Policy
 
-- NV8 runtime supports Node `>=18.18.0`; **fingerprint-sensitive runs need Node 22+**
-  (Node 18/20 cannot order Window globals exactly like Edge).
-- This Provider's Python helpers locate **Node 24** first (`NVM_HOME` → `v24.*`, FNM,
-  then PATH with a version check). Node 24 stays the recommended execution baseline.
-- Version mismatches must fail closed with a clear message; never silently fall back to
-  an unsupported runtime.
+- NV8 runtime supports Node `>=18.18.0` (matrix covers 18 / 20 / 22 / 24). Do not refuse
+  18/20: the executor and NV8 run there.
+- **Advisory only**: Node 22+ is recommended for fingerprint-order-sensitive comparisons
+  (Node 18/20 cannot order Window globals exactly like Edge). This does not gate work.
+- This Provider's Python helpers prefer **Node 24** when present (`NVM_HOME` → `v24.*`),
+  then fall back to FNM/PATH with a version check. Node 24 is the usual baseline, not a
+  requirement.
+- Versions below 18.18 must fail closed with a clear message; never silently run an
+  unsupported runtime.
 
 ### Node Auto-Detection
 
-Python scripts automatically locate Node 24 via:
+Python scripts prefer Node 24 and fall back through:
 
 1. `NVM_HOME` environment variable + `v24.*` directory (Windows nvm-windows)
 2. FNM-activated `node` (checks `node --version`)
@@ -100,11 +103,11 @@ Python scripts automatically locate Node 24 via:
 
 Users do not need to manually run `nvm use 24` before execution — Python handles this.
 
-### If Node 24 is not installed
+### If no supported Node is installed
 
 - NVM: `nvm install 24`
 - FNM: `fnm install 24`
-- Manual: Download from https://nodejs.org/ (LTS 24.x)
+- Manual: Download from https://nodejs.org/ (18.18+ accepted; 24.x LTS recommended)
 
 ### Environment Validation
 
@@ -131,8 +134,9 @@ Use this only for troubleshooting Node version issues.
 
 ## Core Rules
 
-1. Validate the Node runtime before any NV8 work (Node 24 recommended; 22+ for
-   fingerprint-sensitive runs); exit with a clear error when the policy is not met.
+1. Validate the Node runtime before any NV8 work (supported floor >= 18.18; Node 24 is
+   preferred and 22+ is advised for fingerprint-order-sensitive runs); exit with a clear
+   error when below the floor.
 2. NV8 is installed as a **local npm dependency** or referenced by absolute path
    (`NV8_ROOT`). Run `npm install` to set up `node_modules/nv8/` when the dependency
    form is used.
@@ -237,8 +241,8 @@ Output is JSON for Python to consume; Python forwards the body via `curl_cffi` o
 
 All applicable checks must pass:
 
-1. The Node runtime satisfies the provider policy (Node 24 baseline, 22+ for
-   fingerprint-sensitive work) before importing NV8.
+1. The Node runtime satisfies the support floor (>= 18.18); Node 24 is preferred and
+   22+ is advised for fingerprint-order-sensitive work before importing NV8.
 2. NV8 successfully creates a sandbox and evaluates the target script without
    unrecoverable VM exceptions.
 3. `networkRequests()` captures the expected outbound POST/GET with plausible body size
@@ -252,7 +256,7 @@ All applicable checks must pass:
 
 | Trigger | First fix | Still fails -> stop |
 |---------|-----------|---------------------|
-| Unsupported Node runtime | Switch Node version via nvm/fnm/system (24 baseline) | Stop; report the required runtime |
+| Unsupported Node runtime | Switch Node version via nvm/fnm/system (>= 18.18; 24 preferred) | Stop; report the required runtime |
 | `node_modules/nv8` missing | Run `npm install` in the project directory | Check `package.json` has the correct `file:` path |
 | NV8 import fails | Use the `exports`-valid import forms (`nv8` bare specifiers, `NV8_ROOT` file URL for `src/public/*`) | Verify the install root and `NV8_ROOT` |
 | Sensor throws in sandbox | Fill missing environment surfaces (navigator, canvas, timing) | If fingerprint plausibility ceiling reached, use a real browser export |

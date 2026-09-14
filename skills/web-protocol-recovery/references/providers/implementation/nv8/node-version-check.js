@@ -3,12 +3,12 @@
  * NV8 Node.js version diagnostic tool
  *
  * NV8 runtime support matrix:
- * - Node >= 18.18.0 is the minimum supported runtime.
- * - Node 22+ is required for fingerprint-sensitive work (Window global
- *   enumeration order must match real Edge).
- * - Node 24.x is this Provider's recommended execution baseline.
+ * - Node >= 18.18.0 is the supported floor (matrix covers 18 / 20 / 22 / 24).
+ * - Node 22+ is ADVISORY for fingerprint-order-sensitive work (Window global
+ *   enumeration order); it does not gate execution.
+ * - Node 24.x is this Provider's preferred baseline.
  *
- * Python scripts automatically find Node 24 via NVM_HOME/FNM/PATH,
+ * Python scripts prefer Node 24 via NVM_HOME/FNM/PATH,
  * so users do not need to run this manually in normal workflows.
  *
  * Use this for troubleshooting:
@@ -40,10 +40,10 @@ if (majorRaw < 18 || (majorRaw === 18 && minorRaw < 18)) {
 
 console.log(`Node.js ${nodeVersion} (supported)`);
 if (majorRaw < 22) {
-  console.warn('WARN: fingerprint-sensitive work needs Node 22+ (Window global order).');
+  console.warn('NOTE: advisory — Node 22+ is better for Edge-equivalent Window global order.');
 }
 if (majorRaw !== 24) {
-  console.warn('NOTE: this Provider\'s execution baseline is Node 24.x.');
+  console.warn('NOTE: this Provider prefers Node 24.x when available.');
 }
 console.log(`  NVM_HOME: ${process.env.NVM_HOME || 'not set'}`);
 process.exit(0);

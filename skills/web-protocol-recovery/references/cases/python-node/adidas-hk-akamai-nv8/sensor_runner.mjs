@@ -2,7 +2,7 @@
 /**
  * NV8 sensor runner for the adidas-hk-akamai-nv8 executor proof.
  *
- * Runs the (synthetic) Akamai-shape sensor inside a completed-NV8
+ * Runs the (synthetic) Akamai-shape sensor inside an NV8
  * `EdgeSandbox` and prints the captured sensor POST as a narrow JSON artifact
  * delimited by markers, so the Python entry can consume it without touching
  * the network or any global state.

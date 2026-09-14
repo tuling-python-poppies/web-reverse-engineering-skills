@@ -3,8 +3,8 @@
   "caseId": "adidas-hk-akamai-nv8",
   "activeScope": "offline-only",
   "passed": true,
-  "entrySha256": "509738d4994166f3e8599dfca2ba6952fdfe8a75207a9482e1285478be6204ee",
-  "testArtifactSha256": "d6f5bdea25bf454c24cfc0cd4c0fef22e752a18df57bdb0850d207b43b90135c",
+  "entrySha256": "87f426c5ac483b9d388a96cdc8bd14286fa861eb3bf060c2993ffe78247ace7f",
+  "testArtifactSha256": "19ab6df3070783f457fe63f1676b007bf566ab1288912743fac5e4bad791934c",
   "acceptance": {
     "command": "python -m unittest discover -s tests -v",
     "checks": [

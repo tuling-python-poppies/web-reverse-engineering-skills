@@ -9,7 +9,7 @@ Read this first before using this case's `entry.py`.
 - fixed vectors: validates the redacted sensor request contract, derives the sensor POST
   endpoint from the sensor script URL without query data, parses SFCC
   `Search-UpdateGrid` product HTML fixtures, and refuses live egress;
-- NV8 executor chain (when a completed NV8 install + Node 22/24 are available): runs
+- NV8 executor chain (when an NV8 install + a supported Node runtime are available): runs
   `sensor_runner.mjs`, which executes the synthetic sensor inside an NV8
   `EdgeSandbox`, captures the sensor POST at the offline network boundary, and validates
   the narrow artifact (endpoint rule / JSON single key `body` / >= 4000 bytes).
@@ -25,7 +25,7 @@ Document a browser-free Adidas HK catalog collection pattern: run the Akamai Bot
 
 Case-local success predicate: case tests pass offline, proving endpoint derivation,
 request-shape validation, product parsing, the live-egress refusal guard, and (when the
-environment provides NV8 + Node 22/24) a validated NV8 sensor artifact.
+environment provides NV8 + a supported Node runtime) a validated NV8 sensor artifact.
 
 Delivery success predicate: one approved collector run obtains Akamai admission cookies, fetches `Search-UpdateGrid`, and parses product rows with stable IDs and names.
 
@@ -116,7 +116,7 @@ Case-local proof is offline-only:
 - SFCC fixture parses into three products
 - `run(live=True)` refuses live egress
 - NV8 executor segment (environment-gated: `NV8_ROOT` or case-local `node_modules/nv8`,
-  plus Node 22/24): `sensor_runner.mjs` executes the synthetic sensor, the POST is
+  plus a supported Node runtime): `sensor_runner.mjs` executes the synthetic sensor, the POST is
   captured with JSON single key `body` and >= 4000 bytes, and the endpoint equals the
   derived rule; the test skips with a reason when the environment is absent
 
@@ -125,7 +125,8 @@ The verified live acceptance during case preparation returned Akamai cookies, fe
 ## Dependencies
 
 - Python >= 3.9 for the case tests
-- NV8 executor segment only: Node.js 22+ (24 recommended) and a completed NV8 install
+- NV8 executor segment only: Node.js >= 18.18 (matrix covers 18/20/22/24; 22+ advised for
+  Edge-equivalent fingerprint order; 24 is the usual baseline) and an NV8 install
   referenced by `NV8_ROOT` (or a case-local `node_modules/nv8`)
 - Delivery only: project-local `nv8` npm dependency
 - Delivery only: `curl_cffi` and an HTML parser such as `beautifulsoup4`

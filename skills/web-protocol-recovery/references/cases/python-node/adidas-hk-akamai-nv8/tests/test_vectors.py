@@ -54,7 +54,7 @@ class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
         self.assertIn(result["nv8"]["status"], {"executed", "unavailable"})
 
     def test_nv8_chain_produces_validated_sensor_artifact(self) -> None:
-        """NV8 executor segment; skips when no completed NV8/Node is available.
+        """NV8 executor segment; skips when no NV8 install / supported Node is available.
 
         Case code carries no local absolute paths: the install root must come
         from `NV8_ROOT` (or a case-local `node_modules/nv8`).

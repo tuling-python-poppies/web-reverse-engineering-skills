@@ -27,6 +27,10 @@
 
 https://gitee.com/tuling-python/web-reverse-mcps-tool
 
+自研浏览器运行时框架代码仓库地址
+
+https://gitee.com/tuling-python/nv8
+
 
 
 ## 什么时候触发

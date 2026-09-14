@@ -4,20 +4,28 @@ Read this first before using this case's `entry.py`.
 
 ## What `entry.py` is
 
-`entry.py` is an offline proof for the reusable Adidas HK Akamai shape:
+`entry.py` is an offline proof for the reusable Adidas HK Akamai shape with two layers:
 
-- validates the redacted sensor request contract
-- derives the sensor POST endpoint from the sensor script URL without query data
-- parses SFCC `Search-UpdateGrid` product HTML fixtures
-- refuses live egress and target-code execution from the case library
+- fixed vectors: validates the redacted sensor request contract, derives the sensor POST
+  endpoint from the sensor script URL without query data, parses SFCC
+  `Search-UpdateGrid` product HTML fixtures, and refuses live egress;
+- NV8 executor chain (when a completed NV8 install + Node 22/24 are available): runs
+  `sensor_runner.mjs`, which executes the synthetic sensor inside an NV8
+  `EdgeSandbox`, captures the sensor POST at the offline network boundary, and validates
+  the narrow artifact (endpoint rule / JSON single key `body` / >= 4000 bytes).
 
-Live HTTP remains a delivery task. The Python collector owns the approved HTTP requests; Node 24 plus NV8 only produces the narrow Akamai sensor artifact.
+The real adidas HK sensor JavaScript is sensitive material and is intentionally absent;
+`fixtures/pomCpnC-sensor.synthetic.js` reproduces only the documented observable
+contract. Live HTTP remains a delivery task: the Python collector owns the approved HTTP
+requests; NV8 only produces the narrow Akamai sensor artifact.
 
 ## Goal
 
 Document a browser-free Adidas HK catalog collection pattern: run the Akamai Bot Manager sensor in an Edge 150/151 compatible local sandbox, forward the captured sensor POST with Python, receive Akamai cookies, then request the SFCC grid API and parse product tiles.
 
-Case-local success predicate: case tests pass offline, proving endpoint derivation, request-shape validation, product parsing, and the live-egress refusal guard.
+Case-local success predicate: case tests pass offline, proving endpoint derivation,
+request-shape validation, product parsing, the live-egress refusal guard, and (when the
+environment provides NV8 + Node 22/24) a validated NV8 sensor artifact.
 
 Delivery success predicate: one approved collector run obtains Akamai admission cookies, fetches `Search-UpdateGrid`, and parses product rows with stable IDs and names.
 
@@ -53,8 +61,9 @@ GET /zh/summer_cs_promotion_2
   -> challenge HTML contains a pomCpnC sensor script URL
 GET pomCpnC sensor script with challenge cookies
   -> obfuscated Akamai sensor JavaScript
-NV8 evaluates the sensor script through its `EdgeSandbox` API
-  -> network capture records JSON sensor POST {"body":"..."}
+NV8 (`EdgeSandbox`, driven by `sensor_runner.mjs`) executes the synthetic sensor
+  -> network capture records JSON sensor POST {"body":"..."} answered by replay
+Python validates the narrow artifact (endpoint rule, JSON single key, >= 4000 bytes)
 Python forwards that POST to the derived pomCpnC endpoint
   -> Akamai admission cookies, including ak_bmsc
 Python GET Search-UpdateGrid?cgid=summer_cs_promotion_2&format=ajax&start=N&sz=48
@@ -94,6 +103,10 @@ The delivery project needs:
 5. Python `curl_cffi` session that forwards the captured sensor POST and then requests `Search-UpdateGrid`.
 6. HTML parser that extracts product ID, name, price, image, and URL fields when present.
 
+This case carries items 1–3 (offline form) as `entry.py` + `sensor_runner.mjs`, plus
+the synthetic challenge/sensor fixtures. Items 4–6 remain the delivery shape; the case
+implements the offline equivalents (replay-answered POST, fixture HTML parsing).
+
 ## Fixed-Vector Proof
 
 Case-local proof is offline-only:
@@ -102,13 +115,18 @@ Case-local proof is offline-only:
 - redacted sensor request shape validates method, content type, endpoint marker, and encoded body size
 - SFCC fixture parses into three products
 - `run(live=True)` refuses live egress
+- NV8 executor segment (environment-gated: `NV8_ROOT` or case-local `node_modules/nv8`,
+  plus Node 22/24): `sensor_runner.mjs` executes the synthetic sensor, the POST is
+  captured with JSON single key `body` and >= 4000 bytes, and the endpoint equals the
+  derived rule; the test skips with a reason when the environment is absent
 
 The verified live acceptance during case preparation returned Akamai cookies, fetched the SFCC grid HTML, and parsed 82 product rows. That result is not stored as live-current acceptance for future targets; future use still re-verifies the current target.
 
 ## Dependencies
 
 - Python >= 3.9 for the case tests
-- Delivery only: Node.js 24.x
+- NV8 executor segment only: Node.js 22+ (24 recommended) and a completed NV8 install
+  referenced by `NV8_ROOT` (or a case-local `node_modules/nv8`)
 - Delivery only: project-local `nv8` npm dependency
 - Delivery only: `curl_cffi` and an HTML parser such as `beautifulsoup4`
 

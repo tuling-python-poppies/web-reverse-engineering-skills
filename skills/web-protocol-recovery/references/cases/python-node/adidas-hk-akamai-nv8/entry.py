@@ -1,21 +1,49 @@
+#!/usr/bin/env python3
+"""Offline NV8 executor entry for the adidas-hk-akamai-nv8 case.
+
+Two layers, both offline:
+
+1. Fixed vectors (always): sensor endpoint derivation, redacted sensor request
+   shape, SFCC product parsing, live-egress refusal.
+2. NV8 executor chain (when a completed NV8 install + a supported Node runtime
+   are available): run the synthetic Akamai-shape sensor inside an NV8
+   ``EdgeSandbox``, capture the sensor POST at the offline network boundary,
+   and validate the narrow artifact.
+
+This entry performs no live HTTP and persists nothing. Live egress belongs to
+the python-collector delivery Provider. The real adidas HK sensor JavaScript is
+sensitive material and is intentionally NOT part of this case; the synthetic
+sensor reproduces only the documented observable contract.
+"""
+
 from __future__ import annotations
 
-import hashlib
+import argparse
 import json
+import os
+import re
+import shutil
+import subprocess
+import sys
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
-
 CASE_ID = "adidas-hk-akamai-nv8"
 CASE_DIR = Path(__file__).resolve().parent
 FIXTURE_DIR = CASE_DIR / "fixtures"
+RUNNER_PATH = CASE_DIR / "sensor_runner.mjs"
 TARGET_URL = "https://www.adidas.com.hk/zh/summer_cs_promotion_2"
 BUSINESS_ENDPOINT = (
     "https://www.adidas.com.hk/on/demandware.store/"
     "Sites-adidas-HK-Site/zh_HK/Search-UpdateGrid"
 )
+ARTIFACT_BEGIN = "===== NV8 SENSOR ARTIFACT ====="
+ARTIFACT_END = "===== END ====="
+MIN_BODY_BYTES = 4000
+MIN_NODE_VERSION = (18, 18)
+FINGERPRINT_NODE_VERSION = (22, 0)
 
 
 def _reject_live_egress(action: str = "live HTTP") -> None:
@@ -26,6 +54,8 @@ def _reject_live_egress(action: str = "live HTTP") -> None:
 
 
 def file_sha256(path: Path) -> str:
+    import hashlib
+
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -64,7 +94,7 @@ def validate_sensor_request(sample: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("sensor body must be a JSON object")
     if body_shape.get("keys") != ["body"]:
         raise ValueError("sensor body keys must be ['body']")
-    if int(body_shape.get("observedBytesApprox") or 0) < 4000:
+    if int(body_shape.get("observedBytesApprox") or 0) < MIN_BODY_BYTES:
         raise ValueError("sensor body size is below the expected floor")
 
     return {
@@ -131,7 +161,190 @@ def parse_products_from_html(html: str) -> list[dict[str, str]]:
     return products
 
 
-def run(*, live: bool = False) -> dict[str, Any]:
+def _node_executable() -> str:
+    return "node.exe" if os.name == "nt" else "node"
+
+
+def _node_candidates() -> list[Path]:
+    candidates: list[Path] = []
+
+    explicit = os.environ.get("NV8_NODE")
+    if explicit:
+        candidates.append(Path(explicit))
+
+    nvm_home = os.environ.get("NVM_HOME")
+    if nvm_home:
+        versions = sorted(
+            Path(nvm_home).glob("v24.*"),
+            key=lambda path: path.name,
+            reverse=True,
+        )
+        candidates.extend(version / _node_executable() for version in versions)
+
+    on_path = shutil.which("node")
+    if on_path:
+        candidates.append(Path(on_path))
+
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        key = str(candidate).lower()
+        if key not in seen:
+            seen.add(key)
+            unique.append(candidate)
+    return unique
+
+
+def locate_node() -> tuple[Path, tuple[int, int]] | None:
+    """Prefer Node 24 (provider baseline); accept >= 18.18 (NV8 floor)."""
+
+    best: tuple[Path, tuple[int, int]] | None = None
+    for candidate in _node_candidates():
+        if not candidate.is_file():
+            continue
+        try:
+            completed = subprocess.run(
+                [str(candidate), "--version"],
+                capture_output=True,
+                text=True,
+                timeout=20,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            continue
+        match = re.match(r"v(\d+)\.(\d+)\.", completed.stdout.strip())
+        if match is None:
+            continue
+        version = (int(match.group(1)), int(match.group(2)))
+        if version < MIN_NODE_VERSION:
+            continue
+        if version[0] == 24:
+            return candidate, version
+        if best is None or version > best[1]:
+            best = (candidate, version)
+    return best
+
+
+def resolve_nv8_root(explicit: str | None = None) -> Path | None:
+    candidates: list[Path] = []
+    if explicit:
+        candidates.append(Path(explicit))
+    env_root = os.environ.get("NV8_ROOT")
+    if env_root:
+        candidates.append(Path(env_root))
+    candidates.append(CASE_DIR / "node_modules" / "nv8")
+
+    for candidate in candidates:
+        entry = candidate / "src" / "public" / "edge-sandbox.js"
+        package = candidate / "package.json"
+        if entry.is_file() and package.is_file():
+            try:
+                metadata = json.loads(package.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if metadata.get("name") == "nv8":
+                return candidate
+    return None
+
+
+def nv8_availability(explicit_root: str | None = None) -> tuple[bool, str]:
+    nv8_root = resolve_nv8_root(explicit_root)
+    if nv8_root is None:
+        return False, "NV8 install not found (set NV8_ROOT or run npm install)"
+    node = locate_node()
+    if node is None:
+        return False, "supported Node runtime not found (Node 24 recommended)"
+    node_path, version = node
+    if version < FINGERPRINT_NODE_VERSION:
+        return False, (
+            f"Node {version[0]}.{version[1]} is below the fingerprint-sensitive floor "
+            f"(22+); NV8 runs but results would not be Edge-equivalent"
+        )
+    return True, f"node={node_path} nv8={nv8_root}"
+
+
+def _parse_runner_artifact(stdout: str) -> dict[str, Any]:
+    begin = stdout.find(ARTIFACT_BEGIN)
+    end = stdout.find(ARTIFACT_END, begin + 1)
+    if begin == -1 or end == -1:
+        raise RuntimeError("sensor runner did not emit an artifact")
+    payload = stdout[begin + len(ARTIFACT_BEGIN): end].strip()
+    artifact = json.loads(payload)
+    if not isinstance(artifact, dict):
+        raise RuntimeError("sensor runner artifact is not an object")
+    return artifact
+
+
+def run_nv8_chain(
+    explicit_root: str | None = None,
+    pump_ms: int = 1500,
+) -> dict[str, Any]:
+    """Run the synthetic sensor through NV8 and validate the narrow artifact."""
+
+    nv8_root = resolve_nv8_root(explicit_root)
+    if nv8_root is None:
+        raise RuntimeError("NV8 install not found (set NV8_ROOT or run npm install)")
+    node = locate_node()
+    if node is None:
+        raise RuntimeError("supported Node runtime not found")
+
+    node_path, version = node
+    request_sample = load_fixture("request.sample.json")
+    script_url = request_sample["challenge"]["sensorScriptUrlShape"]
+    expected_endpoint = sensor_endpoint_from_script_url(script_url)
+
+    completed = subprocess.run(
+        [
+            str(node_path),
+            str(RUNNER_PATH),
+            "--nv8-root",
+            str(nv8_root),
+            "--target-url",
+            TARGET_URL,
+            "--challenge",
+            str(FIXTURE_DIR / "challenge.html"),
+            "--sensor",
+            str(FIXTURE_DIR / "pomCpnC-sensor.synthetic.js"),
+            "--cookies",
+            str(FIXTURE_DIR / "cookies.json"),
+            "--pump-ms",
+            str(pump_ms),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "sensor runner failed: "
+            + (completed.stderr.strip().splitlines() or ["unknown error"])[-1]
+        )
+
+    artifact = _parse_runner_artifact(completed.stdout)
+
+    if artifact.get("method") != "POST":
+        raise AssertionError("NV8 artifact: sensor request must be POST")
+    if artifact.get("sensorEndpoint") != expected_endpoint:
+        raise AssertionError("NV8 artifact: endpoint does not match the derived rule")
+    if artifact.get("contentType") != "application/json":
+        raise AssertionError("NV8 artifact: content-type must be application/json")
+    if artifact.get("bodyJsonKeys") != ["body"]:
+        raise AssertionError("NV8 artifact: body JSON keys must be ['body']")
+    if int(artifact.get("bodyByteLength") or 0) < MIN_BODY_BYTES:
+        raise AssertionError(f"NV8 artifact: body is below {MIN_BODY_BYTES} bytes")
+
+    return {
+        "status": "executed",
+        "node": f"{version[0]}.{version[1]}",
+        "nv8Root": str(nv8_root),
+        "sensorEndpoint": artifact.get("sensorEndpoint"),
+        "bodyByteLength": artifact.get("bodyByteLength"),
+        "outcome": artifact.get("outcome"),
+    }
+
+
+def run(*, live: bool = False, with_nv8: bool = True, nv8_root: str | None = None) -> dict[str, Any]:
     if live:
         _reject_live_egress("run(live=True)")
 
@@ -148,7 +361,7 @@ def run(*, live: bool = False) -> dict[str, Any]:
     if len(products) != expected_count:
         raise AssertionError(f"expected {expected_count} products, got {len(products)}")
 
-    return {
+    result: dict[str, Any] = {
         "status": "offline",
         "caseId": CASE_ID,
         "target": TARGET_URL,
@@ -160,20 +373,43 @@ def run(*, live: bool = False) -> dict[str, Any]:
         "acceptance": vectors["acceptance"],
     }
 
+    if with_nv8:
+        available, detail = nv8_availability(nv8_root)
+        if available:
+            result["nv8"] = run_nv8_chain(nv8_root)
+        else:
+            result["nv8"] = {"status": "unavailable", "reason": detail}
+
+    return result
+
 
 def main() -> None:
-    result = run(live=False)
-    print(
-        json.dumps(
-            {
-                "status": result["status"],
-                "caseId": result["caseId"],
-                "productCount": result["productCount"],
-                "derivedSensorEndpoint": result["derivedSensorEndpoint"],
-            },
-            ensure_ascii=False,
-        )
-    )
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--live", action="store_true", help="refused by design")
+    parser.add_argument("--nv8-root", default=None, help="completed NV8 install root")
+    parser.add_argument("--skip-nv8", action="store_true", help="vector checks only")
+    parser.add_argument("--json", action="store_true", help="print the full result")
+    args = parser.parse_args()
+
+    try:
+        result = run(live=args.live, with_nv8=not args.skip_nv8, nv8_root=args.nv8_root)
+    except RuntimeError as error:
+        print(json.dumps({"status": "error", "caseId": CASE_ID, "error": str(error)}, ensure_ascii=False))
+        raise SystemExit(1)
+
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    nv8 = result.get("nv8") or {}
+    print(json.dumps({
+        "status": result["status"],
+        "caseId": result["caseId"],
+        "productCount": result["productCount"],
+        "derivedSensorEndpoint": result["derivedSensorEndpoint"],
+        "nv8": nv8.get("status"),
+        "nv8BodyByteLength": nv8.get("bodyByteLength"),
+    }, ensure_ascii=False))
 
 
 if __name__ == "__main__":

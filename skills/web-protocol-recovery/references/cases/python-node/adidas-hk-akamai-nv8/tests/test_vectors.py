@@ -4,10 +4,9 @@ import importlib.util
 import unittest
 from pathlib import Path
 
-
 CASE_DIR = Path(__file__).resolve().parents[1]
 ENTRY_PATH = CASE_DIR / "entry.py"
-SPEC = importlib.util.spec_from_file_location("adidas_hk_akamai_case_entry", ENTRY_PATH)
+SPEC = importlib.util.spec_from_file_location("adidas_hk_akamai_nv8_entry", ENTRY_PATH)
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError("could not load case entry")
 entry = importlib.util.module_from_spec(SPEC)
@@ -40,7 +39,7 @@ class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
         self.assertEqual(products[2]["name"], "Classic Track Pants")
 
     def test_run_offline(self) -> None:
-        result = entry.run(live=False)
+        result = entry.run(live=False, with_nv8=False)
         self.assertEqual(result["status"], "offline")
         self.assertEqual(result["caseId"], "adidas-hk-akamai-nv8")
         self.assertEqual(result["productCount"], 3)
@@ -49,6 +48,25 @@ class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
     def test_live_egress_is_rejected(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "offline-only"):
             entry.run(live=True)
+
+    def test_run_reports_nv8_availability(self) -> None:
+        result = entry.run(live=False, with_nv8=True)
+        self.assertIn(result["nv8"]["status"], {"executed", "unavailable"})
+
+    def test_nv8_chain_produces_validated_sensor_artifact(self) -> None:
+        """NV8 executor segment; skips when no completed NV8/Node is available.
+
+        Case code carries no local absolute paths: the install root must come
+        from `NV8_ROOT` (or a case-local `node_modules/nv8`).
+        """
+        available, detail = entry.nv8_availability()
+        if not available:
+            self.skipTest(detail)
+        artifact = entry.run_nv8_chain()
+        self.assertEqual(artifact["status"], "executed")
+        self.assertIn("pomCpnC", artifact["sensorEndpoint"])
+        self.assertGreaterEqual(int(artifact["bodyByteLength"]), 4000)
+        self.assertIn(artifact["outcome"], {"replayed", "replay-miss:missing"})
 
 
 if __name__ == "__main__":

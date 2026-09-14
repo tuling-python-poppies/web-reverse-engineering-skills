@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "adidas-hk-akamai-nv8",
-  "revision": 1,
+  "revision": 2,
   "status": "verified",
   "family": "challenge",
   "runtime": "python-node",
@@ -66,8 +66,8 @@
   },
   "dependencies": {
     "python": ">=3.9",
-    "node": "24.x for delivery",
-    "nv8": "project-local npm dependency for delivery",
+    "node": "22+ (24 recommended) for the NV8 executor segment",
+    "nv8": "completed NV8 install referenced by NV8_ROOT (or case-local node_modules/nv8); project-local npm dependency for delivery",
     "curl_cffi": "delivery only",
     "beautifulsoup4": "delivery parser option"
   },
@@ -75,7 +75,8 @@
     "kind": "offline-proof",
     "implementsLiveEgress": false,
     "implementsTargetCodeExecution": false,
-    "proves": "Akamai sensor request shape, endpoint derivation, SFCC product parsing, and live-egress refusal"
+    "implementsSyntheticSensorExecution": true,
+    "proves": "Akamai sensor request shape, endpoint derivation, SFCC product parsing, live-egress refusal, and an NV8 (EdgeSandbox) synthetic sensor artifact captured at the offline network boundary"
   },
   "liveState": {
     "mode": "browser-export-json",
@@ -97,7 +98,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "bc25b68f86ba39b39283d630ed3d89dd243765d2bb386261e0e0e3e682a2d55a"
+      "sha256": "bb4097cc44ed22aa51c75b0e6b86493c451e48a9c9e0feaf218be70726686bd9"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -118,33 +119,49 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "74f93875368dc3f85bb0773d903cd7381ccdf4c74b68158c9cb9a9538fcdbfbb"
+        "sha256": "fc511c21876740a5516d438c31341eb3853b2d07cc36024471e7208d8b365502"
+      },
+      {
+        "path": "fixtures/challenge.html",
+        "sha256": "e10891a3684619ffc2f6dfa407fb4fbc3fb886c4f71be961138c7c1de7cf390d"
+      },
+      {
+        "path": "fixtures/pomCpnC-sensor.synthetic.js",
+        "sha256": "3d7cca3294d31bb50d2d576d3f40b764bbe3774508a0677826d5ec30882893c3"
+      },
+      {
+        "path": "fixtures/cookies.json",
+        "sha256": "ed1b9c2c07d6c3ed8f0efb9e989c301d2cee86aaeb2fb5b3512788f3c46507fa"
+      },
+      {
+        "path": "sensor_runner.mjs",
+        "sha256": "077def9478e56b9137a345c556bdb3bf69a9eae5592cd4a935974de792f9c732"
       }
     ],
     "entry": {
       "path": "entry.py",
-      "sha256": "cc311bbc5a8693b9aba3f3ff16c1b5b78ec29ce09cc3cc6510fe7411584101a5"
+      "sha256": "509738d4994166f3e8599dfca2ba6952fdfe8a75207a9482e1285478be6204ee"
     }
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-10T00:00:00+08:00",
+    "executedAt": "2026-09-14T00:00:00+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "151552555f7e1997641d6de51ed84b51ecafecd61f0a0d0e5496c4c7cbc84764"
+      "sha256": "d6f5bdea25bf454c24cfc0cd4c0fef22e752a18df57bdb0850d207b43b90135c"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "74f93875368dc3f85bb0773d903cd7381ccdf4c74b68158c9cb9a9538fcdbfbb"
+      "sha256": "fc511c21876740a5516d438c31341eb3853b2d07cc36024471e7208d8b365502"
     },
     "proof": {
       "activeScope": "offline-only",
-      "offlineAcceptance": "case tests validate sensor endpoint derivation, redacted request shape, SFCC product parsing, and live-egress refusal",
+      "offlineAcceptance": "case tests validate endpoint derivation, redacted request shape, SFCC parsing, live-egress refusal, and (environment-gated) a validated NV8 synthetic sensor artifact",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "cc311bbc5a8693b9aba3f3ff16c1b5b78ec29ce09cc3cc6510fe7411584101a5",
-      "currentTestArtifactSha256": "151552555f7e1997641d6de51ed84b51ecafecd61f0a0d0e5496c4c7cbc84764"
+      "currentEntrySha256": "509738d4994166f3e8599dfca2ba6952fdfe8a75207a9482e1285478be6204ee",
+      "currentTestArtifactSha256": "d6f5bdea25bf454c24cfc0cd4c0fef22e752a18df57bdb0850d207b43b90135c"
     }
   },
   "implementation": {

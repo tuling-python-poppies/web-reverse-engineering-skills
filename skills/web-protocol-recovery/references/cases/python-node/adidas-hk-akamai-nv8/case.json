@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "adidas-hk-akamai-nv8",
-  "revision": 3,
+  "revision": 4,
   "status": "verified",
   "family": "challenge",
   "runtime": "python-node",
@@ -98,7 +98,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "08ac145d01a7e9cb3750297f8cc9ebcb2a8852a49ca0731fd08481f8599f43d3"
+      "sha256": "340370e5e4b9da428f8cedea814b407178bc945dade22d6681248eb4338923a9"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -119,7 +119,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "ae52183e48e75f7719efa75f1a665282ee87a9469920e2eb4ee43a91959c37cc"
+        "sha256": "aba8b6c3453ec09953322495b6c256aaa719e36f61dd8a79cd7194f818d8f3f3"
       },
       {
         "path": "fixtures/challenge.html",
@@ -136,32 +136,36 @@
       {
         "path": "sensor_runner.mjs",
         "sha256": "13e47cd29324fd624cb53093be02f268a9d1f9ba0a58ed877c47c4c16fabbad8"
+      },
+      {
+        "path": "run.cmd",
+        "sha256": "f3ddb2a2c5f6fceaa788a1c64c59dd38483c2a69ed81a3456bcfac6d521972a3"
       }
     ],
     "entry": {
       "path": "entry.py",
-      "sha256": "87f426c5ac483b9d388a96cdc8bd14286fa861eb3bf060c2993ffe78247ace7f"
+      "sha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742"
     }
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-09-14T18:30:00+08:00",
+    "executedAt": "2026-09-14T20:30:00+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "19ab6df3070783f457fe63f1676b007bf566ab1288912743fac5e4bad791934c"
+      "sha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "ae52183e48e75f7719efa75f1a665282ee87a9469920e2eb4ee43a91959c37cc"
+      "sha256": "aba8b6c3453ec09953322495b6c256aaa719e36f61dd8a79cd7194f818d8f3f3"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "case tests validate endpoint derivation, redacted request shape, SFCC parsing, live-egress refusal, and (environment-gated) a validated NV8 synthetic sensor artifact",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "87f426c5ac483b9d388a96cdc8bd14286fa861eb3bf060c2993ffe78247ace7f",
-      "currentTestArtifactSha256": "19ab6df3070783f457fe63f1676b007bf566ab1288912743fac5e4bad791934c"
+      "currentEntrySha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742",
+      "currentTestArtifactSha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8"
     }
   },
   "implementation": {

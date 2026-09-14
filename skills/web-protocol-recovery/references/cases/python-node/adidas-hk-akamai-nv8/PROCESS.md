@@ -119,6 +119,9 @@ Case-local proof is offline-only:
   plus a supported Node runtime): `sensor_runner.mjs` executes the synthetic sensor, the POST is
   captured with JSON single key `body` and >= 4000 bytes, and the endpoint equals the
   derived rule; the test skips with a reason when the environment is absent
+- console data: `python entry.py` prints the sensor artifact and the parsed product rows
+  by default (`--print-body` for the full captured body, `--json` for machine output);
+  vector data still prints when the NV8 segment is unavailable or fails
 
 The verified live acceptance during case preparation returned Akamai cookies, fetched the SFCC grid HTML, and parsed 82 product rows. That result is not stored as live-current acceptance for future targets; future use still re-verifies the current target.
 

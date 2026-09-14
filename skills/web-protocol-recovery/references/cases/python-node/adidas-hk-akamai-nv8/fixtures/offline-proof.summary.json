@@ -3,8 +3,8 @@
   "caseId": "adidas-hk-akamai-nv8",
   "activeScope": "offline-only",
   "passed": true,
-  "entrySha256": "87f426c5ac483b9d388a96cdc8bd14286fa861eb3bf060c2993ffe78247ace7f",
-  "testArtifactSha256": "19ab6df3070783f457fe63f1676b007bf566ab1288912743fac5e4bad791934c",
+  "entrySha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742",
+  "testArtifactSha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8",
   "acceptance": {
     "command": "python -m unittest discover -s tests -v",
     "checks": [
@@ -12,7 +12,8 @@
       "redacted sensor request shape validates",
       "SFCC product fixture parses into three products",
       "live egress guard rejects run(live=True)",
-      "NV8 executor segment captures a validated synthetic sensor artifact (environment-gated)"
+      "NV8 executor segment captures a validated synthetic sensor artifact (environment-gated)",
+      "console report prints the sensor artifact and parsed product data"
     ]
   },
   "result": {

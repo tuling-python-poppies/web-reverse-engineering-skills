@@ -340,7 +340,11 @@ def run_nv8_chain(
         "node": f"{version[0]}.{version[1]}",
         "nv8Root": str(nv8_root),
         "sensorEndpoint": artifact.get("sensorEndpoint"),
+        "method": artifact.get("method"),
+        "contentType": artifact.get("contentType"),
+        "bodyJsonKeys": artifact.get("bodyJsonKeys"),
         "bodyByteLength": artifact.get("bodyByteLength"),
+        "body": artifact.get("body"),
         "outcome": artifact.get("outcome"),
         "nodeAdvisory": (
             None
@@ -382,11 +386,87 @@ def run(*, live: bool = False, with_nv8: bool = True, nv8_root: str | None = Non
     if with_nv8:
         available, detail = nv8_availability(nv8_root)
         if available:
-            result["nv8"] = run_nv8_chain(nv8_root)
+            try:
+                result["nv8"] = run_nv8_chain(nv8_root)
+            except Exception as error:  # keep vector data printable on chain failure
+                result["nv8"] = {"status": "failed", "reason": str(error)}
         else:
             result["nv8"] = {"status": "unavailable", "reason": detail}
 
     return result
+
+
+def _print_report(result: dict[str, Any], print_body: bool = False) -> None:
+    """Human-readable console report: exactly the data this case produces."""
+
+    sensor = result.get("sensor") or {}
+    nv8 = result.get("nv8") or {}
+    products = result.get("products") or []
+
+    line = "=" * 72
+    print(line)
+    print("adidas-hk-akamai-nv8 · NV8 离线执行链数据")
+    print(line)
+
+    print("\n[1] 向量校验（离线）")
+    print(f"    推导的 sensor 端点 : {result.get('derivedSensorEndpoint')}")
+    print(
+        "    sensor 请求形状    : "
+        f"{sensor.get('method')} {sensor.get('contentType')} "
+        f"observed≈{sensor.get('observedBytesApprox')}B"
+    )
+    print(f"    业务端点          : {result.get('businessEndpoint')}")
+
+    print("\n[2] NV8 sensor 工件")
+    status = nv8.get("status")
+    if status == "executed":
+        print(f"    状态              : executed (node {nv8.get('node')})")
+        print(f"    捕获端点          : {nv8.get('sensorEndpoint')}")
+        print(
+            "    请求              : "
+            f"{nv8.get('method')} {nv8.get('contentType')} "
+            f"keys={nv8.get('bodyJsonKeys')}"
+        )
+        print(f"    body 字节 / 结果  : {nv8.get('bodyByteLength')} / {nv8.get('outcome')}")
+        body = nv8.get("body") or ""
+        if print_body:
+            print(f"    body（完整）      : {body}")
+        else:
+            preview = body if len(body) <= 240 else body[:240] + " ..."
+            print(f"    body（前 240 字符）: {preview}")
+            print("    （加 --print-body 打印完整 body）")
+        if nv8.get("nodeAdvisory"):
+            print(f"    提示              : {nv8.get('nodeAdvisory')}")
+    elif status == "unavailable":
+        print(f"    状态              : unavailable")
+        print(f"    原因              : {nv8.get('reason')}")
+        print("    修复              : 在本目录执行 npm install，或设置 NV8_ROOT 指向 NV8 安装根目录")
+    else:
+        print(f"    状态              : {'skipped' if not nv8 else status}")
+        if nv8.get("reason"):
+            print(f"    原因              : {nv8.get('reason')}")
+
+    print(f"\n[3] 业务数据（离线 fixture 解析，共 {len(products)} 条）")
+    for index, product in enumerate(products, start=1):
+        print(
+            f"    [{index}] {product.get('sku')}  {product.get('name')}  "
+            f"{product.get('price')}"
+        )
+        print(f"         url: {product.get('url')}")
+        print(f"         img: {product.get('image')}")
+
+    acceptance = result.get("acceptance") or {}
+    print("\n[4] 验收")
+    print(
+        "    offlineProductCount={0}  rejectsLiveEgress={1}  "
+        "requiresCurrentLiveVerification={2}".format(
+            acceptance.get("offlineProductCount"),
+            acceptance.get("rejectsLiveEgress"),
+            acceptance.get("requiresCurrentLiveVerification"),
+        )
+    )
+    print("    说明：本 case 不发起真实 HTTP；live egress 由 python-collector 负责。")
+    print(line)
 
 
 def main() -> None:
@@ -394,7 +474,8 @@ def main() -> None:
     parser.add_argument("--live", action="store_true", help="refused by design")
     parser.add_argument("--nv8-root", default=None, help="NV8 install root")
     parser.add_argument("--skip-nv8", action="store_true", help="vector checks only")
-    parser.add_argument("--json", action="store_true", help="print the full result")
+    parser.add_argument("--print-body", action="store_true", help="print the full captured sensor body")
+    parser.add_argument("--json", action="store_true", help="print the full result as JSON")
     args = parser.parse_args()
 
     try:
@@ -407,15 +488,7 @@ def main() -> None:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return
 
-    nv8 = result.get("nv8") or {}
-    print(json.dumps({
-        "status": result["status"],
-        "caseId": result["caseId"],
-        "productCount": result["productCount"],
-        "derivedSensorEndpoint": result["derivedSensorEndpoint"],
-        "nv8": nv8.get("status"),
-        "nv8BodyByteLength": nv8.get("bodyByteLength"),
-    }, ensure_ascii=False))
+    _print_report(result, print_body=args.print_body)
 
 
 if __name__ == "__main__":

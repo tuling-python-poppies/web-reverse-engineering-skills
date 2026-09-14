@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import unittest
 from pathlib import Path
 
@@ -52,6 +54,18 @@ class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
     def test_run_reports_nv8_availability(self) -> None:
         result = entry.run(live=False, with_nv8=True)
         self.assertIn(result["nv8"]["status"], {"executed", "unavailable"})
+
+    def test_console_report_prints_data(self) -> None:
+        result = entry.run(live=False, with_nv8=False)
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            entry._print_report(result)
+        output = buffer.getvalue()
+        self.assertIn("[1]", output)
+        self.assertIn("[3]", output)
+        self.assertIn("pomCpnC--BzlJThIWBEYnu9r", output)
+        self.assertIn("JI1234", output)
+        self.assertIn("Classic Track Pants", output)
 
     def test_nv8_chain_produces_validated_sensor_artifact(self) -> None:
         """NV8 executor segment; skips when no NV8 install / supported Node is available.

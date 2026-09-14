@@ -2,6 +2,14 @@
 
 `web-protocol-recovery` is the single public entry for Web and miniapp protocol recovery. `SKILL.md` owns dispatch. Internal Providers are modules, not peer skills.
 
+## Related Repositories
+
+配套mcps仓库地址
+https://gitee.com/tuling-python/web-reverse-mcps-tool
+
+自研浏览器运行时框架代码仓库地址
+https://gitee.com/tuling-python/nv8
+
 ## Route Index
 
 - Start/dispatch: `SKILL.md`

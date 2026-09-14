@@ -13,7 +13,7 @@
  */
 (function () {
   var endpoint = globalThis.__SENSOR_ENDPOINT;
-  if (typeof endpoint !== 'string' || endpoint.indexOf('pomCpnC') === -1) {
+  if (typeof endpoint !== 'string' || endpoint.indexOf('synthMount') === -1) {
     throw new Error('synthetic sensor: __SENSOR_ENDPOINT missing');
   }
 

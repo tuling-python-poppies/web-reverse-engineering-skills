@@ -3,7 +3,10 @@
   "caseId": "adidas-hk-akamai-nv8",
   "challenge": {
     "targetUrl": "https://www.adidas.com.hk/zh/summer_cs_promotion_2",
-    "sensorScriptUrlShape": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js?v=00000000-0000-4000-8000-000000000000",
+    "sensorScriptUrlShape": "https://www.adidas.com.hk/synthMount--BzlJThIWBEYnu9r/K9m/sensor.js?v=00000000-0000-4000-8000-000000000000&t=123456789",
+    "sensorScriptQueryVariants": ["v=<uuid>", "v=<uuid>&t=<challengeId>", "v=<uuid>&ch=true"],
+    "htmlEntityNote": "the src attribute carries &amp; in raw HTML and must be decoded before use",
+    "redirectBranchShape": "the document GET may answer 301 (redirect admission); follow it with accumulated cookies before parsing the sensor script, and treat a final trusted page as already admitted",
     "initialCookieNames": ["_abck", "bm_sz"]
   },
   "edgeSandboxCapture": {
@@ -12,7 +15,7 @@
   },
   "sensorPost": {
     "method": "POST",
-    "endpoint": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js",
+    "endpoint": "https://www.adidas.com.hk/synthMount--BzlJThIWBEYnu9r/K9m/sensor.js",
     "headers": {
       "content-type": "application/json"
     },

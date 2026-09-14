@@ -21,7 +21,7 @@ library: the skill gates forbid live HTTP and `curl_cffi` imports inside cases. 
 re-verified live run is recorded in `case.json` as `historicalLiveProof` provenance only.
 
 The real adidas HK sensor JavaScript is sensitive material and is intentionally absent;
-`fixtures/pomCpnC-sensor.synthetic.js` reproduces only the documented observable
+`fixtures/sensor.synthetic.js` reproduces only the documented observable
 contract. Live HTTP remains a delivery task: the Python collector owns the approved HTTP
 requests; NV8 only produces the narrow Akamai sensor artifact.
 
@@ -41,7 +41,7 @@ Select this case when at least three independent signals match:
 
 - `vendor:akamai` with Bot Manager sensor behavior
 - `cookie:ak_bmsc` after a sensor POST
-- `script:pomCpnC-sensor` on `www.adidas.com.hk`
+- `script:sensor-v-uuid` on `www.adidas.com.hk` (random mount path marked by `?v=<uuid>`)
 - `runtime:nv8` as the local sensor executor
 - `api:sfcc-search-updategrid`
 - `site:adidas-hk`
@@ -58,19 +58,20 @@ Secondary blockers may include session freshness and transport reputation, but t
 
 Use Chromium recon first for current evidence: document request, challenge shell, sensor script URL, sensor POST shape, cookies set by the response, and the final business consumer.
 
-Canonical mutation point: the sensor-owned XHR/fetch POST to the same randomized `pomCpnC` endpoint as the sensor script, with query parameters removed.
+Canonical mutation point: the sensor-owned XHR/fetch POST to the same randomized sensor mount path as the sensor script (marked by `?v=<uuid>`), with query parameters removed.
 
 ## Request And State Chain
 
 ```text
 GET /zh/summer_cs_promotion_2
-  -> challenge HTML contains a pomCpnC sensor script URL
-GET pomCpnC sensor script with challenge cookies
+  -> may answer a 301 redirect-admission hop first (follow with accumulated cookies)
+  -> challenge HTML contains a sensor script URL on a random mount path (?v=<uuid>)
+GET sensor script with challenge cookies
   -> obfuscated Akamai sensor JavaScript
 NV8 (`EdgeSandbox`, driven by `sensor_runner.mjs`) executes the synthetic sensor
   -> network capture records JSON sensor POST {"body":"..."} answered by replay
 Python validates the narrow artifact (endpoint rule, JSON single key, >= 4000 bytes)
-Python forwards that POST to the derived pomCpnC endpoint
+Python forwards that POST to the derived sensor endpoint (script path without query)
   -> Akamai admission cookies, including ak_bmsc
 Python GET Search-UpdateGrid?cgid=summer_cs_promotion_2&format=ajax&start=N&sz=48
   -> SFCC product tile HTML
@@ -79,8 +80,8 @@ Python parses tiles into product JSON
 
 Moving state names only:
 
-- Cookies: `ak_bmsc`, `_abck`, `bm_sz`, `bm_sv`, and other `ak_` / `bm_` names when present
-- Sensor script identity: randomized `pomCpnC` URL plus version query
+- Cookies: `ak_bmsc`, `_abck`, `bm_sz`, `bm_sv`, `akacd_*` (redirect admission), and other `ak_` / `bm_` names when present
+- Sensor script identity: random multi-segment mount path marked by `?v=<uuid>` (variants `&t=<challengeId>`, `&ch=true`); the raw HTML attribute carries `&amp;` and must be entity-decoded
 - Sensor POST body: JSON object with a large encoded `body` string
 - Business cursor: `start` and `sz` query parameters
 
@@ -135,9 +136,11 @@ The verified live acceptance during case preparation returned Akamai cookies, fe
 Live collector provenance (not current acceptance): the separate delivery project's
 collector was re-verified on 2026-09-14 — the live challenge page + 500KB sensor script
 were fetched, NV8 captured a ~4.5KB sensor POST, the forwarded POST returned 200, and
-`Search-UpdateGrid` returned 48 parsed products. This is recorded as
-`historical-project-provenance` with `currentAcceptance=false`; any new target still
-requires a fresh run.
+`Search-UpdateGrid` returned 48 parsed products. A same-day protocol-shape check found
+the mount name had rotated away from the `pomCpnC` literal (now a random multi-segment
+path marked by `?v=<uuid>`, with a possible 301 redirect-admission first hop). This is
+recorded as `historical-project-provenance` with `currentAcceptance=false`; any new
+target still requires a fresh run.
 
 ## Dependencies
 
@@ -151,12 +154,16 @@ requires a fresh run.
 
 ## Invalidation Signals
 
-- Sensor script no longer contains `pomCpnC`
+- Sensor script query no longer carries `v=<uuid>` (the mount-name literal is not a signal)
 - Sensor POST no longer uses JSON with a large encoded `body` string
 - Forwarded sensor POST does not set Akamai admission cookies
 - `Search-UpdateGrid` returns challenge HTML instead of SFCC product HTML
 - Product tiles no longer expose stable product IDs
 - NV8 execution captures no POST after the event-loop pump
+
+The 2026-09-14 mount rotation (`pomCpnC` literal -> `?v=<uuid>` marker, optional 301
+redirect-admission hop) is absorbed in revision 6: select this case by the marker rule,
+never by a fixed mount name.
 
 ## Sensitive Materials Excluded
 

@@ -72,8 +72,10 @@ def sensor_endpoint_from_script_url(script_url: str) -> str:
     parts = urlsplit(script_url)
     if parts.scheme != "https" or parts.netloc != "www.adidas.com.hk":
         raise ValueError("unexpected sensor script origin")
-    if "pomCpnC" not in parts.path:
-        raise ValueError("sensor script URL does not contain pomCpnC")
+    if not parts.path or parts.path == "/":
+        raise ValueError("sensor script URL has no mount path")
+    if re.search(r"(?:^|&)v=[0-9a-f-]{32,}", parts.query, re.IGNORECASE) is None:
+        raise ValueError("sensor script URL query does not carry the v=<uuid> marker")
     return urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
 
 
@@ -86,8 +88,20 @@ def validate_sensor_request(sample: dict[str, Any]) -> dict[str, Any]:
 
     if method != "POST":
         raise ValueError("sensor request must be POST")
-    if not isinstance(endpoint, str) or "pomCpnC" not in endpoint:
-        raise ValueError("sensor endpoint marker missing")
+    endpoint_parts = urlsplit(endpoint) if isinstance(endpoint, str) else None
+    if (
+        endpoint_parts is None
+        or endpoint_parts.scheme != "https"
+        or endpoint_parts.netloc != "www.adidas.com.hk"
+    ):
+        raise ValueError("sensor endpoint origin invalid")
+    if (
+        not endpoint_parts.path
+        or endpoint_parts.path == "/"
+        or endpoint_parts.query
+        or endpoint_parts.fragment
+    ):
+        raise ValueError("sensor endpoint must be the script path without query data")
     if content_type != "application/json":
         raise ValueError("sensor request content-type must be application/json")
     if body_shape.get("jsonObject") is not True:
@@ -305,7 +319,7 @@ def run_nv8_chain(
             "--challenge",
             str(FIXTURE_DIR / "challenge.html"),
             "--sensor",
-            str(FIXTURE_DIR / "pomCpnC-sensor.synthetic.js"),
+            str(FIXTURE_DIR / "sensor.synthetic.js"),
             "--cookies",
             str(FIXTURE_DIR / "cookies.json"),
             "--pump-ms",

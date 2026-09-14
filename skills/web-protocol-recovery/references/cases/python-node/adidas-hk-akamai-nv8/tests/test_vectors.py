@@ -17,21 +17,33 @@ SPEC.loader.exec_module(entry)
 
 class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
     def test_sensor_endpoint_derivation_removes_query_data(self) -> None:
-        url = (
-            "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/"
-            "example/sensor.js?v=00000000-0000-4000-8000-000000000000"
+        base = (
+            "https://www.adidas.com.hk/synthMount--BzlJThIWBEYnu9r/"
+            "K9m/sensor.js"
+        )
+        uuid = "00000000-0000-4000-8000-000000000000"
+        self.assertEqual(
+            entry.sensor_endpoint_from_script_url(f"{base}?v={uuid}&t=123456789"),
+            base,
         )
         self.assertEqual(
-            entry.sensor_endpoint_from_script_url(url),
-            "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js",
+            entry.sensor_endpoint_from_script_url(f"{base}?v={uuid}&ch=true"),
+            base,
         )
+
+    def test_sensor_endpoint_requires_v_uuid_marker(self) -> None:
+        with self.assertRaisesRegex(ValueError, "v=<uuid>"):
+            entry.sensor_endpoint_from_script_url(
+                "https://www.adidas.com.hk/synthMount--BzlJThIWBEYnu9r/K9m/sensor.js"
+            )
 
     def test_sensor_request_shape_validates(self) -> None:
         sample = entry.load_fixture("request.sample.json")
         validated = entry.validate_sensor_request(sample)
         self.assertEqual(validated["method"], "POST")
         self.assertGreaterEqual(validated["observedBytesApprox"], 4000)
-        self.assertIn("pomCpnC", validated["endpoint"])
+        self.assertIn("synthMount", validated["endpoint"])
+        self.assertNotIn("?", validated["endpoint"])
 
     def test_product_fixture_parses(self) -> None:
         response = entry.load_fixture("response.sample.json")
@@ -63,7 +75,7 @@ class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
         output = buffer.getvalue()
         self.assertIn("[1]", output)
         self.assertIn("[3]", output)
-        self.assertIn("pomCpnC--BzlJThIWBEYnu9r", output)
+        self.assertIn("synthMount--BzlJThIWBEYnu9r", output)
         self.assertIn("JI1234", output)
         self.assertIn("Classic Track Pants", output)
 
@@ -78,7 +90,9 @@ class AdidasHkAkamaiNv8CaseTests(unittest.TestCase):
             self.skipTest(detail)
         artifact = entry.run_nv8_chain()
         self.assertEqual(artifact["status"], "executed")
-        self.assertIn("pomCpnC", artifact["sensorEndpoint"])
+        self.assertIn("synthMount", artifact["sensorEndpoint"])
+        self.assertNotIn("?", artifact["sensorEndpoint"])
+        self.assertNotIn("amp;", artifact["sensorEndpoint"])
         self.assertGreaterEqual(int(artifact["bodyByteLength"]), 4000)
         self.assertIn(artifact["outcome"], {"replayed", "replay-miss:missing"})
 

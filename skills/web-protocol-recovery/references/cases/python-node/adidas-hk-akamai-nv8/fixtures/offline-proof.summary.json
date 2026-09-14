@@ -3,12 +3,12 @@
   "caseId": "adidas-hk-akamai-nv8",
   "activeScope": "offline-only",
   "passed": true,
-  "entrySha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742",
-  "testArtifactSha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8",
+  "entrySha256": "50ec762469a707ffc8acf5b9c3e9bbe9e72dbb521b332ccc65fee5ec9313e9fe",
+  "testArtifactSha256": "4b2ca655a7b69c699a692a13a5899c779933213fff8252d4d1964220f711d2f8",
   "acceptance": {
     "command": "python -m unittest discover -s tests -v",
     "checks": [
-      "sensor endpoint derivation removes query data",
+      "sensor endpoint derivation removes query data (v=<uuid> variants) and rejects a missing marker",
       "redacted sensor request shape validates",
       "SFCC product fixture parses into three products",
       "live egress guard rejects run(live=True)",
@@ -19,7 +19,7 @@
   },
   "result": {
     "productCount": 3,
-    "derivedSensorEndpoint": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js"
+    "derivedSensorEndpoint": "https://www.adidas.com.hk/synthMount--BzlJThIWBEYnu9r/K9m/sensor.js"
   },
   "nv8Executor": {
     "status": "executed",
@@ -27,7 +27,7 @@
     "node": "24.11",
     "nv8RootSource": "NV8_ROOT",
     "runnerArtifact": {
-      "sensorEndpoint": "https://www.adidas.com.hk/pomCpnC--BzlJThIWBEYnu9r/example/sensor.js",
+      "sensorEndpoint": "https://www.adidas.com.hk/synthMount--BzlJThIWBEYnu9r/K9m/sensor.js",
       "method": "POST",
       "contentType": "application/json",
       "bodyJsonKeys": [

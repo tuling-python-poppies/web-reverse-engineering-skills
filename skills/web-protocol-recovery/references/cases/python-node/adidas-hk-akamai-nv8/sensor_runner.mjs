@@ -14,7 +14,7 @@
  *
  * Usage (normally invoked by entry.py):
  *   node sensor_runner.mjs --nv8-root <root> --target-url <url> \
- *     --challenge fixtures/challenge.html --sensor fixtures/pomCpnC-sensor.synthetic.js \
+ *     --challenge fixtures/challenge.html --sensor fixtures/sensor.synthetic.js \
  *     --cookies fixtures/cookies.json [--pump-ms 1500]
  */
 
@@ -70,17 +70,42 @@ async function loadEdgeSandbox(nv8Root) {
   }
 }
 
+function decodeEntities(value) {
+  return value
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x2f;/gi, '/')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 function deriveSensorEndpoint(challengeHtml, challengePath) {
-  const match = /<script[^>]+src="([^"]*pomCpnC[^"]*)"/i.exec(challengeHtml);
-  if (match === null) {
-    console.error(`[runner] pomCpnC sensor script not found in ${challengePath}`);
+  const refs = [...challengeHtml.matchAll(/<script[^>]+src="([^"]+)"/gi)]
+    .map((match) => decodeEntities(match[1]))
+    .filter((src) => src.startsWith('/') || src.startsWith('https://'));
+  // Live shape: the sensor script is the same-origin script whose query
+  // carries `v=<uuid>` (variants `&t=<challengeId>` / `&ch=true`).
+  let scriptRef = refs.find((src) => /[?&]v=[0-9a-f-]{32,}(?:&|$)/i.test(src));
+  if (scriptRef === undefined) {
+    scriptRef = refs.find((src) => /[?&](?:t|ch)=/.test(src));
+  }
+  if (scriptRef === undefined) {
+    console.error(`[runner] sensor script (?v=<uuid>) not found in ${challengePath}`);
     process.exit(2);
   }
-  const scriptUrl = new URL(match[1], 'https://www.adidas.com.hk/');
+  const scriptUrl = new URL(scriptRef, 'https://www.adidas.com.hk/');
   // Endpoint = script URL without query data (documented derivation rule).
   scriptUrl.search = '';
   scriptUrl.hash = '';
   return scriptUrl.href;
+}
+
+function pathnameOf(url) {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return null;
+  }
 }
 
 async function main() {
@@ -144,11 +169,12 @@ async function main() {
     await sandbox.evaluate(`new Promise((resolve) => setTimeout(resolve, ${pumpMs}))`);
 
     const requests = await sandbox.networkRequests();
+    const endpointPath = pathnameOf(sensorEndpoint);
     const post = requests.find(
-      (request) => request.method === 'POST' && request.url.includes('pomCpnC'),
+      (request) => request.method === 'POST' && pathnameOf(request.url) === endpointPath,
     );
     if (post === undefined) {
-      console.error(`[runner] no pomCpnC POST captured (requests=${requests.length})`);
+      console.error(`[runner] no sensor POST captured at ${endpointPath} (requests=${requests.length})`);
       process.exit(1);
     }
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "adidas-hk-akamai-nv8",
-  "revision": 5,
+  "revision": 6,
   "status": "verified",
   "family": "challenge",
   "runtime": "python-node",
@@ -13,7 +13,7 @@
     "signals": [
       "vendor:akamai",
       "cookie:ak_bmsc",
-      "script:pomCpnC-sensor",
+      "script:sensor-v-uuid",
       "runtime:nv8",
       "api:sfcc-search-updategrid",
       "site:adidas-hk"
@@ -40,7 +40,7 @@
       "scheme": "https",
       "host": "www.adidas.com.hk",
       "port": 443,
-      "routePrefix": "/pomCpnC"
+      "routePrefix": "/zh/search"
     },
     {
       "scheme": "https",
@@ -52,7 +52,7 @@
   "protocolPatterns": [
     "vendor:akamai",
     "cookie:ak_bmsc",
-    "script:pomCpnC-sensor",
+    "script:sensor-v-uuid",
     "runtime:nv8",
     "sensor-body:json-body-field",
     "api:sfcc-search-updategrid",
@@ -98,7 +98,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "c56f6bda53e8d656445b9e3b36d515d1344b3839e2b712c99fb00871e399aaa2"
+      "sha256": "5059ab1dd4d0f632f41210c9d517ba05df6151f5d9c18668d95ac183c93a9a48"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -107,11 +107,11 @@
     "assets": [
       {
         "path": "fixtures/vectors.json",
-        "sha256": "b38ea96706b43a0ecff52edf7c3cac9c9da864bba621a292f2d424e3462dbc8a"
+        "sha256": "14a40056d4074c796bc68f6ef81dd832dc82a370d6ffa80b9c298accbca1fc8e"
       },
       {
         "path": "fixtures/request.sample.json",
-        "sha256": "e5405bb91849ac36d8b64bf20bc64aaa22aaf49fb26981f655dd92731c6f7a50"
+        "sha256": "e7b4e5fb0982c98ee9908f102f203afe394c94a42479d324245cea074048794e"
       },
       {
         "path": "fixtures/response.sample.json",
@@ -119,15 +119,15 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "5cd7fe15fafce1173439287025a25241eab5b343164ba3b6bf7878f6b1109e74"
+        "sha256": "21e4d7c30a6fb369c5ef72d7efb8321c893e60b23576ed57e8a2e08348139838"
       },
       {
         "path": "fixtures/challenge.html",
-        "sha256": "e10891a3684619ffc2f6dfa407fb4fbc3fb886c4f71be961138c7c1de7cf390d"
+        "sha256": "23e1e1f42aae2f3259ae85b1d8c30fbbcbbf6ab02f3ded7fc0fd5bc968cf2e8e"
       },
       {
-        "path": "fixtures/pomCpnC-sensor.synthetic.js",
-        "sha256": "3d7cca3294d31bb50d2d576d3f40b764bbe3774508a0677826d5ec30882893c3"
+        "path": "fixtures/sensor.synthetic.js",
+        "sha256": "aeb58c17e011e358fcebb9514b0834f15038c25920eaf18f9c7f119d9a6dcf45"
       },
       {
         "path": "fixtures/cookies.json",
@@ -135,7 +135,7 @@
       },
       {
         "path": "sensor_runner.mjs",
-        "sha256": "13e47cd29324fd624cb53093be02f268a9d1f9ba0a58ed877c47c4c16fabbad8"
+        "sha256": "d75e6390b18c175bd011b3abcdb95ca5f0462c6b04778bcae638899ce151a244"
       },
       {
         "path": "run.cmd",
@@ -144,33 +144,33 @@
     ],
     "entry": {
       "path": "entry.py",
-      "sha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742"
+      "sha256": "50ec762469a707ffc8acf5b9c3e9bbe9e72dbb521b332ccc65fee5ec9313e9fe"
     }
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-09-14T21:20:00+08:00",
+    "executedAt": "2026-09-14T22:05:13+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
-      "sha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8"
+      "sha256": "4b2ca655a7b69c699a692a13a5899c779933213fff8252d4d1964220f711d2f8"
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "5cd7fe15fafce1173439287025a25241eab5b343164ba3b6bf7878f6b1109e74"
+      "sha256": "21e4d7c30a6fb369c5ef72d7efb8321c893e60b23576ed57e8a2e08348139838"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "case tests validate endpoint derivation, redacted request shape, SFCC parsing, live-egress refusal, and (environment-gated) a validated NV8 synthetic sensor artifact",
       "caseLocalTests": "python -m unittest discover -s tests -v",
-      "currentEntrySha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742",
-      "currentTestArtifactSha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8",
+      "currentEntrySha256": "50ec762469a707ffc8acf5b9c3e9bbe9e72dbb521b332ccc65fee5ec9313e9fe",
+      "currentTestArtifactSha256": "4b2ca655a7b69c699a692a13a5899c779933213fff8252d4d1964220f711d2f8",
       "historicalLiveProof": {
         "classification": "historical-project-provenance",
         "currentAcceptance": false,
         "date": "2026-09-14",
-        "result": "live collector assets re-verified: challenge page + 500KB sensor fetched live, NV8 captured a ~4.5KB sensor POST, forwarded POST 200, Search-UpdateGrid 200 -> 48 parsed products",
+        "result": "live collector assets re-verified: challenge page (200 shell; a 301 redirect-admission hop is also observed) and 500KB sensor script fetched live, sensor mount rotated to a random multi-segment path marked by ?v=<uuid>, NV8 captured a ~4.5KB sensor POST, forwarded POST 200, Search-UpdateGrid 200 -> 48 parsed products",
         "note": "recorded as provenance only; each new target still requires a fresh live run"
       }
     }

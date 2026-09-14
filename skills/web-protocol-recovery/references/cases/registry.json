@@ -23,7 +23,7 @@
                     "scheme": "https",
                     "host": "www.adidas.com.hk",
                     "port": 443,
-                    "routePrefix": "/pomCpnC"
+                    "routePrefix": "/zh/search"
                 },
                 {
                     "scheme": "https",
@@ -36,7 +36,7 @@
                 "signals": [
                     "vendor:akamai",
                     "cookie:ak_bmsc",
-                    "script:pomCpnC-sensor",
+                    "script:sensor-v-uuid",
                     "runtime:nv8",
                     "api:sfcc-search-updategrid",
                     "site:adidas-hk"
@@ -78,7 +78,7 @@
             ],
             "manifest": {
                 "path": "python-node/adidas-hk-akamai-nv8/case.json",
-                "sha256": "7fe965c73ac00eaadd2feb4de03e252e8c5605f506b356748978222ee98bcfdc"
+                "sha256": "bca6c5a9c77da76749b86f6aa668fb3201d8c16ee998afd91084baed9e9a6b5f"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

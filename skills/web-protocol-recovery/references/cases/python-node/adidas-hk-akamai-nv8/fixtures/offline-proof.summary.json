@@ -13,7 +13,8 @@
       "SFCC product fixture parses into three products",
       "live egress guard rejects run(live=True)",
       "NV8 executor segment captures a validated synthetic sensor artifact (environment-gated)",
-      "console report prints the sensor artifact and parsed product data"
+      "console report prints the sensor artifact and parsed product data",
+      "live collector record is provenance-only (separate delivery project; not shipped in the offline case library)"
     ]
   },
   "result": {

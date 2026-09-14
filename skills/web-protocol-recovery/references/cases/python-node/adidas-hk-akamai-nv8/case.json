@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "adidas-hk-akamai-nv8",
-  "revision": 4,
+  "revision": 5,
   "status": "verified",
   "family": "challenge",
   "runtime": "python-node",
@@ -66,10 +66,10 @@
   },
   "dependencies": {
     "python": ">=3.9",
-    "node": " (matrix covers 18/20/22/24; 22+ advised for Edge-equivalent fingerprint order; 24 baseline) for the NV8 executor segment",
+    "node": ">=18.18 (matrix covers 18/20/22/24; 22+ advised for Edge-equivalent fingerprint order; 24 baseline) for the NV8 executor segment",
     "nv8": "NV8 install referenced by NV8_ROOT (or case-local node_modules/nv8); project-local npm dependency for delivery",
-    "curl_cffi": "delivery only",
-    "beautifulsoup4": "delivery parser option"
+    "curl_cffi": "delivery project only (not part of this offline case library)",
+    "beautifulsoup4": "delivery project parser (not part of this offline case library)"
   },
   "entryScope": {
     "kind": "offline-proof",
@@ -98,7 +98,7 @@
   "artifacts": {
     "process": {
       "path": "PROCESS.md",
-      "sha256": "340370e5e4b9da428f8cedea814b407178bc945dade22d6681248eb4338923a9"
+      "sha256": "c56f6bda53e8d656445b9e3b36d515d1344b3839e2b712c99fb00871e399aaa2"
     },
     "pullLiveState": {
       "path": "pull_live_state.py",
@@ -119,7 +119,7 @@
       },
       {
         "path": "fixtures/offline-proof.summary.json",
-        "sha256": "aba8b6c3453ec09953322495b6c256aaa719e36f61dd8a79cd7194f818d8f3f3"
+        "sha256": "5cd7fe15fafce1173439287025a25241eab5b343164ba3b6bf7878f6b1109e74"
       },
       {
         "path": "fixtures/challenge.html",
@@ -150,7 +150,7 @@
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-09-14T20:30:00+08:00",
+    "executedAt": "2026-09-14T21:20:00+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",
@@ -158,14 +158,21 @@
     },
     "evidenceArtifact": {
       "path": "fixtures/offline-proof.summary.json",
-      "sha256": "aba8b6c3453ec09953322495b6c256aaa719e36f61dd8a79cd7194f818d8f3f3"
+      "sha256": "5cd7fe15fafce1173439287025a25241eab5b343164ba3b6bf7878f6b1109e74"
     },
     "proof": {
       "activeScope": "offline-only",
       "offlineAcceptance": "case tests validate endpoint derivation, redacted request shape, SFCC parsing, live-egress refusal, and (environment-gated) a validated NV8 synthetic sensor artifact",
       "caseLocalTests": "python -m unittest discover -s tests -v",
       "currentEntrySha256": "03533a99625bac17ef96c2d7fff825097cc5c0cad271e5a23170da5292431742",
-      "currentTestArtifactSha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8"
+      "currentTestArtifactSha256": "2065df243495a76195614602a6d1e3d01e3657cc0d2e1f893a1990625fffb7d8",
+      "historicalLiveProof": {
+        "classification": "historical-project-provenance",
+        "currentAcceptance": false,
+        "date": "2026-09-14",
+        "result": "live collector assets re-verified: challenge page + 500KB sensor fetched live, NV8 captured a ~4.5KB sensor POST, forwarded POST 200, Search-UpdateGrid 200 -> 48 parsed products",
+        "note": "recorded as provenance only; each new target still requires a fresh live run"
+      }
     }
   },
   "implementation": {

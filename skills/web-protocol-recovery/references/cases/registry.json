@@ -78,7 +78,7 @@
             ],
             "manifest": {
                 "path": "python-node/adidas-hk-akamai-nv8/case.json",
-                "sha256": "2c835d923be93f8eea55d1b470dbff63a09482043830135759c7e832928326fb"
+                "sha256": "7fe965c73ac00eaadd2feb4de03e252e8c5605f506b356748978222ee98bcfdc"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

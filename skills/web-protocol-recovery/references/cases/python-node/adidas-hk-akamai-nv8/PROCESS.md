@@ -1,6 +1,6 @@
 # Adidas HK Akamai NV8 Process
 
-Read this first before using this case's `entry.py`.
+Read this first before using this case's `entry.py` (offline proof).
 
 ## What `entry.py` is
 
@@ -13,6 +13,12 @@ Read this first before using this case's `entry.py`.
   `sensor_runner.mjs`, which executes the synthetic sensor inside an NV8
   `EdgeSandbox`, captures the sensor POST at the offline network boundary, and validates
   the narrow artifact (endpoint rule / JSON single key `body` / >= 4000 bytes).
+
+The live collector shape (challenge page + sensor script fetched live, sensor run in NV8,
+captured POST forwarded with `curl_cffi`, `Search-UpdateGrid` parsed and printed) is
+implemented as a **separate delivery project**, not shipped in this offline-only case
+library: the skill gates forbid live HTTP and `curl_cffi` imports inside cases. The
+re-verified live run is recorded in `case.json` as `historicalLiveProof` provenance only.
 
 The real adidas HK sensor JavaScript is sensitive material and is intentionally absent;
 `fixtures/pomCpnC-sensor.synthetic.js` reproduces only the documented observable
@@ -103,9 +109,10 @@ The delivery project needs:
 5. Python `curl_cffi` session that forwards the captured sensor POST and then requests `Search-UpdateGrid`.
 6. HTML parser that extracts product ID, name, price, image, and URL fields when present.
 
-This case carries items 1–3 (offline form) as `entry.py` + `sensor_runner.mjs`, plus
-the synthetic challenge/sensor fixtures. Items 4–6 remain the delivery shape; the case
-implements the offline equivalents (replay-answered POST, fixture HTML parsing).
+This case carries the offline form of items 1–3 (`entry.py` + `sensor_runner.mjs`) plus
+the synthetic challenge/sensor fixtures, and the parser fixture for item 6. Items 4–6 in
+live form belong to the separate delivery project; the skill case library stays
+offline-only.
 
 ## Fixed-Vector Proof
 
@@ -125,14 +132,22 @@ Case-local proof is offline-only:
 
 The verified live acceptance during case preparation returned Akamai cookies, fetched the SFCC grid HTML, and parsed 82 product rows. That result is not stored as live-current acceptance for future targets; future use still re-verifies the current target.
 
+Live collector provenance (not current acceptance): the separate delivery project's
+collector was re-verified on 2026-09-14 — the live challenge page + 500KB sensor script
+were fetched, NV8 captured a ~4.5KB sensor POST, the forwarded POST returned 200, and
+`Search-UpdateGrid` returned 48 parsed products. This is recorded as
+`historical-project-provenance` with `currentAcceptance=false`; any new target still
+requires a fresh run.
+
 ## Dependencies
 
 - Python >= 3.9 for the case tests
 - NV8 executor segment only: Node.js >= 18.18 (matrix covers 18/20/22/24; 22+ advised for
   Edge-equivalent fingerprint order; 24 is the usual baseline) and an NV8 install
   referenced by `NV8_ROOT` (or a case-local `node_modules/nv8`)
-- Delivery only: project-local `nv8` npm dependency
-- Delivery only: `curl_cffi` and an HTML parser such as `beautifulsoup4`
+- Delivery project (external to this offline case library): project-local `nv8` npm
+  dependency (`file:<nv8-root>`), `curl_cffi`, and an HTML parser such as
+  `beautifulsoup4` (`loguru` optional)
 
 ## Invalidation Signals
 

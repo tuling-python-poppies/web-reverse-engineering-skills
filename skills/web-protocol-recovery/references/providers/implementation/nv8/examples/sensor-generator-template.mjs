@@ -9,11 +9,9 @@
  * Users do NOT need to manually run `nvm use 24` before execution.
  *
  * IMPORTING NV8:
- *   This NV8 package does not re-export EdgeSandbox from the bare package
- *   name (`exports` only exposes the root, fingerprints, protocol and collector).
- *   This template therefore resolves `EdgeSandbox` from the install root:
- *     1. `NV8_ROOT` environment variable (Python sets it), or
- *     2. a project-local `node_modules/nv8/` created by `npm install`.
+ *   The NV8 package root re-exports the sandbox entries, so the template uses a
+ *   plain bare import. The project must have a project-local `node_modules/nv8/`
+ *   created by `npm install` (`"nv8": "file:<path-to-nv8>"` in package.json).
  *
  * Architecture:
  * 1. Load approved challenge page + sensor script inputs
@@ -21,48 +19,23 @@
  * 3. Output JSON for Python to forward via curl_cffi
  *
  * USAGE:
- * Adjust the CONFIG section below for your target site.
+ *   Adjust the CONFIG section below for your target site.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Resolve EdgeSandbox from the NV8 install root (see header)
+// NV8 (bare package import; see header)
 // ═══════════════════════════════════════════════════════════════════════════
-const NV8_ROOT = process.env.NV8_ROOT ?? '';
-
-/** @type {string[]} */
-const candidates = [];
-if (NV8_ROOT) {
-  candidates.push(pathToFileURL(resolve(NV8_ROOT, 'src/public/edge-sandbox.js')).href);
-}
-candidates.push(new URL('./node_modules/nv8/src/public/edge-sandbox.js', import.meta.url).href);
-candidates.push(new URL('../node_modules/nv8/src/public/edge-sandbox.js', import.meta.url).href);
-
-let EdgeSandbox = null;
-let resolvedFrom = null;
-for (const specifier of candidates) {
-  try {
-    ({ EdgeSandbox } = await import(specifier));
-    resolvedFrom = specifier;
-    break;
-  } catch {
-    // try the next candidate
-  }
-}
-
-if (typeof EdgeSandbox !== 'function') {
-  console.error('[sensor] EdgeSandbox could not be resolved from the NV8 install root.');
-  console.error('[sensor] Set NV8_ROOT (e.g. D:/develop_software/Nv8) or run: npm install');
-  console.error('[sensor] Ensure package.json has: "nv8": "file:<nv8-root>"');
+const { EdgeSandbox } = await import('nv8').catch((error) => {
+  console.error('[sensor] nv8 package could not be imported:', error?.code ?? error?.message);
+  console.error('[sensor] run: npm install   (package.json dependency: "nv8": "file:<nv8-root>")');
   process.exit(1);
-}
-
-console.log(`[sensor] NV8 loaded from: ${resolvedFrom}`);
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIG — Adjust for your target site

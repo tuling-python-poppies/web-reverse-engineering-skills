@@ -29,9 +29,9 @@ NV8 provides:
 
 ## Environment Setup (Local npm install)
 
-NV8 is installed as a **project-local npm dependency** or referenced by absolute path from the canonical install root. Each project maintains its own `node_modules/nv8/` when the dependency form is used.
+NV8 is installed as a **project-local npm dependency**. Each project maintains its own `node_modules/nv8/`.
 
-Canonical install root on this machine: `D:\develop_software\Nv8` (the NV8 repository root; `NV8_ROOT=D:/develop_software/Nv8`).
+Canonical install root on this machine: `D:\develop_software\Nv8` (the NV8 repository root).
 
 ### Installation
 
@@ -57,29 +57,24 @@ This creates a symlink at `node_modules/nv8/` pointing to the NV8 installation.
 
 ### Importing the API
 
-This NV8 package does **not** re-export the sandbox classes from the bare package
-name. Import what the `exports` map actually provides, and load `EdgeSandbox` /
-`createSandbox` from the package files:
+The package root re-exports everything the sensor workflow needs, so plain bare
+imports are the supported form:
 
 ```js
-// Bare package imports (presets/plugins, in-process entry, fingerprints, protocol/collector):
-import { createNv8, nv8Eval, domPreset } from 'nv8';
-import { edge152Fingerprint } from 'nv8/fingerprint/edge-152';
-
-// EdgeSandbox / createSandbox are NOT in the package exports map.
-// Use an absolute file URL (NV8_ROOT is supplied by the Python host):
-import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
-const NV8_ROOT = process.env.NV8_ROOT ?? 'D:/develop_software/Nv8';
-const { EdgeSandbox } = await import(
-  pathToFileURL(resolve(NV8_ROOT, 'src/public/edge-sandbox.js')).href
-);
-// Alternative when the project has node_modules/nv8 installed:
-// import { EdgeSandbox } from './node_modules/nv8/src/public/edge-sandbox.js';
+import {
+  EdgeSandbox,
+  createSandbox,
+  createNv8,
+  nv8Eval,
+  domPreset,
+  edge152Fingerprint,
+} from 'nv8';
+// Fingerprint-only callers may keep using the subpath:
+import { edge150Fingerprint } from 'nv8/fingerprint/edge-150';
 ```
 
-Do not write `import { EdgeSandbox } from 'nv8'` or a bare `nv8/src/public/...`
-subpath — both are rejected by the package `exports` map.
+Do not import `nv8/src/public/...` subpaths: the package `exports` map intentionally
+exposes only the root plus `./fingerprint/*`, `./protocol`, and `./collector`.
 
 ### Node Version Policy
 
@@ -111,10 +106,8 @@ Users do not need to manually run `nvm use 24` before execution — Python handl
 
 ### Environment Validation
 
-Python `ensure_node_modules()` checks `node_modules/nv8/package.json` when the project
-uses the dependency form, and the runner must resolve `NV8_ROOT` (or the project-local
-`node_modules/nv8`) before execution. If neither is present, stop with a clear
-`npm install` / `NV8_ROOT` instruction instead of degrading.
+Python `ensure_node_modules()` checks `node_modules/nv8/package.json` before execution.
+If it is missing, stop with a clear `npm install` instruction instead of degrading.
 
 ### Diagnostic tool (optional)
 
@@ -137,12 +130,10 @@ Use this only for troubleshooting Node version issues.
 1. Validate the Node runtime before any NV8 work (supported floor >= 18.18; Node 24 is
    preferred and 22+ is advised for fingerprint-order-sensitive runs); exit with a clear
    error when below the floor.
-2. NV8 is installed as a **local npm dependency** or referenced by absolute path
-   (`NV8_ROOT`). Run `npm install` to set up `node_modules/nv8/` when the dependency
-   form is used.
-3. Import NV8's API exactly as the `exports` map allows (see "Importing the API");
-   `EdgeSandbox` / `createSandbox` load from `src/public/*` via file URL or
-   `node_modules/nv8/src/public/*`.
+2. NV8 is installed as a **local npm dependency**. Run `npm install` to set up
+   `node_modules/nv8/` (`"nv8": "file:<nv8-root>"` in `package.json`).
+3. Import the API from the package root (see "Importing the API"):
+   `import { EdgeSandbox, createSandbox, edge152Fingerprint } from 'nv8';`.
 4. Fingerprint profiles should be exported from real browsers (Camoufox/CloakBrowser
    `export_fingerprint_profile`) when plausibility matters (Kasada cdndex beacon,
    Akamai canvas/WebGL checks).
@@ -161,13 +152,7 @@ Use this only for troubleshooting Node version issues.
 Typical NV8 workflow (use `createSandbox` quick API for most cases):
 
 ```javascript
-import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
-
-const NV8_ROOT = process.env.NV8_ROOT ?? 'D:/develop_software/Nv8';
-const { createSandbox } = await import(
-  pathToFileURL(resolve(NV8_ROOT, 'src/public/create-sandbox.js')).href
-);
+import { createSandbox } from 'nv8';
 
 const sb = await createSandbox('https://target.example/', {
   fingerprint: {
@@ -201,13 +186,7 @@ try {
 For advanced use cases requiring full control, use `EdgeSandbox`:
 
 ```javascript
-import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
-
-const NV8_ROOT = process.env.NV8_ROOT ?? 'D:/develop_software/Nv8';
-const { EdgeSandbox } = await import(
-  pathToFileURL(resolve(NV8_ROOT, 'src/public/edge-sandbox.js')).href
-);
+import { EdgeSandbox } from 'nv8';
 
 const sandbox = await EdgeSandbox.create({
   page: {
@@ -258,7 +237,7 @@ All applicable checks must pass:
 |---------|-----------|---------------------|
 | Unsupported Node runtime | Switch Node version via nvm/fnm/system (>= 18.18; 24 preferred) | Stop; report the required runtime |
 | `node_modules/nv8` missing | Run `npm install` in the project directory | Check `package.json` has the correct `file:` path |
-| NV8 import fails | Use the `exports`-valid import forms (`nv8` bare specifiers, `NV8_ROOT` file URL for `src/public/*`) | Verify the install root and `NV8_ROOT` |
+| NV8 import fails | Confirm `npm install` produced `node_modules/nv8/`; import from the package root only (`nv8` / `nv8/fingerprint/*`) | Verify the install root and the `file:` path |
 | Sensor throws in sandbox | Fill missing environment surfaces (navigator, canvas, timing) | If fingerprint plausibility ceiling reached, use a real browser export |
 | No POST captured | Extend the event-loop pump timeout (sensor POST is async) | Verify the sensor actually triggers a POST in a real browser first |
 | POST captured but server rejects | Check transport coherence (UA, TLS, IP binding) and fingerprint plausibility | Report egress/fingerprint residual risk |

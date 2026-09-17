@@ -82,15 +82,15 @@ exposes only the root plus `./fingerprint/*`, `./protocol`, and `./collector`.
   18/20: the executor and NV8 run there.
 - **Advisory only**: Node 22+ is recommended for fingerprint-order-sensitive comparisons
   (Node 18/20 cannot order Window globals exactly like Edge). This does not gate work.
-- This Provider's Python helpers prefer **Node 24** when present (`NVM_HOME` → `v24.*`),
-  then fall back to FNM/PATH with a version check. Node 24 is the usual baseline, not a
-  requirement.
+- This Provider's Python helper chains require **Node 24** (`NVM_HOME` → `v24.*`, then
+  FNM/PATH with a version check) and fail closed when it is missing; the `>=18.18.0`
+  floor above applies to the NV8 package itself, not to these helpers.
 - Versions below 18.18 must fail closed with a clear message; never silently run an
   unsupported runtime.
 
 ### Node Auto-Detection
 
-Python scripts prefer Node 24 and fall back through:
+Python scripts resolve Node 24 through:
 
 1. `NVM_HOME` environment variable + `v24.*` directory (Windows nvm-windows)
 2. FNM-activated `node` (checks `node --version`)
@@ -102,7 +102,7 @@ Users do not need to manually run `nvm use 24` before execution — Python handl
 
 - NVM: `nvm install 24`
 - FNM: `fnm install 24`
-- Manual: Download from https://nodejs.org/ (18.18+ accepted; 24.x LTS recommended)
+- Manual: Download from https://nodejs.org/ (24.x LTS required by the Python helper chains)
 
 ### Environment Validation
 
@@ -127,9 +127,9 @@ Use this only for troubleshooting Node version issues.
 
 ## Core Rules
 
-1. Validate the Node runtime before any NV8 work (supported floor >= 18.18; Node 24 is
-   preferred and 22+ is advised for fingerprint-order-sensitive runs); exit with a clear
-   error when below the floor.
+1. Validate the Node runtime before any NV8 work (package floor >= 18.18; the Python
+   helper chains require Node 24 and fail closed without it; 22+ is advised for
+   fingerprint-order-sensitive runs); exit with a clear error when below the floor.
 2. NV8 is installed as a **local npm dependency**. Run `npm install` to set up
    `node_modules/nv8/` (`"nv8": "file:<nv8-root>"` in `package.json`).
 3. Import the API from the package root (see "Importing the API"):

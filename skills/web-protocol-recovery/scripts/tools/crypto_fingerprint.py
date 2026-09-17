@@ -131,11 +131,25 @@ def build_report(value: str) -> dict[str, Any]:
     }
 
 
+def run_self_test() -> None:
+    assert "md5-like length" in guess_kind("d41d8cd98f00b204e9800998ecf8427e")
+    jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.c2ln"
+    assert "jwt-like three-part token" in guess_kind(jwt)
+    assert "valid base64 decode" in guess_kind("aGVsbG8=")
+    assert round(shannon_entropy("aaaaaaaaaaaaaaaa"), 3) == 0.0
+    assert guess_kind("hello world!")[-1] == "custom alphabet or mixed encoding"
+    print("crypto_fingerprint_self_test=PASS")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fingerprint suspicious crypto-like strings.")
     parser.add_argument("value", nargs="?", help="Value to inspect. If omitted, reads stdin.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
+    parser.add_argument("--self-test", action="store_true", help="Run built-in self test")
     args = parser.parse_args()
+    if args.self_test:
+        run_self_test()
+        return
     if args.value is not None:
         value = args.value
     else:
@@ -163,4 +177,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (OSError, ValueError, AssertionError) as error:
+        print(f"crypto_fingerprint=FAIL: {error}", file=sys.stderr)
+        raise SystemExit(1)

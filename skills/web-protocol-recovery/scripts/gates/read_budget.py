@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Any, Iterable
@@ -119,5 +120,50 @@ def validate_read_plan(plan: dict[str, Any]) -> list[str]:
     return findings
 
 
-if __name__ == "__main__":
+def run_self_test() -> None:
+    budget = ReadBudget()
+    budget.add_base(f"references/file{index}.md" for index in range(BASE_CAP))
+    assert budget.checkpoint()["taskUsed"] == BASE_CAP
+    try:
+        budget.add_base(["references/overflow.md"])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("base cap not enforced")
+
+    extension = ReadBudget()
+    extension.add_base(["references/a.md"])
+    extension.add_extension(
+        ["references/b.md"],
+        blocker_id="blocker-1",
+        reason="missing rule",
+        acceptance_impact="vector proof",
+    )
+    assert extension.checkpoint()["taskUsed"] == 2
+    try:
+        extension.add_extension(
+            ["references/c.md"],
+            blocker_id="blocker-2",
+            reason="second attempt",
+            acceptance_impact="none",
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("second extension allowed")
+
+    assert validate_read_plan(
+        {"required": ["references/a.md"], "optional": [], "consumedPaths": ["references/a.md"]}
+    ) == []
+    assert validate_read_plan(
+        {"required": ["references/a.md", "references/a.md"], "consumedPaths": ["references/b.md"]}
+    )
     print("read_budget_self_test=PASS")
+
+
+if __name__ == "__main__":
+    try:
+        run_self_test()
+    except AssertionError as error:
+        print(f"read_budget_self_test=FAIL: {error}", file=sys.stderr)
+        raise SystemExit(1)

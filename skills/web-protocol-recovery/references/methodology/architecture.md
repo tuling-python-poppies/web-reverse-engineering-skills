@@ -88,7 +88,7 @@ but must not restate a diverging copy:
 | scope / budget / execution policy | `references/methodology/provider-work-order.md` |
 | read budget | `references/methodology/read-budget.md` |
 | final live egress ownership | this file |
-| case selector | `references/cases/README.md` + `references/cases/registry.json` |
+| case selector | `references/cases/registry.json` (selection rules: `references/cases/README.md`) |
 | forward behavioral proof | `references/methodology/forward-testing.md` |
 | target-code execution boundary | this file + `references/providers/implementation/python-node/scripts/approved_runner.py` |
 

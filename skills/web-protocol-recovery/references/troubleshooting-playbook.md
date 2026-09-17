@@ -121,7 +121,7 @@ CloakBrowser 失败 x2 → 记录 failureClass，只有 Camoufox criterion 成�
 注意事项：
 - Chrome（chrome-devtools-mcp 或 js-reverse-mcp 普通模式）：最简单稳定，优先使用
 - CloakBrowser（js-reverse-mcp Cloak 模式）：指纹伪装，Chrome 无法通过时使用
-- Camoufox（camoufox-reverse-mcp）：Firefox 引擎，最后手段，对 WAF JS 有不同处理逻辑
+- Camoufox（camoufox-reverse-mcp）：Firefox 引擎；仅 Camoufox criterion 成立时使用（见 SKILL Phase 2），对 WAF JS 有不同处理逻辑
 - 三者 MCP 工具 API 几乎一致（navigate/evaluate_js/list_network_requests/cookies），切换成本极低
 - **绝不允许在一个引擎上重试 3 次以上然后宣布「浏览器不可用」**；但启动残留类错误必须先走用户决策，不自动杀进程也不自动换引擎隐藏该问题
 

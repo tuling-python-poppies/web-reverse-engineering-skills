@@ -144,8 +144,6 @@ The workflow is runtime-neutral at the capability level. Names such as `chrome-d
 
 If a fallback changes the evidence quality or runtime provenance, record that as a blocker or residual risk in the Provider result. A missing adapter is not permission to skip the acceptance test or to select a heavier route.
 
-When the next step needs routine browser/live/write work inside the selected shape, leave the fast path and **just do it** under standing approval (record work-order fields internally; do not pause for user confirmation). Stop only when the next exact action matches one of the declared `nextAsk` confirmation kinds.
-
 Before navigation, live egress, session use, writes, target-code execution, or dependency install, **record** the applicable fields from `references/methodology/provider-work-order.md` (internal bookkeeping). For routine protocol work, auto-fill: `actionClass=read-only` (or `verifier-submit` only for a protocol-needed verifier round), browser flags, `liveReplayAllowed=true`, `requestBudget.total=100` and `requestBudget.remaining=100` when no budget was supplied, one positive immutable request budget, redacted artifact policy under `js_reverse_cache/**`, supplied-session use, and the resolved absolute cwd when `projectRoot` is unset. Keep `mutation-submit` and all confirmation kinds blocked until the matching user decision. Pre-egress accounting and Chrome automatic-traffic **recording** stay canonical; route switches never reset or replenish the budget.
 
 Smallest success shape:
@@ -247,7 +245,7 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Kasada `x-kpsdk-*`, `KP_UIDz`, `KPSDK` bootstrap, `/tl` sensor and business admission | `kasada` | protocol owner | `references/providers/protocol-recovery/kasada/PROVIDER.md` |
 | Browser-like local runtime / XHR netLog / registry runtime case | `iv8` | implementation mode | `references/providers/implementation/iv8/PROVIDER.md`; stable Python import uses `utils/iv8_silent.import_iv8_silent()` |
 | Known JS entry in Node/vm/jsdom or Node/WASM sidecar | `python-node` | implementation mode | `references/providers/implementation/python-node/PROVIDER.md`; `env-patch` is `strategy: env-patch`, not a route |
-| Full browser-compatible local runtime for Akamai/Kasada sensors | `nv8` | implementation mode | `references/providers/implementation/nv8/PROVIDER.md`; project-local npm package `nv8`, final live egress still belongs to Python |
+| Full browser-compatible local runtime for Akamai/Kasada sensors | `nv8` | implementation | `references/providers/implementation/nv8/PROVIDER.md`; project-local npm package `nv8`, final live egress still belongs to Python |
 | Portable signer/decoder/checksum/serializer in Python | `pure-python` | implementation mode | `references/providers/implementation/pure-python/PROVIDER.md`; Douyin BDMS maintenance is `profile: douyin-abogus-native` |
 | Stable browser-free Python delivery | `python-collector` | delivery | `references/providers/delivery/python-collector/PROVIDER.md` |
 
@@ -257,7 +255,7 @@ Provider handoff minimum:
 
 1. Recon returns the real request, initiator/source boundary, moving state, runtime provenance, allowed artifact paths, and one named blocker or acceptance test.
 2. A protocol owner returns the family evidence and acceptance conditions. For Kasada, name two concrete independent surfaces, state `nv8` when it is the selected narrow artifact generator, and state that Python owns final live egress; a marker count alone is insufficient.
-3. A verifier returns same-round proof inputs and semantic verifier status only. For PZDS, name the Aliyun Captcha V2 workflow and state that current live session/profile/track is required before business replay. For GT4, select exactly one subtype workflow before implementation: slide (`risk_type=slide` or `captcha_type=slide` with `bg/slice`), word-click (`risk_type=word` and `captcha_type=word` with `imgs/ques`), or nine-grid (`risk_type=nine`, `captcha_type=nine`, `imgs/ques/nine_nums`). Include its answer shape, any `data.seccode` credential, and the Python `/verify` handoff. It does not own business delivery.
+3. A verifier returns same-round proof inputs and semantic verifier status only. For PZDS, name the Aliyun Captcha V2 workflow and state that current live session/profile/track is required before business replay. For GT4, select exactly one subtype workflow (exclusive conditions under Route Response Completeness above) before implementation, then include its answer shape, any `data.seccode` credential, and the Python `/verify` handoff. It does not own business delivery.
 4. An implementation Provider returns one narrow artifact plus fixed-vector status. `python-collector` alone may return final live HTTP/WebSocket delivery and parsed business acceptance.
 
 ## Phase 5: Verification
@@ -308,17 +306,7 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 
 **核心原则**：工具失败消耗的轮次不应超过协议分析本身。连续 3 轮在处理工具问题而不是协议问题时，停下来重新评估工具环境是否可用。
 
-### 浏览器 fallback 链
-
-一个引擎连续失败 2 次（导航超时、JS 执行失败、状态丢失）后记录 failureClass，并按满足条件的 capability adapter 切换，而不是宣布「浏览器不可用」：Chrome 失败 x2 -> fallback adapter；CloakBrowser 失败 x2 -> 只有 Camoufox criterion 成立才切换；全部适配器失败才记录 hard blocker。`exit code 21` / profile 残留不进入自动 fallback，按「浏览器启动失败诊断流程」先问用户（清理任务自有 profile 后重启，或暂停任务）；不得按进程名批量终止，也不得操作未确认归属的 profile。
-
-MCP 纪律：`network_capture(action='start', capture_body=true)` 必须在 `navigate` 之前；单批 MCP 调用 ≤3；navigate 后先 `get_page_info` 确认 URL/title。
-
-### WAF 页面导航策略
-
-优先不清 cookie；必须清时用 Camoufox + `wait_until: networkidle`，networkidle 也超时时设 15s 超时后检查 `get_page_info` 判断是否已在目标域。**绝不要**：清 cookie → CloakBrowser → `domcontentloaded` → 超时 → 宣布失败。
-
-完整引擎注意事项、启动诊断表与用户决策流程、MCP 操作纪律与 WAF 细则见 `references/troubleshooting-playbook.md` 的「环境与工具失败恢复」。
+浏览器 fallback 链、MCP 操作纪律、浏览器启动失败诊断与 WAF 页面导航策略见 `references/troubleshooting-playbook.md` 的「环境与工具失败恢复」。
 
 | Trigger | First fix | Still fails → stop |
 |---|---|---|

@@ -30,6 +30,7 @@ orchestrates the rest.
 - `validate_schemas.py` — JSON Schema contract fixtures
 - `validate_markdown.py` — local Markdown links and anchors
 - `validate_evals.py` — route-regression and test-prompt fixture metadata
+- `read_budget.py` — read-plan/read-budget accounting contract
 - `verify_case_hashes.py` — hash-bound case + registry integrity
 - `build_case_registry.py` — generate/verify the case registry projection
 - `forward_test_report.py` — validate external fresh-agent forward-test reports

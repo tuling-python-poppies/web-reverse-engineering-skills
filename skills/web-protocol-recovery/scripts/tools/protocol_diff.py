@@ -181,10 +181,21 @@ def compare_text(left_text: str, right_text: str, max_diffs: int, *, redact: boo
         print(safe)
 
 
+def run_self_test() -> None:
+    sample = {"headers": [{"name": "Cookie", "value": "sid=abc"}, {"name": "X-Trace", "value": "1"}]}
+    rows = flatten_json(sample)
+    sensitive_key = "$.headers[0].value<sensitive-name-value>"
+    assert rows[sensitive_key] == '"sid=abc"'
+    assert format_value(sensitive_key, rows[sensitive_key], max_value_len=240, redact=True).startswith("<redacted")
+    assert sensitive_key not in filter_map(rows, ["$.headers[0]"])
+    assert redact_text_line("+Cookie: sid=abc") == "+Cookie: <redacted>"
+    print("protocol_diff_self_test=PASS")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Compare two captured protocol samples.")
-    parser.add_argument("left", help="Left sample path")
-    parser.add_argument("right", help="Right sample path")
+    parser.add_argument("left", nargs="?", help="Left sample path")
+    parser.add_argument("right", nargs="?", help="Right sample path")
     parser.add_argument("--max-diffs", type=int, default=40, help="Maximum diff rows to print")
     parser.add_argument("--max-value-len", type=int, default=240, help="Maximum JSON scalar value length to print")
     parser.add_argument(
@@ -197,7 +208,14 @@ def main() -> None:
     parser.add_argument("--confirm-raw", action="store_true", help="Confirm raw sensitive output when used with --no-redact")
     parser.add_argument("--json-only", action="store_true", help="Fail instead of falling back to text diff when inputs are not JSON")
     parser.add_argument("--text-only", action="store_true", help="Force text diff even when inputs are valid JSON")
+    parser.add_argument("--self-test", action="store_true", help="Run built-in self test")
     args = parser.parse_args()
+
+    if args.self_test:
+        run_self_test()
+        return
+    if not args.left or not args.right:
+        parser.error("left and right sample paths are required")
 
     if args.json_only and args.text_only:
         parser.error("--json-only and --text-only cannot be used together")
@@ -237,4 +255,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (OSError, ValueError, AssertionError) as error:
+        print(f"protocol_diff=FAIL: {error}", file=sys.stderr)
+        raise SystemExit(1)

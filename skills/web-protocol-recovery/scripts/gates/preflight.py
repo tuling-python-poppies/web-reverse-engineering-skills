@@ -59,6 +59,8 @@ DIAGNOSTIC_SELF_TESTS = (
     "scripts/tools/transcript_diff.py",
     "scripts/tools/transform_trace_diff.py",
     "scripts/tools/transport_profile_diff.py",
+    "scripts/tools/protocol_diff.py",
+    "scripts/tools/crypto_fingerprint.py",
     "scripts/tools/grpc_frame_inspector.py",
     "scripts/tools/protobuf_inspect.py",
     "scripts/tools/wasm_module_inspect.py",

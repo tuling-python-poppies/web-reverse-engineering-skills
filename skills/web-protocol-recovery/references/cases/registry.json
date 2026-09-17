@@ -777,7 +777,7 @@
             ],
             "manifest": {
                 "path": "iv8/geetest-v4-word-click/case.json",
-                "sha256": "dbb52165c7c25abf3ec0b34ba2b6843281c1ef2865625539cdcb49124065021b"
+                "sha256": "eaf25f4c86e68b64f8b3fae8ea360bdbc1ce6cd97aa7a173d53c42cb1614259f"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

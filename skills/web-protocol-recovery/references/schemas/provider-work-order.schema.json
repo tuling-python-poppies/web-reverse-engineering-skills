@@ -163,6 +163,7 @@
             "chromium-recon",
             "camoufox",
             "wechat-miniapp",
+            "wmpf-address-adapter",
             "browser-hooks",
             "ast",
             "verifier",
@@ -172,6 +173,7 @@
             "kasada",
             "iv8",
             "python-node",
+            "nv8",
             "pure-python",
             "python-collector"
           ]

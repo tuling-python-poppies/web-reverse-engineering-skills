@@ -8,9 +8,7 @@ Offer writeback only when the final acceptance test passed, the stable entry run
 
 ## Completion Prompt
 
-After an eligible task, web-protocol-recovery presents a read-only candidate summary with proposed `caseId`, family, reusable pattern, implementation mode/strategy/profile, source stage, required current Provider chain, verification, files, minimal frozen assets, excluded sensitive material, and whether this is a new case or an update. Ask whether to write back. A positive answer authorizes candidate preparation only.
-
-Before writing, show the exact allowlist and sanitized asset list and obtain a second explicit confirmation. Then create a change-control snapshot for only those paths.
+After an eligible task, web-protocol-recovery presents one read-only writeback proposal: proposed `caseId`, family, reusable pattern, implementation mode/strategy/profile, source stage, required current Provider chain, verification, files, minimal frozen assets, excluded sensitive material, whether this is a new case or an update, and the exact allowlist plus sanitized asset list. One explicit user confirmation authorizes exactly those paths; a request for changes re-presents the revised proposal. Then create a change-control snapshot for only those paths.
 
 ## Case Layout
 

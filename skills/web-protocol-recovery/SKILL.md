@@ -285,7 +285,7 @@ Load one selected case as `case.json` -> `PROCESS.md` -> declared puller/fixture
 
 Implementation cases provide protocol primitives without current live state: `entry.py` 只是窄起点，不是最终 collector；`t001_profile_refresh.py` 是 updater 不是 bootstrapper；先跑离线向量，再跑当前 verifier 与业务重放。完整切分约束（`combat511`/`combat504` profile、FeiLin127 至少十二轮）见 `references/methodology/success-shape-scripts.md` 的 Case Delivery Overlay。
 
-Writeback after eligible verified work: read `references/methodology/case-writeback.md`. Flow: candidate summary -> user yes -> sanitize/dedupe + exact allowlist -> second confirm -> change-control. No case stores raw account/browser/HAR/private bodies, cookie/token values, or absolute local paths; current authorized state is pulled at reproduction time and kept out of the library.
+Writeback after eligible verified work: read `references/methodology/case-writeback.md`. Flow: one proposal (candidate summary + sanitize/dedupe + exact allowlist) -> user yes -> change-control. No case stores raw account/browser/HAR/private bodies, cookie/token values, or absolute local paths; current authorized state is pulled at reproduction time and kept out of the library.
 
 ## Failure Recovery
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "web-protocol-recovery-case",
   "caseId": "iv8-xhs-homefeed",
-  "revision": 6,
+  "revision": 7,
   "status": "verified",
   "family": "signer",
   "runtime": "iv8",
@@ -90,17 +90,13 @@
         "sha256": "1d9c3f3c104779060c08f730836a4ae71ba8ce18736eb0caaa3e3a7abadbe2c5",
         "bytes": 577352,
         "readHint": "Historical module evidence only; do not use as the current executable entry or read whole-file into context."
-      },
-      {
-        "path": "assets/xhs_header_sign.js",
-        "sha256": "dddcad548c35a5100326c8ac6c2696c53fda7ed8419a640ed2d9c9f689e9faba"
       }
     ]
   },
   "verification": {
     "executed": true,
     "passed": true,
-    "executedAt": "2026-08-13T00:00:00+08:00",
+    "executedAt": "2026-09-17T11:40:00+08:00",
     "testCommand": "python -m unittest discover -s tests -v",
     "testArtifact": {
       "path": "tests/test_vectors.py",

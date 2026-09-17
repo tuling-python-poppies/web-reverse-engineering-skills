@@ -633,7 +633,7 @@
             ],
             "manifest": {
                 "path": "iv8/douyin-bdms/case.json",
-                "sha256": "b161223c96b2e47c67fe4e6cfdc522fc410409cd38bb59c4251bbc0d21685848"
+                "sha256": "285ff68d44990a0bdbad2322cd55b047e65c157cfd66c8babb640ee754eb7667"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"
@@ -1150,7 +1150,7 @@
             ],
             "manifest": {
                 "path": "iv8/xhs-homefeed/case.json",
-                "sha256": "e8af95f9f136b8a70772be4f03a1f40f3645399dd5a8d970846385a9ed509c31"
+                "sha256": "e9791534d33b2730fc5ad0b3733c753c964eb61f5ee7d0f816e3808081ad8b27"
             },
             "verificationClass": "freshly-verified",
             "selectableAs": "proof"

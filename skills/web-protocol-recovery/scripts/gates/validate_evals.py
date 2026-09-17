@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -13,6 +14,11 @@ EVAL_PATH = SKILL_ROOT / "evals" / "route-regression.json"
 REGISTRY_PATH = SKILL_ROOT / "references" / "providers" / "registry.json"
 CASE_REGISTRY_PATH = SKILL_ROOT / "references" / "cases" / "registry.json"
 TEST_PROMPTS_PATH = SKILL_ROOT / "test-prompts.json"
+SUITE_PATH = SKILL_ROOT / "references" / "official-self-test-task-suite.md"
+SUITE_ROUTE_BULLET_RE = re.compile(r"^- `([^`]+)`\s*$", re.M)
+SUITE_ROUTE_SECTION_RE = re.compile(
+    r"Expected route:\s*(.*?)(?=\nMust conclude:)", re.DOTALL
+)
 SCHEMA_VERSION = "web-protocol-recovery-route-regression"
 TEST_PROMPT_TYPES = ("should-trigger", "near-miss", "anti-pattern")
 TEST_PROMPT_REQUIRED_FIELDS = ("id", "prompt", "expected", "type")
@@ -194,9 +200,34 @@ def validate_test_prompts() -> list[str]:
     return findings
 
 
+def validate_suite_route_references() -> list[str]:
+    """Every `Expected route:` bullet in the official suite must name an existing skill path."""
+    findings: list[str] = []
+    if not SUITE_PATH.is_file():
+        return ["missing official self-test task suite"]
+    text = SUITE_PATH.read_text(encoding="utf-8")
+    blocks = re.split(r"^## (?=Task )", text, flags=re.M)[1:]
+    if not blocks:
+        return ["official self-test task suite has no tasks"]
+    for block in blocks:
+        lines = block.splitlines()
+        heading = lines[0] if lines else "unnamed task"
+        section = SUITE_ROUTE_SECTION_RE.search(block)
+        if not section:
+            findings.append(f"{heading}: missing Expected route section")
+            continue
+        for bullet in SUITE_ROUTE_BULLET_RE.findall(section.group(1)):
+            if not bullet.startswith(("references/", "scripts/")):
+                findings.append(f"{heading}: expected route bullet is not a skill path: {bullet}")
+            elif not (SKILL_ROOT / bullet).exists():
+                findings.append(f"{heading}: expected route path is missing: {bullet}")
+    return findings
+
+
 def main() -> int:
     findings = validate_route_regression()
     findings.extend(validate_test_prompts())
+    findings.extend(validate_suite_route_references())
     if findings:
         for finding in findings:
             print(f"FAIL {finding}")

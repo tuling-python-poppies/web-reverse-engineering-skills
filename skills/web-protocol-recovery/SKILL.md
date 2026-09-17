@@ -19,14 +19,9 @@ Architecture contract: `references/methodology/architecture.md`. It defines web-
 2. 用户给了 HAR、源码、固定向量、响应样本，先走 `evidence-reuse` 或 `local-proof`，能不开浏览器就不开。
 3. 用户明确说“不上线 / 本地证明 / 固定向量”，保持离线；不要要 live replay、账号、项目目录或请求预算。
 4. 用户说小程序、Camoufox、Cloak、WebSocket、protobuf 等，只决定 `route` 或 gate，不自动升级到完整采集器。
-5. **已选 shape 内的常规动作默认执行、不打断确认**：隔离浏览器 recon、只读 live 请求、写 `projectRoot`（未指定则用 cwd）、使用用户已给的 cookie/session、协议所需 verifier submit、首次记录预算内的合理规模采集。内部记账即可，不要把这些写进 `nextAsk`。
-6. **`executionPolicy` 有两个 hard stop**：装依赖（`pip`/`npm` 等）、在本地 runtime 主动执行目标站 JS/WASM/HTML。普通隔离 recon 浏览器按页面正常加载目标代码属于 browser recon，不重复触发本地 target-code gate。
-7. **Browser Runtime Gate 只按需触发**：只有下一步确实要启动本地浏览器 runtime（Chromium/Cloak/Camoufox/miniapp debugger/正样本/用户明确浏览器自动化）时，才执行 runtime 检查。先使用已配置的 MCP/Provider adapter 解析默认 runtime；adapter 能启动或报告可用时直接 `nextAsk: none`，不询问根目录。仅当 adapter 没有可用默认 runtime、用户要求自定义 runtime，或 Provider 明确需要外部安装时，才询问浏览器根目录。纯协议、`evidence-reuse`、`local-proof`、`pure-python`、离线样本任务不问；依赖安装仍是 `executionPolicy`。
-8. **scope/governance 仍需确认**：业务 `mutation-submit`（表单、下单、支付、账号变更等）、扩大 success shape、提高已记录预算、raw secret 持久化/导出、case-library 写回。
-9. 最终 live egress（HTTP 请求、WebSocket handshake、sent frame）只能由 Python collector / local protocol client 发出；浏览器、JS、WASM、iv8 只能当窄工件生成器。
-10. 简单只读证据任务走 Phase 0 的 Read-Only Evidence Fast Path，不要让用户填完整表。
-11. **写文件前硬纪律**：证据只进 `<projectRoot>/js_reverse_cache/**`（按需建子目录）；禁止 OS temp / AppData temp 当主存储；iv8 交付默认 `utils/logger.py`；非空 sign / 单次 200 / 过期 cookie 都不是成功。
-12. **实现请求的默认行为**：用户明确要求实现或完整代码时，直接选择 `shape: collector`；先生成稳定项目文件和离线向量证明，再处理当前 session/profile/track 等运行态。缺运行态只能阻塞 live acceptance，不能阻止先生成实现骨架。
+5. **默认执行 vs 必须确认**：已选 shape 内的常规动作（隔离 recon、只读 live 请求、写 `projectRoot`、用已给 cookie/session、协议所需 verifier submit、首次记录预算内的采集）默认执行、不打断。只有五项必须确认：装依赖、本地执行目标 JS/WASM/HTML（隔离浏览器按页面正常加载目标代码属于 recon，不算本地执行）、业务 `mutation-submit`、扩大 shape/预算、raw secret 持久化/导出与 case 写回。内部记账即可，不要写进 `nextAsk`。
+6. **Browser Runtime Gate 只按需触发**：只有下一步确实要启动本地浏览器 runtime（Chromium/Cloak/Camoufox/miniapp debugger/正样本/用户明确浏览器自动化）时，才执行 runtime 检查。先使用已配置的 MCP/Provider adapter 解析默认 runtime；adapter 能启动或报告可用时直接 `nextAsk: none`，不询问根目录。仅当 adapter 没有可用默认 runtime、用户要求自定义 runtime，或 Provider 明确需要外部安装时，才询问浏览器根目录。纯协议、`evidence-reuse`、`local-proof`、`pure-python`、离线样本任务不问；依赖安装仍是 `executionPolicy`。
+7. **实现请求的默认行为**：用户明确要求实现或完整代码时，直接选择 `shape: collector`；先生成稳定项目文件和离线向量证明，再处理当前 session/profile/track 等运行态。缺运行态只能阻塞 live acceptance，不能阻止先生成实现骨架。
 
 Plain terms:
 
@@ -49,11 +44,11 @@ First response and every subsequent gated turn begin with these four lines. `rou
 ```
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>
-nextAsk: <none | missing sample/context | executionPolicy | mutation-submit | scope-expansion | raw-secret-handling | case-writeback>
+nextAsk: <none | missing sample/context | executionPolicy | governance>
 nextRead: <paths per read-budget>
 ```
 
-Header meanings: `shape` is deliverable depth; `route` is the selected Provider or `evidence-reuse`; `nextAsk` is almost always `none` and names only the immediate missing technical input, execution hard stop, or scope/governance decision; `nextRead` lists exact paths allowed by the read budget. Per-shape scripts and gated overlays live in `references/methodology/success-shape-scripts.md`.
+Header meanings: `shape` is deliverable depth; `route` is the selected Provider or `evidence-reuse`; `nextAsk` is almost always `none` and names only the immediate missing technical input, execution hard stop, or `governance` decision (`governance` = business mutation, shape/budget expansion, raw-secret handling, case writeback — the Safety Checkpoints table owns the exact record/confirm mapping); `nextRead` lists exact paths allowed by the read budget. Per-shape scripts and gated overlays live in `references/methodology/success-shape-scripts.md`.
 
 ### Route Response Completeness
 
@@ -316,10 +311,10 @@ Writeback after eligible verified work: read `references/methodology/case-writeb
 | Provider `status!=complete` or acceptance fails | One corrective work order on same Provider | Switch only after naming a new mutation/gate blocker |
 | PZDS/Aliyun V2 collector lacks current profile/track/session | Generate the stable collector and offline proof, then name the exact missing current-state gate and capture it | Do not claim live complete; do not discard the implementation because state is absent |
 | Reusable protocol bundle disagrees with current evidence | Stop reuse immediately | Return to normal evidence routing; do not load a neighboring bundle as a shortcut |
-| `requestBudget.remaining=0` | Continue offline and put the exact requested increase in `nextAsk: scope-expansion` only when more live work is necessary | Do not replenish or reset the budget without user confirmation |
+| `requestBudget.remaining=0` | Continue offline and put the exact requested increase in `nextAsk: governance` only when more live work is necessary | Do not replenish or reset the budget without user confirmation |
 | `cleanup.complete=false` or live task resource remains | Cleanup or record approved retention IDs | Reject `status=complete` |
 
-When the same shape needs another Provider, keep the shape. Before a larger shape, name the proposed scope and wait for `nextAsk: scope-expansion` confirmation:
+When the same shape needs another Provider, keep the shape. Before a larger shape, name the proposed scope and wait for `nextAsk: governance` confirmation:
 
 ```
 blocker: <one sentence>

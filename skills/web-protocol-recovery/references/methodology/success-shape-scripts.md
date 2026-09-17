@@ -9,7 +9,7 @@ Emit four lines when starting work:
 ```text
 shape: <evidence|local-proof|compact-replay|collector>
 route: <selected Provider or evidence-reuse>
-nextAsk: <none | missing sample/context | executionPolicy | mutation-submit | scope-expansion | raw-secret-handling | case-writeback>
+nextAsk: <none | missing sample/context | executionPolicy | governance>
 nextRead: <paths per read-budget>
 ```
 
@@ -25,7 +25,7 @@ For a non-trigger boundary response, do not emit the four-line protocol header. 
 4. If a no-write Provider read is the smallest next read, read exactly one selected Provider `PROVIDER.md` or one bounded Provider-local reference; do not execute Provider tools.
 5. Capture real request, initiator, or precise blocker.
 6. When durable evidence is needed, default `projectRoot` to cwd (or the user-named folder) and write under `js_reverse_cache/**` without asking.
-7. A blocker may change the Provider route without changing shape. A larger deliverable requires `nextAsk: scope-expansion`; do not treat silence as permission to upgrade.
+7. A blocker may change the Provider route without changing shape. A larger deliverable requires `nextAsk: governance`; do not treat silence as permission to upgrade.
 
 ## local-proof
 
@@ -88,7 +88,7 @@ nextRead: <exactly one additional path>
 why: <smallest honest move>
 ```
 
-Continue with the same shape when only the Provider changes. Before a larger shape, state the additional deliverable and wait for `nextAsk: scope-expansion` confirmation.
+Continue with the same shape when only the Provider changes. Before a larger shape, state the additional deliverable and wait for `nextAsk: governance` confirmation.
 
 ## Policy: Case-Read Overlay
 

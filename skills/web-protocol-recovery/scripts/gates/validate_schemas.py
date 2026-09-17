@@ -472,6 +472,18 @@ def main() -> int:
 
     failures.extend(expect_valid(work_order, VALID_WORK_ORDER, "valid offline work order"))
     failures.extend(work_order_semantic_findings(VALID_WORK_ORDER, "valid offline work order"))
+    nv8_order = copy.deepcopy(VALID_WORK_ORDER)
+    nv8_order["activeProvider"] = {"id": "nv8", "role": "implementation", "strategy": None, "profile": None}
+    failures.extend(expect_valid(work_order, nv8_order, "nv8 provider work order"))
+    wmpf_order = copy.deepcopy(VALID_WORK_ORDER)
+    wmpf_order["activeProvider"] = {"id": "wmpf-address-adapter", "role": "reconnaissance", "strategy": None, "profile": None}
+    failures.extend(expect_valid(work_order, wmpf_order, "wmpf-address-adapter work order"))
+    nv8_result = copy.deepcopy(VALID_RESULT)
+    nv8_result["provider"] = {"id": "nv8", "role": "implementation", "strategy": None, "profile": None}
+    failures.extend(expect_valid(result, nv8_result, "nv8 provider result"))
+    wmpf_result = copy.deepcopy(VALID_RESULT)
+    wmpf_result["provider"] = {"id": "wmpf-address-adapter", "role": "reconnaissance", "strategy": None, "profile": None}
+    failures.extend(expect_valid(result, wmpf_result, "wmpf-address-adapter provider result"))
     failures.extend(expect_valid(checkpoint_validator, VALID_CHECKPOINT, "valid checkpoint"))
     failures.extend(checkpoint_semantic_findings(VALID_CHECKPOINT, "valid checkpoint"))
     bad_checkpoint = copy.deepcopy(VALID_CHECKPOINT)

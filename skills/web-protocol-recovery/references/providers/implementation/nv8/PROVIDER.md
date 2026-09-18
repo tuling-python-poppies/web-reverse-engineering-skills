@@ -27,6 +27,37 @@ NV8 provides:
 - **Configurable fingerprint**: navigator, screen, DPR, WebGL vendor/renderer, timing resolution, locale/timezone, sensors, media devices.
 - **Network capture**: `sandbox.networkRequests()` returns all fetch/XHR requests with method/URL/headers/body.
 
+## Resident Sign-Server Mode
+
+For a target that exposes a callable signer and will be called repeatedly, prefer the canonical
+runner in the NV8 repository:
+
+```bash
+node --experimental-vm-modules examples/sign-server.mjs \
+  --script ./target.js \
+  --asset app.wasm=./app.wasm \
+  --sign-entry makeSignature
+```
+
+The runner provides a stdio JSON-lines protocol with:
+
+- one FIFO queue per process, so asynchronous calls do not enter one Realm concurrently;
+- synchronous and Promise return values, with `null` and `undefined` preserved;
+- named `wasm`/`json`/text/binary resources instead of a first-asset convention;
+- configurable `sign`/`init`/`reset`/`health` entries and isolated sessions;
+- `reload` state preservation and `reset` to the session's initial state.
+
+This mode is generic at the protocol and lifecycle layer, not a universal website adapter. Each
+new target still needs a loadable or bundled script, a global entry, resource declarations,
+Realm/profile setup, session initialization, and target-specific fixed-vector checks. The runner
+only provides a restricted `require("fs").readFileSync` for declared resources; it does not
+resolve arbitrary npm/CommonJS modules or silently download assets. It also does not send the
+target's real business HTTP requests. Python remains the final live egress.
+
+Use the normal `EdgeSandbox` + `networkRequests()` path when acceptance depends on captured
+fetch/XHR/WebSocket side effects, rather than only on a returned signature value. Protocol
+details and the new-target checklist are in `docs/sign-server-protocol.md` in the NV8 repository.
+
 ## Environment Setup (Local npm install)
 
 NV8 is installed as a **project-local npm dependency**. Each project maintains its own `node_modules/nv8/`.
@@ -146,6 +177,9 @@ Use this only for troubleshooting Node version issues.
    network capture.
 8. Close the sandbox after each use: `await sandbox.close()` or
    `await using sandbox = ...` (Node 24 explicit resource management).
+9. For resident signer mode, validate the target entry/resource/session contract before wiring
+   a Python caller; do not call a generic runner complete until the target's fixed vectors and
+   final HTTP acceptance pass.
 
 ## Execution Pattern
 

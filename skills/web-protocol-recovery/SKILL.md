@@ -244,6 +244,15 @@ Read `references/methodology/provider-work-order.md` and issue one bounded work 
 | Portable signer/decoder/checksum/serializer in Python | `pure-python` | implementation mode | `references/providers/implementation/pure-python/PROVIDER.md`; Douyin BDMS maintenance is `profile: douyin-abogus-native` |
 | Stable browser-free Python delivery | `python-collector` | delivery | `references/providers/delivery/python-collector/PROVIDER.md` |
 
+For repeated calls into a target that exposes a callable signing function, the `nv8` Provider may
+use the repository's resident stdio JSON-lines runner (`examples/sign-server.mjs`). This is a
+generic execution protocol with FIFO scheduling, Promise-aware calls, named resources, and
+session lifecycle; it is not a zero-adaptation adapter for arbitrary websites. The target still
+needs a loadable/bundled script, an exposed entry, resource declarations, required Realm setup,
+and target-specific fixed-vector acceptance. Targets whose success depends on captured network
+side effects should use the normal `EdgeSandbox`/network-capture flow instead; the resident
+runner does not become the final HTTP client and Python still owns live egress.
+
 Chains are sequential and role-aware (typical: recon -> AST -> python-node/nv8/iv8/pure-python -> python-collector; verifier -> iv8/python-node/pure-python -> python-collector for captcha proof builders; akamai -> nv8/python-node/iv8 -> python-collector for host-bound collectors; river-security -> python-node with `strategy: env-patch` or iv8 -> python-collector for challenge state; reese84 -> iv8/python-node -> python-collector for challenge-cookie state and business admission; kasada -> nv8/python-node -> python-collector for browser-free collector artifacts; or evidence-reuse -> pure-python with `profile: douyin-abogus-native` -> python-collector when an existing pure implementation only needs adaptation). Validate each result before the next order. Implementation Providers produce narrow artifacts only; protocol owners keep acceptance while implementation runs; `python-collector` is delivery and owns final live egress.
 
 Provider handoff minimum:

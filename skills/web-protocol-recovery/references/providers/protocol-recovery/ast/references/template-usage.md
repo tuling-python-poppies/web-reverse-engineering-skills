@@ -26,6 +26,12 @@ Use Provider-local `../scripts/template-project/` when:
 3. sojson, obfuscator, awsc, and common behavior need independent regression fixtures;
 4. residue metrics or reference comparisons are part of the acceptance test.
 
+Use Provider-local `../scripts/string_table_recover.js` with the pinned Babel dependencies when:
+
+1. the bundle is a string-table family (obfuscator.io, jsjiami.v6/v7) and the first goal is a decoded string dump plus a call-site rewrite;
+2. the structural plugins would select `common` or cannot recover the strings themselves;
+3. execution of the extracted decoder and rotation surfaces is approved (`--execute-target-code --trusted`).
+
 Copy either template into the work order's approved `js_reverse_cache/ast/` path before use. Never run or edit the installed skill tree.
 
 ## First Pass
@@ -44,7 +50,15 @@ npm install
 npm run decode
 ```
 
-The first output should record the selected family/plugin and whether the result is readable-only or callable. The input and output paths must differ, and generated files must not overwrite the original source.
+For the string-table pass after copying it into the task cache:
+
+```bash
+node js_reverse_cache/ast/string_table_recover.js -i js_reverse_cache/source/original.js -o js_reverse_cache/ast/strings.recovered.js --dump js_reverse_cache/ast/string-table.json --execute-target-code --trusted
+```
+
+The copied script must resolve its pinned `@babel/parser`, `@babel/traverse`, and `@babel/types` from the task project's `node_modules` (keep the script under that project or set the task-local Node module path). If inspection reports multiple decoder/array pairs, review the candidates and select the exact pair explicitly, for example `--decoder Ki --array Ui`; do not choose by name alone.
+
+The first output should record the selected family/plugin and whether the result is readable-only or callable. The input and output paths must differ, and generated files must not overwrite the original source. When the selected plugin is `common` while the source still holds a large string table, treat it as a family miss, not as proof that the file is unobfuscated: run the string-table recovery flow in the skill-root `references/obfuscation-guide.md` before other passes.
 
 ## Continue Safely
 
@@ -56,8 +70,8 @@ The first output should record the selected family/plugin and whether the result
 
 ## Family Notes
 
-1. `sojson` and `sojsonv7`: identify string array, bootstrap, and decrypt function; execute only the minimal trusted bootstrap when the work order approves it; replace only confirmed decrypt calls/member reads.
-2. `obfuscator`: add dispatcher object handling, order table recognition, and loop tail cleanup before broad readability changes.
+1. `sojson` and `sojsonv7`: identify string array, bootstrap, and decrypt function; execute only the minimal trusted bootstrap when the work order approves it; replace only confirmed decrypt calls/member reads. jsjiami.v7 aliases one decoder under many local names and builds its rotation method names at runtime; the bundled plugin replaces only one name and its sandbox excludes the array function and rotation, so recover the string table first and never read a silent zero-replacement as "nothing to do".
+2. `obfuscator`: recover the string table first (array + decoder + rotation + alias closure); then add dispatcher object handling, order table recognition, and loop tail cleanup before broad readability changes.
 3. `awsc`: normalize expression-level control flow first, then handle nested blocks and sequence expressions under aggressive gating.
 4. `common`: keep low-risk literal cleanup, member normalization, string merging, and conservative dead-code cleanup.
 

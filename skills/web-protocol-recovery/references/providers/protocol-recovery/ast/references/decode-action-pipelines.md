@@ -20,22 +20,34 @@
 3. 哪个 plugin 真正改动了代码，就采用哪个结果
 4. 输出到 `output.js`
 
-主入口插件顺序大意如下：
+主入口插件顺序以 bundled 代码为准：
 
-1. `obfuscator`
-2. `ob2`
-3. `sojsonv7`
-4. `sojson`
-5. `awsc`
-6. `common`
+1. `sojsonv7`
+2. `sojson`
+3. `obfuscator`
+4. `awsc`
+5. `common`
 
-当前 bundled 模板不内置独立 `jjencode` plugin；如果命中 jjencode，先剥壳拿到普通 JavaScript，再重新进入上述家族识别。
+当前 bundled 模板不提供 `ob2` 插件，也不内置独立 `jjencode` plugin；如果命中 jjencode，先剥壳拿到普通 JavaScript，再重新进入上述家族识别。
 
-这个顺序体现了一个重要原则：
+判定规则是 `isOnlyFamilyMatch`：只有“恰好一个家族”分数达标才会选中该家族，多个家族同时达标时直接回退 `common`。这个顺序体现了一个重要原则：
 
 1. 先试特征强、收益高的家族
 2. 再试兜底型通用清理
 3. 如果某个家族没有命中，不要强行继续用它的假设做后续替换
+4. `plugin=common` 只代表“没有唯一命中的家族”，不代表文件没有混淆；字符串表型样本常因多家族同时命中而回退 `common`
+
+## 家族判定实测（两个真实生产样本）
+
+样本 A：`jsjiami.com.v7` 生成的业务 bundle（单行，约 2736 个 `_0x` 标识符）。
+样本 B：obfuscator.io 风格 `page_decrypt` 模块（字符串数组 467 项、双参数 decoder、rotation IIFE）。
+
+对两个样本执行 bundled `scripts/decode_action_scaffold.js`：
+
+- A：`sojsonv7=2`、`obfuscator=2`、`awsc=3` 同时达标 → `plugin=common`
+- B：`obfuscator=2`、`awsc=3` 同时达标 → `plugin=common`
+
+两个样本都没有 `split('|')`；B 也没有 `while { switch }`，但都具备“数组函数 + 双参数 decoder + rotation IIFE + 大量别名调用”的字符串表形态。`awsc` 只要 `void`、条件表达式、逻辑 `&&` 中任意两类出现就得 2 分，在真实混淆代码上几乎必然命中，是当前最常见的误路由来源。结论：字符串表型样本先按 skill 根目录的 `references/obfuscation-guide.md` 手工恢复字符串表，再评估是否需要家族 plugin；不要把 `plugin=common` 当作“无混淆”结论。
 
 ## 推荐设计
 
@@ -96,7 +108,7 @@ skill 中应保持这种拆法：
 2. `_0x...(...)` 高频调用
 3. 伴随自卫、debugger、console 封锁
 
-`_0x` 前缀不能单独作为任何家族证据。若同时出现 `split('|')`、已识别的 dispatcher table 或 `while { switch }`，再判为 obfuscator 或混合体；sojson/sojsonv7 至少再要求 `debugger`、`setInterval` 或已确认的前置 decrypt bootstrap 之一。只有一类证据时回退 common。
+`_0x` 前缀不能单独作为任何家族证据。字符串表形态（数组函数 + 双参数 decoder + rotation + 别名调用）是 obfuscator 类的主证据；`split('|')`、已识别的 dispatcher table、`while { switch }` 只是部分版本/混合体的附加形态，缺失它们不能排除 obfuscator。sojson/sojsonv7 至少再要求 `debugger`、`setInterval` 或已确认的前置 decrypt bootstrap 之一——注意 `setInterval` 也是 jsjiami.v7 的反调试特征，会把 jsjiami 误判为 sojsonv7。只有一类证据时回退 common。
 
 额外注意：
 
@@ -105,9 +117,13 @@ skill 中应保持这种拆法：
 3. 只替换已确认命中的 decrypt call，不要泛化替换普通调用
 4. 目录版模板默认关闭 bootstrap 执行；完成用户确认后才使用 `--execute-bootstrap`
 
+jsjiami.com.v6/v7 与 sojson 共享 `_0x` + 字符串表外形，但会自标识：`var _0xodf="jsjiami.com.v7"`，且该字符串同时是数组第 0 项（解码缓存的 key 盐）。jsjiami.v7 的 rotation IIFE 在运行时拼出方法名（`"tfi"+"hs"` 经 transform 得 `shift`），用 `.push(`/`.shift()` token 判断“没有 rotation”会漏掉真实顺序表。替换时必须按别名闭包处理：实测单个 decoder 有 42 个局部别名、823 个调用点；`plugins/sojson.js` 只按引用数选择一个名字，且 sandbox 只执行前 8 条 bootstrap 语句（不含数组函数与 rotation），对 jsjiami.v7 会静默零替换。先按 `references/obfuscation-guide.md` 手工恢复字符串表，再进入本 pipeline。
+
 ### obfuscator / obfuscator2
 
 仓库价值在于把“对象分发表 + 控制流存储 + 死代码清理”串成稳定顺序。
+
+字符串表恢复必须先于下面的结构变换：抽取数组函数、decoder、rotation 三个表面，在隔离 vm 中执行 rotation 后再按调用点解码，并按别名闭包替换全部 decoder 调用（完整流程与实测数据见 skill 根目录的 `references/obfuscation-guide.md`）。bundled `obfuscator` plugin 目前只做 dispatcher / 顺序表 / 成员规范化，不包含字符串表恢复；因此对字符串表样本，`plugin=obfuscator` 也不是“已还原字符串”的意思。
 
 推荐顺序：
 
@@ -123,12 +139,13 @@ skill 中应保持这种拆法：
 
 单文件和目录版模板默认只运行低风险规范化。`while-switch-unpack`、`merge-object`、`inline-dispatcher` 都属于显式 aggressive 变换，只有准备语义 fixture、保留中间产物并确认风险后才使用 `--aggressive` 或调用 `runObfuscator(ast, { aggressive: true })`。
 
-适合命中信号：
+适合命中信号（按实测强度排序）：
 
-1. 大量 `_0x` 前缀
-2. 大字符串数组
-3. `split('|')`
-4. `table['xx'](a, b)` / `table['xx']`
+1. 自赋值字符串数组函数 + 双参数 decoder 调用（`decoder(index, key)`）
+2. rotation / 自卫 IIFE：`for(;[];)`、`try/catch` 内 `push(shift())`，或运行时拼接方法名
+3. 同一 decoder 被大量局部别名引用
+4. 大量 `_0x` 前缀、`void 0`、`!![]`
+5. `split('|')`、dispatcher table、`while { switch }` 只出现在部分旧版本 / 混合体，缺失它们不能排除 obfuscator 家族
 
 ### awsc
 
@@ -149,7 +166,7 @@ skill 中应保持这种拆法：
 2. 大量三元、逻辑表达式、sequence expression
 3. `void 0`、逗号表达式、嵌套 block 很多
 
-自动路由至少要求 `void`、条件表达式、逻辑 `&&` 三类信号中的两类。只有大量 `void` 仍回退 common；嵌套 block 拍平只在 `--aggressive` 下启用。
+自动路由按 `familyScore` 计分：`void`、条件表达式、逻辑 `&&` 各记 1 分，任意两类出现即达标（实测在真实混淆样本上 awsc 恒为 3 分）。由于 scaffold 与目录模板都要求“只有一个家族达标”，awsc 的过度命中会把 obfuscator 等真实家族一起拖回 common；因此 awsc 分数只能当作结构提示，不能当作家族结论。字符串表型样本先恢复字符串表，再人工确认是否真的需要 awsc 结构整形；嵌套 block 拍平只在 `--aggressive` 下启用。
 
 ### jjencode
 

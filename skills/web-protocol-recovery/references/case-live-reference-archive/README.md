@@ -6,4 +6,6 @@ Read-only historical implementations restored from Git commit `1e719718a25a52776
 
 These files are study references only. They are not delivery code, not case entry points, and not active case assets. Read one only through a selected case's hash-bound `historicalReferences` after naming a concrete blocker. Never import or execute archive code, install its historical dependencies, copy it into delivery, or treat its former live result as current acceptance.
 
+The archive is not a self-contained runnable snapshot. A frozen `entry.py` may name historical assets that are intentionally absent because they are not listed in `MANIFEST.json`; those names are provenance context, not available runtime dependencies. Do not repair or remove such references in the frozen source, because each declared archive file is byte-bound to its historical Git source blob.
+
 Active case entries remain offline-only. Final live egress belongs to a task project `main.py` through the `python-collector` delivery Provider under a validated work order.

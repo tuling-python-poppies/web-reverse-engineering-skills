@@ -57,6 +57,12 @@
       "bytes": 5245
     },
     {
+      "caseRelative": "iv8/douyin-bdms/assets/bdms_1.0.1.19.js",
+      "archivePath": "references/case-live-reference-archive/iv8/douyin-bdms/assets/bdms_1.0.1.19.js",
+      "sha256": "e573032e559034a105f5e74b302078a605788f6bc8bd2b4ccf920d500cc49335",
+      "bytes": 147530
+    },
+    {
       "caseRelative": "iv8/geetest-v4-slider/entry.py",
       "archivePath": "references/case-live-reference-archive/iv8/geetest-v4-slider/entry.py",
       "sha256": "c6d499c9bd75a16a5ec238fb4702fabd2624508289e7b4f8dddf0c4241c5db68",
@@ -103,6 +109,12 @@
       "archivePath": "references/case-live-reference-archive/iv8/xhs-homefeed/entry.py",
       "sha256": "f657c8ac9d027b9aa86b6893c59169b44e3b56cdb17879ac683df94a71cf7895",
       "bytes": 12296
+    },
+    {
+      "caseRelative": "iv8/xhs-homefeed/assets/xhs_header_sign.js",
+      "archivePath": "references/case-live-reference-archive/iv8/xhs-homefeed/assets/xhs_header_sign.js",
+      "sha256": "dddcad548c35a5100326c8ac6c2696c53fda7ed8419a640ed2d9c9f689e9faba",
+      "bytes": 7200
     },
     {
       "caseRelative": "iv8/zhipin-stoken/entry.py",

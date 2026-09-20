@@ -25,11 +25,13 @@
 
 ## 配套mcps仓库地址
 
-https://gitee.com/tuling-python/web-reverse-mcps-tool
+- Gitee：https://gitee.com/tuling-python/web-reverse-mcps-tool
+- GitHub：https://github.com/tuling-python-poppies/web-reverse-mcps-tool
 
 ## 自研浏览器运行时框架代码仓库地址
 
-https://gitee.com/tuling-python/nv8
+- Gitee：https://gitee.com/tuling-python/nv8
+- GitHub：https://github.com/tuling-python-poppies/nv8
 
 
 

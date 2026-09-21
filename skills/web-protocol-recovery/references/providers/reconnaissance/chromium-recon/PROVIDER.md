@@ -22,7 +22,7 @@ Architecture boundary: web-protocol-recovery owns route choice, `projectRoot`, l
 On every **fresh Chromium** target, before writing the final collector or claiming complete protocol proof, complete both halves of a lightweight paired pass:
 
 1. **chrome-devtools** — page state, redirects, visible flow, one first-pass network view.
-2. **js-reverse** — initiator stack, source search, wrapper tracing, first mutation hypotheses.
+2. **js-reverse** — initiator stack, source search, wrapper tracing, first mutation hypotheses. When the stack is captured but the true write boundary / business frame stays unproven, read `references/initiator-entry-locating.md` for the `writer <- builder <- entry <- source` triage method.
 
 Rules:
 
@@ -48,6 +48,7 @@ Explicit `CloakBrowser`, `指纹浏览器`, `fingerprint browser`, or `stealth b
 | Signal | Reference | Boundary |
 |---|---|---|
 | Cloudflare Turnstile managed / 五秒盾 + explicit CloakBrowser code delivery | `references/cloakbrowser-turnstile-managed.md` | Browser runtime automation pattern only; not browser-free collector proof and not case-library eligible by itself. |
+| js-reverse half captured a real request + initiator/paused stack, but the true write boundary / business frame is still unproven amid framework noise, SDK shells, and business frames | `references/initiator-entry-locating.md` | Recon-scope write-boundary/entry proof only (`writer <- builder <- entry <- source`); does not own hook injection (browser-hooks), structural recovery (ast), or algorithm restoration. |
 
 ## Headless Acceptance (js-reverse normal Chrome only)
 

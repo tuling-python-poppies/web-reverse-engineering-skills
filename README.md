@@ -4,6 +4,7 @@
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-runtime--neutral-blue)](https://agentskills.io)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Gitee](https://img.shields.io/badge/Gitee-web--reverse--engineering--skills-c71d23?logo=gitee&logoColor=white)](https://gitee.com/tuling-python/web-reverse-engineering-skills)
+[![GitHub](https://img.shields.io/badge/GitHub-mirror-181717?logo=github&logoColor=white)](https://github.com/tuling-python-poppies/web-reverse-engineering-skills)
 
 这是一个面向兼容型 AI 编程代理的 Web 协议逆向 Skill 仓库。仓库把协议恢复、浏览器取证、验证码协议、JavaScript 运行时适配、Python 无浏览器交付，以及 Skill 自身的质量评估拆成可组合的工作能力。
 

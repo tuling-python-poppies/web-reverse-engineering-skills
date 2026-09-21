@@ -1,5 +1,10 @@
 # Web Reverse Engineering Skills
 
+[![Training institution](https://img.shields.io/badge/Training%20institution-%E5%9B%BE%E7%81%B5%E8%AF%BE%E5%A0%82-blue)](https://gitee.com/tuling-python)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-runtime--neutral-blue)](https://agentskills.io)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Gitee](https://img.shields.io/badge/Gitee-web--reverse--engineering--skills-c71d23?logo=gitee&logoColor=white)](https://gitee.com/tuling-python/web-reverse-engineering-skills)
+
 这是一个面向兼容型 AI 编程代理的 Web 协议逆向 Skill 仓库。仓库把协议恢复、浏览器取证、验证码协议、JavaScript 运行时适配、Python 无浏览器交付，以及 Skill 自身的质量评估拆成可组合的工作能力。
 
 仓库当前包含两个主要 Skill：

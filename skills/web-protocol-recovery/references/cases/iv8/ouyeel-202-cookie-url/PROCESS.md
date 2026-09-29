@@ -12,7 +12,7 @@ Handle an HTTP 202 challenge by manually executing inline and external scripts i
 
 - The first business POST may return HTTP 202 with challenge HTML.
 - The challenge page contains inline scripts and external JS that must execute in a specific order.
-- The runtime writes a cookie and hooks XHR URL generation.
+- The runtime writes a cookie and hooks XHR URL generation. The first provisional value (about 100 ms into the challenge) is the token the server accepts; later rewrites are timing-dependent evolution, not the acceptance token.
 
 ## Reconstruction Steps
 
@@ -24,10 +24,12 @@ Handle an HTTP 202 challenge by manually executing inline and external scripts i
 6. Dispatch a `load` event when the page runtime expects it.
 7. Create the target XHR inside iv8.
 8. Read the final suffixed URL from `__iv8__.netLog.entries`.
-9. Read `document.cookie` and replay the API with Python.
+9. Capture the first provisional cookie value at its setter (about 100 ms after the challenge starts), then replay the API with Python.
 
 ## Important Details
 
 - This case intentionally does not use `page.load`; it preserves a manual eval order discovered from the challenge page.
 - Do not skip the load event if the page runtime registers load handlers.
+- Do not re-read `document.cookie` for the replay token: the iv8 cookie jar round-trip can drop one character (write 235 → read 234); capture the value at the setter instead.
+- Acceptance is the first provisional write, not the post-fire final value; the cookie is avalanche-encoded, so server acceptance is the only valid comparison.
 - Runtime HTML/JS belongs in the current workspace `js_reverse_cache/`.

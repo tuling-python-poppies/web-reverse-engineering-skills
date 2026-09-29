@@ -931,7 +931,7 @@
             ],
             "manifest": {
                 "path": "iv8/ouyeel-202-cookie-url/case.json",
-                "sha256": "f66d0a70c64d53fafabf27ce40553a7e53fc3f1a01f2229cf95d2591970c1325"
+                "sha256": "89b6b9ee2a1413fad98f909a054dd8c95225cb280ce346e11be06c965d286640"
             },
             "verificationClass": "historical-user-attested",
             "selectableAs": "template"

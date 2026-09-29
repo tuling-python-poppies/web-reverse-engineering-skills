@@ -93,6 +93,7 @@ Run `py_compile` and deterministic/fixed-vector checks before approved live repl
 | Registry case disagrees with current evidence | Stop case reuse immediately | Return to hub evidence routing; no sibling case |
 | Import runs network or file I/O | Make import side-effect free; move I/O behind explicit call | Reject helper until import-safe |
 | Mixed session baseline (cookie/UA/storage from different captures) | Rebuild from one coherent capture | Blocker naming mismatched fields |
+| Replay cookie read back from `document.cookie` differs from what the runtime wrote | Capture the cookie at its setter (first provisional write); the iv8 cookie round-trip can drop one character (write N → read N-1) | Do not iterate on the replay value character by character |
 | Non-empty sign but semantic fail | Diff fixed vectors / response shape / challenge markers | Do not scale; return precise mismatch |
 | Needs browser recon for fresh baseline | Do not call browser MCP from iv8 | Return blocker for recon Provider work order |
 

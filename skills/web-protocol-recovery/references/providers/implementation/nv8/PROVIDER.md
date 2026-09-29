@@ -20,7 +20,7 @@ web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, a
 
 NV8 provides:
 
-- **Edge-compatible surface**: Window globals and prototype members aligned with real Edge across the 150 / 151 / 152 profiles; exact counts and diffs are locked by the NV8 repository baselines.
+- **Edge-compatible surface**: Window globals and prototype members aligned with real Edge across the 150–154 profiles; exact counts and diffs are locked by the NV8 repository baselines.
 - **Real rendering state machines**: Canvas 2D (getComputedStyle/measureText work), WebGL (vendor/renderer/extensions), AudioContext.
 - **Offline network replay**: configure exact HTTP responses via `replay`; no socket access.
 - **DOM/Worker/iframe Realms**: same-origin iframes, DedicatedWorker, SharedWorker, ServiceWorker with independent Realm isolation.
@@ -180,6 +180,10 @@ Use this only for troubleshooting Node version issues.
 9. For resident signer mode, validate the target entry/resource/session contract before wiring
    a Python caller; do not call a generic runner complete until the target's fixed vectors and
    final HTTP acceptance pass.
+10. Targets that probe `document.all` (e.g. River Security RS6) require `node --allow-natives-syntax`:
+    the host supplies `[[IsHTMLDDA]]` semantics via `%GetUndetectable`, and workers/child processes
+    must inherit the flag (`execArgv`; it cannot go in `NODE_OPTIONS`). Without it NV8 silently
+    falls back to a plain object and the target can reject a session with no visible runtime error.
 
 ## Execution Pattern
 
@@ -275,6 +279,7 @@ All applicable checks must pass:
 | Sensor throws in sandbox | Fill missing environment surfaces (navigator, canvas, timing) | If fingerprint plausibility ceiling reached, use a real browser export |
 | No POST captured | Extend the event-loop pump timeout (sensor POST is async) | Verify the sensor actually triggers a POST in a real browser first |
 | POST captured but server rejects | Check transport coherence (UA, TLS, IP binding) and fingerprint plausibility | Report egress/fingerprint residual risk |
+| Session silently rejected while the sandbox shows no runtime error | If the target probes `document.all`, relaunch with `--allow-natives-syntax` and confirm worker/child flag inheritance before touching fingerprint values | Report the flag as a hard runtime requirement; do not iterate on fingerprint values |
 
 ## Exit
 

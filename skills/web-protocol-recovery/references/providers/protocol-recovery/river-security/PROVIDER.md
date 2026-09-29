@@ -31,6 +31,7 @@ Use **River Security** in new prose. `RuiShu`, `Ruishu`, and `瑞数` are aliase
 | Evidence | Subtype | Next owner |
 |---|---|---|
 | `412` + `$_ts.nsd/cd` + `r="m"` + server `*S` + client `*T` cookie | RS6-style cookie challenge | `python-node` with `strategy: env-patch` or `iv8`; old `sdenv` path only after execution/dependency gates |
+| `202` seed page, script-derived `*P` cookie, page self-reload (no `412` / `*S` / `*T`) | RS6-style 202 challenge variant | `nv8` (`--allow-natives-syntax`) or `iv8`; acceptance is the **first provisional cookie write**, not the post-fire final value |
 | Two-stage cookie and protected XHR rewrites URL suffix | two-stage URL mutation | `iv8` after API-inventory gate |
 | Two-stage cookie and protected XHR rewrites URL plus headers | two-stage URL/header mutation | `iv8` after API-inventory gate |
 | Generated `*T` cookie then form POST returns HTML fragment | search/form replay | `iv8` -> `python-collector` |
@@ -48,6 +49,7 @@ Load `references/cases/registry.json` first; select at most one case. Stop reuse
 | `iv8-chng-ruishu-announcement` | `site:chng` announcement route plus two-stage cookie and XHR suffix | Historical iv8 implementation template; fresh target verification required |
 | `iv8-customs-ruishu` | `site:customs` plus two-stage cookie, URL, and header mutation | Historical iv8 implementation template; fresh target verification required |
 | `iv8-cqvip-journal-search` | `site:cqvip`, `412`, `$_ts.nsd/cd`, `r="m"`, generated `*T`, form search replay | Product family confirmed by current evidence; historical iv8 implementation template |
+| `iv8-ouyeel-202-cookie-url` | `site:ouyeel` plus `202` challenge, script-derived cookie, URL rewrite | Template only; a verified browser-free path is documented in the NV8 repository `docs/target-playbooks/ouyeel-rs6.md` (acceptance = first provisional cookie write) |
 
 ## Runtime Boundary
 
@@ -76,6 +78,7 @@ All applicable checks must pass:
 | Multiple River Security cases match | Ask for host/site/subtype discriminator | Do not select by registry order |
 | RS6 historical template suggests sdenv live HTTP | Convert to current Provider chain and Python final egress | Do not deliver Node-owned HTTP |
 | iv8 generates cookie but business still fails | Diff UA, referer, fetch metadata, stage order, URL/header mutation | Do not scale retries |
+| RS6 202 variant replays the post-fire final cookie and still fails | Re-mint and replay the first provisional write captured at the cookie setter (~100 ms after the challenge); server acceptance is the only valid comparison | Do not diff final-vs-final values (avalanche encoding) |
 | Camoufox requested without criteria | Use Chromium recon first | Escalate only after explicit engine/observer evidence |
 
 ## Exit

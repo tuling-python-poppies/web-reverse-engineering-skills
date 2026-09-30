@@ -594,7 +594,7 @@ const value = JSON.parse(result.value);
 - 通过动态构造器绕过 Node-global 隐藏；
 - 使用页面代码直接调用外部 Python 或 Node API。
 
-需要文件或网络的操作必须由宿主 runner 明确完成，并通过字符串、replay 或结构化参数交给沙箱。
+需要文件或网络的操作必须由宿主 runner 明确完成，并通过字符串、replay 或结构化参数交给沙箱（或经显式启用的 `networkRelay` 中继，见 8.6）。
 
 ## 8. 离线网络 replay
 
@@ -715,7 +715,7 @@ for (const request of requests) {
 | `bodyByteLength` | 原始完整 body 长度 |
 | `outcome` | `replayed`、`blocked` 或 `aborted` |
 
-`blocked` 表示没有匹配 replay，不表示发生了真实网络拒绝。沙箱始终不会打开 socket。捕获到的 header 只代表应用层 Request 数据，不虚构 TLS、代理、Chromium 网络进程自动添加的字段。
+`blocked` 表示没有匹配 replay，不表示发生了真实网络拒绝。沙箱进程始终不会打开 socket；需要真实网络出口时只能显式启用 `networkRelay` 外部中继（见 8.6），由独立 helper 进程完成。捕获到的 header 只代表应用层 Request 数据，不虚构 TLS、代理、Chromium 网络进程自动添加的字段。
 
 ### 8.5 捕获容量
 
@@ -730,6 +730,24 @@ networkCapture: {
 ```
 
 超出容量时按项目的有界记录策略处理。二进制请求必须使用 `body` 或 `bodyBase64`，不能把 `bodyText` 当作无损结果。
+
+### 8.6 外部传输中继（networkRelay）
+
+默认离线语义不变（引擎不打开 socket）。需要把 Realm 里的 `fetch`/XHR 换成真实网络出口时，可显式开启 `networkRelay`：命中 `origins` 前缀的请求交给外部 helper 进程真发，响应原样回喂页面；未命中的 URL 仍走 `replay`。
+
+```js
+networkRelay: {
+  enabled: true,
+  // helper 启动命令；引擎不解析 PATH，二进制请用绝对路径
+  command: ["C:\\Python313\\python.exe", "fetch_helper.py", "serve"],
+  // 只中继这些前缀的 URL，其余请求照旧走 replay
+  origins: ["https://challenges.cloudflare.com"],
+  timeoutMs: 30_000,
+}
+```
+
+helper 与引擎之间用 JSON Lines 协议（stdin/stdout）：请求为 `{ id, method, url, headers: [[name, value]], body: base64|null }`，响应为 `{ id, status, statusText, headers: [[name, value]], body: base64, url }` 或 `{ id, error }`。响应中的 `Set-Cookie` 会写入 Realm 的 cookie jar；helper 崩溃、超时或回错误时该请求回退 replay（fail-open），Worker Realm 的 fetch/XHR 同样接入中继。集成方在创建沙箱时配置；默认关闭，页面脚本不能启用。
+
 
 ## 9. 浏览器指纹 profile
 
@@ -769,7 +787,7 @@ fingerprint: {
 }
 ```
 
-Edge 151 只能显式 opt-in：
+Edge 151 / 152 只能显式 opt-in（也可直接使用冻结导出 `edge151Fingerprint` / `edge152Fingerprint`）：
 
 ```js
 fingerprint: {
@@ -777,23 +795,15 @@ fingerprint: {
 }
 ```
 
-当前只接受 `150` 和 `151`。如果自定义 UA，必须满足：
+当前 `browserMajorVersion` 接受 `150` 到 `154`（`154` 的 UA-CH 品牌串按真机实测校准；冻结指纹导出仍是 `edge-150`/`edge-151`/`edge-152`）。如果自定义 UA，必须满足：
 
-- 包含对应版本的 `Chrome/150.` 或 `Chrome/151.`；
-- 不包含 `Edg/` token；
-- 不把 Edge 151 profile 与 Chrome/150 UA 混用。
+- 包含对应版本的 `Chrome/<major>.`；
+- 如果包含 `Edg/<major>`，其主版本必须与 `Chrome/<major>` 一致；
+- 不把浏览器版本与 UA 主版本混用。
 
-151 profile 只提供已验证的 JavaScript-visible additions，包括：
+如果复制 profile 后修改版本号，必须同时提供匹配的 `navigator.userAgent`。
 
-- `FontFaceSet` 相关表面；
-- `WheelEvent.prototype.momentum`；
-- `TransitionEvent.prototype.animation`；
-- `AnimationEvent.prototype.animation`；
-- `PerformanceNavigationTiming.navigationId`；
-- `Intl.v8BreakIterator` 的兼容 adapter；
-- Edge 151 观测到的 `Error.stackTraceLimit` descriptor。
-
-这不是完整 Edge 151、Chromium 或 V8 版本切换。没有证据的 API 不会因为设置 `151` 而伪造出来。
+151/152 profile 只提供仓库已验证的 JavaScript-visible 版本差异，包括版本门控的全局、原型成员、Range、字体、Intl、Performance 和错误 descriptor。它们不是完整 Edge、Chromium 或 V8 版本切换；没有证据的 API 不会因为设置版本号而伪造出来。
 
 ### 9.3 Navigator 和 UA-CH
 
@@ -1229,9 +1239,9 @@ const result = await sandbox.evaluateModule(
 推荐分成两层：
 
 1. 沙箱内 JavaScript 负责生成签名、Cookie、请求 body 或请求 header；
-2. 外部、明确授权的 Node/Python 代码负责真实 HTTP，并把结果作为下一次 replay 或输入传回沙箱。
+2. 外部、明确授权的 Node/Python 代码负责真实 HTTP，并把结果作为下一次 replay 或输入传回沙箱（或经显式启用的 `networkRelay` 中继实时回喂，见 8.6）。
 
-这样可以同时保持浏览器 JavaScript 环境和 child-process 安全边界。沙箱本身不会自动把 `fetch()` 转成外部 HTTP。
+这样可以同时保持浏览器 JavaScript 环境和 child-process 安全边界。沙箱本身不会自动把 `fetch()` 转成外部 HTTP（显式启用 `networkRelay` 时例外：命中 origin 的 fetch/XHR 交给外部 helper，见 8.6）。
 
 ## 14. 生命周期、超时和资源限制
 

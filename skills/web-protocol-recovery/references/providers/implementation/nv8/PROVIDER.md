@@ -20,12 +20,31 @@ web-protocol-recovery owns intake, route choice, authorization, `projectRoot`, a
 
 NV8 provides:
 
-- **Edge-compatible surface**: Window globals and prototype members aligned with real Edge across the 150–154 profiles; exact counts and diffs are locked by the NV8 repository baselines.
+- **Edge-compatible surface**: Window globals and prototype members aligned with real Edge across the 150–154 runtime selection window (frozen fingerprint exports: 150/151/152; Edge 152 is the parity baseline with 154-calibrated UA-CH brands); exact counts and diffs are locked by the NV8 repository baselines.
 - **Real rendering state machines**: Canvas 2D (getComputedStyle/measureText work), WebGL (vendor/renderer/extensions), AudioContext.
-- **Offline network replay**: configure exact HTTP responses via `replay`; no socket access.
+- **Offline network replay**: configure exact HTTP responses via `replay`; the engine itself never opens sockets.
+- **Live transport (opt-in)**: with `networkRelay`, fetch/XHR matching the configured origins are delegated to an integrator-provided helper process and the real response is fed back into the page — see "Live Transport" below.
 - **DOM/Worker/iframe Realms**: same-origin iframes, DedicatedWorker, SharedWorker, ServiceWorker with independent Realm isolation.
 - **Configurable fingerprint**: navigator, screen, DPR, WebGL vendor/renderer, timing resolution, locale/timezone, sensors, media devices.
 - **Network capture**: `sandbox.networkRequests()` returns all fetch/XHR requests with method/URL/headers/body.
+
+## Live Transport (networkRelay, opt-in)
+
+Some targets drive a multi-round server choreography during artifact generation (Cloudflare
+Turnstile is the reference case: several `/fo/` + `/eb/` round-trips, each response generated
+live and session-bound). Static `replay` cannot serve those later rounds. For such targets NV8
+offers the opt-in `networkRelay` option: fetch/XHR matching the configured `origins` are handed
+to an integrator-provided helper process (JSON Lines over stdin/stdout) and the real response is
+fed back into the page — page JS keeps running inside NV8 (worker PoW, payload construction,
+multi-round flow control). Rules:
+
+- The engine still opens no sockets; live egress belongs to the helper. Keep the helper Python
+  (`curl_cffi` session + proxy + browser-coherent headers) so egress stays in the Python lane.
+- Sandbox-creation option only; page scripts and Agent patches cannot enable it. Default off.
+- Fail-open: helper crash / timeout / error falls back to `replay` (no page-visible network error).
+- Worker realms are covered too (worker-issued fetch/XHR is relayed).
+- Protocol, validation shape, and the Turnstile reference workflow: `docs/user-guide.md` §8.6 in
+  the NV8 repository.
 
 ## Resident Sign-Server Mode
 
@@ -105,7 +124,7 @@ import { edge150Fingerprint } from 'nv8/fingerprint/edge-150';
 ```
 
 Do not import `nv8/src/public/...` subpaths: the package `exports` map intentionally
-exposes only the root plus `./fingerprint/*`, `./protocol`, and `./collector`.
+exposes only the root plus `./fingerprint/*`, `./protocol`, `./collector`, and `./agent`.
 
 ### Node Version Policy
 
@@ -173,8 +192,9 @@ Use this only for troubleshooting Node version issues.
    execution.
 6. Use `replay: [...]` to provide offline HTTP responses (Worker scripts, fetch data,
    XHR endpoints).
-7. Final live egress is Python HTTP; NV8 only generates sensor/collector bodies through
-   network capture.
+7. Final live egress is Python: either Python forwards bodies captured through `network
+   capture`, or the explicit `networkRelay` helper (also Python, integrator-provided) serves
+   matched requests live. NV8 itself never opens sockets.
 8. Close the sandbox after each use: `await sandbox.close()` or
    `await using sandbox = ...` (Node 24 explicit resource management).
 9. For resident signer mode, validate the target entry/resource/session contract before wiring

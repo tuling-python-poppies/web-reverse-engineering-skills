@@ -132,9 +132,9 @@ exposes only the root plus `./fingerprint/*`, `./protocol`, `./collector`, and `
   18/20: the executor and NV8 run there.
 - **Advisory only**: Node 22+ is recommended for fingerprint-order-sensitive comparisons
   (Node 18/20 cannot order Window globals exactly like Edge). This does not gate work.
-- This Provider's Python helper chains require **Node 24** (`NVM_HOME` → `v24.*`, then
-  FNM/PATH with a version check) and fail closed when it is missing; the `>=18.18.0`
-  floor above applies to the NV8 package itself, not to these helpers.
+- This Provider's Python helper chains **prefer Node 24** (`NVM_HOME` → `v24.*`, then
+  FNM/PATH with a version check) and fall back to any supported `>=18.18.0` runtime;
+  runtimes below the floor fail closed with a clear message.
 - Versions below 18.18 must fail closed with a clear message; never silently run an
   unsupported runtime.
 
@@ -152,7 +152,7 @@ Users do not need to manually run `nvm use 24` before execution — Python handl
 
 - NVM: `nvm install 24`
 - FNM: `fnm install 24`
-- Manual: Download from https://nodejs.org/ (24.x LTS required by the Python helper chains)
+- Manual: Download from https://nodejs.org/ (24.x LTS recommended; 18.18+ supported)
 
 ### Environment Validation
 
@@ -177,9 +177,10 @@ Use this only for troubleshooting Node version issues.
 
 ## Core Rules
 
-1. Validate the Node runtime before any NV8 work (package floor >= 18.18; the Python
-   helper chains require Node 24 and fail closed without it; 22+ is advised for
-   fingerprint-order-sensitive runs); exit with a clear error when below the floor.
+1. Validate the Node runtime before any NV8 work (package floor >= 18.18; helper
+   chains prefer Node 24 and otherwise take the first supported ≥18.18 runtime; 22+ is
+   advised for fingerprint-order-sensitive runs); exit with a clear error when below
+   the floor.
 2. NV8 is installed as a **local npm dependency**. Run `npm install` to set up
    `node_modules/nv8/` (`"nv8": "file:<nv8-root>"` in `package.json`).
 3. Import the API from the package root (see "Importing the API"):

@@ -183,6 +183,8 @@ def build_field21(
         raise ValueError("local_suffix must be 8 lowercase hexadecimal chars")
     if algorithm == "feilin142":
         return build_field21_feilin142(local_suffix)
+    if algorithm == "feilin033":
+        return build_field21_feilin033(local_suffix)
     if algorithm is not None:
         raise ValueError(f"unknown field21 algorithm {algorithm!r}")
     mixed = bytes(
@@ -219,6 +221,34 @@ def build_field21_feilin142(local_suffix: str) -> str:
             out.append(nibble ^ 6)
         else:
             raise AssertionError("unreachable")
+    return base64.b64encode(bytes(out)).decode("ascii")
+
+
+def build_field21_feilin033(local_suffix: str) -> str:
+    """FeiLin033 field21: per-position xor map shared by digit/letter branches."""
+    if len(local_suffix) != 8 or any(ch not in "0123456789abcdef" for ch in local_suffix):
+        raise ValueError("local_suffix must be 8 lowercase hexadecimal chars")
+    # (digit_xor, digit_add, letter_xor, letter_add)
+    rules = (
+        (4, 55, 4, 160),
+        (8, 0, 8, 6),
+        (9, 0, 9, 4),
+        (5, 0, 5, 3),
+        (3, 96, None, None),
+        (7, 0, None, None),
+        (4, 97, None, None),
+        (4, 105, None, None),
+    )
+    out = bytearray()
+    for pos, char in enumerate(local_suffix):
+        nibble = int(char, 16)
+        digit_xor, digit_add, letter_xor, letter_add = rules[pos]
+        if char.isdigit():
+            out.append((digit_add + (nibble ^ digit_xor)) & 255)
+        else:
+            if letter_xor is None or letter_add is None:
+                raise ValueError(f"feilin033 position {pos} currently only supports digits")
+            out.append((letter_add + (ord(char) ^ letter_xor)) & 255)
     return base64.b64encode(bytes(out)).decode("ascii")
 
 

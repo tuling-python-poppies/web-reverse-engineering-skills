@@ -188,6 +188,9 @@ live state. Keep the split explicit:
 - `t001_profile_refresh.py` is an updater, not a bootstrapper; it still needs a
   current profile package with `combat511`/`combat504` and an accepted movement
   seed.
+- The updater can run against raw CDP captures or against nv8-captured rounds
+  (`--resume-artifact`); both share the same online `T001/true` gate. Cohort
+  rollover can require 12 -> 24 -> 48 round escalation; never merge cohorts.
 - FeiLin127 `field21` needs at least twelve capture rounds; three rounds and
   some six-round sets remain ambiguous.
 

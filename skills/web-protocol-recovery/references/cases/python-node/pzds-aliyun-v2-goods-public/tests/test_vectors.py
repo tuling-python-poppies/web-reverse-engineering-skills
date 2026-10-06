@@ -40,6 +40,10 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
                 mask = bytes.fromhex(item["xorMaskHex"])
             self.assertEqual(entry.build_field21(item["suffix"], item["sourceKey"], mask), item["expected"])
 
+    def test_field21_feilin033_rejects_letters_after_position_3(self) -> None:
+        with self.assertRaises(ValueError):
+            entry.build_field21("1111111a", "", b"", algorithm="feilin033")
+
     def test_rpc_signature(self) -> None:
         sample = self.vectors["rpcSignature"]
         self.assertEqual(entry.sign_rpc(sample["params"], sample["secret"], sample["method"]), sample["expected"])
@@ -424,6 +428,9 @@ class PzdsAliyunV2Vectors(unittest.TestCase):
         self.assertNotIn("js_reverse_cache/" + "pzds_session.json", process)
         self.assertNotIn("update_" + "t001_profile.py", process)
         self.assertIn("raw CDP", process)
+        self.assertIn("nv8", process)
+        self.assertIn("capture_pzds_nv8.py", process)
+        self.assertIn("aliyun-v2-pzds.md", process)
 
 
 if __name__ == "__main__":

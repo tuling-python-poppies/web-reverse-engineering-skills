@@ -152,6 +152,14 @@ Requirements:
   only when capture or online `T001/true` validation fails.
 - `websocket-client` is the CDP dependency. Browser binaries are local tools;
   the case library stores neither browser profiles nor CDP artifacts.
+- Browser-free alternative (validated): the same updater also runs against
+  nv8-captured rounds through `--resume-artifact`. The project-side driver
+  `capture_pzds_nv8.py` (entry `nv8版本/main.py`) executes the challenge page in
+  an nv8 EdgeSandbox, relays page fetch/XHR to a Python helper, assembles the
+  captured init/log2/token rounds, then calls the unchanged updater. It needs no
+  browser or `websocket-client`; use raw CDP only when nv8 capture is
+  unavailable or fails acceptance. Worked example: nv8 repository
+  `docs/target-playbooks/aliyun-v2-pzds.md`.
 - CDP browser lifecycle is part of acceptance: close the CDP WebSocket, then
   terminate the browser process; on Windows, kill the process tree if normal
   termination times out. Do not claim complete while a refresh browser remains
@@ -275,6 +283,36 @@ unstable. Fix, in order: add the non-classic label, add redacted vectors,
 validate with `resume-artifact --dry-run` and online `T001/true`, then run the
 full collector path and business replay.
 
+### FeiLin033 field21 per-position map
+
+FeiLin033 again left the classic family. The validated rule for
+`1.5.1/feilin033.<64 hex>` (suffix = last 8 hex chars of `session_id`; digit and
+letter branches share the per-position xor constant):
+
+```text
+position 0  digit  55+(n^4) ;   letter  (ord(char)^4)+160
+position 1  digit  n^8 ;        letter  (ord(char)^8)+6
+position 2  digit  n^9 ;        letter  (ord(char)^9)+4
+position 3  digit  n^5 ;        letter  (ord(char)^5)+3
+position 4  96+(n^3) ; position 5  n^7
+position 6  97+(n^4) ; position 7  105+(n^4)
+```
+
+Letters only occur at positions 0..3; positions 4..7 must raise on letters. The
+digit xor constants match the FeiLin128 digit family, a useful cross-generation
+prior when fitting the letter branches. Publish with the algorithm label
+`feilin033`, redacted vectors, full inliers on the selected captures, and online
+`T001/true` before business replay.
+
+### FeiLin038/039 returned to classic
+
+Current cohorts `feilin038`/`feilin039` fit the classic `sourceKey/xorMask`
+family again (every position resolves against nine same-cohort samples), so the
+existing classic inference handles them without a new generator. During cohort
+rollover the server hands out both versions at random: pin the stale-message
+version, capture until that cohort reaches the requested rounds (escalate
+12 -> 24 -> 48), and never merge cohorts into one candidate profile.
+
 ## Gate Family
 
 Primary: **verifier** (`T001/true`).
@@ -349,7 +387,11 @@ assembled in the `web-protocol-recovery-simple` layout:
 - `utils/pzds_goods.py` for business replay after `T001/true`
 - `utils/aliyun_t001_runner.py`, `utils/aliyun_v2_core.py`, and
   `utils/aliyun_v2/protocol.py` for the Aliyun V2 protocol
-- `utils/t001_profile_refresh.py` for CDP profile refresh
+- `utils/t001_profile_refresh.py` for profile refresh: raw CDP fallback plus
+  `--resume-artifact` ingestion of nv8-captured rounds
+- optional browser-free refresh backend (`nv8版本/main.py`,
+  `capture_pzds_nv8.py`, nv8 `src/capture.mjs`, and the Python relay helper)
+  when the project ships the nv8 dependency
 - `utils/pzds_wasm_sign.mjs`, `505c6f51.wasm`,
   `pzds_wasm_glue_64c90705.mjs`, `data_builder.js`, and `vm_codec.js` as
   narrow local helper assets
@@ -379,7 +421,7 @@ Vectors cover:
 - goods body SHA-256 and request shape
 - field21 classic vectors
 - FeiLin generation-specific non-classic field21 vectors (`feilin128`,
-  `feilin131`, `feilin142`, etc.)
+  `feilin131`, `feilin142`, `feilin033`, etc.)
 - Aliyun RPC HMAC-SHA1
 - deviceToken checksum / AES roundtrip
 - `data_builder.js` fixed output
@@ -426,17 +468,20 @@ Order:
    only after the exact raw-secret confirmation to
    `js_reverse_cache/private/pzds/session.json`.
 3. **Profile and movement bootstrap** - if no private FeiLin profile exists,
-   first use a current CDP verifier round to collect `DeviceConfig`,
+   first use a current capture round (nv8 preferred, raw CDP fallback) to
+   collect `DeviceConfig`,
    `InitCaptchaV2`, browser `Log2`, sparse token, the combat baselines needed by
    Log3, and an accepted movement seed. Store the coherent package only under
    project-private paths. The updater cannot create this package from an empty
    profile. If a private seed profile exists, the CDP updater may refresh
    `fullDeviceFields`, `tokenFields`, `field21`, and version while retaining
    verified combat baselines and the accepted movement seed.
-4. **Refresh validation** - run preflight version sampling, then CDP capture.
-   Default to ordinary Chrome. Fall back to CloakBrowser only after the ordinary
-   Chrome candidate fails capture or online `T001/true`. Every candidate profile
-   must pass online `T001/true` before any write.
+4. **Refresh validation** - run preflight version sampling, then capture.
+   Prefer the browser-free nv8 backend (`capture_pzds_nv8.py`) when the project
+   ships it; otherwise default to ordinary Chrome via raw CDP. Fall back to
+   CloakBrowser only after the ordinary Chrome candidate fails capture or online
+   `T001/true`. Every candidate profile must pass online `T001/true` before any
+   write.
 5. **Trigger and parse** - signed `goodsPublic/page` returns challenge HTML;
    parse `requestInfo` (`sceneId`, `traceid`, `token`, `userId`, `userUserId`,
    optional `type`, `data`, `refer`).

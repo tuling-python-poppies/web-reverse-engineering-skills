@@ -174,6 +174,7 @@ Use this only for troubleshooting Node version issues.
 | Complete usage documentation | `sandbox_manual.md` |
 | Sensor generator template | `examples/sensor-generator-template.mjs` |
 | Node diagnostic tool | `node-version-check.js` |
+| Worked target playbooks (incl. Aliyun Captcha V2 / PZDS, Cloudflare Turnstile) | `<nv8-root>/docs/target-playbooks/` |
 
 ## Core Rules
 
@@ -205,6 +206,26 @@ Use this only for troubleshooting Node version issues.
     the host supplies `[[IsHTMLDDA]]` semantics via `%GetUndetectable`, and workers/child processes
     must inherit the flag (`execArgv`; it cannot go in `NODE_OPTIONS`). Without it NV8 silently
     falls back to a plain object and the target can reject a session with no visible runtime error.
+11. Page `<script>` loading is replay-only: `networkRelay` covers Realm fetch/XHR (including
+    Worker fetch/XHR), not `<script src>` loads. Scripts whose URL is only known at runtime need
+    the host-side loader-shim pattern below instead of waiting for the dynamic-script observer.
+
+## Page Script Boundary (Validated)
+
+Page scripts resolve through offline replay with an **exact URL match**; a missing record makes
+the script fail with `No offline replay entry for page script` - a relay miss does not fall back
+here. For targets that build script tags at runtime (SDK chunk loaders, per-session CDN paths),
+install a host loader shim before the page scripts run:
+
+1. intercept `Node.prototype.appendChild` / `insertBefore` for SCRIPT nodes with an `http(s)` `src`;
+2. fetch the source through the Realm (`fetch`, which does use `networkRelay` when enabled);
+3. execute it (`indirect eval` for classic scripts) and dispatch `load` / `error` on the original
+   node so the page's loader callbacks still fire.
+
+Two traps seen in practice: parser-time inline scripts can append scripts **before** the
+dynamic-script observer exists (execute them yourself; the observer will never see the append),
+and never insert the rewritten node into the DOM (the observer may execute it a second time once
+it is active). Worked example: `docs/target-playbooks/aliyun-v2-pzds.md`.
 
 ## Execution Pattern
 

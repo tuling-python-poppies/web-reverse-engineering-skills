@@ -596,6 +596,8 @@ DeviceConfig.version
 # 仅在用户明确授权的目标项目目录中执行其更新器。
 ```
 
+更新器可能提供两种采集后端（同一 updater、同一在线 `T001/true` 验收）：raw CDP（普通 Chrome → CloakBrowser 回退）与**纯 nv8 无浏览器采集**（`capture_pzds_nv8.py` 采集 → `--resume-artifact` 交回 updater；实测 `T001/true` 且业务 `success=true`，见 nv8 仓 `docs/target-playbooks/aliyun-v2-pzds.md`）。审计时确认后端与当前代际的 field21 家族匹配：feilin033 为逐位置 digit/letter 构造器，feilin038/039 回归经典 `sourceKey/xorMask`；滚动升级期锁定版本采样不足时应加大轮数（12→24→48），不得混合 cohort。
+
 安全契约：
 
 1. 版本相同时不启动浏览器，也不改 profile。

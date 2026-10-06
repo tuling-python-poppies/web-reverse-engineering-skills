@@ -178,6 +178,42 @@
       "expected": "YgJsZgUIQwE=",
       "family": "feilin142",
       "algorithm": "feilin142"
+    },
+    {
+      "suffix": "2d4b5363",
+      "expected": "PXINamYEY3A=",
+      "family": "feilin033",
+      "algorithm": "feilin033"
+    },
+    {
+      "suffix": "2ca31099",
+      "expected": "PXFsBmIHbnY=",
+      "family": "feilin033",
+      "algorithm": "feilin033"
+    },
+    {
+      "suffix": "9fcd8523",
+      "expected": "RHRuZGsCZ3A=",
+      "family": "feilin033",
+      "algorithm": "feilin033"
+    },
+    {
+      "suffix": "c13d2722",
+      "expected": "BwkKZGEAZ28=",
+      "family": "feilin033",
+      "algorithm": "feilin033"
+    },
+    {
+      "suffix": "dd9a3317",
+      "expected": "AHIAZ2AEZmw=",
+      "family": "feilin033",
+      "algorithm": "feilin033"
+    },
+    {
+      "suffix": "caa06196",
+      "expected": "B29sBWUGbms=",
+      "family": "feilin033",
+      "algorithm": "feilin033"
     }
   ],
   "rpcSignature": {

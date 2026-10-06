@@ -1,18 +1,18 @@
 {
  "schemaVersion": "web-protocol-recovery-offline-proof-summary",
  "caseId": "python-node-pzds-aliyun-v2-goods-public",
- "executedAt": "2026-08-20",
+ "executedAt": "2026-10-06",
  "passed": true,
  "activeScope": "offline-only",
-  "entrySha256": "716c33fabe51effb059af63d4f81c35762c50610628bd4352f178e78e2de84c9",
-  "testArtifactSha256": "dd7b54d7bcfe515508eea580efa5b1b334844b45bb1d7ccafe840c226ecc69f8",
+  "entrySha256": "c1c4cf29c3618fdb0194374288ed232900697608c7a7b6c159fa5ba4b87c77a2",
+  "testArtifactSha256": "6df065650e0ac03bd4d4369720ac36bf521a58ea7e4b639ecb81a728fb9d6381",
   "targetCodeExecution": "blocked-by-default",
   "assertions": [
-   "offline request, field21, RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, and challenge-parser vectors pass without target-code execution",
+   "offline request, classic field21, generation-specific field21 (feilin142/feilin033), RPC, token, DeviceConfig, supported 111/133/142 profile shapes, Log2/Log3 envelope, verify params, and challenge-parser vectors pass without target-code execution",
    "provider-runner contract accepts bounded data/arg and v18 WASM artifact outputs only when an approved runner is explicitly supplied",
   "entry import and case-local tests perform no live network egress",
   "persisted PZDS profile/session state is loaded only after raw-secret-handling confirmation",
-  "profile refresh process uses CDP with ordinary Chrome first and optional CloakBrowser fallback; legacy browser automation stacks are not part of this case",
+  "profile refresh uses raw CDP with ordinary Chrome first and optional CloakBrowser fallback (websocket-client), or the validated browser-free nv8 backend (capture_pzds_nv8.py -> --resume-artifact against the same updater); legacy browser automation stacks are not part of this case",
   "track-template.json is an offline shape guard only; live runs require a project-private accepted track seed or a freshly captured seed"
  ],
  "historicalLiveProofIsCurrentAcceptance": false
